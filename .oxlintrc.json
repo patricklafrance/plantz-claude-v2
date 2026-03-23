@@ -1,0 +1,22 @@
+{
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "categories": {
+        "suspicious": "warn",
+        "perf": "warn"
+    },
+    "rules": {
+        "oxc/no-barrel-file": ["error", { "threshold": 1 }],
+        "eslint/no-console": "warn",
+        "eslint/eqeqeq": "error",
+        "eslint/prefer-const": "warn",
+        "import/no-cycle": "error",
+        "import/no-duplicates": "warn",
+        "import/no-unassigned-import": "off",
+        "react/jsx-key": "error",
+        "react/rules-of-hooks": "error",
+        "react/react-in-jsx-scope": "off",
+        "typescript/consistent-type-imports": "warn",
+        "typescript/no-explicit-any": "warn",
+        "jsx-a11y/no-autofocus": "off"
+    }
+}

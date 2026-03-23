@@ -1,0 +1,6 @@
+@import "../../../../packages/components/src/styles/globals.css";
+
+@source "../../../../packages/components/src/**/*.{ts,tsx}";
+@source "../../../../packages/core-plants/src/**/*.{ts,tsx}";
+@source "../../landing-page/src/**/*.{ts,tsx}";
+@source "../../vacation-planner/src/**/*.{ts,tsx}";

@@ -1,0 +1,20 @@
+[02:18:48.041] [INFO] storybook v10.2.15
+[02:18:49.673] [DEBUG] Getting package.json info for C:/Dev/poc/plantz-claude/apps/today/storybook/package.json...
+[02:18:54.792] [DEBUG] Serving static files from [36mapps/today/storybook/.storybook/public[39m at [36m/[39m
+[02:18:54.792] [INFO] Starting...
+[02:18:56.384] [DEBUG] Starting preview..
+[02:18:59.050] [DEBUG] Using tsconfig paths for react-docgen
+[02:18:59.392] [INFO] [43mVite[49m Re-optimizing dependencies because lockfile has changed
+[02:18:59.640] [ERROR] [38;2;241;97;97mError: listen EADDRINUSE: address already in use :::6006[39m
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at _Polka.listen (file:///C:/Dev/poc/plantz-claude/node_modules/.pnpm/storybook@10.2.15_@testing-_ebfcaa1e995494ae702ff582ba920ea5/node_modules/storybook/dist/core-server/index.js:6492:110)
+    at file:///C:/Dev/poc/plantz-claude/node_modules/.pnpm/storybook@10.2.15_@testing-_ebfcaa1e995494ae702ff582ba920ea5/node_modules/storybook/dist/core-server/index.js:7251:39
+    at new Promise (<anonymous>)
+    at storybookDevServer (file:///C:/Dev/poc/plantz-claude/node_modules/.pnpm/storybook@10.2.15_@testing-_ebfcaa1e995494ae702ff582ba920ea5/node_modules/storybook/dist/core-server/index.js:7250:19)
+    at async buildOrThrow (file:///C:/Dev/poc/plantz-claude/node_modules/.pnpm/storybook@10.2.15_@testing-_ebfcaa1e995494ae702ff582ba920ea5/node_modules/storybook/dist/core-server/index.js:4504:12)
+    at async buildDevStandalone (file:///C:/Dev/poc/plantz-claude/node_modules/.pnpm/storybook@10.2.15_@testing-_ebfcaa1e995494ae702ff582ba920ea5/node_modules/storybook/dist/core-server/index.js:7611:66)
+    at async withTelemetry (file:///C:/Dev/poc/plantz-claude/node_modules/.pnpm/storybook@10.2.15_@testing-_ebfcaa1e995494ae702ff582ba920ea5/node_modules/storybook/dist/_node-chunks/chunk-JGB33OAY.js:218:12)
+[02:18:59.647] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.

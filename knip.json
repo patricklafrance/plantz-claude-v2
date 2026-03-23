@@ -1,0 +1,29 @@
+{
+    "$schema": "https://unpkg.com/knip@5/schema-jsonc.json",
+    "workspaces": {
+        ".": {
+            "entry": ["scripts/*.ts"],
+            "ignoreDependencies": ["netlify-cli", "agent-browser"]
+        },
+        "apps/host": {
+            "entry": ["src/index.tsx", "rsbuild.build.ts", "rsbuild.dev.ts"],
+            "ignoreDependencies": ["@tailwindcss/postcss", "@workleap/browserslist-config", "tailwindcss"]
+        },
+        "apps/storybook": {
+            "ignoreDependencies": ["@packages/components", "@packages/core-plants", "@squide/env-vars", "@squide/firefly", "@squide/launch-darkly", "@squide/msw", "@tanstack/react-query", "@workleap/logging", "react-router", "playwright"]
+        },
+        "apps/management/storybook": {
+            "ignoreDependencies": ["@packages/components", "@packages/core-plants", "launchdarkly-js-client-sdk"]
+        },
+        "apps/today/storybook": {
+            "ignoreDependencies": ["@packages/components", "@packages/core-plants", "launchdarkly-js-client-sdk"]
+        },
+        "packages/components": {
+            "entry": ["rslib.build.ts", "rslib.dev.ts", "postcss.config.mjs"],
+            "ignoreDependencies": ["@tailwindcss/postcss"]
+        },
+        "packages/storybook": {
+            "ignoreDependencies": ["@packages/components", "@packages/core-module", "@packages/core-plants", "launchdarkly-js-client-sdk"]
+        }
+    }
+}

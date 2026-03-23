@@ -1,0 +1,44 @@
+{
+    "search.exclude": {
+        "**/node_modules*": true,
+        "**/dist*": true
+    },
+
+    // Formatting — handled by oxfmt via the oxc extension
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.formatOnSave": true,
+    "[html]": {
+        "editor.formatOnSave": false
+    },
+
+    // Languages
+    "js/ts.preferences.useAliasesForRenames": false,
+    "js/ts.tsdk.path": "node_modules\\typescript\\lib",
+
+    "css.validate": false, // Disables the default validation — Tailwind CSS uses non-standard syntax
+
+    // Settings for third parties that are frequently used
+    "files.associations": {
+        "*.snap": "javascriptreact",
+        "turbo.json": "jsonc"
+    },
+
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "file": ".github/copilot/commit-message-instructions.md"
+        }
+    ],
+
+    "chat.useAgentSkills": true,
+
+    "json.schemas": [
+        {
+            "fileMatch": ["chromatic.config.json"],
+            "url": "https://www.chromatic.com/config-file.schema.json"
+        },
+        {
+            "fileMatch": ["knip.json"],
+            "url": "https://unpkg.com/knip@5/schema-jsonc.json"
+        }
+    ]
+}

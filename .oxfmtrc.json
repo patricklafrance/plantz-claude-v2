@@ -1,0 +1,15 @@
+{
+    "$schema": "./node_modules/oxfmt/configuration_schema.json",
+    "ignorePatterns": [".agents/skills", ".claude/skills", "skills-lock.json"],
+    "printWidth": 300,
+    "singleQuote": false,
+    "semi": true,
+    "trailingComma": "all",
+    "sortTailwindcss": {},
+    "sortImports": {
+        "internalPattern": ["@packages/", "@modules/", "@apps/"]
+    },
+    "sortPackageJson": {
+        "sortScripts": false
+    }
+}

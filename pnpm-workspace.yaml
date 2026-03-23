@@ -1,0 +1,20 @@
+packages:
+    - apps/**
+    - packages/**
+
+onlyBuiltDependencies:
+    - "@parcel/watcher"
+    - agent-browser
+    - core-js
+    - edgedriver
+    - esbuild
+    - geckodriver
+    - msw
+    - netlify-cli
+    - playwright
+    - protobufjs
+    - sharp
+    - unix-dgram
+
+patchedDependencies:
+    playwright-core@1.52.0: patches/playwright-core@1.52.0.patch
