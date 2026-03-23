@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { sliceFiles } from "../../adlc-verification/planner/slice-files.mjs";
+import { loadFixture } from "../fixtures/load.mjs";
 
 describe("slice-files", () => {
     let tmp;
@@ -33,7 +34,7 @@ describe("slice-files", () => {
 
     it("should pass when at least one .md slice exists", () => {
         mkdirSync(join(tmp, ".adlc/slices"), { recursive: true });
-        writeFileSync(join(tmp, ".adlc/slices/01-first.md"), "# Slice 1\n");
+        writeFileSync(join(tmp, ".adlc/slices/01-plant-list.md"), loadFixture("planner", "slice-01-plant-list.valid.md"));
         expect(sliceFiles(tmp)).toHaveLength(0);
     });
 });

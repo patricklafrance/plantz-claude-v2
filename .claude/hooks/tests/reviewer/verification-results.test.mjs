@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { resultsFile } from "../../adlc-verification/reviewer/verification-results.mjs";
+import { loadFixture } from "../fixtures/load.mjs";
 
 describe("verification-results", () => {
     let tmp;
@@ -25,7 +26,7 @@ describe("verification-results", () => {
     });
 
     it("should pass when verification-results.md exists and is non-empty", () => {
-        writeFileSync(join(tmp, ".adlc/verification-results.md"), "# Verification Results\n");
+        writeFileSync(join(tmp, ".adlc/verification-results.md"), loadFixture("reviewer", "results-slice-1-all-pass.valid.md"));
         expect(resultsFile(tmp)).toHaveLength(0);
     });
 });

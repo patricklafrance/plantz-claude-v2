@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import handlePlanner from "../../adlc-verification/planner/handler.mjs";
+import { loadFixture } from "../fixtures/load.mjs";
 
 describe("planner handler (orchestration)", () => {
     let tmp;
@@ -25,7 +26,7 @@ describe("planner handler (orchestration)", () => {
     });
 
     it("should short-circuit when no slices exist (skip criteria check)", () => {
-        writeFileSync(join(tmp, ".adlc/plan-header.md"), "# Plan: Test\n");
+        writeFileSync(join(tmp, ".adlc/plan-header.md"), loadFixture("planner", "plan-header.valid.md"));
         // Header exists but no slices → only the slice-files problem, no criteria errors
         const problems = handlePlanner(tmp);
         expect(problems).toHaveLength(1);
@@ -34,8 +35,8 @@ describe("planner handler (orchestration)", () => {
 
     it("should pass when all deliverables are valid", () => {
         mkdirSync(join(tmp, ".adlc/slices"), { recursive: true });
-        writeFileSync(join(tmp, ".adlc/plan-header.md"), "# Plan: Test\n");
-        writeFileSync(join(tmp, ".adlc/slices/01-first.md"), "# Slice 1: First\n\n- [ ] Shows a list\n");
+        writeFileSync(join(tmp, ".adlc/plan-header.md"), loadFixture("planner", "plan-header.valid.md"));
+        writeFileSync(join(tmp, ".adlc/slices/01-plant-list.md"), loadFixture("planner", "slice-01-plant-list.valid.md"));
         expect(handlePlanner(tmp)).toHaveLength(0);
     });
 });

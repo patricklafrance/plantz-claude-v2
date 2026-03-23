@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import handleArchitect from "../../adlc-verification/architect/handler.mjs";
+import { loadFixture } from "../fixtures/load.mjs";
 
 describe("architect handler (composition)", () => {
     let tmp;
@@ -28,12 +29,12 @@ describe("architect handler (composition)", () => {
     });
 
     it("should pass when revision references a slice", () => {
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), "Slice 01 has a route conflict.\n");
+        writeFileSync(join(tmp, ".adlc/architect-revision.md"), loadFixture("architect", "revision.valid.md"));
         expect(handleArchitect(tmp)).toHaveLength(0);
     });
 
     it("should fail when revision lacks slice references", () => {
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), "The data model is wrong.\n");
+        writeFileSync(join(tmp, ".adlc/architect-revision.md"), loadFixture("architect", "revision-no-refs.invalid.md"));
         const problems = handleArchitect(tmp);
         expect(problems).toHaveLength(1);
         expect(problems[0]).toContain("slice references");

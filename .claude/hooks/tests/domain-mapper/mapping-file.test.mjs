@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { mappingFile } from "../../adlc-verification/domain-mapper/mapping-file.mjs";
+import { loadFixture } from "../fixtures/load.mjs";
 
 describe("mapping-file", () => {
     let tmp;
@@ -19,7 +20,7 @@ describe("mapping-file", () => {
     });
 
     it("should pass when domain-mapping.md exists and is non-empty", () => {
-        writeFileSync(join(tmp, ".adlc/domain-mapping.md"), "# Domain Mapping\n");
+        writeFileSync(join(tmp, ".adlc/domain-mapping.md"), loadFixture("domain-mapper", "domain-mapping.valid.md"));
         expect(mappingFile(tmp)).toHaveLength(0);
     });
 

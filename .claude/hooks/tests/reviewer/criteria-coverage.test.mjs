@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { criteriaCoverage } from "../../adlc-verification/reviewer/criteria-coverage.mjs";
+import { loadFixture } from "../fixtures/load.mjs";
 
 describe("criteria-coverage", () => {
     let tmp;
@@ -28,60 +29,13 @@ describe("criteria-coverage", () => {
     });
 
     it("should pass when all criteria are covered", () => {
-        writeFileSync(
-            join(tmp, ".adlc/slices/01-plant-list.md"),
-            [
-                "# Slice 1: Plant List",
-                "",
-                "## Acceptance Criteria",
-                "",
-                "### Visual [visual]",
-                "",
-                "- [ ] Shows a 3-column grid",
-                "- [ ] Each card has a thumbnail",
-                "",
-                "### Interactive [interactive]",
-                "",
-                "- [ ] Clicking a card opens detail view"
-            ].join("\n")
-        );
-        writeFileSync(
-            join(tmp, ".adlc/verification-results.md"),
-            [
-                "# Verification Results: Slice 1",
-                "",
-                "## Passed",
-                "",
-                "- [x] Shows a 3-column grid",
-                "- [x] Each card has a thumbnail",
-                "- [x] Clicking a card opens detail view",
-                "",
-                "## Failed",
-                "",
-                "## Sanity Issues"
-            ].join("\n")
-        );
+        writeFileSync(join(tmp, ".adlc/slices/01-plant-list.md"), loadFixture("planner", "slice-01-plant-list.valid.md"));
+        writeFileSync(join(tmp, ".adlc/verification-results.md"), loadFixture("reviewer", "results-slice-1-all-pass.valid.md"));
         expect(criteriaCoverage(tmp)).toHaveLength(0);
     });
 
     it("should fail when criteria are missing from results", () => {
-        writeFileSync(
-            join(tmp, ".adlc/slices/02-watering.md"),
-            [
-                "# Slice 2: Watering",
-                "",
-                "## Acceptance Criteria",
-                "",
-                "### Visual [visual]",
-                "",
-                "- [ ] Shows water level indicator",
-                "- [ ] Indicator turns red when dry",
-                "",
-                "### Interactive [interactive]",
-                "",
-                "- [ ] Clicking water button triggers animation"
-            ].join("\n")
-        );
+        writeFileSync(join(tmp, ".adlc/slices/02-watering.md"), loadFixture("planner", "slice-02-watering.valid.md"));
         writeFileSync(
             join(tmp, ".adlc/verification-results.md"),
             [
@@ -104,38 +58,8 @@ describe("criteria-coverage", () => {
     });
 
     it("should count failed criteria as covered", () => {
-        writeFileSync(
-            join(tmp, ".adlc/slices/03-details.md"),
-            [
-                "# Slice 3: Details",
-                "",
-                "## Acceptance Criteria",
-                "",
-                "### Visual [visual]",
-                "",
-                "- [ ] Shows plant name in header",
-                "",
-                "### Interactive [interactive]",
-                "",
-                "- [ ] Clicking edit opens form"
-            ].join("\n")
-        );
-        writeFileSync(
-            join(tmp, ".adlc/verification-results.md"),
-            [
-                "# Verification Results: Slice 3",
-                "",
-                "## Passed",
-                "",
-                "- [x] Shows plant name in header",
-                "",
-                "## Failed",
-                "",
-                "- [ ] Clicking edit opens form — button not found in DOM",
-                "",
-                "## Sanity Issues"
-            ].join("\n")
-        );
+        writeFileSync(join(tmp, ".adlc/slices/02-watering.md"), loadFixture("planner", "slice-02-watering.valid.md"));
+        writeFileSync(join(tmp, ".adlc/verification-results.md"), loadFixture("reviewer", "results-slice-2-with-failure.valid.md"));
         expect(criteriaCoverage(tmp)).toHaveLength(0);
     });
 });

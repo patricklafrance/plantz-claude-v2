@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import handleDomainMapper from "../../adlc-verification/domain-mapper/handler.mjs";
+import { loadFixture } from "../fixtures/load.mjs";
 
 function gitInit(cwd) {
     execSync("git init && git config user.email test@test.com && git config user.name test && git add -A && git commit --allow-empty -m init", {
@@ -34,7 +35,7 @@ describe("domain-mapper handler (composition)", () => {
     });
 
     it("should pass when mapping file exists", () => {
-        writeFileSync(join(tmp, ".adlc/domain-mapping.md"), "# Domain Mapping: Test\n");
+        writeFileSync(join(tmp, ".adlc/domain-mapping.md"), loadFixture("domain-mapper", "domain-mapping.valid.md"));
         expect(handleDomainMapper(tmp)).toHaveLength(0);
     });
 });

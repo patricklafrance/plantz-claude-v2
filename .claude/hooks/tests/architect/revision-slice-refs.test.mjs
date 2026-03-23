@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { revisionSliceRefs } from "../../adlc-verification/architect/revision-slice-refs.mjs";
+import { loadFixture } from "../fixtures/load.mjs";
 
 describe("revision-slice-refs", () => {
     let tmp;
@@ -23,7 +24,7 @@ describe("revision-slice-refs", () => {
     });
 
     it("should pass when revision references a slice", () => {
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), "## Evidence\n\n- Slice 01 defines the route\n");
+        writeFileSync(join(tmp, ".adlc/architect-revision.md"), loadFixture("architect", "revision.valid.md"));
         expect(revisionSliceRefs(tmp)).toHaveLength(0);
     });
 
@@ -33,7 +34,7 @@ describe("revision-slice-refs", () => {
     });
 
     it("should fail when no slice is referenced", () => {
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), "The data model is wrong. Fix the entities.\n");
+        writeFileSync(join(tmp, ".adlc/architect-revision.md"), loadFixture("architect", "revision-no-refs.invalid.md"));
         const problems = revisionSliceRefs(tmp);
         expect(problems).toHaveLength(1);
         expect(problems[0]).toContain("slice references");

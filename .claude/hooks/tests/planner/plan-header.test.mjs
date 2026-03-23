@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { planHeader } from "../../adlc-verification/planner/plan-header.mjs";
+import { loadFixture } from "../fixtures/load.mjs";
 
 describe("plan-header", () => {
     let tmp;
@@ -25,7 +26,7 @@ describe("plan-header", () => {
     });
 
     it("should pass when plan-header.md exists and is non-empty", () => {
-        writeFileSync(join(tmp, ".adlc/plan-header.md"), "# Plan: Test\n");
+        writeFileSync(join(tmp, ".adlc/plan-header.md"), loadFixture("planner", "plan-header.valid.md"));
         expect(planHeader(tmp)).toHaveLength(0);
     });
 });
