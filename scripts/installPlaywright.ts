@@ -11,16 +11,16 @@
 import { execSync } from "node:child_process";
 
 const result = execSync('pnpm -r --filter "*storybook*" list playwright --json --depth=0', {
-    encoding: "utf-8",
+    encoding: "utf-8"
 });
 
 const workspaces = JSON.parse(result) as { name: string }[];
-const first = workspaces.find((ws) => ws.name);
+const first = workspaces.find(ws => ws.name);
 
 if (!first) {
     throw new Error("No storybook workspace with playwright found.");
 }
 
 execSync(`pnpm --filter ${first.name} exec playwright install chromium`, {
-    stdio: "inherit",
+    stdio: "inherit"
 });

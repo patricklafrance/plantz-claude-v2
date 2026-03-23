@@ -18,7 +18,15 @@ interface PlantListItemProps {
     onMarkWatered?: ((plant: Plant) => void) | undefined;
 }
 
-export const PlantListItem = memo(function PlantListItem({ plant, selected = false, onClick, onToggleSelect, onEdit, onDelete, onMarkWatered }: PlantListItemProps) {
+export const PlantListItem = memo(function PlantListItem({
+    plant,
+    selected = false,
+    onClick,
+    onToggleSelect,
+    onEdit,
+    onDelete,
+    onMarkWatered
+}: PlantListItemProps) {
     const due = isDueForWatering(plant);
 
     const isClickable = !!(onClick || onEdit);
@@ -30,8 +38,17 @@ export const PlantListItem = memo(function PlantListItem({ plant, selected = fal
     const handleMarkWatered = useCallback(() => onMarkWatered?.(plant), [onMarkWatered, plant]);
 
     return (
-        <div className={`border-border relative flex h-full items-center gap-3 border-b px-4 py-2.5 transition-colors ${due ? "bg-destructive/5" : "hover:bg-muted/50"}`}>
-            {isClickable && <button type="button" onClick={handleClick} aria-label={`View ${plant.name}`} className="focus-visible:outline-ring absolute inset-0 z-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-[-2px]" />}
+        <div
+            className={`border-border relative flex h-full items-center gap-3 border-b px-4 py-2.5 transition-colors ${due ? "bg-destructive/5" : "hover:bg-muted/50"}`}
+        >
+            {isClickable && (
+                <button
+                    type="button"
+                    onClick={handleClick}
+                    aria-label={`View ${plant.name}`}
+                    className="focus-visible:outline-ring absolute inset-0 z-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+                />
+            )}
             {onToggleSelect && (
                 <span className="relative z-10">
                     <Checkbox checked={selected} onCheckedChange={handleToggleSelect} aria-label={`Select ${plant.name}`} />
@@ -54,7 +71,9 @@ export const PlantListItem = memo(function PlantListItem({ plant, selected = fal
                 <span className="text-muted-foreground hidden truncate text-xs md:block">{plant.wateringQuantity}</span>
                 <span className="text-muted-foreground hidden truncate text-xs md:block">{getOptionLabel(wateringTypes, plant.wateringType)}</span>
                 <span className="text-muted-foreground hidden truncate text-xs md:block">{getOptionLabel(locations, plant.location)}</span>
-                <span className="hidden md:block">{plant.mistLeaves && <Check className="text-muted-foreground size-3.5" aria-label="Mist leaves" />}</span>
+                <span className="hidden md:block">
+                    {plant.mistLeaves && <Check className="text-muted-foreground size-3.5" aria-label="Mist leaves" />}
+                </span>
             </div>
             {(onEdit || onDelete || (onMarkWatered && due)) && (
                 <div className="relative z-10 flex shrink-0 items-center gap-1">

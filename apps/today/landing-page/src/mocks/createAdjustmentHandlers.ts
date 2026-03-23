@@ -50,9 +50,9 @@ export function createAdjustmentHandlers(data: AdjustmentHandlersData) {
                     previousInterval: body.previousInterval,
                     newInterval: body.newInterval,
                     adjustmentDate: new Date().toISOString(),
-                    note: body.note,
+                    note: body.note
                 },
-                { status: 201 },
+                { status: 201 }
             );
         }),
         http.post("/api/today/adjustments/dismiss", async () => {
@@ -80,6 +80,6 @@ export function createAdjustmentHandlers(data: AdjustmentHandlersData) {
             }
 
             return HttpResponse.json(data.history ?? []);
-        }),
+        })
     ];
 }

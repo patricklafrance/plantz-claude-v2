@@ -15,9 +15,9 @@ plantsDb.reset(defaultSeedPlants);
 const runtime = initializeFirefly({
     useMsw: true,
     localModules: [registerShell, ...getActiveModules(process.env.MODULES, queryClient)],
-    startMsw: async (x) => {
+    startMsw: async x => {
         return (await import("./mocks/browser.ts")).startMsw(x.requestHandlers);
-    },
+    }
 });
 
 const root = createRoot(document.getElementById("root")!);
@@ -27,5 +27,5 @@ root.render(
         <QueryClientProvider client={queryClient}>
             <App />
         </QueryClientProvider>
-    </FireflyProvider>,
+    </FireflyProvider>
 );

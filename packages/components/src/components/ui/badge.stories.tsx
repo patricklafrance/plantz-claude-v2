@@ -6,14 +6,14 @@ const meta = {
     title: "Components/Badge",
     component: Badge,
     args: {
-        children: "Badge",
+        children: "Badge"
     },
     argTypes: {
         variant: {
             control: "select",
-            options: ["default", "secondary", "destructive", "outline", "ghost", "link"],
-        },
-    },
+            options: ["default", "secondary", "destructive", "outline", "ghost", "link"]
+        }
+    }
 } satisfies Meta<typeof Badge>;
 
 export default meta;
@@ -23,23 +23,23 @@ type Story = StoryObj<typeof meta>;
 export const Default = {} satisfies Story;
 
 export const Secondary = {
-    args: { variant: "secondary" },
+    args: { variant: "secondary" }
 } satisfies Story;
 
 export const Destructive = {
-    args: { variant: "destructive" },
+    args: { variant: "destructive" }
 } satisfies Story;
 
 export const Outline = {
-    args: { variant: "outline" },
+    args: { variant: "outline" }
 } satisfies Story;
 
 export const Ghost = {
-    args: { variant: "ghost" },
+    args: { variant: "ghost" }
 } satisfies Story;
 
 export const Link = {
-    args: { variant: "link" },
+    args: { variant: "link" }
 } satisfies Story;
 
 const variants = ["default", "secondary", "destructive", "outline", "ghost", "link"] as const;
@@ -47,11 +47,11 @@ const variants = ["default", "secondary", "destructive", "outline", "ghost", "li
 export const AllVariants: Story = {
     render: () => (
         <div className="flex flex-wrap items-center gap-3">
-            {variants.map((variant) => (
+            {variants.map(variant => (
                 <Badge key={variant} variant={variant}>
                     {variant}
                 </Badge>
             ))}
         </div>
-    ),
+    )
 };

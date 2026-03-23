@@ -2,7 +2,25 @@ import { format } from "date-fns";
 import { Droplets } from "lucide-react";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Button, Input, Textarea, Label, Switch, Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, DatePicker } from "@packages/components";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    Button,
+    Input,
+    Textarea,
+    Label,
+    Switch,
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    DatePicker
+} from "@packages/components";
 import { locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
 import type { Plant } from "@packages/core-plants";
 
@@ -69,7 +87,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                 soilType: soilType.trim() || undefined,
                 wateringFrequency,
                 wateringQuantity: wateringQuantity.trim(),
-                wateringType,
+                wateringType
             });
 
             tx.isPersisted.promise.then(() => {
@@ -97,7 +115,21 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                 clearTimeout(debounceRef.current);
             }
         };
-    }, [name, description, family, location, luminosity, mistLeaves, soilType, wateringFrequency, wateringQuantity, wateringType, plant, open, saveChanges]);
+    }, [
+        name,
+        description,
+        family,
+        location,
+        luminosity,
+        mistLeaves,
+        soilType,
+        wateringFrequency,
+        wateringQuantity,
+        wateringType,
+        plant,
+        open,
+        saveChanges
+    ]);
 
     if (!plant) return null;
 
@@ -107,7 +139,11 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                 <DialogHeader>
                     <div className="flex items-center gap-2">
                         <DialogTitle>Edit plant</DialogTitle>
-                        <span role="status" aria-live="polite" className={`text-muted-foreground text-xs transition-opacity ${saved ? "opacity-100" : "opacity-0"}`}>
+                        <span
+                            role="status"
+                            aria-live="polite"
+                            className={`text-muted-foreground text-xs transition-opacity ${saved ? "opacity-100" : "opacity-0"}`}
+                        >
                             Saved
                         </span>
                     </div>
@@ -115,22 +151,22 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="edit-name">Name *</Label>
-                        <Input id="edit-name" value={name} onChange={(e) => setName(e.target.value)} />
+                        <Input id="edit-name" value={name} onChange={e => setName(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="edit-description">Description</Label>
-                        <Textarea id="edit-description" value={description} onChange={(e) => setDescription(e.target.value)} />
+                        <Textarea id="edit-description" value={description} onChange={e => setDescription(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="edit-family">Family</Label>
-                        <Input id="edit-family" value={family} onChange={(e) => setFamily(e.target.value)} />
+                        <Input id="edit-family" value={family} onChange={e => setFamily(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                             <Label htmlFor="edit-location">Location *</Label>
                             <Select
                                 value={location}
-                                onValueChange={(v) => {
+                                onValueChange={v => {
                                     if (v) setLocation(v);
                                 }}
                             >
@@ -139,7 +175,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        {locations.map((l) => (
+                                        {locations.map(l => (
                                             <SelectItem key={l.id} value={l.id}>
                                                 {l.label}
                                             </SelectItem>
@@ -152,7 +188,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                             <Label htmlFor="edit-luminosity">Luminosity *</Label>
                             <Select
                                 value={luminosity}
-                                onValueChange={(v) => {
+                                onValueChange={v => {
                                     if (v) setLuminosity(v);
                                 }}
                             >
@@ -161,7 +197,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        {luminosities.map((l) => (
+                                        {luminosities.map(l => (
                                             <SelectItem key={l.id} value={l.id}>
                                                 {l.label}
                                             </SelectItem>
@@ -177,14 +213,14 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="edit-soil">Soil type</Label>
-                        <Input id="edit-soil" value={soilType} onChange={(e) => setSoilType(e.target.value)} />
+                        <Input id="edit-soil" value={soilType} onChange={e => setSoilType(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                             <Label htmlFor="edit-watering-frequency">Watering frequency *</Label>
                             <Select
                                 value={wateringFrequency}
-                                onValueChange={(v) => {
+                                onValueChange={v => {
                                     if (v) setWateringFrequency(v);
                                 }}
                             >
@@ -193,7 +229,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        {wateringFrequencies.map((f) => (
+                                        {wateringFrequencies.map(f => (
                                             <SelectItem key={f.id} value={f.id}>
                                                 {f.label}
                                             </SelectItem>
@@ -206,7 +242,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                             <Label htmlFor="edit-watering-type">Watering type *</Label>
                             <Select
                                 value={wateringType}
-                                onValueChange={(v) => {
+                                onValueChange={v => {
                                     if (v) setWateringType(v);
                                 }}
                             >
@@ -215,7 +251,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        {wateringTypes.map((t) => (
+                                        {wateringTypes.map(t => (
                                             <SelectItem key={t.id} value={t.id}>
                                                 {t.label}
                                             </SelectItem>
@@ -227,7 +263,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="edit-quantity">Watering quantity *</Label>
-                        <Input id="edit-quantity" value={wateringQuantity} onChange={(e) => setWateringQuantity(e.target.value)} />
+                        <Input id="edit-quantity" value={wateringQuantity} onChange={e => setWateringQuantity(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label>Next watering date</Label>

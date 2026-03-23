@@ -8,16 +8,16 @@ import { formatIntervalLabel } from "./care-event/adjustmentUtils.ts";
 const confidenceConfig: Record<Confidence, { label: string; className: string }> = {
     low: {
         label: "Low confidence",
-        className: "bg-muted text-muted-foreground",
+        className: "bg-muted text-muted-foreground"
     },
     medium: {
         label: "Medium confidence",
-        className: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
+        className: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
     },
     high: {
         label: "High confidence",
-        className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
-    },
+        className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+    }
 };
 
 interface AdjustmentSuggestionCardProps {
@@ -44,7 +44,12 @@ export function AdjustmentSuggestionCard({ recommendation, onAccept, onDismiss }
             <p className="text-muted-foreground text-sm">{recommendation.explanation}</p>
             <p className="text-muted-foreground text-xs">{recommendation.recentBehaviorSummary}</p>
             <div className="flex gap-2">
-                <Button variant="default" size="sm" onClick={onAccept} aria-label={`Accept suggested interval of ${recommendation.suggestedInterval} days`}>
+                <Button
+                    variant="default"
+                    size="sm"
+                    onClick={onAccept}
+                    aria-label={`Accept suggested interval of ${recommendation.suggestedInterval} days`}
+                >
                     <Check data-icon="inline-start" aria-hidden="true" />
                     Accept
                 </Button>

@@ -8,7 +8,7 @@ import { createTodayVacationPlantsCollection } from "./plantsCollection.ts";
 import { TodayVacationPlantsCollectionProvider } from "./TodayVacationPlantsContext.tsx";
 
 const runtime = await initializeFireflyForStorybook({
-    loggers: [new NoopLogger()],
+    loggers: [new NoopLogger()]
 });
 
 export const fireflyDecorator = withFireflyDecorator(runtime);
@@ -17,9 +17,9 @@ function CollectionDecorator({ children }: { children: ReactNode }) {
     const queryClient = useMemo(
         () =>
             new QueryClient({
-                defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+                defaultOptions: { queries: { retry: false, staleTime: Infinity } }
             }),
-        [],
+        []
     );
     const collection = useMemo(() => createTodayVacationPlantsCollection(queryClient), [queryClient]);
 
@@ -31,7 +31,7 @@ function CollectionDecorator({ children }: { children: ReactNode }) {
 }
 
 function withCollectionDecorator(): Decorator {
-    return (story) => <CollectionDecorator>{story()}</CollectionDecorator>;
+    return story => <CollectionDecorator>{story()}</CollectionDecorator>;
 }
 
 export const collectionDecorator = withCollectionDecorator();

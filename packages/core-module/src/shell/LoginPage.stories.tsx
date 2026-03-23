@@ -15,12 +15,12 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     decorators: [
-        (Story) => (
+        Story => (
             <QueryClientProvider client={new QueryClient()}>
                 <MemoryRouter>
                     <div className="flex min-h-[600px] items-center justify-center">
@@ -28,8 +28,8 @@ const meta = {
                     </div>
                 </MemoryRouter>
             </QueryClientProvider>
-        ),
-    ],
+        )
+    ]
 } satisfies Meta<typeof LoginPage>;
 
 export default meta;

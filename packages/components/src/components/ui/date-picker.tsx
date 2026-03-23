@@ -14,7 +14,7 @@ function DatePicker({
     disabled = false,
     className,
     id,
-    "aria-describedby": ariaDescribedBy,
+    "aria-describedby": ariaDescribedBy
 }: {
     value?: Date;
     onChange?: (date: Date | undefined) => void;
@@ -28,7 +28,17 @@ function DatePicker({
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger render={<Button variant="outline" disabled={disabled} id={id} aria-describedby={ariaDescribedBy} className={cn("w-[240px] justify-start text-left font-normal", !value && "text-muted-foreground", className)} />}>
+            <PopoverTrigger
+                render={
+                    <Button
+                        variant="outline"
+                        disabled={disabled}
+                        id={id}
+                        aria-describedby={ariaDescribedBy}
+                        className={cn("w-[240px] justify-start text-left font-normal", !value && "text-muted-foreground", className)}
+                    />
+                }
+            >
                 <CalendarIcon data-icon="inline-start" />
                 {value ? format(value, "PPP") : <span>{placeholder}</span>}
             </PopoverTrigger>
@@ -36,7 +46,7 @@ function DatePicker({
                 <Calendar
                     mode="single"
                     selected={value}
-                    onSelect={(date) => {
+                    onSelect={date => {
                         onChange?.(date);
                         setOpen(false);
                     }}

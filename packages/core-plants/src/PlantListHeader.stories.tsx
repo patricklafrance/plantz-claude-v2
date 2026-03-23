@@ -13,17 +13,17 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     decorators: [
-        (Story) => (
+        Story => (
             <div className="border-border w-full max-w-[1200px] rounded-lg border">
                 <Story />
             </div>
-        ),
-    ],
+        )
+    ]
 } satisfies Meta<typeof PlantListHeader>;
 
 export default meta;
@@ -35,27 +35,27 @@ export const Default: Story = {};
 export const WithCheckbox: Story = {
     args: {
         selectAllChecked: false,
-        onToggleSelectAll: () => {},
-    },
+        onToggleSelectAll: () => {}
+    }
 };
 
 export const WithCheckboxChecked: Story = {
     args: {
         selectAllChecked: true,
-        onToggleSelectAll: () => {},
-    },
+        onToggleSelectAll: () => {}
+    }
 };
 
 export const WithActions: Story = {
     args: {
-        showActions: true,
-    },
+        showActions: true
+    }
 };
 
 export const WithCheckboxAndActions: Story = {
     args: {
         showActions: true,
         selectAllChecked: false,
-        onToggleSelectAll: () => {},
-    },
+        onToggleSelectAll: () => {}
+    }
 };

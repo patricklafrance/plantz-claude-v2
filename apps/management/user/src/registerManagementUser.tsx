@@ -7,9 +7,9 @@ function registerRoutes(runtime: FireflyRuntime) {
             const { UserPage } = await import("./UserPage.tsx");
 
             return {
-                element: <UserPage />,
+                element: <UserPage />
             };
-        },
+        }
     });
 }
 

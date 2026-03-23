@@ -22,6 +22,6 @@ export function createTodayPlantHandlers(data: PlantsData, activePlan?: Vacation
         }),
         http.delete("/api/today/plants/:id", () => new HttpResponse(null, { status: 204 })),
         http.delete("/api/today/plants", () => new HttpResponse(null, { status: 204 })),
-        http.get("/api/today/vacation-planner/plans/active", () => HttpResponse.json(activePlan ?? null)),
+        http.get("/api/today/vacation-planner/plans/active", () => HttpResponse.json(activePlan ?? null))
     ];
 }

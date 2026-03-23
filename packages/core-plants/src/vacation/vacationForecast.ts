@@ -10,7 +10,7 @@ function parseWateringInterval(frequency: WateringFrequencyId): number {
         "1-week": 7,
         "1.5-weeks": 10.5,
         "2-weeks": 14,
-        "2.5-weeks": 17.5,
+        "2.5-weeks": 17.5
     };
 
     return map[frequency] ?? 7;
@@ -114,8 +114,14 @@ function assessRisk(plant: Plant, returnDate: Date, today: Date = new Date()): R
     return "low";
 }
 
-export function generateForecast(plants: Plant[], startDate: Date, endDate: Date, strategy: PlanningStrategy, today: Date = new Date()): PlantRecommendation[] {
-    return plants.map((plant) => {
+export function generateForecast(
+    plants: Plant[],
+    startDate: Date,
+    endDate: Date,
+    strategy: PlanningStrategy,
+    today: Date = new Date()
+): PlantRecommendation[] {
+    return plants.map(plant => {
         const type = classifyPlant(plant, startDate, endDate, strategy, today);
         const riskLevel = assessRisk(plant, endDate, today);
 
@@ -132,7 +138,7 @@ export function generateForecast(plants: Plant[], startDate: Date, endDate: Date
                 reasoning = `Water this plant before you leave. Next watering is due ${formatSimpleDate(plant.nextWateringDate)}.`;
                 break;
             case "delegate-watering": {
-                const wateringsDuringTrip = projectNextWaterings(plant, endDate).filter((d) => d >= startDate && d <= endDate);
+                const wateringsDuringTrip = projectNextWaterings(plant, endDate).filter(d => d >= startDate && d <= endDate);
                 suggestedActionDate = wateringsDuringTrip[0] ?? plant.nextWateringDate;
                 const count = wateringsDuringTrip.length;
                 reasoning = `This plant needs ${count} watering${count !== 1 ? "s" : ""} during your trip. Ask someone to help.`;
@@ -150,7 +156,7 @@ export function generateForecast(plants: Plant[], startDate: Date, endDate: Date
             type,
             reasoning,
             suggestedActionDate,
-            riskLevel,
+            riskLevel
         };
     });
 }

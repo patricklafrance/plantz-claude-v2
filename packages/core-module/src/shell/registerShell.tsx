@@ -3,13 +3,13 @@ import { PublicRoutes, ProtectedRoutes, type ModuleRegisterFunction, type Firefl
 import { NotFoundPage } from "./NotFoundPage.tsx";
 import { RootLayout } from "./RootLayout.tsx";
 
-export const registerShell: ModuleRegisterFunction<FireflyRuntime> = async (runtime) => {
+export const registerShell: ModuleRegisterFunction<FireflyRuntime> = async runtime => {
     runtime.registerRoute(
         {
             element: <RootLayout />,
-            children: [PublicRoutes, ProtectedRoutes],
+            children: [PublicRoutes, ProtectedRoutes]
         },
-        { hoist: true },
+        { hoist: true }
     );
 
     runtime.registerPublicRoute({
@@ -18,12 +18,12 @@ export const registerShell: ModuleRegisterFunction<FireflyRuntime> = async (runt
             const { LoginPage } = await import("./LoginPage.tsx");
 
             return { element: <LoginPage /> };
-        },
+        }
     });
 
     runtime.registerPublicRoute({
         path: "*",
-        element: <NotFoundPage />,
+        element: <NotFoundPage />
     });
 
     if (runtime.isMswEnabled) {

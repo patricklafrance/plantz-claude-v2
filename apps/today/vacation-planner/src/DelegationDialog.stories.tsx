@@ -16,9 +16,9 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     args: {
         open: true,
@@ -26,8 +26,8 @@ const meta = {
         plantName: "Boston Fern",
         tripStartDate: TRIP_START,
         tripEndDate: TRIP_END,
-        onSave: () => {},
-    },
+        onSave: () => {}
+    }
 } satisfies Meta<typeof DelegationDialog>;
 
 export default meta;
@@ -41,15 +41,15 @@ export const WithExistingDelegation: Story = {
         existingDelegation: {
             helperName: "Alice",
             wateringDate: new Date(2099, 5, 7),
-            notes: "Water in the morning, use filtered water",
-        },
-    },
+            notes: "Water in the morning, use filtered water"
+        }
+    }
 };
 
 export const ValidationErrors: Story = {
     // The validation errors show when the user clicks Save with empty fields.
     // For Chromatic, we show the dialog open — validation errors require interaction.
     args: {
-        open: true,
-    },
+        open: true
+    }
 };

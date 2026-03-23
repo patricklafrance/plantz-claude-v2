@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSepa
 
 const meta = {
     title: "Components/Select",
-    component: Select,
+    component: Select
 } satisfies Meta<typeof Select>;
 
 export default meta;
@@ -25,7 +25,7 @@ export const Default: Story = {
                 </SelectGroup>
             </SelectContent>
         </Select>
-    ),
+    )
 };
 
 export const SmallSize: Story = {
@@ -42,7 +42,7 @@ export const SmallSize: Story = {
                 </SelectGroup>
             </SelectContent>
         </Select>
-    ),
+    )
 };
 
 export const WithGroups: Story = {
@@ -67,7 +67,7 @@ export const WithGroups: Story = {
                 </SelectGroup>
             </SelectContent>
         </Select>
-    ),
+    )
 };
 
 export const WithDisabledItems: Story = {
@@ -86,7 +86,7 @@ export const WithDisabledItems: Story = {
                 </SelectGroup>
             </SelectContent>
         </Select>
-    ),
+    )
 };
 
 export const Disabled: Story = {
@@ -102,7 +102,7 @@ export const Disabled: Story = {
                 </SelectGroup>
             </SelectContent>
         </Select>
-    ),
+    )
 };
 
 export const AllVariants: Story = {
@@ -171,5 +171,5 @@ export const AllVariants: Story = {
                 </Select>
             </div>
         </div>
-    ),
+    )
 };

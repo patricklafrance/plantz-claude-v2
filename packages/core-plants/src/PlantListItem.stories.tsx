@@ -27,7 +27,7 @@ function makePlant(overrides: Partial<Plant> = {}): Plant {
         nextWateringDate: FAR_FUTURE,
         creationDate: FIXED_CREATION,
         lastUpdateDate: FIXED_CREATION,
-        ...overrides,
+        ...overrides
     };
 }
 
@@ -42,23 +42,23 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     args: {
         selected: false,
         onToggleSelect: () => {},
         onEdit: () => {},
-        onDelete: () => {},
+        onDelete: () => {}
     },
     decorators: [
-        (Story) => (
+        Story => (
             <div className="border-border w-full max-w-[1200px] rounded-lg border">
                 <Story />
             </div>
-        ),
-    ],
+        )
+    ]
 } satisfies Meta<typeof PlantListItem>;
 
 export default meta;
@@ -67,36 +67,36 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
     args: {
-        plant: makePlant(),
-    },
+        plant: makePlant()
+    }
 };
 
 export const Selected: Story = {
     args: {
         plant: makePlant(),
-        selected: true,
-    },
+        selected: true
+    }
 };
 
 export const DueForWatering: Story = {
     args: {
-        plant: makePlant({ nextWateringDate: FAR_PAST }),
-    },
+        plant: makePlant({ nextWateringDate: FAR_PAST })
+    }
 };
 
 export const DueAndSelected: Story = {
     args: {
         plant: makePlant({ nextWateringDate: FAR_PAST }),
-        selected: true,
-    },
+        selected: true
+    }
 };
 
 export const LongName: Story = {
     args: {
         plant: makePlant({
-            name: "Philodendron Birkin Variegated Extra Special Limited Edition Tropical Houseplant Collection",
-        }),
-    },
+            name: "Philodendron Birkin Variegated Extra Special Limited Edition Tropical Houseplant Collection"
+        })
+    }
 };
 
 export const LongFieldValues: Story = {
@@ -104,9 +104,9 @@ export const LongFieldValues: Story = {
         plant: makePlant({
             wateringQuantity: "500ml every other day when soil is dry",
             wateringType: "deep",
-            location: "bathroom",
-        }),
-    },
+            location: "bathroom"
+        })
+    }
 };
 
 export const MinimalFields: Story = {
@@ -114,23 +114,23 @@ export const MinimalFields: Story = {
         plant: makePlant({
             description: undefined,
             family: undefined,
-            soilType: undefined,
-        }),
-    },
+            soilType: undefined
+        })
+    }
 };
 
 export const NoEditButton: Story = {
     args: {
         plant: makePlant(),
-        onEdit: undefined,
-    },
+        onEdit: undefined
+    }
 };
 
 export const NoDeleteButton: Story = {
     args: {
         plant: makePlant(),
-        onDelete: undefined,
-    },
+        onDelete: undefined
+    }
 };
 
 export const NoSelectionNoDelete: Story = {
@@ -138,8 +138,8 @@ export const NoSelectionNoDelete: Story = {
         plant: makePlant(),
         onToggleSelect: undefined,
         onDelete: undefined,
-        selected: undefined,
-    },
+        selected: undefined
+    }
 };
 
 export const ClickOnly: Story = {
@@ -149,38 +149,38 @@ export const ClickOnly: Story = {
         onToggleSelect: undefined,
         onEdit: undefined,
         onDelete: undefined,
-        selected: undefined,
-    },
+        selected: undefined
+    }
 };
 
 export const DueWithMarkWatered: Story = {
     args: {
         plant: makePlant({ nextWateringDate: FAR_PAST }),
-        onMarkWatered: () => {},
-    },
+        onMarkWatered: () => {}
+    }
 };
 
 export const NotDueWithMarkWatered: Story = {
     args: {
         plant: makePlant({ nextWateringDate: FAR_FUTURE }),
-        onMarkWatered: () => {},
-    },
+        onMarkWatered: () => {}
+    }
 };
 
 export const MistLeavesFalse: Story = {
     args: {
-        plant: makePlant({ mistLeaves: false }),
-    },
+        plant: makePlant({ mistLeaves: false })
+    }
 };
 
 export const WithHeader: Story = {
     args: {
-        plant: makePlant(),
+        plant: makePlant()
     },
-    render: (args) => (
+    render: args => (
         <div>
             <PlantListHeader showCheckbox showActions />
             <PlantListItem {...args} />
         </div>
-    ),
+    )
 };

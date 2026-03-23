@@ -24,13 +24,13 @@ export function createManagementPlantHandlers(data: PlantsData) {
                 return new HttpResponse(null, { status: 404 });
             }
 
-            const plant = data.find((p) => p.id === params.id);
+            const plant = data.find(p => p.id === params.id);
 
             return plant ? HttpResponse.json(plant) : new HttpResponse(null, { status: 404 });
         }),
         http.post("/api/management/plants", () => HttpResponse.json({}, { status: 201 })),
         http.put("/api/management/plants/:id", () => HttpResponse.json({}, { status: 200 })),
         http.delete("/api/management/plants/:id", () => new HttpResponse(null, { status: 204 })),
-        http.delete("/api/management/plants", () => new HttpResponse(null, { status: 204 })),
+        http.delete("/api/management/plants", () => new HttpResponse(null, { status: 204 }))
     ];
 }

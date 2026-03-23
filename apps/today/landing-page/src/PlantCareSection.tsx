@@ -35,7 +35,9 @@ export function PlantCareSection({ plantId, wateringFrequency, onAdjustmentAccep
                 <h3 className="text-sm font-semibold">Care History</h3>
                 <CareHistoryTimeline events={events} />
             </div>
-            {currentIntervalDays !== null && onAdjustmentAccepted && <AdjustmentSection plantId={plantId} currentIntervalDays={currentIntervalDays} onAdjustmentAccepted={onAdjustmentAccepted} />}
+            {currentIntervalDays !== null && onAdjustmentAccepted && (
+                <AdjustmentSection plantId={plantId} currentIntervalDays={currentIntervalDays} onAdjustmentAccepted={onAdjustmentAccepted} />
+            )}
         </div>
     );
 }

@@ -17,7 +17,7 @@
 const collection = createPlantsCollection({
     queryKey: ["management", "plants", "list"],
     queryFn: fetchPlants,
-    queryClient,
+    queryClient
 });
 ```
 
@@ -28,14 +28,14 @@ const collection = createPlantsCollection({
 ```typescript
 const updatePlant = createOptimisticAction<{ id: string } & Partial<Plant>>({
     onMutate: ({ id, ...changes }) => {
-        collection.update(id, (draft) => {
+        collection.update(id, draft => {
             Object.assign(draft, changes);
         });
     },
     mutationFn: async ({ id, ...data }) => {
         await fetch(`${API_BASE}/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
         await collection.utils.refetch();
-    },
+    }
 });
 ```
 

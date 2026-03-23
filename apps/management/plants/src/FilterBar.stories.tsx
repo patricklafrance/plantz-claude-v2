@@ -11,7 +11,7 @@ const defaultFilters: PlantFilters = {
     soilType: "",
     wateringFrequency: null,
     wateringType: null,
-    dueForWatering: false,
+    dueForWatering: false
 };
 
 const meta = {
@@ -25,14 +25,14 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     args: {
         onFilterChange: () => {},
-        onClear: () => {},
-    },
+        onClear: () => {}
+    }
 } satisfies Meta<typeof FilterBar>;
 
 export default meta;
@@ -42,43 +42,43 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
     args: {
         filters: defaultFilters,
-        hasActiveFilters: false,
-    },
+        hasActiveFilters: false
+    }
 };
 
 export const NameFilter: Story = {
     args: {
         filters: { ...defaultFilters, name: "fern" },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const LocationSelected: Story = {
     args: {
         filters: { ...defaultFilters, location: "living-room" },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const DueForWateringToggled: Story = {
     args: {
         filters: { ...defaultFilters, dueForWatering: true },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const MistLeavesToggled: Story = {
     args: {
         filters: { ...defaultFilters, mistLeaves: true },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const SoilTypeFilter: Story = {
     args: {
         filters: { ...defaultFilters, soilType: "peat moss" },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const MultipleFiltersActive: Story = {
@@ -87,31 +87,31 @@ export const MultipleFiltersActive: Story = {
             ...defaultFilters,
             location: "bathroom",
             luminosity: "high",
-            wateringFrequency: "1-week",
+            wateringFrequency: "1-week"
         },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const LuminositySelected: Story = {
     args: {
         filters: { ...defaultFilters, luminosity: "high" },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const WateringFrequencySelected: Story = {
     args: {
         filters: { ...defaultFilters, wateringFrequency: "2-weeks" },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const WateringTypeSelected: Story = {
     args: {
         filters: { ...defaultFilters, wateringType: "deep" },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const AllFiltersActive: Story = {
@@ -124,8 +124,8 @@ export const AllFiltersActive: Story = {
             soilType: "sand",
             wateringFrequency: "2-weeks",
             wateringType: "deep",
-            dueForWatering: true,
+            dueForWatering: true
         },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };

@@ -9,7 +9,7 @@ const runtime = await initializeFireflyForStorybook();
 
 export const fireflyDecorator = withFireflyDecorator(runtime);
 
-export const sessionDecorator: Decorator = (Story) => (
+export const sessionDecorator: Decorator = Story => (
     <QueryClientProvider client={new QueryClient()}>
         <SessionProvider session={{ id: "user-alice", name: "Alice Johnson", email: "alice@example.com" }}>
             <Story />

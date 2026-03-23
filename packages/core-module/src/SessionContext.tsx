@@ -17,7 +17,7 @@ export function sessionQueryOptions() {
         refetchOnWindowFocus: false,
         queryFn: async () => {
             const res = await fetch("/api/auth/session", {
-                headers: getAuthHeaders(),
+                headers: getAuthHeaders()
             });
 
             if (!res.ok) {
@@ -25,7 +25,7 @@ export function sessionQueryOptions() {
             }
 
             return (await res.json()) as Session;
-        },
+        }
     };
 }
 

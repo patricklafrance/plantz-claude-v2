@@ -13,12 +13,12 @@ const activePlan: VacationPlan = {
     status: "active",
     recommendations: [],
     createdAt: new Date(2099, 4, 20),
-    updatedAt: new Date(2099, 4, 20),
+    updatedAt: new Date(2099, 4, 20)
 };
 
 const meta = {
     title: "Today/VacationPlanner/Components/VacationPlannerNavLabel",
-    component: VacationPlannerNavLabel,
+    component: VacationPlannerNavLabel
 } satisfies Meta<typeof VacationPlannerNavLabel>;
 
 export default meta;
@@ -28,15 +28,15 @@ type Story = StoryObj<typeof meta>;
 export const WithActivePlan: Story = {
     parameters: {
         msw: {
-            handlers: [http.get("/api/today/vacation-planner/plans/active", () => HttpResponse.json(activePlan))],
-        },
-    },
+            handlers: [http.get("/api/today/vacation-planner/plans/active", () => HttpResponse.json(activePlan))]
+        }
+    }
 };
 
 export const NoActivePlan: Story = {
     parameters: {
         msw: {
-            handlers: [http.get("/api/today/vacation-planner/plans/active", () => HttpResponse.json(null))],
-        },
-    },
+            handlers: [http.get("/api/today/vacation-planner/plans/active", () => HttpResponse.json(null))]
+        }
+    }
 };

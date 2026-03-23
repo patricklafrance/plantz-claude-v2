@@ -9,7 +9,7 @@ const API_BASE = "/api/management/plants";
 
 async function fetchPlants(): Promise<Plant[]> {
     const response = await fetch(API_BASE, {
-        headers: getAuthHeaders(),
+        headers: getAuthHeaders()
     });
 
     if (!response.ok) {
@@ -18,33 +18,33 @@ async function fetchPlants(): Promise<Plant[]> {
 
     const data: unknown[] = await response.json();
 
-    return data.map((item) => plantSchema.parse(item));
+    return data.map(item => plantSchema.parse(item));
 }
 
 export function createManagementPlantsCollection(queryClient: QueryClient): PlantsCollection {
     return createPlantsCollection({
         queryKey: ["management", "plants", "list"],
         queryFn: fetchPlants,
-        queryClient,
+        queryClient
     });
 }
 
 export function createManagementPlantActions(plantsCollection: PlantsCollection) {
     const insertPlant = createOptimisticAction<Omit<Plant, "id" | "userId" | "creationDate" | "lastUpdateDate">>({
-        onMutate: (data) => {
+        onMutate: data => {
             plantsCollection.insert({
                 ...data,
                 id: crypto.randomUUID(),
                 userId: getCurrentUserId() ?? "",
                 creationDate: new Date(),
-                lastUpdateDate: new Date(),
+                lastUpdateDate: new Date()
             } as Plant);
         },
-        mutationFn: async (data) => {
+        mutationFn: async data => {
             const response = await fetch(API_BASE, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-                body: JSON.stringify(data),
+                body: JSON.stringify(data)
             });
 
             if (!response.ok) {
@@ -52,12 +52,12 @@ export function createManagementPlantActions(plantsCollection: PlantsCollection)
             }
 
             await plantsCollection.utils.refetch();
-        },
+        }
     });
 
     const updatePlant = createOptimisticAction<{ id: string } & Partial<Plant>>({
         onMutate: ({ id, ...changes }) => {
-            plantsCollection.update(id, (draft) => {
+            plantsCollection.update(id, draft => {
                 Object.assign(draft, changes, { lastUpdateDate: new Date() });
             });
         },
@@ -65,7 +65,7 @@ export function createManagementPlantActions(plantsCollection: PlantsCollection)
             const response = await fetch(`${API_BASE}/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-                body: JSON.stringify(data),
+                body: JSON.stringify(data)
             });
 
             if (!response.ok) {
@@ -73,17 +73,17 @@ export function createManagementPlantActions(plantsCollection: PlantsCollection)
             }
 
             await plantsCollection.utils.refetch();
-        },
+        }
     });
 
     const deletePlant = createOptimisticAction<string>({
-        onMutate: (id) => {
+        onMutate: id => {
             plantsCollection.delete(id);
         },
-        mutationFn: async (id) => {
+        mutationFn: async id => {
             const response = await fetch(`${API_BASE}/${id}`, {
                 method: "DELETE",
-                headers: getAuthHeaders(),
+                headers: getAuthHeaders()
             });
 
             if (!response.ok) {
@@ -91,20 +91,20 @@ export function createManagementPlantActions(plantsCollection: PlantsCollection)
             }
 
             await plantsCollection.utils.refetch();
-        },
+        }
     });
 
     const deletePlants = createOptimisticAction<string[]>({
-        onMutate: (ids) => {
+        onMutate: ids => {
             for (const id of ids) {
                 plantsCollection.delete(id);
             }
         },
-        mutationFn: async (ids) => {
+        mutationFn: async ids => {
             const response = await fetch(API_BASE, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-                body: JSON.stringify({ ids }),
+                body: JSON.stringify({ ids })
             });
 
             if (!response.ok) {
@@ -112,7 +112,7 @@ export function createManagementPlantActions(plantsCollection: PlantsCollection)
             }
 
             await plantsCollection.utils.refetch();
-        },
+        }
     });
 
     return { insertPlant, updatePlant, deletePlant, deletePlants };

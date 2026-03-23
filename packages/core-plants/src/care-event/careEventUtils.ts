@@ -6,7 +6,7 @@ function sortByDateDesc(events: CareEvent[]): CareEvent[] {
 }
 
 export function getLastWateredDate(events: CareEvent[]): Date | null {
-    const watered = events.filter((e) => e.eventType === "watered");
+    const watered = events.filter(e => e.eventType === "watered");
     if (watered.length === 0) return null;
 
     const sorted = sortByDateDesc(watered);
@@ -92,6 +92,6 @@ export function computeCareInsights(events: CareEvent[], expectedFrequencyDays =
         averageWateringIntervalDays: averageInterval ?? 0,
         wateringStreak: streak,
         missedWateringCount: missed,
-        consistencyScore,
+        consistencyScore
     };
 }

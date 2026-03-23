@@ -7,8 +7,8 @@ const meta = {
     title: "Components/Input",
     component: Input,
     args: {
-        placeholder: "Enter text...",
-    },
+        placeholder: "Enter text..."
+    }
 } satisfies Meta<typeof Input>;
 
 export default meta;
@@ -18,27 +18,27 @@ type Story = StoryObj<typeof meta>;
 export const Default = {} satisfies Story;
 
 export const WithValue = {
-    args: { defaultValue: "Hello World" },
+    args: { defaultValue: "Hello World" }
 } satisfies Story;
 
 export const Password = {
-    args: { type: "password", placeholder: "Enter password..." },
+    args: { type: "password", placeholder: "Enter password..." }
 } satisfies Story;
 
 export const Email = {
-    args: { type: "email", placeholder: "Enter email..." },
+    args: { type: "email", placeholder: "Enter email..." }
 } satisfies Story;
 
 export const Number = {
-    args: { type: "number", placeholder: "Enter number..." },
+    args: { type: "number", placeholder: "Enter number..." }
 } satisfies Story;
 
 export const File = {
-    args: { type: "file", placeholder: undefined, "aria-label": "Upload file" },
+    args: { type: "file", placeholder: undefined, "aria-label": "Upload file" }
 } satisfies Story;
 
 export const Disabled = {
-    args: { disabled: true, defaultValue: "Disabled input" },
+    args: { disabled: true, defaultValue: "Disabled input" }
 } satisfies Story;
 
 export const WithLabel: Story = {
@@ -47,7 +47,7 @@ export const WithLabel: Story = {
             <Label htmlFor="email-input">Email</Label>
             <Input id="email-input" type="email" placeholder="Enter your email..." />
         </div>
-    ),
+    )
 };
 
 export const AllVariants: Story = {
@@ -56,7 +56,7 @@ export const AllVariants: Story = {
 
         return (
             <div className="flex flex-col gap-6">
-                {types.map((type) => (
+                {types.map(type => (
                     <div key={type} className="flex flex-col gap-2">
                         <span className="text-muted-foreground text-sm font-medium">{type}</span>
                         <Input type={type} placeholder={`${type} input...`} />
@@ -77,5 +77,5 @@ export const AllVariants: Story = {
                 </div>
             </div>
         );
-    },
+    }
 };

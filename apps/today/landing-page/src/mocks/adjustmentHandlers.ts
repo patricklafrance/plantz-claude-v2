@@ -45,7 +45,7 @@ export const todayAdjustmentHandlers = [
 
         const currentInterval = Number(currentIntervalStr);
         const events = careEventsDb.getAllByPlant(plantId);
-        const wateredCount = events.filter((e) => e.eventType === "watered").length;
+        const wateredCount = events.filter(e => e.eventType === "watered").length;
 
         if (adjustmentsDb.isDismissed(plantId, wateredCount)) {
             return HttpResponse.json(null);
@@ -76,7 +76,7 @@ export const todayAdjustmentHandlers = [
             previousInterval: body.previousInterval,
             newInterval: body.newInterval,
             adjustmentDate: new Date(),
-            note: body.note,
+            note: body.note
         };
 
         adjustmentsDb.insert(event);
@@ -91,7 +91,7 @@ export const todayAdjustmentHandlers = [
             next.setDate(next.getDate() + Math.ceil(newFrequencyDays));
             plantsDb.update(body.plantId, {
                 wateringFrequency: newFrequencyId,
-                nextWateringDate: next,
+                nextWateringDate: next
             });
         }
 
@@ -107,7 +107,7 @@ export const todayAdjustmentHandlers = [
 
         const body = (await request.json()) as { plantId: string };
         const events = careEventsDb.getAllByPlant(body.plantId);
-        const wateredCount = events.filter((e) => e.eventType === "watered").length;
+        const wateredCount = events.filter(e => e.eventType === "watered").length;
         adjustmentsDb.dismiss(body.plantId, wateredCount);
 
         return new HttpResponse(null, { status: 204 });
@@ -130,5 +130,5 @@ export const todayAdjustmentHandlers = [
         const events = adjustmentsDb.getAllByPlant(plantId);
 
         return HttpResponse.json(events);
-    }),
+    })
 ];

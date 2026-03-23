@@ -8,6 +8,6 @@ export function makeCareEvent(overrides: Partial<CareEvent> = {}): CareEvent {
         plantId: "plant-1",
         eventType: "watered",
         eventDate: new Date(2024, 6, 15),
-        ...overrides,
+        ...overrides
     };
 }

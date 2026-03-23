@@ -11,7 +11,13 @@ interface VacationDateFormProps {
     initialStrategy?: PlanningStrategy;
 }
 
-export function VacationDateForm({ onGenerate, disabled = false, initialStartDate, initialEndDate, initialStrategy = "balanced" }: VacationDateFormProps) {
+export function VacationDateForm({
+    onGenerate,
+    disabled = false,
+    initialStartDate,
+    initialEndDate,
+    initialStrategy = "balanced"
+}: VacationDateFormProps) {
     const [startDate, setStartDate] = useState<Date | undefined>(initialStartDate);
     const [endDate, setEndDate] = useState<Date | undefined>(initialEndDate);
     const [strategy, setStrategy] = useState<PlanningStrategy>(initialStrategy);
@@ -47,7 +53,14 @@ export function VacationDateForm({ onGenerate, disabled = false, initialStartDat
             <div className="flex flex-wrap items-end gap-4">
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="start-date">Start Date</Label>
-                    <DatePicker id="start-date" value={startDate} onChange={setStartDate} placeholder="Trip start" disabled={disabled} aria-describedby={errors.startDate ? "start-date-error" : undefined} />
+                    <DatePicker
+                        id="start-date"
+                        value={startDate}
+                        onChange={setStartDate}
+                        placeholder="Trip start"
+                        disabled={disabled}
+                        aria-describedby={errors.startDate ? "start-date-error" : undefined}
+                    />
                     {errors.startDate && (
                         <p id="start-date-error" className="text-destructive text-xs" role="alert">
                             {errors.startDate}
@@ -57,7 +70,14 @@ export function VacationDateForm({ onGenerate, disabled = false, initialStartDat
 
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="end-date">End Date</Label>
-                    <DatePicker id="end-date" value={endDate} onChange={setEndDate} placeholder="Trip end" disabled={disabled} aria-describedby={errors.endDate ? "end-date-error" : undefined} />
+                    <DatePicker
+                        id="end-date"
+                        value={endDate}
+                        onChange={setEndDate}
+                        placeholder="Trip end"
+                        disabled={disabled}
+                        aria-describedby={errors.endDate ? "end-date-error" : undefined}
+                    />
                     {errors.endDate && (
                         <p id="end-date-error" className="text-destructive text-xs" role="alert">
                             {errors.endDate}
@@ -67,7 +87,7 @@ export function VacationDateForm({ onGenerate, disabled = false, initialStartDat
 
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="strategy">Planning Strategy</Label>
-                    <Select value={strategy} onValueChange={(val) => setStrategy(val as PlanningStrategy)}>
+                    <Select value={strategy} onValueChange={val => setStrategy(val as PlanningStrategy)}>
                         <SelectTrigger id="strategy" className="w-[200px]">
                             <SelectValue placeholder="Select strategy" />
                         </SelectTrigger>

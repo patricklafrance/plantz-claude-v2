@@ -11,7 +11,9 @@ const dismissedStore = new Map<string, DismissedRecord>();
 
 export const adjustmentsDb = {
     getAllByPlant(plantId: string): AdjustmentEvent[] {
-        return [...eventStore.values()].filter((e) => e.plantId === plantId).toSorted((a, b) => b.adjustmentDate.getTime() - a.adjustmentDate.getTime());
+        return [...eventStore.values()]
+            .filter(e => e.plantId === plantId)
+            .toSorted((a, b) => b.adjustmentDate.getTime() - a.adjustmentDate.getTime());
     },
 
     insert(event: AdjustmentEvent): AdjustmentEvent {
@@ -39,7 +41,7 @@ export const adjustmentsDb = {
         dismissedStore.set(plantId, {
             plantId,
             dismissedAt: new Date(),
-            eventCountAtDismissal: currentEventCount,
+            eventCountAtDismissal: currentEventCount
         });
     },
 
@@ -50,5 +52,5 @@ export const adjustmentsDb = {
         for (const event of events) {
             eventStore.set(event.id, event);
         }
-    },
+    }
 };

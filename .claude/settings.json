@@ -1,0 +1,31 @@
+{
+    "$schema": "https://json.schemastore.org/claude-code-settings.json",
+    "permissions": {
+        "defaultMode": "bypassPermissions",
+        "allow": ["Edit(.claude/**)", "Write(.claude/**)"]
+    },
+    "hooks": {
+        "PostCompact": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node .claude/hooks/safe-compact/restore.mjs"
+                    }
+                ]
+            }
+        ],
+        "SubagentStop": [
+            {
+                "matcher": "^_adlc-",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node .claude/hooks/adlc-verification/subagent-stop.mjs",
+                        "timeout": 600000
+                    }
+                ]
+            }
+        ]
+    }
+}

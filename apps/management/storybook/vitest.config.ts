@@ -12,12 +12,12 @@ export default defineConfig({
     // https://github.com/storybookjs/storybook/issues/32049
     // Remove when Storybook ships #33875 (preview annotations as optimizer entries).
     optimizeDeps: {
-        include: ["react/jsx-dev-runtime", "react/jsx-runtime"],
+        include: ["react/jsx-dev-runtime", "react/jsx-runtime"]
     },
     plugins: [
         storybookTest({
-            configDir: path.join(dirname, ".storybook"),
-        }),
+            configDir: path.join(dirname, ".storybook")
+        })
     ],
     test: {
         name: "management-storybook",
@@ -25,8 +25,8 @@ export default defineConfig({
             enabled: true,
             provider: playwright(),
             headless: true,
-            instances: [{ browser: "chromium" }],
+            instances: [{ browser: "chromium" }]
         },
-        setupFiles: ["./.storybook/vitest.setup.ts"],
-    },
+        setupFiles: ["./.storybook/vitest.setup.ts"]
+    }
 });

@@ -56,5 +56,5 @@ export const todayVacationPlannerHandlers = [
         }
 
         return new HttpResponse(null, { status: 204 });
-    }),
+    })
 ];

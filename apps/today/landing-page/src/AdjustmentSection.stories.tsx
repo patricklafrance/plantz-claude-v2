@@ -12,9 +12,9 @@ function QueryDecorator({ children }: { children: ReactNode }) {
     const queryClient = useMemo(
         () =>
             new QueryClient({
-                defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+                defaultOptions: { queries: { retry: false, staleTime: Infinity } }
             }),
-        [],
+        []
     );
 
     return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
@@ -31,24 +31,24 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     args: {
         plantId: "plant-1",
         currentIntervalDays: 7,
-        onAdjustmentAccepted: () => {},
+        onAdjustmentAccepted: () => {}
     },
     decorators: [
-        (story) => <QueryDecorator>{story()}</QueryDecorator>,
+        story => <QueryDecorator>{story()}</QueryDecorator>,
         fireflyDecorator,
-        (Story) => (
+        Story => (
             <div className="max-w-lg p-4">
                 <Story />
             </div>
-        ),
-    ],
+        )
+    ]
 } satisfies Meta<typeof AdjustmentSection>;
 
 export default meta;
@@ -60,10 +60,10 @@ export const WithRecommendation: Story = {
         msw: {
             handlers: createAdjustmentHandlers({
                 recommendation: makeAdjustmentRecommendation(),
-                history: [],
-            }),
-        },
-    },
+                history: []
+            })
+        }
+    }
 };
 
 export const NoRecommendation: Story = {
@@ -71,10 +71,10 @@ export const NoRecommendation: Story = {
         msw: {
             handlers: createAdjustmentHandlers({
                 recommendation: null,
-                history: [],
-            }),
-        },
-    },
+                history: []
+            })
+        }
+    }
 };
 
 export const WithHistory: Story = {
@@ -82,10 +82,19 @@ export const WithHistory: Story = {
         msw: {
             handlers: createAdjustmentHandlers({
                 recommendation: null,
-                history: [makeAdjustmentEvent({ id: "adj-1", adjustmentDate: new Date(2024, 6, 15), previousInterval: 7, newInterval: 5 }), makeAdjustmentEvent({ id: "adj-2", adjustmentDate: new Date(2024, 5, 20), previousInterval: 10, newInterval: 7, note: "Summer heat adjustment" })],
-            }),
-        },
-    },
+                history: [
+                    makeAdjustmentEvent({ id: "adj-1", adjustmentDate: new Date(2024, 6, 15), previousInterval: 7, newInterval: 5 }),
+                    makeAdjustmentEvent({
+                        id: "adj-2",
+                        adjustmentDate: new Date(2024, 5, 20),
+                        previousInterval: 10,
+                        newInterval: 7,
+                        note: "Summer heat adjustment"
+                    })
+                ]
+            })
+        }
+    }
 };
 
 export const WithRecommendationAndHistory: Story = {
@@ -93,16 +102,16 @@ export const WithRecommendationAndHistory: Story = {
         msw: {
             handlers: createAdjustmentHandlers({
                 recommendation: makeAdjustmentRecommendation(),
-                history: [makeAdjustmentEvent({ id: "adj-1", adjustmentDate: new Date(2024, 6, 15), previousInterval: 14, newInterval: 7 })],
-            }),
-        },
-    },
+                history: [makeAdjustmentEvent({ id: "adj-1", adjustmentDate: new Date(2024, 6, 15), previousInterval: 14, newInterval: 7 })]
+            })
+        }
+    }
 };
 
 export const Loading: Story = {
     parameters: {
         msw: {
-            handlers: createAdjustmentHandlers("loading"),
-        },
-    },
+            handlers: createAdjustmentHandlers("loading")
+        }
+    }
 };

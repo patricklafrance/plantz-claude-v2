@@ -14,15 +14,15 @@ const ModuleRegistry: Record<string, ModuleEntry> = {
     "management/plants": { register: registerManagementPlants },
     "management/user": { register: registerManagementUser },
     "today/landing-page": { register: registerTodayLandingPage },
-    "today/vacation-planner": { register: registerTodayVacationPlanner },
+    "today/vacation-planner": { register: registerTodayVacationPlanner }
 };
 
 export function getActiveModules(filter: string | undefined, queryClient: QueryClient): ModuleRegisterFunction<FireflyRuntime>[] {
     const keys = filter
         ? filter
               .split(",")
-              .map((m) => m.trim())
-              .filter((m) => {
+              .map(m => m.trim())
+              .filter(m => {
                   if (!ModuleRegistry[m]) {
                       // oxlint-disable-next-line eslint/no-console -- Runtime warning for misconfigured MODULES env var
                       console.warn(`[host] Unknown module "${m}". Available: ${Object.keys(ModuleRegistry).join(", ")}`);
@@ -32,7 +32,7 @@ export function getActiveModules(filter: string | undefined, queryClient: QueryC
               })
         : Object.keys(ModuleRegistry);
 
-    return keys.map((key) => {
+    return keys.map(key => {
         const entry = ModuleRegistry[key];
 
         return ((runtime: FireflyRuntime) => entry.register(runtime, queryClient)) as ModuleRegisterFunction<FireflyRuntime>;

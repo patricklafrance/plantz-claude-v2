@@ -1,12 +1,23 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TriangleAlertIcon } from "lucide-react";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle, AlertDialogTrigger } from "./alert-dialog.tsx";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogMedia,
+    AlertDialogTitle,
+    AlertDialogTrigger
+} from "./alert-dialog.tsx";
 import { Button } from "./button.tsx";
 
 const meta = {
     title: "Components/AlertDialog",
-    component: AlertDialog,
+    component: AlertDialog
 } satisfies Meta<typeof AlertDialog>;
 
 export default meta;
@@ -28,7 +39,7 @@ export const Default: Story = {
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
-    ),
+    )
 };
 
 export const SmallSize: Story = {
@@ -46,7 +57,7 @@ export const SmallSize: Story = {
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
-    ),
+    )
 };
 
 export const WithMedia: Story = {
@@ -67,7 +78,7 @@ export const WithMedia: Story = {
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
-    ),
+    )
 };
 
 export const Destructive: Story = {
@@ -77,7 +88,9 @@ export const Destructive: Story = {
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Delete account?</AlertDialogTitle>
-                    <AlertDialogDescription>This will permanently delete your account and all associated data. This action cannot be undone.</AlertDialogDescription>
+                    <AlertDialogDescription>
+                        This will permanently delete your account and all associated data. This action cannot be undone.
+                    </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -85,7 +98,7 @@ export const Destructive: Story = {
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
-    ),
+    )
 };
 
 export const AllVariants: Story = {
@@ -159,5 +172,5 @@ export const AllVariants: Story = {
                 </AlertDialog>
             </div>
         </div>
-    ),
+    )
 };

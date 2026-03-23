@@ -4,7 +4,7 @@ import { appendFileSync } from "node:fs";
 const StorybookDependencies = {
     "@apps/packages-storybook": ["@packages/components", "@packages/core-plants"],
     "@apps/management-storybook": ["@modules/management-plants", "@modules/management-user"],
-    "@apps/today-storybook": ["@modules/today-landing-page", "@modules/today-vacation-planner"],
+    "@apps/today-storybook": ["@modules/today-landing-page", "@modules/today-vacation-planner"]
 } as const;
 
 interface TurborepoAffectedItem {
@@ -22,7 +22,7 @@ function createAffectedStorybooksRecordFromBooleanValue(value: boolean) {
 
             return acc;
         },
-        {} as Record<keyof typeof StorybookDependencies, boolean>,
+        {} as Record<keyof typeof StorybookDependencies, boolean>
     );
 }
 
@@ -40,7 +40,7 @@ try {
         cwd: process.cwd(),
         encoding: "utf8",
         // Suppress stderr to avoid outputting Turborepo logs.
-        stdio: ["ignore", "pipe", "ignore"],
+        stdio: ["ignore", "pipe", "ignore"]
     });
 
     const parsedResult = JSON.parse(rawResult);
@@ -62,7 +62,7 @@ try {
 
                 return acc;
             },
-            {} as Record<keyof typeof StorybookDependencies, boolean>,
+            {} as Record<keyof typeof StorybookDependencies, boolean>
         );
 
         // Get the package name of only the affected Storybook applications.
@@ -74,7 +74,7 @@ try {
 
                 return acc;
             },
-            [] as (keyof typeof StorybookDependencies)[],
+            [] as (keyof typeof StorybookDependencies)[]
         );
 
         if (packageNames.length > 0) {

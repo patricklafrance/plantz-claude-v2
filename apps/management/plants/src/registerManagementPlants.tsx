@@ -15,16 +15,16 @@ function registerRoutes(runtime: FireflyRuntime, collection: ReturnType<typeof c
                     <ManagementPlantsCollectionProvider collection={collection}>
                         <PlantsPage />
                     </ManagementPlantsCollectionProvider>
-                ),
+                )
             };
-        },
+        }
     });
 
     runtime.registerNavigationItem({
         $id: "management-plants",
         $label: "My Plants",
         $priority: 90,
-        to: "/management/plants",
+        to: "/management/plants"
     });
 }
 

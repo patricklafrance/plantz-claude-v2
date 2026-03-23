@@ -7,7 +7,7 @@ import type { DelegationInfo } from "@packages/core-plants/vacation";
 const delegationSchema = z.object({
     helperName: z.string().min(1, "Helper name is required"),
     wateringDate: z.date({ error: "Watering date is required" }),
-    notes: z.string().optional(),
+    notes: z.string().optional()
 });
 
 interface DelegationDialogProps {
@@ -51,7 +51,7 @@ export function DelegationDialog({ open, onOpenChange, plantName, tripStartDate,
         onSave({
             helperName: result.data.helperName,
             wateringDate: result.data.wateringDate,
-            notes: result.data.notes,
+            notes: result.data.notes
         });
         onOpenChange(false);
     };
@@ -68,7 +68,14 @@ export function DelegationDialog({ open, onOpenChange, plantName, tripStartDate,
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="helper-name">Helper Name</Label>
-                        <Input id="helper-name" value={helperName} onChange={(e) => setHelperName(e.target.value)} placeholder="Enter helper's name" aria-invalid={!!errors.helperName} aria-describedby={errors.helperName ? "helper-name-error" : undefined} />
+                        <Input
+                            id="helper-name"
+                            value={helperName}
+                            onChange={e => setHelperName(e.target.value)}
+                            placeholder="Enter helper's name"
+                            aria-invalid={!!errors.helperName}
+                            aria-describedby={errors.helperName ? "helper-name-error" : undefined}
+                        />
                         {errors.helperName && (
                             <p id="helper-name-error" className="text-destructive text-xs" role="alert">
                                 {errors.helperName}
@@ -78,7 +85,13 @@ export function DelegationDialog({ open, onOpenChange, plantName, tripStartDate,
 
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="watering-date">Watering Date</Label>
-                        <DatePicker id="watering-date" value={wateringDate} onChange={setWateringDate} placeholder="Pick a date" aria-describedby={errors.wateringDate ? "watering-date-error" : undefined} />
+                        <DatePicker
+                            id="watering-date"
+                            value={wateringDate}
+                            onChange={setWateringDate}
+                            placeholder="Pick a date"
+                            aria-describedby={errors.wateringDate ? "watering-date-error" : undefined}
+                        />
                         {errors.wateringDate && (
                             <p id="watering-date-error" className="text-destructive text-xs" role="alert">
                                 {errors.wateringDate}
@@ -88,7 +101,7 @@ export function DelegationDialog({ open, onOpenChange, plantName, tripStartDate,
 
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="notes">Notes (optional)</Label>
-                        <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any special instructions..." />
+                        <Textarea id="notes" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Any special instructions..." />
                     </div>
                 </div>
                 <DialogFooter>

@@ -16,7 +16,7 @@ const editPlants = [
     makePlant({ id: "test-edit-3", name: "Monstera Deliciosa" }),
     makePlant({ id: "test-edit-4", name: "Monstera Deliciosa" }),
     makePlant({ id: "test-edit-5", name: "Monstera Deliciosa" }),
-    makePlant({ id: "test-edit-6", name: "Monstera Deliciosa" }),
+    makePlant({ id: "test-edit-6", name: "Monstera Deliciosa" })
 ];
 
 const meta = {
@@ -31,16 +31,16 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
         },
-        msw: { handlers: createManagementPlantHandlers(editPlants) },
+        msw: { handlers: createManagementPlantHandlers(editPlants) }
     },
     args: {
         open: true,
         onOpenChange: () => {},
-        onDelete: () => {},
-    },
+        onDelete: () => {}
+    }
 } satisfies Meta<typeof EditPlantDialog>;
 
 export default meta;
@@ -55,18 +55,18 @@ export const WithPlant: Story = {
             description: "A tropical plant with large fenestrated leaves",
             family: "Araceae",
             soilType: "Well-draining mix",
-            nextWateringDate: FAR_FUTURE,
-        }),
-    },
+            nextWateringDate: FAR_FUTURE
+        })
+    }
 };
 
 export const MinimalPlant: Story = {
     args: {
         plant: makePlant({
             id: "test-edit-2",
-            name: "Monstera Deliciosa",
-        }),
-    },
+            name: "Monstera Deliciosa"
+        })
+    }
 };
 
 export const AllOptionalFieldsFilled: Story = {
@@ -76,9 +76,9 @@ export const AllOptionalFieldsFilled: Story = {
             name: "Monstera Deliciosa",
             description: "Beautiful tropical plant known for its distinctive split leaves and aerial roots. Thrives in indirect light.",
             family: "Araceae",
-            soilType: "Peat moss, perlite, and orchid bark mix",
-        }),
-    },
+            soilType: "Peat moss, perlite, and orchid bark mix"
+        })
+    }
 };
 
 export const DueForWatering: Story = {
@@ -86,9 +86,9 @@ export const DueForWatering: Story = {
         plant: makePlant({
             id: "test-edit-4",
             name: "Monstera Deliciosa",
-            nextWateringDate: FAR_PAST,
-        }),
-    },
+            nextWateringDate: FAR_PAST
+        })
+    }
 };
 
 export const MistLeavesFalse: Story = {
@@ -96,9 +96,9 @@ export const MistLeavesFalse: Story = {
         plant: makePlant({
             id: "test-edit-5",
             name: "Monstera Deliciosa",
-            mistLeaves: false,
-        }),
-    },
+            mistLeaves: false
+        })
+    }
 };
 
 export const LongFieldValues: Story = {
@@ -110,9 +110,9 @@ export const LongFieldValues: Story = {
                 "This is an exceptionally rare and beautiful tropical plant that has been carefully cultivated over many generations. Known for its distinctive pinstripe variegation patterns on dark green leaves, it thrives in indirect light conditions and requires consistent moisture without overwatering. Originally native to the tropical forests of South America.",
             family: "Araceae (Philodendron subfamily)",
             soilType: "Premium organic peat moss mixed with perlite, vermiculite, and orchid bark in equal parts",
-            wateringQuantity: "250ml slowly poured around the base every 5-7 days",
-        }),
-    },
+            wateringQuantity: "250ml slowly poured around the base every 5-7 days"
+        })
+    }
 };
 
 export const WithMarkWatered: Story = {
@@ -121,24 +121,24 @@ export const WithMarkWatered: Story = {
             id: "test-edit-1",
             name: "Monstera Deliciosa",
             description: "A tropical plant with large fenestrated leaves",
-            nextWateringDate: FAR_PAST,
+            nextWateringDate: FAR_PAST
         }),
-        onMarkWatered: () => {},
-    },
+        onMarkWatered: () => {}
+    }
 };
 
 export const NullPlant: Story = {
     args: {
-        plant: null,
-    },
+        plant: null
+    }
 };
 
 export const Closed: Story = {
     args: {
         plant: makePlant({
             id: "test-edit-1",
-            name: "Monstera Deliciosa",
+            name: "Monstera Deliciosa"
         }),
-        open: false,
-    },
+        open: false
+    }
 };

@@ -5,7 +5,7 @@ import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitl
 
 const meta = {
     title: "Components/Popover",
-    component: Popover,
+    component: Popover
 } satisfies Meta<typeof Popover>;
 
 export default meta;
@@ -23,7 +23,7 @@ export const Default: Story = {
                 </PopoverHeader>
             </PopoverContent>
         </Popover>
-    ),
+    )
 };
 
 export const AlignStart: Story = {
@@ -37,7 +37,7 @@ export const AlignStart: Story = {
                 </PopoverHeader>
             </PopoverContent>
         </Popover>
-    ),
+    )
 };
 
 export const AlignEnd: Story = {
@@ -51,7 +51,7 @@ export const AlignEnd: Story = {
                 </PopoverHeader>
             </PopoverContent>
         </Popover>
-    ),
+    )
 };
 
 export const WithCustomContent: Story = {
@@ -79,7 +79,7 @@ export const WithCustomContent: Story = {
                 </div>
             </PopoverContent>
         </Popover>
-    ),
+    )
 };
 
 export const AllVariants: Story = {
@@ -113,5 +113,5 @@ export const AllVariants: Story = {
                 </PopoverContent>
             </Popover>
         </div>
-    ),
+    )
 };

@@ -13,10 +13,10 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
-    },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
+    }
 } satisfies Meta<typeof CareEventBadge>;
 
 export default meta;
@@ -25,18 +25,18 @@ type Story = StoryObj<typeof meta>;
 
 export const Watered: Story = {
     args: {
-        eventType: "watered",
-    },
+        eventType: "watered"
+    }
 };
 
 export const Skipped: Story = {
     args: {
-        eventType: "skipped",
-    },
+        eventType: "skipped"
+    }
 };
 
 export const Delegated: Story = {
     args: {
-        eventType: "delegated",
-    },
+        eventType: "delegated"
+    }
 };

@@ -11,7 +11,7 @@ const defaultFilters: PlantFilters = {
     soilType: "",
     wateringFrequency: null,
     wateringType: null,
-    dueForWatering: false,
+    dueForWatering: false
 };
 
 const meta = {
@@ -25,16 +25,16 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     args: {
         filters: defaultFilters,
         onFilterChange: () => {},
         onClear: () => {},
-        hasActiveFilters: false,
-    },
+        hasActiveFilters: false
+    }
 } satisfies Meta<typeof FilterBar>;
 
 export default meta;
@@ -46,15 +46,15 @@ export const Default: Story = {};
 export const WithNameFilter: Story = {
     args: {
         filters: { ...defaultFilters, name: "Monstera" },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const WithLocationSelected: Story = {
     args: {
         filters: { ...defaultFilters, location: "living-room" },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const MultipleFiltersActive: Story = {
@@ -65,14 +65,14 @@ export const MultipleFiltersActive: Story = {
             location: "bedroom",
             luminosity: "bright-indirect",
             mistLeaves: true,
-            dueForWatering: true,
+            dueForWatering: true
         },
-        hasActiveFilters: true,
-    },
+        hasActiveFilters: true
+    }
 };
 
 export const HideDueForWatering: Story = {
     args: {
-        showDueForWatering: false,
-    },
+        showDueForWatering: false
+    }
 };

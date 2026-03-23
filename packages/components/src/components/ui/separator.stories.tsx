@@ -8,9 +8,9 @@ const meta = {
     argTypes: {
         orientation: {
             control: "select",
-            options: ["horizontal", "vertical"],
-        },
-    },
+            options: ["horizontal", "vertical"]
+        }
+    }
 } satisfies Meta<typeof Separator>;
 
 export default meta;
@@ -20,23 +20,23 @@ type Story = StoryObj<typeof meta>;
 export const Horizontal: Story = {
     args: { orientation: "horizontal" },
     decorators: [
-        (Story) => (
+        Story => (
             <div className="w-64">
                 <Story />
             </div>
-        ),
-    ],
+        )
+    ]
 };
 
 export const Vertical: Story = {
     args: { orientation: "vertical" },
     decorators: [
-        (Story) => (
+        Story => (
             <div className="flex h-16">
                 <Story />
             </div>
-        ),
-    ],
+        )
+    ]
 };
 
 export const AllVariants: Story = {
@@ -59,5 +59,5 @@ export const AllVariants: Story = {
                 </div>
             </div>
         </div>
-    ),
+    )
 };

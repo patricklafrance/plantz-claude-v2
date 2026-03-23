@@ -7,8 +7,8 @@ const meta = {
     title: "Components/DatePicker",
     component: DatePicker,
     args: {
-        placeholder: "Pick a date",
-    },
+        placeholder: "Pick a date"
+    }
 } satisfies Meta<typeof DatePicker>;
 
 export default meta;
@@ -19,27 +19,27 @@ export const Default = {} satisfies Story;
 
 export const WithPreselectedDate: Story = {
     args: {
-        value: new Date(2026, 2, 6),
-    },
+        value: new Date(2026, 2, 6)
+    }
 };
 
 export const WithCustomPlaceholder: Story = {
     args: {
-        placeholder: "Select watering date",
-    },
+        placeholder: "Select watering date"
+    }
 };
 
 export const Disabled: Story = {
     args: {
-        disabled: true,
-    },
+        disabled: true
+    }
 };
 
 export const DisabledWithValue: Story = {
     args: {
         value: new Date(2026, 2, 6),
-        disabled: true,
-    },
+        disabled: true
+    }
 };
 
 export const Controlled: Story = {
@@ -53,7 +53,7 @@ export const Controlled: Story = {
                 <p className="text-muted-foreground text-sm">Selected: {date ? date.toLocaleDateString() : "none"}</p>
             </div>
         );
-    },
+    }
 };
 
 export const AllVariants: Story = {
@@ -80,5 +80,5 @@ export const AllVariants: Story = {
                 <DatePicker value={new Date(2026, 2, 6)} disabled />
             </div>
         </div>
-    ),
+    )
 };

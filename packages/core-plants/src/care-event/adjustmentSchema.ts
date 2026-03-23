@@ -6,7 +6,7 @@ export const adjustmentRecommendationSchema = z.object({
     suggestedInterval: z.number(),
     explanation: z.string(),
     confidence: z.enum(["low", "medium", "high"]),
-    recentBehaviorSummary: z.string(),
+    recentBehaviorSummary: z.string()
 });
 
 export const adjustmentEventSchema = z.object({
@@ -15,5 +15,5 @@ export const adjustmentEventSchema = z.object({
     previousInterval: z.number(),
     newInterval: z.number(),
     adjustmentDate: z.coerce.date(),
-    note: z.string().optional(),
+    note: z.string().optional()
 });

@@ -32,9 +32,9 @@ export function UserPage() {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    ...getAuthHeaders(),
+                    ...getAuthHeaders()
                 },
-                body: JSON.stringify({ name: trimmed }),
+                body: JSON.stringify({ name: trimmed })
             });
 
             if (!response.ok) {
@@ -63,7 +63,15 @@ export function UserPage() {
                 )}
                 <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
-                    <Input id="username" type="text" value={name} onChange={(e) => setName(e.target.value)} aria-invalid={error ? "true" : undefined} aria-describedby={error ? "username-error" : undefined} autoComplete="name" />
+                    <Input
+                        id="username"
+                        type="text"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        aria-invalid={error ? "true" : undefined}
+                        aria-describedby={error ? "username-error" : undefined}
+                        autoComplete="name"
+                    />
                 </div>
                 <div className="flex gap-2">
                     <Button type="submit" className="flex-1" disabled={isSubmitting}>

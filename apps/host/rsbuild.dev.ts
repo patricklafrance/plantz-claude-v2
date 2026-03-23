@@ -2,7 +2,7 @@ import { defineDevConfig, type RsbuildConfigTransformer } from "@workleap/rsbuil
 
 // @opentelemetry/api is an optional peer dependency of @squide/firefly (used only by Honeycomb instrumentation).
 // Ignore it so the bundler doesn't fail when it's not installed.
-const ignoreOptionalPeerDeps: RsbuildConfigTransformer = (config) => {
+const ignoreOptionalPeerDeps: RsbuildConfigTransformer = config => {
     config.tools ??= {};
     config.tools.rspack ??= {};
 
@@ -14,7 +14,7 @@ const ignoreOptionalPeerDeps: RsbuildConfigTransformer = (config) => {
     return config;
 };
 
-const tailwindPostCss: RsbuildConfigTransformer = (config) => {
+const tailwindPostCss: RsbuildConfigTransformer = config => {
     config.tools ??= {};
     config.tools.postcss ??= {};
 
@@ -31,7 +31,7 @@ const tailwindPostCss: RsbuildConfigTransformer = (config) => {
 
 export default defineDevConfig({
     environmentVariables: {
-        MODULES: process.env.MODULES ?? "",
+        MODULES: process.env.MODULES ?? ""
     },
-    transformers: [ignoreOptionalPeerDeps, tailwindPostCss],
+    transformers: [ignoreOptionalPeerDeps, tailwindPostCss]
 });

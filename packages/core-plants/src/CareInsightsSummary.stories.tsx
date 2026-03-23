@@ -10,7 +10,7 @@ function makeInsight(overrides: Partial<CareInsight> = {}): CareInsight {
         wateringStreak: 4,
         missedWateringCount: 2,
         consistencyScore: 85,
-        ...overrides,
+        ...overrides
     };
 }
 
@@ -25,17 +25,17 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     decorators: [
-        (Story) => (
+        Story => (
             <div className="max-w-lg p-4">
                 <Story />
             </div>
-        ),
-    ],
+        )
+    ]
 } satisfies Meta<typeof CareInsightsSummary>;
 
 export default meta;
@@ -44,14 +44,14 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
     args: {
-        insights: makeInsight(),
-    },
+        insights: makeInsight()
+    }
 };
 
 export const NoHistory: Story = {
     args: {
-        insights: null,
-    },
+        insights: null
+    }
 };
 
 export const HighConsistency: Story = {
@@ -59,9 +59,9 @@ export const HighConsistency: Story = {
         insights: makeInsight({
             wateringStreak: 12,
             missedWateringCount: 0,
-            consistencyScore: 100,
-        }),
-    },
+            consistencyScore: 100
+        })
+    }
 };
 
 export const LowConsistency: Story = {
@@ -69,9 +69,9 @@ export const LowConsistency: Story = {
         insights: makeInsight({
             wateringStreak: 1,
             missedWateringCount: 8,
-            consistencyScore: 42,
-        }),
-    },
+            consistencyScore: 42
+        })
+    }
 };
 
 export const SingleEvent: Story = {
@@ -80,7 +80,7 @@ export const SingleEvent: Story = {
             averageWateringIntervalDays: 0,
             wateringStreak: 1,
             missedWateringCount: 0,
-            consistencyScore: 100,
-        }),
-    },
+            consistencyScore: 100
+        })
+    }
 };

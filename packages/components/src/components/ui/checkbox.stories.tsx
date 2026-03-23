@@ -7,8 +7,8 @@ const meta = {
     title: "Components/Checkbox",
     component: Checkbox,
     args: {
-        "aria-label": "Toggle",
-    },
+        "aria-label": "Toggle"
+    }
 } satisfies Meta<typeof Checkbox>;
 
 export default meta;
@@ -18,15 +18,15 @@ type Story = StoryObj<typeof meta>;
 export const Default = {} satisfies Story;
 
 export const Checked = {
-    args: { defaultChecked: true },
+    args: { defaultChecked: true }
 } satisfies Story;
 
 export const Disabled = {
-    args: { disabled: true },
+    args: { disabled: true }
 } satisfies Story;
 
 export const DisabledChecked = {
-    args: { disabled: true, defaultChecked: true },
+    args: { disabled: true, defaultChecked: true }
 } satisfies Story;
 
 export const WithLabel: Story = {
@@ -35,7 +35,7 @@ export const WithLabel: Story = {
             <Checkbox id="terms" />
             <Label htmlFor="terms">Accept terms and conditions</Label>
         </div>
-    ),
+    )
 };
 
 export const AllVariants: Story = {
@@ -70,5 +70,5 @@ export const AllVariants: Story = {
                 </div>
             </div>
         </div>
-    ),
+    )
 };

@@ -7,9 +7,9 @@ export async function createCareEvent(plantId: string, eventType: CareEventType,
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            ...getAuthHeaders(),
+            ...getAuthHeaders()
         },
-        body: JSON.stringify({ plantId, eventType, notes }),
+        body: JSON.stringify({ plantId, eventType, notes })
     });
 
     if (!response.ok) {
@@ -26,9 +26,9 @@ export async function createBulkCareEvents(plantIds: string[], eventType: CareEv
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            ...getAuthHeaders(),
+            ...getAuthHeaders()
         },
-        body: JSON.stringify({ plantIds, eventType, notes }),
+        body: JSON.stringify({ plantIds, eventType, notes })
     });
 
     if (!response.ok) {
@@ -37,5 +37,5 @@ export async function createBulkCareEvents(plantIds: string[], eventType: CareEv
 
     const data = (await response.json()) as unknown[];
 
-    return data.map((item) => careEventSchema.parse(item));
+    return data.map(item => careEventSchema.parse(item));
 }

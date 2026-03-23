@@ -6,7 +6,15 @@ export function PlantzLogo({ className }: { className?: string }) {
                 <path d="M14 28C14 28 18 20 16 14C14 8 8 4 8 4C8 4 12 10 13 16C14 22 14 28 14 28Z" fill="currentColor" opacity="0.5" />
                 <line x1="11" y1="14" x2="11" y2="30" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
             </g>
-            <text x="28" y="24" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700" fontSize="20" fill="currentColor" letterSpacing="-0.5">
+            <text
+                x="28"
+                y="24"
+                fontFamily="system-ui, -apple-system, sans-serif"
+                fontWeight="700"
+                fontSize="20"
+                fill="currentColor"
+                letterSpacing="-0.5"
+            >
                 Plantz
             </text>
         </svg>

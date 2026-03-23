@@ -13,15 +13,15 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     args: {
         open: true,
         onOpenChange: () => {},
-        onConfirm: () => {},
-    },
+        onConfirm: () => {}
+    }
 } satisfies Meta<typeof DeleteConfirmDialog>;
 
 export default meta;
@@ -30,14 +30,14 @@ type Story = StoryObj<typeof meta>;
 
 export const SinglePlant: Story = {
     args: {
-        plantNames: ["Monstera Deliciosa"],
-    },
+        plantNames: ["Monstera Deliciosa"]
+    }
 };
 
 export const MultiplePlants: Story = {
     args: {
-        plantNames: ["Monstera Deliciosa", "Golden Pothos", "Snake Plant"],
-    },
+        plantNames: ["Monstera Deliciosa", "Golden Pothos", "Snake Plant"]
+    }
 };
 
 export const ManyPlants: Story = {
@@ -62,26 +62,30 @@ export const ManyPlants: Story = {
             "African Violet",
             "Dracaena Marginata",
             "Croton Petra",
-            "Anthurium Clarinervium",
-        ],
-    },
+            "Anthurium Clarinervium"
+        ]
+    }
 };
 
 export const LongPlantName: Story = {
     args: {
-        plantNames: ["Philodendron Birkin Variegated Extra Special Limited Edition Tropical Houseplant", "Monstera Adansonii Swiss Cheese Variegated Albo Borsigiana Extremely Rare Collector Item", "Begonia Maculata Polka Dot Angel Wing Silver Spotted Premium Indoor Collection"],
-    },
+        plantNames: [
+            "Philodendron Birkin Variegated Extra Special Limited Edition Tropical Houseplant",
+            "Monstera Adansonii Swiss Cheese Variegated Albo Borsigiana Extremely Rare Collector Item",
+            "Begonia Maculata Polka Dot Angel Wing Silver Spotted Premium Indoor Collection"
+        ]
+    }
 };
 
 export const EmptyPlantNames: Story = {
     args: {
-        plantNames: [],
-    },
+        plantNames: []
+    }
 };
 
 export const Closed: Story = {
     args: {
         open: false,
-        plantNames: ["Monstera Deliciosa"],
-    },
+        plantNames: ["Monstera Deliciosa"]
+    }
 };

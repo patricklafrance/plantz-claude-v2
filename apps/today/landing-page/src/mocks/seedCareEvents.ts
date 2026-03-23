@@ -27,7 +27,7 @@ function generateEventsForPlant(plantId: string, plantIndex: number): CareEvent[
             plantId,
             eventType,
             eventDate,
-            notes: i % 4 === 0 ? "Soil was very dry" : undefined,
+            notes: i % 4 === 0 ? "Soil was very dry" : undefined
         });
     }
 
@@ -35,6 +35,6 @@ function generateEventsForPlant(plantId: string, plantIndex: number): CareEvent[
 }
 
 // Generate care events for the first 20 "user-alice" plants
-const alicePlants = defaultSeedPlants.filter((p) => p.userId === "user-alice").slice(0, 20);
+const alicePlants = defaultSeedPlants.filter(p => p.userId === "user-alice").slice(0, 20);
 
 export const defaultSeedCareEvents: CareEvent[] = alicePlants.flatMap((plant, index) => generateEventsForPlant(plant.id, index));

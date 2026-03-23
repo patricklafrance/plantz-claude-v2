@@ -33,6 +33,6 @@ export function createTodayVacationPlannerHandlers(data: PlantsData, activePlan?
 
             return HttpResponse.json(body);
         }),
-        http.delete("/api/today/vacation-planner/plans/:id", () => new HttpResponse(null, { status: 204 })),
+        http.delete("/api/today/vacation-planner/plans/:id", () => new HttpResponse(null, { status: 204 }))
     ];
 }

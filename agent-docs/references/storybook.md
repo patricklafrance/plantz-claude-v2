@@ -49,12 +49,12 @@ A11y tests run via `addon-a11y` + `addon-vitest` (`pnpm test` in domain storyboo
 ```ts
 // Suppress for all stories in the file
 const meta = {
-    parameters: { a11y: { config: { rules: [{ id: "color-contrast", enabled: false }] } } },
+    parameters: { a11y: { config: { rules: [{ id: "color-contrast", enabled: false }] } } }
 };
 
 // Suppress for a single story
 export const Example: Story = {
-    parameters: { a11y: { config: { rules: [{ id: "color-contrast", enabled: false }] } } },
+    parameters: { a11y: { config: { rules: [{ id: "color-contrast", enabled: false }] } } }
 };
 ```
 

@@ -41,7 +41,7 @@ export function CareHistoryTimeline({ events }: CareHistoryTimelineProps) {
             {[...grouped.entries()].map(([dayLabel, dayEvents]) => (
                 <div key={dayLabel} className="flex flex-col gap-1.5">
                     <span className="text-muted-foreground text-xs font-medium">{dayLabel}</span>
-                    {dayEvents.map((event) => (
+                    {dayEvents.map(event => (
                         <div key={event.id} className="flex items-center gap-2">
                             <CareEventBadge eventType={event.eventType} />
                             {event.notes && <span className="text-muted-foreground truncate text-xs">{event.notes}</span>}

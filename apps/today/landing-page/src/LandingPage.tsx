@@ -21,14 +21,14 @@ export function LandingPage() {
     const queryClient = useQueryClient();
 
     const collection = useTodayPlantsCollection();
-    const { data: allPlants, isReady } = useLiveQuery((q) => q.from({ plant: collection }));
+    const { data: allPlants, isReady } = useLiveQuery(q => q.from({ plant: collection }));
 
     const plants = useMemo(() => {
         if (!allPlants) return [];
 
         // First sort by name, then filter to only plants due for watering, then apply user filters
         const sorted = allPlants.toSorted((a, b) => a.name.localeCompare(b.name));
-        const duePlants = sorted.filter((p) => isDueForWatering(p));
+        const duePlants = sorted.filter(p => isDueForWatering(p));
 
         return applyPlantFilters(duePlants, filters);
     }, [allPlants, filters]);
@@ -37,13 +37,13 @@ export function LandingPage() {
         count: plants.length,
         estimateSize: () => 49,
         overscan: 10,
-        scrollMargin: (listRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY,
+        scrollMargin: (listRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY
     });
 
-    const allSelected = plants.length > 0 && plants.every((p) => selectedIds.has(p.id));
+    const allSelected = plants.length > 0 && plants.every(p => selectedIds.has(p.id));
 
     const toggleSelect = useCallback((id: string) => {
-        setSelectedIds((prev) => {
+        setSelectedIds(prev => {
             const next = new Set(prev);
             if (next.has(id)) {
                 next.delete(id);
@@ -58,7 +58,7 @@ export function LandingPage() {
         if (allSelected) {
             setSelectedIds(new Set());
         } else {
-            setSelectedIds(new Set(plants.map((p) => p.id)));
+            setSelectedIds(new Set(plants.map(p => p.id)));
         }
     }, [allSelected, plants]);
 
@@ -89,7 +89,7 @@ export function LandingPage() {
     }, [detailPlant, queryClient, collection]);
 
     const handleBulkMarkWatered = useCallback(async () => {
-        const ids = plants.filter((p) => selectedIds.has(p.id)).map((p) => p.id);
+        const ids = plants.filter(p => selectedIds.has(p.id)).map(p => p.id);
         if (ids.length === 0) return;
 
         try {
@@ -101,16 +101,16 @@ export function LandingPage() {
         }
     }, [plants, selectedIds, collection]);
 
-    const selectedCount = plants.filter((p) => selectedIds.has(p.id)).length;
+    const selectedCount = plants.filter(p => selectedIds.has(p.id)).length;
 
     const totalSize = virtualizer.getTotalSize();
     const virtualizerContainerStyle = useMemo(
         () => ({
             height: `${totalSize}px`,
             width: "100%",
-            position: "relative" as const,
+            position: "relative" as const
         }),
-        [totalSize],
+        [totalSize]
     );
 
     if (!isReady) {
@@ -129,7 +129,13 @@ export function LandingPage() {
 
             <VacationPlanBanner />
 
-            <FilterBar filters={filters} onFilterChange={updateFilter} onClear={clearFilters} hasActiveFilters={hasActiveFilters} showDueForWatering={false} />
+            <FilterBar
+                filters={filters}
+                onFilterChange={updateFilter}
+                onClear={clearFilters}
+                hasActiveFilters={hasActiveFilters}
+                showDueForWatering={false}
+            />
 
             {selectedCount > 0 && (
                 <div role="status" className="border-primary/20 bg-primary/5 flex items-center gap-3 rounded-lg border px-4 py-2">
@@ -147,7 +153,7 @@ export function LandingPage() {
             <div className="border-border rounded-lg border">
                 <PlantListHeader selectAllChecked={allSelected} onToggleSelectAll={toggleAll} />
                 <div ref={listRef} role="list" aria-label="Plants due for watering" style={virtualizerContainerStyle}>
-                    {virtualizer.getVirtualItems().map((virtualRow) => {
+                    {virtualizer.getVirtualItems().map(virtualRow => {
                         const plant = plants[virtualRow.index]!;
                         // oxlint-disable-next-line react-perf/jsx-no-new-object-as-prop -- Virtual row positioning requires per-item inline styles
                         const rowStyle = {
@@ -156,11 +162,16 @@ export function LandingPage() {
                             left: 0,
                             width: "100%",
                             height: `${virtualRow.size}px`,
-                            transform: `translateY(${virtualRow.start - virtualizer.options.scrollMargin}px)`,
+                            transform: `translateY(${virtualRow.start - virtualizer.options.scrollMargin}px)`
                         };
                         return (
                             <div key={plant.id} role="listitem" style={rowStyle}>
-                                <PlantListItem plant={plant} selected={selectedIds.has(plant.id)} onToggleSelect={toggleSelect} onClick={handleViewDetail} />
+                                <PlantListItem
+                                    plant={plant}
+                                    selected={selectedIds.has(plant.id)}
+                                    onToggleSelect={toggleSelect}
+                                    onClick={handleViewDetail}
+                                />
                             </div>
                         );
                     })}
@@ -171,7 +182,15 @@ export function LandingPage() {
                 plant={detailPlant}
                 open={detailPlant !== null}
                 onOpenChange={handleDetailOpenChange}
-                careSection={detailPlant ? <PlantCareSection plantId={detailPlant.id} wateringFrequency={detailPlant.wateringFrequency} onAdjustmentAccepted={handleAdjustmentAccepted} /> : undefined}
+                careSection={
+                    detailPlant ? (
+                        <PlantCareSection
+                            plantId={detailPlant.id}
+                            wateringFrequency={detailPlant.wateringFrequency}
+                            onAdjustmentAccepted={handleAdjustmentAccepted}
+                        />
+                    ) : undefined
+                }
                 onMarkWatered={handleMarkWatered}
             />
         </div>

@@ -15,8 +15,8 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
         },
         msw: {
             handlers: [
@@ -25,11 +25,11 @@ const meta = {
                 }),
                 http.get("/api/auth/session", () => {
                     return HttpResponse.json({ id: "user-alice", name: "Alice Johnson", email: "alice@example.com" });
-                }),
-            ],
-        },
+                })
+            ]
+        }
     },
-    decorators: [sessionDecorator, fireflyDecorator],
+    decorators: [sessionDecorator, fireflyDecorator]
 } satisfies Meta<typeof UserPage>;
 
 export default meta;

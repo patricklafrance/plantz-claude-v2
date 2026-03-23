@@ -5,7 +5,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 
 const meta = {
     title: "Components/Dialog",
-    component: Dialog,
+    component: Dialog
 } satisfies Meta<typeof Dialog>;
 
 export default meta;
@@ -27,7 +27,7 @@ export const Default: Story = {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-    ),
+    )
 };
 
 export const WithoutCloseButton: Story = {
@@ -45,7 +45,7 @@ export const WithoutCloseButton: Story = {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-    ),
+    )
 };
 
 export const WithFooterCloseButton: Story = {
@@ -62,7 +62,7 @@ export const WithFooterCloseButton: Story = {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-    ),
+    )
 };
 
 export const LongContent: Story = {
@@ -73,7 +73,9 @@ export const LongContent: Story = {
                 <DialogHeader>
                     <DialogTitle>Long Content</DialogTitle>
                     <DialogDescription>
-                        This dialog contains a larger amount of content to demonstrate scrolling behavior and layout handling with more text than usual. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                        This dialog contains a larger amount of content to demonstrate scrolling behavior and layout handling with more text than
+                        usual. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna
+                        aliqua.
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
@@ -82,7 +84,7 @@ export const LongContent: Story = {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-    ),
+    )
 };
 
 export const AllVariants: Story = {
@@ -136,5 +138,5 @@ export const AllVariants: Story = {
                 </Dialog>
             </div>
         </div>
-    ),
+    )
 };

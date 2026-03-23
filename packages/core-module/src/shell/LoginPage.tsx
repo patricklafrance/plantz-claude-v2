@@ -23,7 +23,7 @@ export function LoginPage() {
             const response = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, password })
             });
 
             if (!response.ok) {
@@ -52,11 +52,18 @@ export function LoginPage() {
                 )}
                 <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+                    <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
-                    <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
+                    <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                        autoComplete="current-password"
+                    />
                 </div>
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                     {isSubmitting ? "Logging in..." : "Log in"}

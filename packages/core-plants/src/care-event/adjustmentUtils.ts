@@ -53,7 +53,11 @@ export function formatIntervalLabel(days: number): string {
     return `every ${rounded} days`;
 }
 
-export function computeAdjustmentRecommendation(events: CareEvent[], currentIntervalDays: number, options?: { minEvents?: number }): AdjustmentRecommendation | null {
+export function computeAdjustmentRecommendation(
+    events: CareEvent[],
+    currentIntervalDays: number,
+    options?: { minEvents?: number }
+): AdjustmentRecommendation | null {
     const minEvents = options?.minEvents ?? DEFAULT_MIN_EVENTS;
     const watered = getWateredEventsByDateAsc(events);
 
@@ -102,6 +106,6 @@ export function computeAdjustmentRecommendation(events: CareEvent[], currentInte
         suggestedInterval: clampedInterval,
         explanation,
         confidence,
-        recentBehaviorSummary,
+        recentBehaviorSummary
     };
 }

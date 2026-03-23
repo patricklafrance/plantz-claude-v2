@@ -8,7 +8,7 @@ const API_BASE = "/api/today/plants";
 
 async function fetchPlants(): Promise<Plant[]> {
     const response = await fetch(API_BASE, {
-        headers: getAuthHeaders(),
+        headers: getAuthHeaders()
     });
 
     if (!response.ok) {
@@ -17,13 +17,13 @@ async function fetchPlants(): Promise<Plant[]> {
 
     const data: unknown[] = await response.json();
 
-    return data.map((item) => plantSchema.parse(item));
+    return data.map(item => plantSchema.parse(item));
 }
 
 export function createTodayPlantsCollection(queryClient: QueryClient): PlantsCollection {
     return createPlantsCollection({
         queryKey: ["today", "plants", "list"],
         queryFn: fetchPlants,
-        queryClient,
+        queryClient
     });
 }

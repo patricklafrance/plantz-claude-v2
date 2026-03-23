@@ -11,7 +11,7 @@ function getInitials(name: string): string {
     return name
         .split(" ")
         .filter(Boolean)
-        .map((part) => part[0])
+        .map(part => part[0])
         .join("")
         .toUpperCase()
         .slice(0, 2);
@@ -37,7 +37,10 @@ export function UserMenu() {
 
     return (
         <Popover>
-            <PopoverTrigger className="bg-primary text-primary-foreground flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-xs font-medium transition-opacity hover:opacity-80" aria-label="User menu">
+            <PopoverTrigger
+                className="bg-primary text-primary-foreground flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-xs font-medium transition-opacity hover:opacity-80"
+                aria-label="User menu"
+            >
                 {getInitials(session.name)}
             </PopoverTrigger>
             <PopoverContent align="end" side="bottom">

@@ -21,5 +21,5 @@ const tailwindPostCss: RslibConfigTransformer = (config: RslibConfig) => {
 export default defineDevConfig({
     tsconfigPath: path.resolve("./tsconfig.build.json"),
     react: true,
-    transformers: [tailwindPostCss],
+    transformers: [tailwindPostCss]
 });

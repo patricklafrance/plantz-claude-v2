@@ -2,7 +2,14 @@ import { useReducer, useCallback } from "react";
 
 import { getAuthHeaders } from "@packages/core-module";
 import type { Plant } from "@packages/core-plants";
-import { generateForecast, type PlanningStrategy, type PlantRecommendation, type RecommendationType, type DelegationInfo, type VacationPlan } from "@packages/core-plants/vacation";
+import {
+    generateForecast,
+    type PlanningStrategy,
+    type PlantRecommendation,
+    type RecommendationType,
+    type DelegationInfo,
+    type VacationPlan
+} from "@packages/core-plants/vacation";
 
 interface VacationPlanState {
     plan: VacationPlan | null;
@@ -32,12 +39,12 @@ function reducer(state: VacationPlanState, action: VacationPlanAction): Vacation
         case "OVERRIDE_RECOMMENDATION":
             return {
                 ...state,
-                recommendations: state.recommendations.map((r) => (r.plantId === action.plantId ? { ...r, override: action.newType } : r)),
+                recommendations: state.recommendations.map(r => (r.plantId === action.plantId ? { ...r, override: action.newType } : r))
             };
         case "SET_DELEGATION":
             return {
                 ...state,
-                recommendations: state.recommendations.map((r) => (r.plantId === action.plantId ? { ...r, delegation: action.delegation } : r)),
+                recommendations: state.recommendations.map(r => (r.plantId === action.plantId ? { ...r, delegation: action.delegation } : r))
             };
         case "LOAD_PLAN":
             return { ...state, plan: action.plan, recommendations: action.recommendations, isSaving: false };
@@ -49,7 +56,7 @@ function reducer(state: VacationPlanState, action: VacationPlanAction): Vacation
 const initialState: VacationPlanState = {
     plan: null,
     recommendations: [],
-    isSaving: false,
+    isSaving: false
 };
 
 export function useVacationPlan() {
@@ -65,7 +72,7 @@ export function useVacationPlan() {
             status: "draft",
             recommendations,
             createdAt: new Date(),
-            updatedAt: new Date(),
+            updatedAt: new Date()
         };
 
         dispatch({ type: "GENERATE_COMPLETE", plan, recommendations });
@@ -84,8 +91,8 @@ export function useVacationPlan() {
             body: JSON.stringify({
                 ...state.plan,
                 status: "active",
-                recommendations: state.recommendations,
-            }),
+                recommendations: state.recommendations
+            })
         });
 
         if (response.ok) {
@@ -101,7 +108,7 @@ export function useVacationPlan() {
         await fetch(`/api/today/vacation-planner/plans/${state.plan.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-            body: JSON.stringify({ status: "cancelled" }),
+            body: JSON.stringify({ status: "cancelled" })
         });
 
         dispatch({ type: "CANCEL_COMPLETE" });
@@ -129,6 +136,6 @@ export function useVacationPlan() {
         cancelPlan,
         overrideRecommendation,
         setDelegation,
-        loadPlan,
+        loadPlan
     };
 }

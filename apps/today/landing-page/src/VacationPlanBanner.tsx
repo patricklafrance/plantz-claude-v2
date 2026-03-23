@@ -12,7 +12,7 @@ export function VacationPlanBanner() {
         async function fetchActivePlan() {
             try {
                 const response = await fetch("/api/today/vacation-planner/plans/active", {
-                    headers: getAuthHeaders(),
+                    headers: getAuthHeaders()
                 });
                 if (response.ok) {
                     const data = await response.json();
@@ -20,7 +20,7 @@ export function VacationPlanBanner() {
                         setPlan({
                             ...data,
                             startDate: new Date(data.startDate),
-                            endDate: new Date(data.endDate),
+                            endDate: new Date(data.endDate)
                         });
                     }
                 }

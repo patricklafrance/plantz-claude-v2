@@ -14,16 +14,16 @@ const runtime = await initializeFireflyForStorybook({
                 $id: "plants",
                 $label: "My Plants",
                 $priority: 90,
-                to: "/management/plants",
+                to: "/management/plants"
             });
             rt.registerNavigationItem({
                 $id: "today",
                 $label: "Today",
                 $priority: 80,
-                to: "/today",
+                to: "/today"
             });
-        },
-    ],
+        }
+    ]
 });
 
 const fireflyDecorator = withFireflyDecorator(runtime);
@@ -39,20 +39,20 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     decorators: [
-        (Story) => (
+        Story => (
             <QueryClientProvider client={new QueryClient()}>
                 <SessionProvider session={{ id: "user-alice", name: "Alice Johnson", email: "alice@example.com" }}>
                     <Story />
                 </SessionProvider>
             </QueryClientProvider>
         ),
-        fireflyDecorator,
-    ],
+        fireflyDecorator
+    ]
 } satisfies Meta<typeof RootLayout>;
 
 export default meta;
@@ -66,5 +66,5 @@ export const WithMenuOpen: Story = {
         const canvas = within(canvasElement);
         const trigger = canvas.getByLabelText("User menu");
         await userEvent.click(trigger);
-    },
+    }
 };

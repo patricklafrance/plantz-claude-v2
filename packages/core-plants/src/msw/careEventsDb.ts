@@ -4,7 +4,7 @@ const store = new Map<string, CareEvent>();
 
 export const careEventsDb = {
     getAllByPlant(plantId: string): CareEvent[] {
-        return [...store.values()].filter((e) => e.plantId === plantId).toSorted((a, b) => b.eventDate.getTime() - a.eventDate.getTime());
+        return [...store.values()].filter(e => e.plantId === plantId).toSorted((a, b) => b.eventDate.getTime() - a.eventDate.getTime());
     },
 
     getAll(): CareEvent[] {
@@ -23,5 +23,5 @@ export const careEventsDb = {
         for (const event of events) {
             store.set(event.id, event);
         }
-    },
+    }
 };

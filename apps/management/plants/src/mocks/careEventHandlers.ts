@@ -39,7 +39,7 @@ export const managementCareEventHandlers = [
             plantId: body.plantId,
             eventType: body.eventType,
             eventDate: new Date(),
-            notes: body.notes,
+            notes: body.notes
         };
 
         careEventsDb.insert(event);
@@ -73,7 +73,7 @@ export const managementCareEventHandlers = [
                 plantId,
                 eventType: body.eventType,
                 eventDate: new Date(),
-                notes: body.notes,
+                notes: body.notes
             };
 
             careEventsDb.insert(event);
@@ -91,5 +91,5 @@ export const managementCareEventHandlers = [
         }
 
         return HttpResponse.json(events, { status: 201 });
-    }),
+    })
 ];

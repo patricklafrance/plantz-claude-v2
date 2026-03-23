@@ -8,8 +8,8 @@ const meta = {
     title: "Components/Label",
     component: Label,
     args: {
-        children: "Label text",
-    },
+        children: "Label text"
+    }
 } satisfies Meta<typeof Label>;
 
 export default meta;
@@ -24,7 +24,7 @@ export const WithInput: Story = {
             <Label htmlFor="name">Name</Label>
             <Input id="name" placeholder="Enter your name..." />
         </div>
-    ),
+    )
 };
 
 export const WithCheckbox: Story = {
@@ -33,7 +33,7 @@ export const WithCheckbox: Story = {
             <Checkbox id="terms" />
             <Label htmlFor="terms">Accept terms and conditions</Label>
         </div>
-    ),
+    )
 };
 
 export const AllVariants: Story = {
@@ -56,5 +56,5 @@ export const AllVariants: Story = {
                 </div>
             </div>
         </div>
-    ),
+    )
 };

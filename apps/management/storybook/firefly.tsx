@@ -6,7 +6,16 @@
  */
 
 import { EnvironmentVariablesPlugin, type EnvironmentVariables } from "@squide/env-vars";
-import { AppRouter, FireflyProvider, FireflyRuntime, type FireflyRuntimeOptions, FireflyRuntimeScope, InMemoryLaunchDarklyClient, type ModuleRegisterFunction, toLocalModuleDefinitions } from "@squide/firefly";
+import {
+    AppRouter,
+    FireflyProvider,
+    FireflyRuntime,
+    type FireflyRuntimeOptions,
+    FireflyRuntimeScope,
+    InMemoryLaunchDarklyClient,
+    type ModuleRegisterFunction,
+    toLocalModuleDefinitions
+} from "@squide/firefly";
 import { LaunchDarklyPlugin, type FeatureFlags, isEditableLaunchDarklyClient, useLaunchDarklyClient } from "@squide/launch-darkly";
 import { MswPlugin } from "@squide/msw";
 import type { Decorator } from "@storybook/react-vite";
@@ -49,16 +58,19 @@ interface InitializeFireflyForStorybookOptions {
 export async function initializeFireflyForStorybook(options: InitializeFireflyForStorybookOptions = {}): Promise<StorybookRuntime> {
     const { localModules = [], environmentVariables, featureFlags = {}, launchDarklyClient, loggers, useMsw = true } = options;
 
-    const plugins: FireflyRuntimeOptions["plugins"] = [(x) => new EnvironmentVariablesPlugin(x, { variables: environmentVariables }), (x) => new LaunchDarklyPlugin(x, launchDarklyClient ?? new InMemoryLaunchDarklyClient(featureFlags))];
+    const plugins: FireflyRuntimeOptions["plugins"] = [
+        x => new EnvironmentVariablesPlugin(x, { variables: environmentVariables }),
+        x => new LaunchDarklyPlugin(x, launchDarklyClient ?? new InMemoryLaunchDarklyClient(featureFlags))
+    ];
 
     if (useMsw) {
-        plugins.push((x) => new MswPlugin(x));
+        plugins.push(x => new MswPlugin(x));
     }
 
     const runtime = new StorybookRuntime({
         mode: "development",
         plugins,
-        loggers,
+        loggers
     });
 
     if (localModules.length > 0) {
@@ -80,14 +92,22 @@ function FireflyDecorator({ runtime, children: story }: FireflyDecoratorProps) {
     return (
         <FireflyProvider runtime={runtime}>
             <AppRouter strictMode={false}>
-                {({ rootRoute, routerProps, routerProviderProps }) => <RouterProvider router={createMemoryRouter([{ element: rootRoute, children: [{ path: "/story", element: story }] }], { ...routerProps, initialEntries: ["/story"] })} {...routerProviderProps} />}
+                {({ rootRoute, routerProps, routerProviderProps }) => (
+                    <RouterProvider
+                        router={createMemoryRouter([{ element: rootRoute, children: [{ path: "/story", element: story }] }], {
+                            ...routerProps,
+                            initialEntries: ["/story"]
+                        })}
+                        {...routerProviderProps}
+                    />
+                )}
             </AppRouter>
         </FireflyProvider>
     );
 }
 
 export function withFireflyDecorator(runtime: FireflyRuntime): Decorator {
-    return (story) => <FireflyDecorator runtime={runtime}>{story()}</FireflyDecorator>;
+    return story => <FireflyDecorator runtime={runtime}>{story()}</FireflyDecorator>;
 }
 
 // --- withFeatureFlagsOverrideDecorator ---
@@ -115,5 +135,5 @@ function OverrideFeatureFlags({ overrides, children }: PropsWithChildren<{ overr
 }
 
 function withFeatureFlagsOverrideDecorator(overrides: Partial<FeatureFlags>): Decorator {
-    return (story) => <OverrideFeatureFlags overrides={overrides}>{story()}</OverrideFeatureFlags>;
+    return story => <OverrideFeatureFlags overrides={overrides}>{story()}</OverrideFeatureFlags>;
 }

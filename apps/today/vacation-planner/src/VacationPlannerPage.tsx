@@ -15,7 +15,7 @@ const RECOMMENDATION_ORDER: RecommendationType[] = ["already-overdue", "water-be
 
 export function VacationPlannerPage() {
     const collection = useTodayVacationPlantsCollection();
-    const { data: plants, isReady } = useLiveQuery((q) => q.from({ plant: collection }));
+    const { data: plants, isReady } = useLiveQuery(q => q.from({ plant: collection }));
     const { plan, recommendations, isSaving, createPlan, savePlan, cancelPlan, overrideRecommendation, setDelegation, loadPlan } = useVacationPlan();
 
     const [delegatingPlantId, setDelegatingPlantId] = useState<string | null>(null);
@@ -25,7 +25,7 @@ export function VacationPlannerPage() {
         async function loadActivePlan() {
             try {
                 const response = await fetch("/api/today/vacation-planner/plans/active", {
-                    headers: getAuthHeaders(),
+                    headers: getAuthHeaders()
                 });
                 if (response.ok) {
                     const activePlan = await response.json();
@@ -45,7 +45,7 @@ export function VacationPlannerPage() {
             if (!plants) return;
             createPlan(plants, startDate, endDate, strategy);
         },
-        [plants, createPlan],
+        [plants, createPlan]
     );
 
     const handleDelegate = setDelegatingPlantId;
@@ -53,13 +53,13 @@ export function VacationPlannerPage() {
     const handleOverride = useCallback(
         (plantId: string) => {
             // Simple toggle: override to water-before-trip if currently something else
-            const rec = recommendations.find((r) => r.plantId === plantId);
+            const rec = recommendations.find(r => r.plantId === plantId);
             if (rec) {
                 const newType: RecommendationType = rec.type === "water-before-trip" ? "safe-until-return" : "water-before-trip";
                 overrideRecommendation(plantId, newType);
             }
         },
-        [recommendations, overrideRecommendation],
+        [recommendations, overrideRecommendation]
     );
 
     const handleDelegationSave = useCallback(
@@ -69,7 +69,7 @@ export function VacationPlannerPage() {
                 setDelegatingPlantId(null);
             }
         },
-        [delegatingPlantId, setDelegation],
+        [delegatingPlantId, setDelegation]
     );
 
     const groupedRecommendations = useMemo(() => {
@@ -88,7 +88,7 @@ export function VacationPlannerPage() {
         return groups;
     }, [recommendations]);
 
-    const delegatingPlant = delegatingPlantId ? recommendations.find((r) => r.plantId === delegatingPlantId) : null;
+    const delegatingPlant = delegatingPlantId ? recommendations.find(r => r.plantId === delegatingPlantId) : null;
 
     if (!isReady) {
         return (
@@ -128,20 +128,38 @@ export function VacationPlannerPage() {
                 <>
                     {(!plan || plan.status === "cancelled") && <VacationDateForm onGenerate={handleGenerate} />}
 
-                    {plan && plan.status !== "cancelled" && <VacationDateForm onGenerate={handleGenerate} initialStartDate={plan.startDate} initialEndDate={plan.endDate} initialStrategy={plan.strategy} disabled={plan.status === "active"} />}
+                    {plan && plan.status !== "cancelled" && (
+                        <VacationDateForm
+                            onGenerate={handleGenerate}
+                            initialStartDate={plan.startDate}
+                            initialEndDate={plan.endDate}
+                            initialStrategy={plan.strategy}
+                            disabled={plan.status === "active"}
+                        />
+                    )}
 
                     {recommendations.length === 0 && !plan && (
                         <div className="border-border flex flex-col items-center justify-center gap-2 rounded-lg border p-12">
-                            <p className="text-muted-foreground text-sm">Select your trip dates and generate a forecast to see recommendations for your plants.</p>
+                            <p className="text-muted-foreground text-sm">
+                                Select your trip dates and generate a forecast to see recommendations for your plants.
+                            </p>
                         </div>
                     )}
 
                     {recommendations.length > 0 && (
                         <div className="flex flex-col gap-6">
-                            {RECOMMENDATION_ORDER.map((type) => {
+                            {RECOMMENDATION_ORDER.map(type => {
                                 const recs = groupedRecommendations.get(type) ?? [];
 
-                                return <RecommendationGroup key={type} type={type} recommendations={recs} onDelegate={handleDelegate} onOverride={handleOverride} />;
+                                return (
+                                    <RecommendationGroup
+                                        key={type}
+                                        type={type}
+                                        recommendations={recs}
+                                        onDelegate={handleDelegate}
+                                        onOverride={handleOverride}
+                                    />
+                                );
                             })}
                         </div>
                     )}
@@ -151,7 +169,7 @@ export function VacationPlannerPage() {
             {delegatingPlant && plan && (
                 <DelegationDialog
                     open={delegatingPlantId !== null}
-                    onOpenChange={(open) => !open && setDelegatingPlantId(null)}
+                    onOpenChange={open => !open && setDelegatingPlantId(null)}
                     plantName={delegatingPlant.plantName}
                     tripStartDate={plan.startDate}
                     tripEndDate={plan.endDate}

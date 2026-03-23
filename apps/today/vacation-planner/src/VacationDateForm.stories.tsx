@@ -13,13 +13,13 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     args: {
-        onGenerate: () => {},
-    },
+        onGenerate: () => {}
+    }
 } satisfies Meta<typeof VacationDateForm>;
 
 export default meta;
@@ -32,12 +32,12 @@ export const WithDates: Story = {
     args: {
         initialStartDate: new Date(2099, 5, 1),
         initialEndDate: new Date(2099, 5, 14),
-        initialStrategy: "conservative",
-    },
+        initialStrategy: "conservative"
+    }
 };
 
 export const ValidationErrors: Story = {
     // Validation errors show on click of "Generate Forecast" with empty fields.
     // For Chromatic, we show the empty form — validation requires interaction.
-    args: {},
+    args: {}
 };

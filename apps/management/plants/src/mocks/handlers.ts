@@ -38,14 +38,17 @@ export const managementPlantHandlers = [
         const body = (await request.json()) as Record<string, unknown>;
         const now = new Date();
 
-        const id = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+        const id =
+            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+                ? crypto.randomUUID()
+                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
         const plant = plantsDb.insert({
             ...(body as Record<string, unknown>),
             id,
             userId,
             creationDate: now,
-            lastUpdateDate: now,
+            lastUpdateDate: now
         } as Plant);
 
         return HttpResponse.json(plant, { status: 201 });
@@ -79,5 +82,5 @@ export const managementPlantHandlers = [
         plantsDb.deleteMany(body.ids);
 
         return new HttpResponse(null, { status: 204 });
-    }),
+    })
 ];

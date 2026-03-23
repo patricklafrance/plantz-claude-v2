@@ -16,17 +16,17 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     decorators: [
-        (Story) => (
+        Story => (
             <div className="max-w-lg p-4">
                 <Story />
             </div>
-        ),
-    ],
+        )
+    ]
 } satisfies Meta<typeof CareHistoryTimeline>;
 
 export default meta;
@@ -40,27 +40,31 @@ export const Default: Story = {
             makeCareEvent({ eventDate: new Date(2024, 6, 10), eventType: "skipped", notes: "Soil still moist" }),
             makeCareEvent({ eventDate: new Date(2024, 6, 5), eventType: "watered" }),
             makeCareEvent({ eventDate: new Date(2024, 5, 28), eventType: "delegated", notes: "Asked neighbor" }),
-            makeCareEvent({ eventDate: new Date(2024, 5, 21), eventType: "watered" }),
-        ],
-    },
+            makeCareEvent({ eventDate: new Date(2024, 5, 21), eventType: "watered" })
+        ]
+    }
 };
 
 export const Empty: Story = {
     args: {
-        events: [],
-    },
+        events: []
+    }
 };
 
 export const SingleEvent: Story = {
     args: {
-        events: [makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "watered" })],
-    },
+        events: [makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "watered" })]
+    }
 };
 
 export const MultipleEventsPerDay: Story = {
     args: {
-        events: [makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "watered", notes: "Morning" }), makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "delegated", notes: "Evening" }), makeCareEvent({ eventDate: new Date(2024, 6, 10), eventType: "watered" })],
-    },
+        events: [
+            makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "watered", notes: "Morning" }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "delegated", notes: "Evening" }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 10), eventType: "watered" })
+        ]
+    }
 };
 
 export const LongHistory: Story = {
@@ -72,8 +76,8 @@ export const LongHistory: Story = {
             return makeCareEvent({
                 eventDate,
                 eventType: types[i % 3]!,
-                notes: i % 3 === 0 ? `Event note #${i + 1}` : undefined,
+                notes: i % 3 === 0 ? `Event note #${i + 1}` : undefined
             });
-        }),
-    },
+        })
+    }
 };

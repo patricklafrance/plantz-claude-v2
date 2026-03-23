@@ -62,8 +62,8 @@ export const plantsCollection = createCollection(
         id: "plants",
         storageKey: "plantz-plants",
         getKey: (item: Plant) => item.id,
-        schema: plantSchema,
-    }),
+        schema: plantSchema
+    })
 );
 ```
 
@@ -90,11 +90,11 @@ plantsCollection.delete(plantId);
 ```typescript
 import { useLiveQuery, eq, and } from "@tanstack/react-db";
 
-const { data: plants } = useLiveQuery((q) =>
+const { data: plants } = useLiveQuery(q =>
     q
         .from({ plant: plantsCollection })
         .where(({ plant }) => eq(plant.location, "kitchen"))
-        .orderBy(({ plant }) => plant.name, "asc"),
+        .orderBy(({ plant }) => plant.name, "asc")
 );
 ```
 
@@ -104,14 +104,14 @@ When filter values come from React state, pass a dependency array so the query r
 const [location, setLocation] = useState<string | null>(null);
 
 const { data } = useLiveQuery(
-    (q) => {
+    q => {
         let query = q.from({ plant: plantsCollection });
         if (location) {
             query = query.where(({ plant }) => eq(plant.location, location));
         }
         return query;
     },
-    [location],
+    [location]
 );
 ```
 

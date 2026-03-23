@@ -34,10 +34,10 @@ const meta = {
                 "light mobile": { theme: "light", viewport: 375 },
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
-    },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
+    }
 } satisfies Meta<typeof UserMenu>;
 
 export default meta;
@@ -49,7 +49,7 @@ export const Default: Story = {
         <Wrapper session={aliceSession}>
             <UserMenu />
         </Wrapper>
-    ),
+    )
 };
 
 export const Open: Story = {
@@ -62,7 +62,7 @@ export const Open: Story = {
         const canvas = within(canvasElement);
         const trigger = canvas.getByLabelText("User menu");
         await userEvent.click(trigger);
-    },
+    }
 };
 
 export const ShortName: Story = {
@@ -70,7 +70,7 @@ export const ShortName: Story = {
         <Wrapper session={bobSession}>
             <UserMenu />
         </Wrapper>
-    ),
+    )
 };
 
 export const NoSession: Story = {
@@ -78,5 +78,5 @@ export const NoSession: Story = {
         <Wrapper session={null}>
             <UserMenu />
         </Wrapper>
-    ),
+    )
 };

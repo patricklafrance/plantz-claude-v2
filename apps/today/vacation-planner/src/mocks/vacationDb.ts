@@ -35,5 +35,5 @@ export const vacationDb = {
 
     delete(id: string): boolean {
         return plans.delete(id);
-    },
+    }
 };

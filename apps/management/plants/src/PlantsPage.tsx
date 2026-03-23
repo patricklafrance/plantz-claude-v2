@@ -24,7 +24,7 @@ export function PlantsPage() {
 
     const collection = useManagementPlantsCollection();
     const actions = useMemo(() => createManagementPlantActions(collection), [collection]);
-    const { data: allPlants, isReady } = useLiveQuery((q) => q.from({ plant: collection }));
+    const { data: allPlants, isReady } = useLiveQuery(q => q.from({ plant: collection }));
 
     const plants = useMemo(() => {
         if (!allPlants) return [];
@@ -37,13 +37,13 @@ export function PlantsPage() {
         count: plants.length,
         estimateSize: () => 49,
         overscan: 10,
-        scrollMargin: (listRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY,
+        scrollMargin: (listRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY
     });
 
-    const allSelected = plants.length > 0 && plants.every((p) => selectedIds.has(p.id));
+    const allSelected = plants.length > 0 && plants.every(p => selectedIds.has(p.id));
 
     const toggleSelect = useCallback((id: string) => {
-        setSelectedIds((prev) => {
+        setSelectedIds(prev => {
             const next = new Set(prev);
             if (next.has(id)) {
                 next.delete(id);
@@ -58,7 +58,7 @@ export function PlantsPage() {
         if (allSelected) {
             setSelectedIds(new Set());
         } else {
-            setSelectedIds(new Set(plants.map((p) => p.id)));
+            setSelectedIds(new Set(plants.map(p => p.id)));
         }
     }, [allSelected, plants]);
 
@@ -67,7 +67,7 @@ export function PlantsPage() {
     }, []);
 
     const handleBulkDelete = useCallback(() => {
-        const selected = plants.filter((p) => selectedIds.has(p.id));
+        const selected = plants.filter(p => selectedIds.has(p.id));
         if (selected.length > 0) {
             setDeleteTarget(selected);
         }
@@ -75,16 +75,16 @@ export function PlantsPage() {
 
     const confirmDelete = useCallback(() => {
         if (!deleteTarget) return;
-        const ids = deleteTarget.map((p) => p.id);
+        const ids = deleteTarget.map(p => p.id);
         actions.deletePlants(ids);
-        setSelectedIds((prev) => {
+        setSelectedIds(prev => {
             const next = new Set(prev);
             for (const plant of deleteTarget) {
                 next.delete(plant.id);
             }
             return next;
         });
-        if (editOpen && editPlant && deleteTarget.some((p) => p.id === editPlant.id)) {
+        if (editOpen && editPlant && deleteTarget.some(p => p.id === editPlant.id)) {
             setEditOpen(false);
             setEditPlant(null);
         }
@@ -97,7 +97,7 @@ export function PlantsPage() {
             setEditPlant(null);
             handleDeleteSingle(plant);
         },
-        [handleDeleteSingle],
+        [handleDeleteSingle]
     );
 
     const handleOpenCreate = useCallback(() => setCreateOpen(true), []);
@@ -122,11 +122,11 @@ export function PlantsPage() {
                 // Silently handle — the user can retry.
             }
         },
-        [collection],
+        [collection]
     );
 
     const handleBulkMarkWatered = useCallback(async () => {
-        const ids = plants.filter((p) => selectedIds.has(p.id)).map((p) => p.id);
+        const ids = plants.filter(p => selectedIds.has(p.id)).map(p => p.id);
         if (ids.length === 0) return;
 
         try {
@@ -138,18 +138,18 @@ export function PlantsPage() {
         }
     }, [plants, selectedIds, collection]);
 
-    const selectedCount = plants.filter((p) => selectedIds.has(p.id)).length;
+    const selectedCount = plants.filter(p => selectedIds.has(p.id)).length;
 
-    const deleteTargetNames = deleteTarget?.map((p) => p.name) ?? [];
+    const deleteTargetNames = deleteTarget?.map(p => p.name) ?? [];
 
     const totalSize = virtualizer.getTotalSize();
     const virtualizerContainerStyle = useMemo(
         () => ({
             height: `${totalSize}px`,
             width: "100%",
-            position: "relative" as const,
+            position: "relative" as const
         }),
-        [totalSize],
+        [totalSize]
     );
 
     if (!isReady) {
@@ -193,7 +193,7 @@ export function PlantsPage() {
             <div className="border-border rounded-lg border">
                 <PlantListHeader showActions selectAllChecked={allSelected} onToggleSelectAll={toggleAll} />
                 <div ref={listRef} role="list" aria-label="Plants" style={virtualizerContainerStyle}>
-                    {virtualizer.getVirtualItems().map((virtualRow) => {
+                    {virtualizer.getVirtualItems().map(virtualRow => {
                         const plant = plants[virtualRow.index]!;
                         // oxlint-disable-next-line react-perf/jsx-no-new-object-as-prop -- Virtual row positioning requires per-item inline styles
                         const rowStyle = {
@@ -202,11 +202,18 @@ export function PlantsPage() {
                             left: 0,
                             width: "100%",
                             height: `${virtualRow.size}px`,
-                            transform: `translateY(${virtualRow.start - virtualizer.options.scrollMargin}px)`,
+                            transform: `translateY(${virtualRow.start - virtualizer.options.scrollMargin}px)`
                         };
                         return (
                             <div key={plant.id} role="listitem" style={rowStyle}>
-                                <PlantListItem plant={plant} selected={selectedIds.has(plant.id)} onToggleSelect={toggleSelect} onEdit={handleEditPlant} onDelete={handleDeleteSingle} onMarkWatered={handleMarkWatered} />
+                                <PlantListItem
+                                    plant={plant}
+                                    selected={selectedIds.has(plant.id)}
+                                    onToggleSelect={toggleSelect}
+                                    onEdit={handleEditPlant}
+                                    onDelete={handleDeleteSingle}
+                                    onMarkWatered={handleMarkWatered}
+                                />
                             </div>
                         );
                     })}
@@ -214,8 +221,19 @@ export function PlantsPage() {
             </div>
 
             <CreatePlantDialog open={createOpen} onOpenChange={setCreateOpen} />
-            <EditPlantDialog plant={editPlant} open={editOpen} onOpenChange={setEditOpen} onDelete={handleEditFromDialog} onMarkWatered={handleMarkWatered} />
-            <DeleteConfirmDialog open={deleteTarget !== null} onOpenChange={handleDeleteDialogOpenChange} plantNames={deleteTargetNames} onConfirm={confirmDelete} />
+            <EditPlantDialog
+                plant={editPlant}
+                open={editOpen}
+                onOpenChange={setEditOpen}
+                onDelete={handleEditFromDialog}
+                onMarkWatered={handleMarkWatered}
+            />
+            <DeleteConfirmDialog
+                open={deleteTarget !== null}
+                onOpenChange={handleDeleteDialogOpenChange}
+                plantNames={deleteTargetNames}
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }

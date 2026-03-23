@@ -7,14 +7,14 @@ const meta = {
     title: "Components/Switch",
     component: Switch,
     args: {
-        "aria-label": "Toggle",
+        "aria-label": "Toggle"
     },
     argTypes: {
         size: {
             control: "select",
-            options: ["default", "sm"],
-        },
-    },
+            options: ["default", "sm"]
+        }
+    }
 } satisfies Meta<typeof Switch>;
 
 export default meta;
@@ -24,19 +24,19 @@ type Story = StoryObj<typeof meta>;
 export const Default = {} satisfies Story;
 
 export const SmallSize = {
-    args: { size: "sm" },
+    args: { size: "sm" }
 } satisfies Story;
 
 export const Checked = {
-    args: { defaultChecked: true },
+    args: { defaultChecked: true }
 } satisfies Story;
 
 export const Disabled = {
-    args: { disabled: true },
+    args: { disabled: true }
 } satisfies Story;
 
 export const DisabledChecked = {
-    args: { disabled: true, defaultChecked: true },
+    args: { disabled: true, defaultChecked: true }
 } satisfies Story;
 
 export const WithLabel: Story = {
@@ -45,7 +45,7 @@ export const WithLabel: Story = {
             <Switch id="airplane-mode" />
             <Label htmlFor="airplane-mode">Airplane Mode</Label>
         </div>
-    ),
+    )
 };
 
 export const AllVariants: Story = {
@@ -54,7 +54,7 @@ export const AllVariants: Story = {
 
         return (
             <div className="flex flex-col gap-6">
-                {sizes.map((size) => (
+                {sizes.map(size => (
                     <div key={size} className="flex flex-col gap-2">
                         <span className="text-muted-foreground text-sm font-medium">{size}</span>
                         <div className="flex items-center gap-4">
@@ -79,5 +79,5 @@ export const AllVariants: Story = {
                 ))}
             </div>
         );
-    },
+    }
 };

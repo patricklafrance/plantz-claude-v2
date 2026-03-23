@@ -6,7 +6,7 @@ import { AuthError } from "../AuthError.ts";
 import { SessionProvider, sessionQueryOptions } from "../SessionContext.tsx";
 
 function BootstrappingRoute() {
-    const [session] = useProtectedDataQueries([sessionQueryOptions()], (error) => error instanceof AuthError && error.status === 401);
+    const [session] = useProtectedDataQueries([sessionQueryOptions()], error => error instanceof AuthError && error.status === 401);
 
     const isActiveRouteProtected = useIsActiveRouteProtected(true, { throwWhenThereIsNoMatch: false });
 
@@ -49,12 +49,12 @@ export function App() {
                                 children: [
                                     {
                                         element: <BootstrappingRoute />,
-                                        children: registeredRoutes,
-                                    },
-                                ],
-                            },
+                                        children: registeredRoutes
+                                    }
+                                ]
+                            }
                         ],
-                        routerProps,
+                        routerProps
                     )}
                     {...routerProviderProps}
                 />

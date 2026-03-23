@@ -6,7 +6,7 @@ const FREQUENCY_DAYS: Record<string, number> = {
     "1-week": 7,
     "1.5-weeks": 10.5,
     "2-weeks": 14,
-    "2.5-weeks": 17.5,
+    "2.5-weeks": 17.5
 };
 
 export function getFrequencyDays(frequency: string): number {
@@ -14,7 +14,7 @@ export function getFrequencyDays(frequency: string): number {
 }
 
 export function getOptionLabel(options: readonly { id: string; label: string }[], id: string): string {
-    return options.find((o) => o.id === id)?.label ?? id;
+    return options.find(o => o.id === id)?.label ?? id;
 }
 
 export function isDueForWatering(plant: Plant, now?: Date): boolean {
@@ -30,29 +30,29 @@ export function applyPlantFilters(plants: Plant[], filters: PlantFilters): Plant
 
     if (filters.name) {
         const needle = filters.name.toLowerCase();
-        result = result.filter((p) => p.name.toLowerCase().includes(needle));
+        result = result.filter(p => p.name.toLowerCase().includes(needle));
     }
     if (filters.location) {
-        result = result.filter((p) => p.location === filters.location);
+        result = result.filter(p => p.location === filters.location);
     }
     if (filters.luminosity) {
-        result = result.filter((p) => p.luminosity === filters.luminosity);
+        result = result.filter(p => p.luminosity === filters.luminosity);
     }
     if (filters.mistLeaves !== null) {
-        result = result.filter((p) => p.mistLeaves === filters.mistLeaves);
+        result = result.filter(p => p.mistLeaves === filters.mistLeaves);
     }
     if (filters.wateringFrequency) {
-        result = result.filter((p) => p.wateringFrequency === filters.wateringFrequency);
+        result = result.filter(p => p.wateringFrequency === filters.wateringFrequency);
     }
     if (filters.wateringType) {
-        result = result.filter((p) => p.wateringType === filters.wateringType);
+        result = result.filter(p => p.wateringType === filters.wateringType);
     }
     if (filters.dueForWatering) {
-        result = result.filter((p) => isDueForWatering(p));
+        result = result.filter(p => isDueForWatering(p));
     }
     if (filters.soilType) {
         const needle = filters.soilType.toLowerCase();
-        result = result.filter((p) => p.soilType?.toLowerCase().includes(needle));
+        result = result.filter(p => p.soilType?.toLowerCase().includes(needle));
     }
 
     return result;

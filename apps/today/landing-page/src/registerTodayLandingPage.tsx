@@ -13,25 +13,25 @@ function registerRoutes(runtime: FireflyRuntime, collection: ReturnType<typeof c
                 <TodayPlantsCollectionProvider collection={collection}>
                     <LandingPage />
                 </TodayPlantsCollectionProvider>
-            ),
+            )
         };
     };
 
     runtime.registerRoute({
         index: true,
-        lazy,
+        lazy
     });
 
     runtime.registerRoute({
         path: "/today",
-        lazy,
+        lazy
     });
 
     runtime.registerNavigationItem({
         $id: "today-landing-page",
         $label: "Today",
         $priority: 100,
-        to: "/today",
+        to: "/today"
     });
 }
 
@@ -40,7 +40,15 @@ export async function registerTodayLandingPage(runtime: FireflyRuntime, queryCli
     registerRoutes(runtime, collection);
 
     if (runtime.isMswEnabled) {
-        const { todayPlantHandlers, todayCareEventHandlers, defaultSeedCareEvents, careEventsDb, todayAdjustmentHandlers, adjustmentsDb, defaultSeedAdjustments } = await import("./mocks/index.ts");
+        const {
+            todayPlantHandlers,
+            todayCareEventHandlers,
+            defaultSeedCareEvents,
+            careEventsDb,
+            todayAdjustmentHandlers,
+            adjustmentsDb,
+            defaultSeedAdjustments
+        } = await import("./mocks/index.ts");
         careEventsDb.reset(defaultSeedCareEvents);
         adjustmentsDb.reset(defaultSeedAdjustments);
         runtime.registerRequestHandlers(todayPlantHandlers);

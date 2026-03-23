@@ -16,16 +16,16 @@ function registerRoutes(runtime: FireflyRuntime, collection: ReturnType<typeof c
                     <TodayVacationPlantsCollectionProvider collection={collection}>
                         <VacationPlannerPage />
                     </TodayVacationPlantsCollectionProvider>
-                ),
+                )
             };
-        },
+        }
     });
 
     runtime.registerNavigationItem({
         $id: "today-vacation-planner",
         $label: <VacationPlannerNavLabel />,
         $priority: 95,
-        to: "/today/vacation-planner",
+        to: "/today/vacation-planner"
     });
 }
 

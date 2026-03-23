@@ -25,7 +25,7 @@ export function RecommendationGroup({ type, recommendations, onDelegate, onOverr
                 </Badge>
             </div>
             <div className="flex flex-col gap-2">
-                {recommendations.map((rec) => (
+                {recommendations.map(rec => (
                     <RecommendationCard key={rec.plantId} recommendation={rec} onDelegate={onDelegate} onOverride={onOverride} />
                 ))}
             </div>

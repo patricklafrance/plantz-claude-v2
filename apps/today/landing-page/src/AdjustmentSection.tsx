@@ -24,7 +24,10 @@ export function AdjustmentSection({ plantId, currentIntervalDays, onAdjustmentAc
 
         try {
             await acceptAdjustment(plantId, recommendation.currentInterval, recommendation.suggestedInterval);
-            await Promise.all([queryClient.invalidateQueries({ queryKey: ["today", "adjustments", "recommendation", plantId] }), queryClient.invalidateQueries({ queryKey: ["today", "adjustments", "history", plantId] })]);
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ["today", "adjustments", "recommendation", plantId] }),
+                queryClient.invalidateQueries({ queryKey: ["today", "adjustments", "history", plantId] })
+            ]);
             onAdjustmentAccepted();
         } catch {
             // Silently handle — the user can retry.

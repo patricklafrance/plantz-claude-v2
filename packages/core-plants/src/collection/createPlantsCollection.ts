@@ -18,7 +18,7 @@ export function createPlantsCollection(config: PlantsCollectionConfig) {
             queryKey: config.queryKey,
             queryFn: config.queryFn,
             queryClient: config.queryClient,
-            getKey: (plant: Plant) => plant.id,
-        }),
+            getKey: (plant: Plant) => plant.id
+        })
     );
 }

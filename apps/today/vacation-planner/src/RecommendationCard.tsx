@@ -9,19 +9,19 @@ const typeBadgeVariants: Record<RecommendationType, "default" | "secondary" | "d
     "water-before-trip": "default",
     "safe-until-return": "secondary",
     "delegate-watering": "outline",
-    "already-overdue": "destructive",
+    "already-overdue": "destructive"
 };
 
 const riskLabels: Record<string, string> = {
     low: "Low Risk",
     medium: "Medium Risk",
-    high: "High Risk",
+    high: "High Risk"
 };
 
 const riskColors: Record<string, string> = {
     low: "text-muted-foreground",
     medium: "text-foreground",
-    high: "text-destructive",
+    high: "text-destructive"
 };
 
 interface RecommendationCardProps {

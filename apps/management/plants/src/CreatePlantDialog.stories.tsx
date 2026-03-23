@@ -20,16 +20,16 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
         },
-        msw: { handlers: managementPlantHandlers },
+        msw: { handlers: managementPlantHandlers }
     },
     args: {
         open: true,
         onOpenChange: () => {},
-        defaultFirstWateringDate: FIXED_FIRST_WATERING_DATE,
-    },
+        defaultFirstWateringDate: FIXED_FIRST_WATERING_DATE
+    }
 } satisfies Meta<typeof CreatePlantDialog>;
 
 export default meta;
@@ -40,6 +40,6 @@ export const Open: Story = {};
 
 export const Closed: Story = {
     args: {
-        open: false,
-    },
+        open: false
+    }
 };

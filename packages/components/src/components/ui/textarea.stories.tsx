@@ -7,8 +7,8 @@ const meta = {
     title: "Components/Textarea",
     component: Textarea,
     args: {
-        placeholder: "Enter text...",
-    },
+        placeholder: "Enter text..."
+    }
 } satisfies Meta<typeof Textarea>;
 
 export default meta;
@@ -18,11 +18,11 @@ type Story = StoryObj<typeof meta>;
 export const Default = {} satisfies Story;
 
 export const WithValue = {
-    args: { defaultValue: "This is some default text content in the textarea." },
+    args: { defaultValue: "This is some default text content in the textarea." }
 } satisfies Story;
 
 export const Disabled = {
-    args: { disabled: true, defaultValue: "Disabled textarea" },
+    args: { disabled: true, defaultValue: "Disabled textarea" }
 } satisfies Story;
 
 export const WithLabel: Story = {
@@ -31,7 +31,7 @@ export const WithLabel: Story = {
             <Label htmlFor="message">Message</Label>
             <Textarea id="message" placeholder="Type your message..." />
         </div>
-    ),
+    )
 };
 
 export const AllVariants: Story = {
@@ -55,5 +55,5 @@ export const AllVariants: Story = {
                 <Textarea id="all-variants-message" placeholder="Type your message..." />
             </div>
         </div>
-    ),
+    )
 };

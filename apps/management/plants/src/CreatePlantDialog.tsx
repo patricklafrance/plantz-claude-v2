@@ -1,6 +1,24 @@
 import { useState, useMemo, type FormEvent } from "react";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Button, Input, Textarea, Label, Switch, Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, DatePicker } from "@packages/components";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    Button,
+    Input,
+    Textarea,
+    Label,
+    Switch,
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    DatePicker
+} from "@packages/components";
 import { locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
 
 import { useManagementPlantsCollection } from "./ManagementPlantsContext.tsx";
@@ -66,7 +84,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
             wateringFrequency,
             wateringQuantity: wateringQuantity.trim(),
             wateringType,
-            nextWateringDate: firstWateringDate!,
+            nextWateringDate: firstWateringDate!
         });
 
         // Close optimistically — the UI updates instantly via TanStack DB
@@ -90,7 +108,15 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="create-name">Name *</Label>
-                        <Input id="create-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Plant name" aria-required="true" aria-invalid={name.trim() === "" && name !== ""} aria-describedby={name.trim() === "" && name !== "" ? "create-name-error" : undefined} />
+                        <Input
+                            id="create-name"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            placeholder="Plant name"
+                            aria-required="true"
+                            aria-invalid={name.trim() === "" && name !== ""}
+                            aria-describedby={name.trim() === "" && name !== "" ? "create-name-error" : undefined}
+                        />
                         {name.trim() === "" && name !== "" && (
                             <p id="create-name-error" role="alert" className="text-destructive text-xs">
                                 Name is required.
@@ -99,18 +125,23 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="create-description">Description</Label>
-                        <Textarea id="create-description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional description" />
+                        <Textarea
+                            id="create-description"
+                            value={description}
+                            onChange={e => setDescription(e.target.value)}
+                            placeholder="Optional description"
+                        />
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="create-family">Family</Label>
-                        <Input id="create-family" value={family} onChange={(e) => setFamily(e.target.value)} placeholder="Plant family" />
+                        <Input id="create-family" value={family} onChange={e => setFamily(e.target.value)} placeholder="Plant family" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                             <Label htmlFor="create-location">Location *</Label>
                             <Select
                                 value={location}
-                                onValueChange={(v) => {
+                                onValueChange={v => {
                                     if (v) setLocation(v);
                                 }}
                             >
@@ -119,7 +150,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        {locations.map((l) => (
+                                        {locations.map(l => (
                                             <SelectItem key={l.id} value={l.id}>
                                                 {l.label}
                                             </SelectItem>
@@ -132,7 +163,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                             <Label htmlFor="create-luminosity">Luminosity *</Label>
                             <Select
                                 value={luminosity}
-                                onValueChange={(v) => {
+                                onValueChange={v => {
                                     if (v) setLuminosity(v);
                                 }}
                             >
@@ -141,7 +172,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        {luminosities.map((l) => (
+                                        {luminosities.map(l => (
                                             <SelectItem key={l.id} value={l.id}>
                                                 {l.label}
                                             </SelectItem>
@@ -157,14 +188,14 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="create-soil">Soil type</Label>
-                        <Input id="create-soil" value={soilType} onChange={(e) => setSoilType(e.target.value)} placeholder="Soil type" />
+                        <Input id="create-soil" value={soilType} onChange={e => setSoilType(e.target.value)} placeholder="Soil type" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                             <Label htmlFor="create-watering-frequency">Watering frequency *</Label>
                             <Select
                                 value={wateringFrequency}
-                                onValueChange={(v) => {
+                                onValueChange={v => {
                                     if (v) setWateringFrequency(v);
                                 }}
                             >
@@ -173,7 +204,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        {wateringFrequencies.map((f) => (
+                                        {wateringFrequencies.map(f => (
                                             <SelectItem key={f.id} value={f.id}>
                                                 {f.label}
                                             </SelectItem>
@@ -186,7 +217,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                             <Label htmlFor="create-watering-type">Watering type *</Label>
                             <Select
                                 value={wateringType}
-                                onValueChange={(v) => {
+                                onValueChange={v => {
                                     if (v) setWateringType(v);
                                 }}
                             >
@@ -195,7 +226,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        {wateringTypes.map((t) => (
+                                        {wateringTypes.map(t => (
                                             <SelectItem key={t.id} value={t.id}>
                                                 {t.label}
                                             </SelectItem>
@@ -210,7 +241,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                         <Input
                             id="create-quantity"
                             value={wateringQuantity}
-                            onChange={(e) => setWateringQuantity(e.target.value)}
+                            onChange={e => setWateringQuantity(e.target.value)}
                             placeholder="e.g. 200ml"
                             aria-required="true"
                             aria-invalid={wateringQuantity.trim() === "" && wateringQuantity !== ""}
@@ -224,7 +255,12 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label>First watering date *</Label>
-                        <DatePicker value={firstWateringDate} onChange={setFirstWateringDate} placeholder="Pick a date" aria-label="First watering date" />
+                        <DatePicker
+                            value={firstWateringDate}
+                            onChange={setFirstWateringDate}
+                            placeholder="Pick a date"
+                            aria-label="First watering date"
+                        />
                     </div>
                     <DialogFooter>
                         <Button variant="outline" type="button" onClick={() => handleOpenChange(false)}>

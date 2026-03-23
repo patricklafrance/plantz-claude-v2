@@ -13,9 +13,9 @@ function QueryDecorator({ children }: { children: ReactNode }) {
     const queryClient = useMemo(
         () =>
             new QueryClient({
-                defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+                defaultOptions: { queries: { retry: false, staleTime: Infinity } }
             }),
-        [],
+        []
     );
 
     return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
@@ -34,24 +34,24 @@ const meta = {
                 "light desktop": { theme: "light", viewport: 1280 },
                 "dark mobile": { theme: "dark", viewport: 375 },
                 "dark tablet": { theme: "dark", viewport: 768 },
-                "dark desktop": { theme: "dark", viewport: 1280 },
-            },
-        },
+                "dark desktop": { theme: "dark", viewport: 1280 }
+            }
+        }
     },
     args: {
         plantId: "plant-1",
         wateringFrequency: "1-week",
-        onAdjustmentAccepted: () => {},
+        onAdjustmentAccepted: () => {}
     },
     decorators: [
-        (story) => <QueryDecorator>{story()}</QueryDecorator>,
+        story => <QueryDecorator>{story()}</QueryDecorator>,
         fireflyDecorator,
-        (Story) => (
+        Story => (
             <div className="max-w-lg p-4">
                 <Story />
             </div>
-        ),
-    ],
+        )
+    ]
 } satisfies Meta<typeof PlantCareSection>;
 
 export default meta;
@@ -64,39 +64,42 @@ const sampleEvents: CareEvent[] = [
     makeCareEvent({ id: "e3", eventDate: new Date(2024, 6, 5), eventType: "watered" }),
     makeCareEvent({ id: "e4", eventDate: new Date(2024, 5, 28), eventType: "delegated", notes: "Asked neighbor" }),
     makeCareEvent({ id: "e5", eventDate: new Date(2024, 5, 21), eventType: "watered" }),
-    makeCareEvent({ id: "e6", eventDate: new Date(2024, 5, 14), eventType: "watered" }),
+    makeCareEvent({ id: "e6", eventDate: new Date(2024, 5, 14), eventType: "watered" })
 ];
 
 export const WithHistory: Story = {
     parameters: {
         msw: {
-            handlers: [...createCareEventHandlers(sampleEvents), ...noAdjustmentHandlers],
-        },
-    },
+            handlers: [...createCareEventHandlers(sampleEvents), ...noAdjustmentHandlers]
+        }
+    }
 };
 
 export const NoHistory: Story = {
     parameters: {
         msw: {
-            handlers: [...createCareEventHandlers([]), ...noAdjustmentHandlers],
-        },
-    },
+            handlers: [...createCareEventHandlers([]), ...noAdjustmentHandlers]
+        }
+    }
 };
 
 export const SingleWatering: Story = {
     parameters: {
         msw: {
-            handlers: [...createCareEventHandlers([makeCareEvent({ id: "e1", eventDate: new Date(2024, 6, 15), eventType: "watered" })]), ...noAdjustmentHandlers],
-        },
-    },
+            handlers: [
+                ...createCareEventHandlers([makeCareEvent({ id: "e1", eventDate: new Date(2024, 6, 15), eventType: "watered" })]),
+                ...noAdjustmentHandlers
+            ]
+        }
+    }
 };
 
 export const Loading: Story = {
     parameters: {
         msw: {
-            handlers: createCareEventHandlers("loading"),
-        },
-    },
+            handlers: createCareEventHandlers("loading")
+        }
+    }
 };
 
 export const WithAdjustmentSuggestion: Story = {
@@ -106,11 +109,11 @@ export const WithAdjustmentSuggestion: Story = {
                 ...createCareEventHandlers(sampleEvents),
                 ...createAdjustmentHandlers({
                     recommendation: makeAdjustmentRecommendation(),
-                    history: [],
-                }),
-            ],
-        },
-    },
+                    history: []
+                })
+            ]
+        }
+    }
 };
 
 export const WithAdjustmentHistory: Story = {
@@ -127,11 +130,11 @@ export const WithAdjustmentHistory: Story = {
                             previousInterval: 14,
                             newInterval: 7,
                             adjustmentDate: new Date(2024, 6, 10),
-                            note: "Adjusted based on summer watering patterns",
-                        },
-                    ],
-                }),
-            ],
-        },
-    },
+                            note: "Adjusted based on summer watering patterns"
+                        }
+                    ]
+                })
+            ]
+        }
+    }
 };

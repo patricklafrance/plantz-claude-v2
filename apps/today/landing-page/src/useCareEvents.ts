@@ -8,12 +8,12 @@ export function useCareEvents(plantId: string | null) {
     const { data, isLoading, error } = useQuery<CareEvent[]>({
         queryKey: ["today", "care-events", plantId],
         queryFn: () => fetchCareEvents(plantId!),
-        enabled: plantId !== null,
+        enabled: plantId !== null
     });
 
     return {
         events: data ?? [],
         isLoading,
-        error,
+        error
     };
 }

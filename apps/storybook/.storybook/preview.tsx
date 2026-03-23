@@ -7,27 +7,27 @@ initialize({ onUnhandledRequest: "bypass", quiet: true });
 
 const preview: Preview = {
     initialGlobals: {
-        theme: import.meta.env.STORYBOOK_THEME || "light",
+        theme: import.meta.env.STORYBOOK_THEME || "light"
     },
     decorators: [
         withThemeByClassName({
             themes: {
                 light: "",
-                dark: "dark",
+                dark: "dark"
             },
             defaultTheme: "light",
-            parentSelector: "html",
-        }),
+            parentSelector: "html"
+        })
     ],
     loaders: [mswLoader],
     parameters: {
         chromatic: {
             modes: {
                 light: { theme: "light" },
-                dark: { theme: "dark" },
-            },
-        },
-    },
+                dark: { theme: "dark" }
+            }
+        }
+    }
 };
 
 export default preview;

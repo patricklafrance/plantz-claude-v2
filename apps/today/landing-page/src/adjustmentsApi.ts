@@ -5,11 +5,11 @@ import { adjustmentEventSchema, adjustmentRecommendationSchema } from "@packages
 export async function fetchAdjustmentRecommendation(plantId: string, currentIntervalDays: number): Promise<AdjustmentRecommendation | null> {
     const params = new URLSearchParams({
         plantId,
-        currentInterval: String(currentIntervalDays),
+        currentInterval: String(currentIntervalDays)
     });
 
     const response = await fetch(`/api/today/adjustments/recommendation?${params.toString()}`, {
-        headers: getAuthHeaders(),
+        headers: getAuthHeaders()
     });
 
     if (!response.ok) {
@@ -30,9 +30,9 @@ export async function acceptAdjustment(plantId: string, previousInterval: number
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            ...getAuthHeaders(),
+            ...getAuthHeaders()
         },
-        body: JSON.stringify({ plantId, previousInterval, newInterval, note }),
+        body: JSON.stringify({ plantId, previousInterval, newInterval, note })
     });
 
     if (!response.ok) {
@@ -49,9 +49,9 @@ export async function dismissRecommendation(plantId: string): Promise<void> {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            ...getAuthHeaders(),
+            ...getAuthHeaders()
         },
-        body: JSON.stringify({ plantId }),
+        body: JSON.stringify({ plantId })
     });
 
     if (!response.ok) {
@@ -61,7 +61,7 @@ export async function dismissRecommendation(plantId: string): Promise<void> {
 
 export async function fetchAdjustmentHistory(plantId: string): Promise<AdjustmentEvent[]> {
     const response = await fetch(`/api/today/adjustments?plantId=${encodeURIComponent(plantId)}`, {
-        headers: getAuthHeaders(),
+        headers: getAuthHeaders()
     });
 
     if (!response.ok) {
@@ -70,5 +70,5 @@ export async function fetchAdjustmentHistory(plantId: string): Promise<Adjustmen
 
     const data = (await response.json()) as unknown[];
 
-    return data.map((item) => adjustmentEventSchema.parse(item));
+    return data.map(item => adjustmentEventSchema.parse(item));
 }

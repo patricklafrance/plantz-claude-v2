@@ -9,7 +9,7 @@ export function VacationPlannerNavLabel() {
         async function fetchActivePlan() {
             try {
                 const response = await fetch("/api/today/vacation-planner/plans/active", {
-                    headers: getAuthHeaders(),
+                    headers: getAuthHeaders()
                 });
                 if (response.ok) {
                     const plan = await response.json();

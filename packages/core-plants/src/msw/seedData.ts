@@ -76,7 +76,7 @@ const plantSpecies = [
     { name: "Kalanchoe", family: "Crassulaceae" },
     { name: "Lipstick Plant", family: "Gesneriaceae" },
     { name: "Majesty Palm", family: "Arecaceae" },
-    { name: "Nerve Plant", family: "Acanthaceae" },
+    { name: "Nerve Plant", family: "Acanthaceae" }
 ] as const;
 
 const soilTypes = ["Potting mix", "Cactus mix", "Orchid bark", "Peat moss", "Sandy loam", "Clay mix", "Perlite blend", "Coconut coir"] as const;
@@ -136,7 +136,7 @@ export function generatePlants(count?: number, userId?: string): Plant[] {
             wateringType: pick(wateringTypeIds),
             nextWateringDate,
             creationDate,
-            lastUpdateDate: new Date(),
+            lastUpdateDate: new Date()
         });
     }
 

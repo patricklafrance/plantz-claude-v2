@@ -5,11 +5,11 @@ export default defineConfig({
     // Override Storybook's default chrome87 target to allow top-level await
     // in storybook.setup.tsx files. Chromatic runs modern Chromium (130+).
     build: {
-        target: "esnext",
+        target: "esnext"
     },
     css: {
         postcss: {
-            plugins: [tailwindcss()],
-        },
-    },
+            plugins: [tailwindcss()]
+        }
+    }
 });

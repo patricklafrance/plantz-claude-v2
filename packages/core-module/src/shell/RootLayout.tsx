@@ -1,4 +1,11 @@
-import { useNavigationItems, useRenderedNavigationItems, useIsActiveRouteProtected, isNavigationLink, type RenderItemFunction, type RenderSectionFunction } from "@squide/firefly";
+import {
+    useNavigationItems,
+    useRenderedNavigationItems,
+    useIsActiveRouteProtected,
+    isNavigationLink,
+    type RenderItemFunction,
+    type RenderSectionFunction
+} from "@squide/firefly";
 import { Link, Outlet } from "react-router";
 
 import { PlantzLogo } from "./PlantzLogo.tsx";
@@ -41,7 +48,10 @@ export function RootLayout() {
 
     return (
         <div className="bg-background text-foreground flex min-h-screen flex-col">
-            <a href="#main-content" className="focus:bg-background sr-only focus:not-sr-only focus:absolute focus:z-50 focus:px-4 focus:py-2 focus:text-sm focus:font-medium">
+            <a
+                href="#main-content"
+                className="focus:bg-background sr-only focus:not-sr-only focus:absolute focus:z-50 focus:px-4 focus:py-2 focus:text-sm focus:font-medium"
+            >
                 Skip to main content
             </a>
             <header className="border-border flex items-center gap-6 border-b px-6 py-3">

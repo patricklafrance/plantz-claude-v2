@@ -32,5 +32,5 @@ export const todayPlantHandlers = [
         plantsDb.deleteMany(body.ids);
 
         return new HttpResponse(null, { status: 204 });
-    }),
+    })
 ];
