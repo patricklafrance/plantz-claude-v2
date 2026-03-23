@@ -92,7 +92,7 @@ In `apps/storybook/.storybook/`:
 
 ### 5. Update affected map
 
-In `scripts/getAffectedStorybooks.ts`, add a new `StorybookDependencies` entry:
+In `scripts/get-affected-storybooks.ts`, add a new `StorybookDependencies` entry:
 
 ```ts
 "@apps/{domain}-storybook": [

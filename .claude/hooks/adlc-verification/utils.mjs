@@ -7,7 +7,7 @@ import { exec as execCb, execSync } from "node:child_process";
 import { readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
-const RUN_TIMEOUT = 5 * 60_000; // 5 min per command
+const RUN_TIMEOUT = 2 * 60_000; // 2 min per command
 
 // ── .adlc artifact helpers ─────────────────────────────────
 

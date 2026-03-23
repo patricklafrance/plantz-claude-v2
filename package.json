@@ -23,6 +23,7 @@
         "serve-storybook": "turbo run serve-storybook --filter=@apps/storybook",
         "install-playwright": "tsx scripts/install-playwright.ts",
         "test": "turbo run test",
+        "test-harness": "vitest run --config .claude/hooks/vitest.config.mjs",
         "lint": "turbo run lint --continue",
         "typecheck": "tsgo",
         "oxlint": "oxlint --react-plugin --import-plugin --jsx-a11y-plugin --react-perf-plugin --promise-plugin --vitest-plugin",
@@ -50,7 +51,8 @@
         "oxlint": "1.51.0",
         "syncpack": "14.0.0",
         "tsx": "4.21.0",
-        "turbo": "2.8.12"
+        "turbo": "2.8.12",
+        "vitest": "4.1.0"
     },
     "engines": {
         "node": ">=24.0.0",

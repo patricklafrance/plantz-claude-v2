@@ -22,7 +22,7 @@
                     {
                         "type": "command",
                         "command": "node .claude/hooks/adlc-verification/subagent-stop.mjs",
-                        "timeout": 600000
+                        "timeout": 180000
                     }
                 ]
             }

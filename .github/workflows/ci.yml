@@ -88,6 +88,9 @@ jobs:
             - name: Syncpack
               run: pnpm turbo run syncpack
 
+            - name: Test harness (ADLC hooks)
+              run: pnpm test-harness
+
             - name: Test packages
               # For a PR, only test the projects that are diverging from the pull request original baseline.
               run: |

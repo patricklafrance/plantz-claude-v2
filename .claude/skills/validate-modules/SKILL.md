@@ -38,7 +38,7 @@ Derived from the module path `apps/{domain}/{module}/`. **PascalCase** means spl
 - **Host CSS** — `apps/host/src/styles/globals.css` has a `@source` directive for the module.
 - **Domain storybook** — `apps/{domain}/storybook/.storybook/main.ts` has a story glob and `storybook.css` has a `@source` directive. Skip if domain storybook doesn't exist.
 - **Unified storybook** — `apps/storybook/.storybook/main.ts` has a story glob and `storybook.css` has a `@source` directive.
-- **Affected detection** — `scripts/getAffectedStorybooks.ts` includes the package name in the domain's `StorybookDependencies` entry.
+- **Affected detection** — `scripts/get-affected-storybooks.ts` includes the package name in the domain's `StorybookDependencies` entry.
 - **Dev script** — Root `package.json` has `"dev-{domain}-{module}"`.
 - **Tsconfig** — Extends `"@workleap/typescript-configs/library.json"`.
 

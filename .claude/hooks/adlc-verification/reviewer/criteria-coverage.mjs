@@ -1,0 +1,115 @@
+/**
+ * Verify that every acceptance criterion from the slice appears in
+ * the verification results (either Passed or Failed).
+ */
+
+import { readdirSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+// ── Parsers ─────────────────────────────────────────────────
+
+/**
+ * Extract acceptance criteria text from a slice file.
+ * Matches unchecked checkboxes: `- [ ] {text}`
+ */
+function parseSliceCriteria(content) {
+    const criteria = [];
+
+    for (const line of content.split("\n")) {
+        const match = line.match(/^[-*]\s*\[[ ]\]\s+(.+)$/);
+        if (match) {
+            criteria.push(normalize(match[1]));
+        }
+    }
+
+    return criteria;
+}
+
+/**
+ * Extract criteria text from verification-results.md.
+ * Matches both checked `- [x]` and unchecked `- [ ]` checkboxes.
+ * Failed entries may have ` — {reason}` appended — strip it.
+ */
+function parseResultsCriteria(content) {
+    const criteria = [];
+
+    for (const line of content.split("\n")) {
+        const match = line.match(/^[-*]\s*\[[x ]\]\s+(.+)$/i);
+        if (match) {
+            // Strip failure reason after ` — ` or ` - `
+            const text = match[1].replace(/\s+[—–-]\s+.+$/, "");
+            criteria.push(normalize(text));
+        }
+    }
+
+    return criteria;
+}
+
+/** Lowercase, collapse whitespace, trim — just enough for fuzzy matching. */
+function normalize(text) {
+    return text.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+// ── Slice path discovery ────────────────────────────────────
+
+/**
+ * Extract the slice number from the verification results title and
+ * find the matching slice file in .adlc/slices/.
+ */
+function findSlicePath(cwd, resultsContent) {
+    const titleMatch = resultsContent.match(/^#\s+Verification Results:\s*Slice\s+(\d+)/im);
+
+    if (!titleMatch) {
+        return null;
+    }
+
+    const sliceNumber = titleMatch[1].padStart(2, "0");
+    const slicesDir = resolve(cwd, ".adlc", "slices");
+
+    try {
+        const match = readdirSync(slicesDir).find(f => f.startsWith(sliceNumber) && f.endsWith(".md"));
+        return match ? resolve(slicesDir, match) : null;
+    } catch {
+        return null;
+    }
+}
+
+// ── Check ───────────────────────────────────────────────────
+
+export function criteriaCoverage(cwd) {
+    const resultsPath = resolve(cwd, ".adlc", "verification-results.md");
+
+    let resultsContent;
+    try {
+        resultsContent = readFileSync(resultsPath, "utf8");
+    } catch {
+        // File doesn't exist — results-file check handles this
+        return [];
+    }
+
+    const slicePath = findSlicePath(cwd, resultsContent);
+
+    if (!slicePath) {
+        // Can't locate the slice — skip the coverage check
+        return [];
+    }
+
+    const sliceContent = readFileSync(slicePath, "utf8");
+    const expected = parseSliceCriteria(sliceContent);
+    const reported = parseResultsCriteria(resultsContent);
+
+    const missing = expected.filter(criterion => !reported.some(r => r.includes(criterion) || criterion.includes(r)));
+
+    if (missing.length === 0) {
+        return [];
+    }
+
+    return [
+        [
+            `Incomplete verification: ${missing.length} acceptance criteria from the slice are not in verification-results.md.`,
+            "",
+            "Missing:",
+            ...missing.map(c => `  - ${c}`)
+        ].join("\n")
+    ];
+}

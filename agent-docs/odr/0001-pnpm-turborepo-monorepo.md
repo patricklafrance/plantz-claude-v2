@@ -23,6 +23,6 @@ Use pnpm workspaces with Turborepo (Option 1). pnpm provides strict dependency i
 
 - Task definitions live in `turbo.json` with explicit dependency graphs (`dependsOn`).
 - `--filter` enables running tasks on affected packages only (used in CI for build and typecheck).
-- `turbo ls` can be used programmatically (e.g., in `getAffectedStorybooks.ts`).
+- `turbo ls` can be used programmatically (e.g., in `get-affected-storybooks.ts`).
 - Workspace topology is defined in `pnpm-workspace.yaml` (`apps/**`, `packages/**`).
 - The `.turbo` directory holds the local cache and is gitignored.

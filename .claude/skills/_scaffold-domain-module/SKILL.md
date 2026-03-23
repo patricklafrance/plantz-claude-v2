@@ -82,7 +82,7 @@ In `apps/storybook/.storybook/`:
 
 ### 6. Update affected map
 
-In `scripts/getAffectedStorybooks.ts`, add the package name to the `StorybookDependencies` entry for `@apps/{domain}-storybook`.
+In `scripts/get-affected-storybooks.ts`, add the package name to the `StorybookDependencies` entry for `@apps/{domain}-storybook`.
 
 Only list module package names (`@modules/*`) — never shared packages.
 

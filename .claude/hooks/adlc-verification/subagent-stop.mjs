@@ -12,7 +12,10 @@
 
 import { readFileSync } from "node:fs";
 
+import handleArchitect from "./architect/handler.mjs";
 import handleCoder from "./coder/handler.mjs";
+import handlePlanner from "./planner/handler.mjs";
+import handleReviewer from "./reviewer/handler.mjs";
 
 // ── Stdin ──────────────────────────────────────────────────
 
@@ -30,20 +33,7 @@ const { agent_type: agentType, cwd } = input;
 // Each handler receives `cwd` and returns (or resolves to) a string[]
 // of problems. Empty array → pass.  Non-empty → block.
 
-/**
- * _adlc-architect
- *
- * Reads the plan and evaluates structural soundness.
- * Pass → no output file.  Fail → writes .adlc/architect-revision.md.
- * Both are valid outcomes — the architect's job is to make a decision.
- */
-function handleArchitect() {
-    const problems = [];
-
-    // TODO: architect-specific checks
-
-    return problems;
-}
+// _adlc-architect — imported from ./architect/handler.mjs
 
 /**
  * _adlc-domain-mapper
@@ -59,35 +49,9 @@ function handleDomainMapper() {
     return problems;
 }
 
-/**
- * _adlc-planner
- *
- * Drafts a multi-slice technical plan.
- * Expected deliverables:
- * - .adlc/plan-header.md
- * - At least one .adlc/slices/NN-*.md
- */
-function handlePlanner() {
-    const problems = [];
+// _adlc-planner — imported from ./planner/handler.mjs
 
-    // TODO: planner-specific checks
-
-    return problems;
-}
-
-/**
- * _adlc-reviewer
- *
- * Verifies a slice's acceptance criteria via browser automation.
- * Expected deliverable: .adlc/verification-results.md
- */
-function handleReviewer() {
-    const problems = [];
-
-    // TODO: reviewer-specific checks
-
-    return problems;
-}
+// _adlc-reviewer — imported from ./reviewer/handler.mjs
 
 // ── Router ─────────────────────────────────────────────────
 
