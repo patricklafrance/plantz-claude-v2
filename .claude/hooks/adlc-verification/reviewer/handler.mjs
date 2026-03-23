@@ -7,7 +7,7 @@
  */
 
 import { criteriaCoverage } from "./criteria-coverage.mjs";
-import { resultsFile } from "./results-file.mjs";
+import { resultsFile } from "./verification-results.mjs";
 
 export default function handleReviewer(cwd) {
     const problems = resultsFile(cwd);

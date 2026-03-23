@@ -4,9 +4,9 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { resultsFile } from "../../adlc-verification/reviewer/results-file.mjs";
+import { resultsFile } from "../../adlc-verification/reviewer/verification-results.mjs";
 
-describe("results-file", () => {
+describe("verification-results", () => {
     let tmp;
 
     beforeEach(() => {

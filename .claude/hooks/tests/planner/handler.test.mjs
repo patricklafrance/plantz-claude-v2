@@ -24,9 +24,9 @@ describe("planner handler (orchestration)", () => {
         expect(problems.length).toBeGreaterThanOrEqual(2);
     });
 
-    it("should short-circuit when no slices exist (skip naming/criteria checks)", () => {
+    it("should short-circuit when no slices exist (skip criteria check)", () => {
         writeFileSync(join(tmp, ".adlc/plan-header.md"), "# Plan: Test\n");
-        // Header exists but no slices → only the slice-files problem, no naming/criteria errors
+        // Header exists but no slices → only the slice-files problem, no criteria errors
         const problems = handlePlanner(tmp);
         expect(problems).toHaveLength(1);
         expect(problems[0]).toContain("no slice files");

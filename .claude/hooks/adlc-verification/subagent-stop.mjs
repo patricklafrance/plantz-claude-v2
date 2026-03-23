@@ -14,6 +14,7 @@ import { readFileSync } from "node:fs";
 
 import handleArchitect from "./architect/handler.mjs";
 import handleCoder from "./coder/handler.mjs";
+import handleDomainMapper from "./domain-mapper/handler.mjs";
 import handlePlanner from "./planner/handler.mjs";
 import handleReviewer from "./reviewer/handler.mjs";
 
@@ -34,23 +35,8 @@ const { agent_type: agentType, cwd } = input;
 // of problems. Empty array → pass.  Non-empty → block.
 
 // _adlc-architect — imported from ./architect/handler.mjs
-
-/**
- * _adlc-domain-mapper
- *
- * Analyzes a feature and produces a module placement mapping.
- * Expected deliverable: .adlc/domain-mapping.md
- */
-function handleDomainMapper() {
-    const problems = [];
-
-    // TODO: domain-mapper-specific checks
-
-    return problems;
-}
-
+// _adlc-domain-mapper — imported from ./domain-mapper/handler.mjs
 // _adlc-planner — imported from ./planner/handler.mjs
-
 // _adlc-reviewer — imported from ./reviewer/handler.mjs
 
 // ── Router ─────────────────────────────────────────────────

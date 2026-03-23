@@ -1,5 +1,8 @@
 /**
- * The architect must not modify plan files (.adlc/plan-header.md or .adlc/slices/*.md).
+ * Agents that run before or alongside planning must not modify plan files
+ * (.adlc/plan-header.md or .adlc/slices/*.md).
+ *
+ * Shared by: architect, domain-mapper.
  */
 
 import { getChangedFiles } from "../utils.mjs";
@@ -14,5 +17,5 @@ export function noPlanMutations(cwd) {
         return [];
     }
 
-    return [["Contract violation: the architect must never modify plan files.", "", "Modified:", ...violations.map(f => `  - ${f}`)].join("\n")];
+    return [["Contract violation: must never modify plan files.", "", "Modified:", ...violations.map(f => `  - ${f}`)].join("\n")];
 }

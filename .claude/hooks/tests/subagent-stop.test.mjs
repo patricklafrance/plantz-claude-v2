@@ -40,10 +40,15 @@ describe("subagent-stop entry point", () => {
         expect(result.stdout.trim()).toBe("");
     });
 
-    it("should exit 0 for skeleton handler _adlc-domain-mapper", () => {
+    it("should block _adlc-domain-mapper when domain-mapping.md missing", () => {
         const result = pipeToHook({ agent_type: "_adlc-domain-mapper", cwd: REPO_ROOT });
-        expect(result.exitCode).toBe(0);
-        expect(result.stdout.trim()).toBe("");
+        if (existsSync(resolve(REPO_ROOT, ".adlc", "domain-mapping.md"))) {
+            expect(result.exitCode).toBe(0);
+        } else {
+            expect(result.exitCode).toBe(0);
+            const parsed = JSON.parse(result.stdout);
+            expect(parsed.decision).toBe("block");
+        }
     });
 
     it("should exit 0 for _adlc-architect when no revision file exists", () => {

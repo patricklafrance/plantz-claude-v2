@@ -27,32 +27,15 @@ describe("architect handler (composition)", () => {
         expect(handleArchitect(tmp)).toHaveLength(0);
     });
 
-    it("should pass when revision is well-formed", () => {
-        writeFileSync(
-            join(tmp, ".adlc/architect-revision.md"),
-            [
-                "# Architect Revision",
-                "",
-                "## Problem",
-                "",
-                "Route conflict.",
-                "",
-                "## Evidence",
-                "",
-                "- Slice 01 and Slice 02 collide",
-                "",
-                "## Required Changes",
-                "",
-                "Deduplicate."
-            ].join("\n")
-        );
+    it("should pass when revision references a slice", () => {
+        writeFileSync(join(tmp, ".adlc/architect-revision.md"), "Slice 01 has a route conflict.\n");
         expect(handleArchitect(tmp)).toHaveLength(0);
     });
 
-    it("should collect problems from multiple checks", () => {
-        // Missing sections + no slice refs → two problems
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), "# Architect Revision\n\nSomething is wrong.\n");
+    it("should fail when revision lacks slice references", () => {
+        writeFileSync(join(tmp, ".adlc/architect-revision.md"), "The data model is wrong.\n");
         const problems = handleArchitect(tmp);
-        expect(problems.length).toBeGreaterThanOrEqual(2);
+        expect(problems).toHaveLength(1);
+        expect(problems[0]).toContain("slice references");
     });
 });
