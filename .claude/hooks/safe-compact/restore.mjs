@@ -26,16 +26,18 @@ try {
     const content = readFileSync(backupPath, "utf8");
 
     if (content.trim()) {
-        process.stdout.write([
-            "# Restored Session Context (auto-injected by post-compact hook)",
-            "",
-            "The following context was saved by the /safe-compact skill before compaction.",
-            "Use it to resume work without losing track of decisions, progress, and next steps.",
-            "",
-            "---",
-            "",
-            content
-        ].join("\n"));
+        process.stdout.write(
+            [
+                "# Restored Session Context (auto-injected by post-compact hook)",
+                "",
+                "The following context was saved by the /safe-compact skill before compaction.",
+                "Use it to resume work without losing track of decisions, progress, and next steps.",
+                "",
+                "---",
+                "",
+                content
+            ].join("\n")
+        );
     }
 
     // Clean up — one-time use.
