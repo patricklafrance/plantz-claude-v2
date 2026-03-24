@@ -2,7 +2,7 @@
 name: _adlc-coder
 description: Implement a single slice from the plan. Writes code and Storybook stories to the repo.
 model: opus
-effort: high
+effort: medium
 skills:
     - accessibility
     - frontend-design

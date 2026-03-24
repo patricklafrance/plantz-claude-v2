@@ -2,6 +2,7 @@
 name: _adlc-reviewer
 description: Verify a slice's acceptance criteria through browser screenshots and interactions.
 model: opus
+effort: medium
 skills:
     - _validate-modules
 ---

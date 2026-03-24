@@ -1,6 +1,8 @@
 ---
 name: _adlc
 description: Entry point for end-to-end feature development. Sequences planning, slice-by-slice implementation, and documentation.
+model: sonnet
+effort: medium
 license: MIT
 ---
 

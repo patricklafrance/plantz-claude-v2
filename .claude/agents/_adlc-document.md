@@ -2,6 +2,7 @@
 name: _adlc-document
 description: Update domain documentation after implementation. Reads the domain mapping and updates module scope descriptions.
 model: opus
+effort: high
 ---
 
 # Harness Document

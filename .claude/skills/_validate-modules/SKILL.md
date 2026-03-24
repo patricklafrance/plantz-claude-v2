@@ -1,6 +1,8 @@
 ---
 name: validate-modules
 description: Validate that Squide local modules conform to the expected structure and wiring.
+model: sonnet
+effort: medium
 license: MIT
 ---
 

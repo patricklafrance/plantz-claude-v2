@@ -1,7 +1,8 @@
 ---
 name: _adlc-pr
 description: Commit, push, and open a PR with a summary of the feature and technical changes.
-model: opus
+model: sonnet
+effort: medium
 ---
 
 # Harness PR

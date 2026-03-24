@@ -1,7 +1,8 @@
 ---
 name: _adlc-monitor
 description: Monitor a PR's CI workflows and fix failures.
-model: opus
+model: sonnet
+effort: medium
 ---
 
 # Harness Monitor
