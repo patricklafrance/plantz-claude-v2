@@ -154,11 +154,12 @@ Uses `.adlc/markers.json` keyed by slice name so the checklist fires once per sl
 
 #### Autofixers
 
-Run corrections before validation to reduce noise. The coder pipeline formats all files with oxfmt before lint checks, so formatting violations never appear as failures.
+Run corrections before validation to reduce noise. Formatting violations never appear as failures.
 
-| Agent         | Autofix       | What it does                        |
-| ------------- | ------------- | ----------------------------------- |
-| `_adlc-coder` | oxfmt-autofix | `oxfmt --write .` before lint phase |
+| Agent            | Autofix       | What it does                        |
+| ---------------- | ------------- | ----------------------------------- |
+| `_adlc-coder`    | oxfmt-autofix | `oxfmt --write .` before lint phase |
+| `_adlc-document` | oxfmt-autofix | `oxfmt --write .` after doc updates |
 
 #### Pre-commit and tool guards
 
