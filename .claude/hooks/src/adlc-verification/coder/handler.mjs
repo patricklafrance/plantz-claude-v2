@@ -3,11 +3,13 @@
  *
  * Post-completion pipeline:
  *   1 — oxfmt autofix (must complete before lint)
- *   2 — lint, tests, file-disable scan, secret scan, import guard (parallel)
+ *   2 — lint, tests, file-disable scan, secret scan, import guard,
+ *       implementation-notes check, story coverage, context refresh (parallel)
  *   3 — kill dev server ports (always)
  */
 
 import { getChangedFiles } from "../utils.mjs";
+import { contextRefresh } from "./context-refresh.mjs";
 import { implementationNotesCheck } from "./implementation-notes.mjs";
 import { checkNoCrossBoundaryImports } from "./import-guard.mjs";
 import { killPorts } from "./kill-ports.mjs";
@@ -32,7 +34,8 @@ export default async function handleCoder(cwd) {
         noSecrets(cwd, changedFiles),
         Promise.resolve(checkNoCrossBoundaryImports(cwd, changedFiles)),
         Promise.resolve(implementationNotesCheck(changedFiles)),
-        Promise.resolve(storyCoverage(cwd, changedFiles))
+        Promise.resolve(storyCoverage(cwd, changedFiles)),
+        Promise.resolve(contextRefresh(cwd))
     ]);
 
     // Phase 3: kill dev server ports regardless of outcome

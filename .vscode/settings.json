@@ -4,9 +4,14 @@
         "**/dist*": true
     },
 
-    // Formatting — handled by oxfmt via the oxc extension
+    // Formatting and linting — handled by oxfmt/oxlint via the oxc extension
     "editor.defaultFormatter": "oxc.oxc-vscode",
     "editor.formatOnSave": true,
+    "oxc.format.enable": true,
+    "oxc.lint.enable": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.oxc": "explicit"
+    },
     "[html]": {
         "editor.formatOnSave": false
     },
