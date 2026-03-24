@@ -53,7 +53,7 @@ This design is based on three principles from the [Agent Harness](https://medium
 
 ### ADLC workflow
 
-Three skills and eight custom agents form an Agent Development Life Cycle (ADLC). Skills run inline in the main conversation as orchestrators — they can spawn agents. Agents run as isolated subprocesses — their `name` flows to SubagentStop hooks for verification. Hooks fire at each agent's completion to verify its work before the workflow advances.
+One skill and eight custom agents form an Agent Development Life Cycle (ADLC). The `_adlc` skill runs inline in the main conversation as orchestrator — it spawns agents and manages all loops directly. Agents run as isolated subprocesses — their `name` flows to SubagentStop hooks for verification. Hooks fire at each agent's completion to verify its work before the workflow advances.
 
 ```mermaid
 flowchart TD
@@ -90,13 +90,11 @@ flowchart TD
     style Coord fill:#f0f9ff,stroke:#0284c7
 ```
 
-**Skills** (orchestrators — run inline, spawn agents):
+**Skill** (orchestrator — runs inline, spawns agents):
 
-| Skill              | What it does                                                                 |
-| ------------------ | ---------------------------------------------------------------------------- |
-| `_adlc`            | Entry point. Cleans `.adlc/`, creates a branch, runs all phases sequentially |
-| `_adlc-plan-loop`  | Spawns planner → architect gate, loops on rejection (max 5 iterations)       |
-| `_adlc-slice-loop` | Code → verify cycle for one slice, commits on success (max 5 fix attempts)   |
+| Skill   | What it does                                                                                   |
+| ------- | ---------------------------------------------------------------------------------------------- |
+| `_adlc` | Entry point. Cleans `.adlc/`, runs plan loop, creates branch, runs slice loops, then doc/PR/CI |
 
 **Agents** (workers — run as isolated subprocesses, verified by SubagentStop hooks):
 
@@ -113,7 +111,7 @@ flowchart TD
 
 All inter-step coordination goes through files in `.adlc/` — plan-header, slices, verification-results, implementation-notes, domain-mapping. This makes handoffs explicit and debuggable.
 
-**Files:** [`.claude/skills/_adlc*/`](.claude/skills/), [`.claude/agents/`](.claude/agents/)
+**Files:** [`.claude/skills/_adlc/`](.claude/skills/_adlc/), [`.claude/agents/`](.claude/agents/)
 
 ### Principle 1: Verification is not optional
 

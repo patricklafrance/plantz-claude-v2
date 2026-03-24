@@ -57,7 +57,7 @@ Max 5 fix attempts across both phases.
 3. Fix the issue directly — read the failing code, apply the fix, commit, and push.
 4. Edit the PR comment from step 2 — mark the issue as fixed and summarize what changed.
 
-### 3. Exit
+### 3. Stop
 
 - All workflows green → post the CI Validation comment and stop.
 - Timeout expires → post the CI Validation comment listing each workflow with its status and stop.

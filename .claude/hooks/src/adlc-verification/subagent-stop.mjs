@@ -14,6 +14,7 @@ import { readFileSync } from "node:fs";
 
 import handleArchitect from "./architect/handler.mjs";
 import handleCoder from "./coder/handler.mjs";
+import handleDocument from "./document/handler.mjs";
 import handleDomainMapper from "./domain-mapper/handler.mjs";
 import handlePlanner from "./planner/handler.mjs";
 import handleReviewer from "./reviewer/handler.mjs";
@@ -35,6 +36,7 @@ const { agent_type: agentType, cwd } = input;
 // of problems. Empty array → pass.  Non-empty → block.
 
 // _adlc-architect — imported from ./architect/handler.mjs
+// _adlc-document — imported from ./document/handler.mjs
 // _adlc-domain-mapper — imported from ./domain-mapper/handler.mjs
 // _adlc-planner — imported from ./planner/handler.mjs
 // _adlc-reviewer — imported from ./reviewer/handler.mjs
@@ -44,6 +46,7 @@ const { agent_type: agentType, cwd } = input;
 const handlers = {
     "_adlc-architect": handleArchitect,
     "_adlc-coder": handleCoder,
+    "_adlc-document": handleDocument,
     "_adlc-domain-mapper": handleDomainMapper,
     "_adlc-planner": handlePlanner,
     "_adlc-reviewer": handleReviewer

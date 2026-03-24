@@ -46,7 +46,7 @@ Code with a browser open — validate as you go. Use the dev servers defined in 
 
 ### 3. Record implementation notes
 
-Append a section to `.adlc/implementation-notes.md` (create the file if it doesn't exist). One section per slice — what was created or extended at the module/package level. The documenter uses this to update domain reference docs without re-exploring the codebase.
+Append a section to `.adlc/implementation-notes.md` (create the file if it doesn't exist). One section per slice — what was created or extended at the module/package level.
 
 ```markdown
 ## Slice {N}: {Title}
