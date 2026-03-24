@@ -15,6 +15,9 @@ chromatic-diagnostics.json
 # ADLC run artifacts
 .adlc/
 
+# CI artifacts
+*.sarif
+
 # Ephemeral scratch / context backups
 tmp/
 

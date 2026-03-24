@@ -35,7 +35,7 @@ describe("subagent-stop entry point", () => {
     });
 
     it("should exit 0 for unhandled agent type", () => {
-        const result = pipeToHook({ agent_type: "_adlc-coordinator", cwd: REPO_ROOT });
+        const result = pipeToHook({ agent_type: "_adlc", cwd: REPO_ROOT });
         expect(result.exitCode).toBe(0);
         expect(result.stdout.trim()).toBe("");
     });

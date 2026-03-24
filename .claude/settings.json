@@ -3,10 +3,7 @@
     "permissions": {
         "defaultMode": "bypassPermissions",
         "allow": ["Edit(.claude/**)", "Write(.claude/**)"],
-        "deny": [
-            "Edit(**/.env)", "Write(**/.env)",
-            "Edit(**/.env.*)", "Write(**/.env.*)"
-        ]
+        "deny": ["Edit(**/.env)", "Write(**/.env)", "Edit(**/.env.*)", "Write(**/.env.*)"]
     },
     "hooks": {
         "PreToolUse": [

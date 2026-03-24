@@ -51,7 +51,7 @@ const handlers = {
 
 const handle = handlers[agentType];
 
-// No handler for this agent (e.g. _adlc-coordinator, _adlc-pr) → allow.
+// No handler for this agent (e.g. _adlc, _adlc-pr) → allow.
 if (!handle) {
     process.exit(0);
 }
