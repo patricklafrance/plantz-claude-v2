@@ -14,7 +14,6 @@ Apps use `@source` directives to tell Tailwind where to find utility classes:
 @source "../../../../packages/components/src/**/*.{ts,tsx}";
 @source "../../../../packages/core-module/src/shell/**/*.{ts,tsx}";
 @source "../../../../packages/core-plants/src/**/*.{ts,tsx}";
-@source "../../../management/household/src/**/*.{ts,tsx}";
 @source "../../../management/plants/src/**/*.{ts,tsx}";
 /* ... each domain module */
 ```

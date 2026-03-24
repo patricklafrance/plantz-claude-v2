@@ -11,7 +11,6 @@ plantz-claude/
   apps/
     host/                          # Squide host application (@apps/host)
     management/
-      household/                   # Management domain — household module (@modules/management-household)
       plants/                      # Management domain — plants module (@modules/management-plants)
       user/                        # Management domain — user profile module (@modules/management-user)
       storybook/                   # Management domain Storybook (@apps/management-storybook)
@@ -49,7 +48,7 @@ plantz-claude/
 - **Modules**: Each feature area registers via `(runtime, queryClient) => Promise<void>`. The host wraps these in closures matching Squide's `ModuleRegisterFunction` signature. Modules are isolated — they never import from each other. When two modules need to share domain code: prefer duplication if the surface area is small; extract to a shared package under `packages/` (e.g., `@packages/core-module` for cross-module infrastructure, `@packages/core-plants` for plant domain logic) when it's large enough to justify the indirection.
 - **Module registry**: `apps/host/src/getActiveModules.tsx` maps module path keys to their register functions. The host loads only modules present in this map.
 - **Shared packages**: Three tiers live under `packages/`, each with a distinct scope:
-    - `@packages/core-module` — Cross-module **infrastructure** any Squide app needs: session context, auth headers, auth error handling, MSW auth helpers, household types/schemas/DB (`./db` sub-path — `householdDb`, `usersDb`, `getUserId`), and the app shell (`./shell` sub-path — RootLayout, LoginPage, NotFoundPage, UserMenu, registerShell). Not domain-specific.
+    - `@packages/core-module` — Cross-module **infrastructure** any Squide app needs: session context, auth headers, auth error handling, MSW auth helpers, `usersDb`, `getUserId`), and the app shell (`./shell` sub-path — RootLayout, LoginPage, NotFoundPage, UserMenu, registerShell). Not domain-specific.
     - `@packages/core-plants` — Shared **plant-domain** code: types, DB schema, collection factories, plant-specific utilities and components. Subpath exports include `./collection`, `./db`, `./care-event` (care event types, schemas, insight utilities, and adjustment recommendation types/schemas/computation), `./vacation`, and `./test-utils`. Used by domain modules, not by generic packages like `components`.
     - `@packages/components` — Domain-agnostic **UI** (shadcn/ui + Tailwind v4). Could theoretically be extracted as a standalone design system.
     - If a utility is generic enough to be needed by `@packages/components`, it belongs in a new `core` package (doesn't exist yet), not in `core-module` or `core-plants`.
@@ -75,8 +74,8 @@ There is no backend server. MSW intercepts browser `fetch()` calls and serves fr
 Each module owns its full API surface (a "BFF-per-module" model):
 
 - **Collection** — Each module creates a TanStack DB collection during Squide registration via a factory from `@packages/core-plants/collection` and provides it to components via React Context. The host passes `QueryClient` to module registration functions. Components read data with `useLiveQuery` and write with `createOptimisticAction`.
-- **Handlers** — MSW request handlers live in the module's `mocks/` folder, scoped to `/api/<domain>/<entity>` URLs (e.g., `/api/management/plants`, `/api/management/household`, `/api/today/plants`, `/api/management/user/profile`). Every module must own the MSW handlers for the endpoints it uses — never rely on the host or another module for handlers.
-- **Shared DB** — All modules read/write the same in-memory plant store, exposed via `@packages/core-plants/db`. Cross-module visibility works through the shared DB, not shared client-side collections. A second shared DB, `householdDb`, lives in `@packages/core-module/db` and stores household, member, and invitation data — used by management-household, management-plants, today-landing-page, and the auth session handler. Modules may also own **module-local** in-memory DBs for entities that only one module consumes (e.g., `careEventsDb` in today-landing-page, `adjustmentsDb` in today-landing-page, `vacationDb` in today-vacation-planner). These are not shared — promote to a shared package only when a second module needs the same data.
+- **Handlers** — MSW request handlers live in the module's `mocks/` folder, scoped to `/api/<domain>/<entity>` URLs (e.g., `/api/management/plants`, `/api/today/plants`, `/api/management/user/profile`). Every module must own the MSW handlers for the endpoints it uses — never rely on the host or another module for handlers.
+- **Shared DB** — All modules read/write the same in-memory plant store, exposed via `@packages/core-plants/db`. Cross-module visibility works through the shared DB, not shared client-side collections. Modules may also own **module-local** in-memory DBs for entities that only one module consumes (e.g., `careEventsDb` in today-landing-page, `adjustmentsDb` in today-landing-page, `vacationDb` in today-vacation-planner). These are not shared — promote to a shared package only when a second module needs the same data.
 
 Modules never share handlers or collections. If two modules need the same entity, each defines its own handlers, collection, and URL namespace. This mirrors how real BFFs work: each frontend surface has its own backend-for-frontend that shapes data for its needs.
 

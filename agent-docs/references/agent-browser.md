@@ -46,7 +46,6 @@ The host app requires login. Demo credentials: `alice@example.com` / `password`.
 | `/today`                  | today/landing-page                  |
 | `/today/vacation-planner` | today/vacation-planner              |
 | `/management/plants`      | management/plants                   |
-| `/management/household`   | management/household                |
 | `/management/user`        | management/user                     |
 
 ## Storybook URL pattern

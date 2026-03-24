@@ -16,7 +16,7 @@ Each module creates its own TanStack DB collection during Squide registration us
 
 ### BFF-per-module constraint
 
-Each Squide module owns its entire API surface — handlers, collection, and URL namespace — scoped under a domain URL namespace (`/api/<domain>/<entity>`). Modules never share handlers or collections. The shared data dependencies are in-memory DB singletons: `plantsDb` in `@packages/core-plants/db` and `householdDb` in `@packages/core-module/db`. Cross-module data visibility works through the shared DBs, not through shared client-side state.
+Each Squide module owns its entire API surface — handlers, collection, and URL namespace — scoped under a domain URL namespace (`/api/<domain>/<entity>`). Modules never share handlers or collections. The shared data dependencies are in-memory DB singletons: `plantsDb` in `@packages/core-plants/db`. Cross-module data visibility works through the shared DBs, not through shared client-side state.
 
 This mirrors a real BFF (backend-for-frontend) architecture: each frontend surface shapes its own API layer. It also reinforces the module isolation rule from [ADR-0001](0001-squide-local-modules.md) — modules stay independently deployable at the data layer, not just the UI layer.
 
