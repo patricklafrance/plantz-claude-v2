@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { noPlanMutations } from "../../adlc-verification/architect/no-plan-mutations.mjs";
+import { noPlanMutations } from "../../src/adlc-verification/architect/no-plan-mutations.mjs";
 
 function gitInit(cwd) {
     execSync("git init && git config user.email test@test.com && git config user.name test && git add -A && git commit --allow-empty -m init", {

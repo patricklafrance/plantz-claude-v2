@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { getChangedFiles } from "../adlc-verification/utils.mjs";
+import { getChangedFiles } from "../src/adlc-verification/utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "../..");

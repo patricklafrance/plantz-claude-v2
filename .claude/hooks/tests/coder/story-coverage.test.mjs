@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { storyCoverage } from "../../adlc-verification/coder/story-coverage.mjs";
+import { storyCoverage } from "../../src/adlc-verification/coder/story-coverage.mjs";
 
 describe("story-coverage", () => {
     let tmp;

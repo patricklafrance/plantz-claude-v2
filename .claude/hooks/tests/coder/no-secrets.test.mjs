@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { noSecrets } from "../../adlc-verification/coder/no-secrets.mjs";
+import { noSecrets } from "../../src/adlc-verification/coder/no-secrets.mjs";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 

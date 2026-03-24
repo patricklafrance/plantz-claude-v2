@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { implementationNotesCheck } from "../../adlc-verification/coder/implementation-notes.mjs";
+import { implementationNotesCheck } from "../../src/adlc-verification/coder/implementation-notes.mjs";
 
 describe("implementation-notes", () => {
     it("should pass when file is in changed list", () => {

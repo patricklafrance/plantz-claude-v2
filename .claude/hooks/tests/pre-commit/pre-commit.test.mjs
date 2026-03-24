@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const HOOK_PATH = resolve(__dirname, "../../pre-commit/pre-tool-use-bash.mjs");
+const HOOK_PATH = resolve(__dirname, "../../src/pre-commit/pre-tool-use-bash.mjs");
 const REPO_ROOT = resolve(__dirname, "../../../..");
 
 function pipeToHook(input, timeout = 10_000) {

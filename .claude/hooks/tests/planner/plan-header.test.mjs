@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { planHeader } from "../../adlc-verification/planner/plan-header.mjs";
+import { planHeader } from "../../src/adlc-verification/planner/plan-header.mjs";
 import { loadFixture } from "../fixtures/load.mjs";
 
 describe("plan-header", () => {

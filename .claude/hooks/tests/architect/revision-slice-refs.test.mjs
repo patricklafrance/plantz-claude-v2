@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { revisionSliceRefs } from "../../adlc-verification/architect/revision-slice-refs.mjs";
+import { revisionSliceRefs } from "../../src/adlc-verification/architect/revision-slice-refs.mjs";
 import { loadFixture } from "../fixtures/load.mjs";
 
 describe("revision-slice-refs", () => {

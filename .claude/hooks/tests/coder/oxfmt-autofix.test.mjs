@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { oxfmtAutofix } from "../../adlc-verification/coder/oxfmt-autofix.mjs";
+import { oxfmtAutofix } from "../../src/adlc-verification/coder/oxfmt-autofix.mjs";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 

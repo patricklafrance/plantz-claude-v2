@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { resultsFile } from "../../adlc-verification/reviewer/verification-results.mjs";
+import { resultsFile } from "../../src/adlc-verification/reviewer/verification-results.mjs";
 import { loadFixture } from "../fixtures/load.mjs";
 
 describe("verification-results", () => {

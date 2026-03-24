@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import handlePlanner from "../../adlc-verification/planner/handler.mjs";
+import handlePlanner from "../../src/adlc-verification/planner/handler.mjs";
 import { loadFixture } from "../fixtures/load.mjs";
 
 describe("planner handler (orchestration)", () => {

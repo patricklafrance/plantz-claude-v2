@@ -11,11 +11,11 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "bash .claude/hooks/enforce-pnpm.sh"
+                        "command": "bash .claude/hooks/src/enforce-pnpm.sh"
                     },
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/pre-commit/pre-tool-use-bash.mjs",
+                        "command": "node .claude/hooks/src/pre-commit/pre-tool-use-bash.mjs",
                         "timeout": 180000
                     }
                 ]
@@ -26,7 +26,7 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/safe-compact/post-compact.mjs"
+                        "command": "node .claude/hooks/src/safe-compact/post-compact.mjs"
                     }
                 ]
             }
@@ -37,7 +37,7 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/adlc-verification/subagent-stop.mjs",
+                        "command": "node .claude/hooks/src/adlc-verification/subagent-stop.mjs",
                         "timeout": 180000
                     }
                 ]

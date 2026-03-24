@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { criteriaCoverage } from "../../adlc-verification/reviewer/criteria-coverage.mjs";
+import { criteriaCoverage } from "../../src/adlc-verification/reviewer/criteria-coverage.mjs";
 import { loadFixture } from "../fixtures/load.mjs";
 
 describe("criteria-coverage", () => {

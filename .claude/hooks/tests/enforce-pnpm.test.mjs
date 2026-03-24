@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const HOOK_PATH = resolve(__dirname, "../enforce-pnpm.sh");
+const HOOK_PATH = resolve(__dirname, "../src/enforce-pnpm.sh");
 
 function pipeToHook(command) {
     try {

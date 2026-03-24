@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const HOOK_DIR = resolve(__dirname, "../adlc-verification");
+const HOOK_DIR = resolve(__dirname, "../src/adlc-verification");
 const REPO_ROOT = resolve(__dirname, "../..");
 
 function pipeToHook(input, timeout = 10_000) {

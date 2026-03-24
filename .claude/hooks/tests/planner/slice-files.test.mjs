@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { sliceFiles } from "../../adlc-verification/planner/slice-files.mjs";
+import { sliceFiles } from "../../src/adlc-verification/planner/slice-files.mjs";
 import { loadFixture } from "../fixtures/load.mjs";
 
 describe("slice-files", () => {

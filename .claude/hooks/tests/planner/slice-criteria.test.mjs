@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { sliceCriteria } from "../../adlc-verification/planner/slice-criteria.mjs";
+import { sliceCriteria } from "../../src/adlc-verification/planner/slice-criteria.mjs";
 import { loadFixture } from "../fixtures/load.mjs";
 
 describe("slice-criteria", () => {

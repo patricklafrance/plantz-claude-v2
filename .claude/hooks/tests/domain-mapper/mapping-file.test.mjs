@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { mappingFile } from "../../adlc-verification/domain-mapper/mapping-file.mjs";
+import { mappingFile } from "../../src/adlc-verification/domain-mapper/mapping-file.mjs";
 import { loadFixture } from "../fixtures/load.mjs";
 
 describe("mapping-file", () => {

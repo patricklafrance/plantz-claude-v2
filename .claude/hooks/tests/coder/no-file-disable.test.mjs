@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { noFileDisable } from "../../adlc-verification/coder/no-file-disable.mjs";
+import { noFileDisable } from "../../src/adlc-verification/coder/no-file-disable.mjs";
 
 describe("no-file-disable", () => {
     let tmp;

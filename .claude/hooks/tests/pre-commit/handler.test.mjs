@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import handlePreCommit from "../../pre-commit/handler.mjs";
+import handlePreCommit from "../../src/pre-commit/handler.mjs";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 

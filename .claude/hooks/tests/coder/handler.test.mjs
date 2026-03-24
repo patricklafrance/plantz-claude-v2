@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import handleCoder from "../../adlc-verification/coder/handler.mjs";
+import handleCoder from "../../src/adlc-verification/coder/handler.mjs";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 
