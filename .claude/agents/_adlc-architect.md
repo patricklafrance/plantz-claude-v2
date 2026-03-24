@@ -35,7 +35,7 @@ Never modify plan files.
 
 ### 3. Report
 
-- **Pass:** Write nothing. Exit.
+- **Pass:** Write nothing. Done.
 - **Fail:** Write `.adlc/architect-revision.md` with all problems found.
 
 ## Output Format

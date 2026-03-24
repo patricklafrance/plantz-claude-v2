@@ -19,6 +19,7 @@ Orchestrate end-to-end feature development. Never edit application or library so
 ### 2. Domain mapping
 
 - Spawn the `_adlc-domain-mapper` agent with the feature description.
+- If the agent fails, print the error and stop.
 - Produces `.adlc/domain-mapping.md` — placement decisions the planner carries forward.
 
 ### 3. Plan loop
@@ -39,12 +40,15 @@ Orchestrate end-to-end feature development. Never edit application or library so
 ### 6. Doc phase
 
 - Spawn the `_adlc-document` agent.
+- If the agent fails, print the error and stop.
 - The documenter reads `.adlc/` artifacts directly and updates agent-docs to reflect what was implemented.
 
 ### 7. PR
 
 - Spawn the `_adlc-pr` agent with the feature description.
+- If the agent fails, print the error and stop.
 
 ### 8. Monitor
 
 - Spawn the `_adlc-monitor` agent with the PR number returned by the previous step.
+- If the agent fails, print the error and stop.

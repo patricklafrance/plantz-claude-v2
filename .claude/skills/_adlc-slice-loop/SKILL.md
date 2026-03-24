@@ -24,7 +24,7 @@ Orchestrate the code → verify cycle for a single slice. Never edit application
     2. Run `/simplify`.
     3. Commit the slice changes (no push).
     4. Delete `.adlc/current-slice.md`.
-    5. Exit.
+    5. Done — return to the calling skill.
 5. Read and save the verification content, then delete `verification-results.md`.
 6. Resume the `_adlc-coder` agent via `SendMessage` with `mode: revision` and the saved verification report as `verification-results`.
-7. Go to step 3. Max 5 fix attempts, then delete `.adlc/current-slice.md`, print the unresolved failures and stop.
+7. Go to step 3. Max 5 fix attempts, then delete `.adlc/current-slice.md` and return to the calling skill with the unresolved failures.

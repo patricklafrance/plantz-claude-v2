@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@opentelemetry/api': 1.9.0
+
 patchedDependencies:
   playwright-core@1.52.0:
     hash: 338d739cd62e115da061251cb16c2174a0e0741d95a2232e6ee4d17320146c7d
@@ -51,7 +54,7 @@ importers:
         version: 2.8.12
       vitest:
         specifier: 4.1.0
-        version: 4.1.0(@opentelemetry/api@1.8.0)(@types/node@25.3.3)(@vitest/browser-playwright@4.1.0)(msw@2.12.10(@types/node@25.3.3)(typescript@5.9.3))(vite@6.3.5(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.3.3)(@vitest/browser-playwright@4.1.0)(msw@2.12.10(@types/node@25.3.3)(typescript@5.9.3))(vite@6.3.5(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.3))
 
   apps/host:
     dependencies:
@@ -2207,7 +2210,7 @@ packages:
     hasBin: true
     peerDependencies:
       '@netlify/opentelemetry-sdk-setup': ^2.0.0
-      '@opentelemetry/api': ~1.8.0
+      '@opentelemetry/api': 1.9.0
     peerDependenciesMeta:
       '@netlify/opentelemetry-sdk-setup':
         optional: true
@@ -2368,7 +2371,7 @@ packages:
     resolution: {integrity: sha512-ZnSw1AV/7kBWOwwXjobcd/LXhy576qrnla0PnKs/U4zBa5R3X9YNnFq29251l/nJ8GmnBzJI7dt9dfTfn8Z80w==}
     engines: {node: '>=18.14.0'}
     peerDependencies:
-      '@opentelemetry/api': ~1.8.0
+      '@opentelemetry/api': 1.9.0
 
   '@netlify/otel@5.1.5':
     resolution: {integrity: sha512-RORbePN1ghdHp4pIkG3ccFMqmx5hwMfSyLGKp7bKVf1F5rSe1QjrCBp5xihEWI3xuh3fAqQroTlNYnoOud8RTQ==}
@@ -2507,10 +2510,6 @@ packages:
     resolution: {integrity: sha512-9B9RU0H7Ya1Dx/Rkyc4stuBZSGVQF27WigitInx2QQoj6KUpEFYPKoWjdFTunJYxmXmh17HeBvbMa1EhGyPmqQ==}
     engines: {node: '>=8.0.0'}
 
-  '@opentelemetry/api@1.8.0':
-    resolution: {integrity: sha512-I/s6F7yKUDdtMsoBWXJe8Qz40Tui5vsuKCWJEWVL+5q9sSWRzzx6v2KeNsOBEwd94j0eWkpWCH4yB6rZg9Mf0w==}
-    engines: {node: '>=8.0.0'}
-
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
     engines: {node: '>=8.0.0'}
@@ -2519,49 +2518,49 @@ packages:
     resolution: {integrity: sha512-s5vvxXPVdjqS3kTLKMeBMvop9hbWkwzBpu+mUO2M7sZtlkyDJGwFe33wRKnbaYDo8ExRVBIIdwIGrqpxHuKttA==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+      '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/core@1.30.1':
     resolution: {integrity: sha512-OOCM2C/QIURhJMuKaekP3TRBxBKxG/TWWA0TL2J6nXUtDnuCtccy49LUJF8xPFXMX+0LMcxFpCo8M9cGY1W6rQ==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+      '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/instrumentation@0.203.0':
     resolution: {integrity: sha512-ke1qyM+3AK2zPuBPb6Hk/GCsc5ewbLvPNkEuELx/JmANeEp6ZjnZ+wypPAJSucTw0wvCGrUaibDSdcrGFoWxKQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
-      '@opentelemetry/api': ^1.3.0
+      '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/propagator-b3@1.30.1':
     resolution: {integrity: sha512-oATwWWDIJzybAZ4pO76ATN5N6FFbOA1otibAVlS8v90B4S1wClnhRUk7K+2CHAwN1JKYuj4jh/lpCEG5BAqFuQ==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+      '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/propagator-jaeger@1.30.1':
     resolution: {integrity: sha512-Pj/BfnYEKIOImirH76M4hDaBSx6HyZ2CXUqk+Kj02m6BB80c/yo4BdWkn/1gDFfU+YPY+bPR2U0DKBfdxCKwmg==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+      '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/resources@1.30.1':
     resolution: {integrity: sha512-5UxZqiAgLYGFjS4s9qm5mBVo433u+dSPUFWVWXmLAD4wB65oMCoXaJP1KJa9DIYYMeHu3z4BZcStG3LC593cWA==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+      '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/sdk-trace-base@1.30.1':
     resolution: {integrity: sha512-jVPgBbH1gCy2Lb7X0AVQ8XAfgg0pJ4nvl8/IiQA6nxOsPvS+0zMJaFSs2ltXe0J6C8dqjcnpyqINDJmU30+uOg==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+      '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/sdk-trace-node@1.30.1':
     resolution: {integrity: sha512-cBjYOINt1JxXdpw1e5MlHmFRc5fgj4GW/86vsKFxJCJ8AL4PdVtYH41gWwl4qd4uQjqEL1oJVrXkSy5cnduAnQ==}
     engines: {node: '>=14'}
     peerDependencies:
-      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+      '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/semantic-conventions@1.28.0':
     resolution: {integrity: sha512-lp4qAiMTD4sNWW4DbKLBkfiMZ4jbAboJIGOQr5DvciMRI494OapieI9qiODpOt0XBr1LjIDy1xAGAnVs5supTA==}
@@ -3359,7 +3358,7 @@ packages:
   '@squide/firefly@16.2.0':
     resolution: {integrity: sha512-1DBMFE+c/YVHGYrsXluOEEmwDqd1S5Wny/kcBt6JgsFB6V2D+hAYRxVks2DWgkzKHAWEMPp107WQgo6FMiSvrA==}
     peerDependencies:
-      '@opentelemetry/api': ^1.9.0
+      '@opentelemetry/api': 1.9.0
       '@tanstack/react-query': ^5.90.21
       launchdarkly-js-client-sdk: ^3.9.0
       msw: ^2.12.10
@@ -8006,7 +8005,7 @@ packages:
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
-      '@opentelemetry/api': ^1.9.0
+      '@opentelemetry/api': 1.9.0
       '@types/node': ^20.0.0 || ^22.0.0 || >=24.0.0
       '@vitest/browser-playwright': 4.1.0
       '@vitest/browser-preview': 4.1.0
@@ -9175,7 +9174,7 @@ snapshots:
       yaml: 2.8.3
       yargs: 17.7.2
 
-  '@netlify/build@35.8.3(@opentelemetry/api@1.8.0)(@types/node@25.3.3)(picomatch@4.0.4)(rollup@4.60.0)':
+  '@netlify/build@35.8.3(@opentelemetry/api@1.9.0)(@types/node@25.3.3)(picomatch@4.0.4)(rollup@4.60.0)':
     dependencies:
       '@bugsnag/js': 8.8.1
       '@netlify/blobs': 10.7.0(supports-color@10.2.2)
@@ -9184,11 +9183,11 @@ snapshots:
       '@netlify/edge-bundler': 14.9.11
       '@netlify/functions-utils': 6.2.27(rollup@4.60.0)(supports-color@10.2.2)
       '@netlify/git-utils': 6.0.4
-      '@netlify/opentelemetry-utils': 2.0.2(@opentelemetry/api@1.8.0)
+      '@netlify/opentelemetry-utils': 2.0.2(@opentelemetry/api@1.9.0)
       '@netlify/plugins-list': 6.81.3
       '@netlify/run-utils': 6.0.3
       '@netlify/zip-it-and-ship-it': 14.4.0(rollup@4.60.0)(supports-color@10.2.2)
-      '@opentelemetry/api': 1.8.0
+      '@opentelemetry/api': 1.9.0
       '@sindresorhus/slugify': 2.2.1
       ansi-escapes: 7.2.0
       ansis: 4.2.0
@@ -9520,9 +9519,9 @@ snapshots:
 
   '@netlify/open-api@2.52.0': {}
 
-  '@netlify/opentelemetry-utils@2.0.2(@opentelemetry/api@1.8.0)':
+  '@netlify/opentelemetry-utils@2.0.2(@opentelemetry/api@1.9.0)':
     dependencies:
-      '@opentelemetry/api': 1.8.0
+      '@opentelemetry/api': 1.9.0
 
   '@netlify/otel@5.1.5(supports-color@10.2.2)':
     dependencies:
@@ -9755,8 +9754,6 @@ snapshots:
   '@opentelemetry/api-logs@0.203.0':
     dependencies:
       '@opentelemetry/api': 1.9.0
-
-  '@opentelemetry/api@1.8.0': {}
 
   '@opentelemetry/api@1.9.0': {}
 
@@ -10893,7 +10890,7 @@ snapshots:
       '@vitest/mocker': 4.1.0(msw@2.12.10(@types/node@25.3.3)(typescript@5.9.3))(vite@6.3.5(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.3))
       playwright: 1.52.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.0(@opentelemetry/api@1.8.0)(@types/node@25.3.3)(@vitest/browser-playwright@4.1.0)(msw@2.12.10(@types/node@25.3.3)(typescript@5.9.3))(vite@6.3.5(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.3))
+      vitest: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.3.3)(@vitest/browser-playwright@4.1.0)(msw@2.12.10(@types/node@25.3.3)(typescript@5.9.3))(vite@6.3.5(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.3))
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -13639,7 +13636,7 @@ snapshots:
       '@netlify/ai': 0.3.8
       '@netlify/api': 14.0.15
       '@netlify/blobs': 10.7.0(supports-color@10.2.2)
-      '@netlify/build': 35.8.3(@opentelemetry/api@1.8.0)(@types/node@25.3.3)(picomatch@4.0.4)(rollup@4.60.0)
+      '@netlify/build': 35.8.3(@opentelemetry/api@1.9.0)(@types/node@25.3.3)(picomatch@4.0.4)(rollup@4.60.0)
       '@netlify/build-info': 10.3.0
       '@netlify/config': 24.4.1
       '@netlify/dev': 4.11.2(rollup@4.60.0)
@@ -13653,7 +13650,7 @@ snapshots:
       '@netlify/redirect-parser': 15.0.3
       '@netlify/zip-it-and-ship-it': 14.4.0(rollup@4.60.0)(supports-color@10.2.2)
       '@octokit/rest': 22.0.0
-      '@opentelemetry/api': 1.8.0
+      '@opentelemetry/api': 1.9.0
       '@pnpm/tabtab': 0.5.4
       ansi-escapes: 7.2.0
       ansi-to-html: 0.7.2
@@ -15478,35 +15475,6 @@ snapshots:
       lightningcss: 1.31.1
       tsx: 4.21.0
       yaml: 2.8.3
-
-  vitest@4.1.0(@opentelemetry/api@1.8.0)(@types/node@25.3.3)(@vitest/browser-playwright@4.1.0)(msw@2.12.10(@types/node@25.3.3)(typescript@5.9.3))(vite@6.3.5(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.3)):
-    dependencies:
-      '@vitest/expect': 4.1.0
-      '@vitest/mocker': 4.1.0(msw@2.12.10(@types/node@25.3.3)(typescript@5.9.3))(vite@6.3.5(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.3))
-      '@vitest/pretty-format': 4.1.0
-      '@vitest/runner': 4.1.0
-      '@vitest/snapshot': 4.1.0
-      '@vitest/spy': 4.1.0
-      '@vitest/utils': 4.1.0
-      es-module-lexer: 2.0.0
-      expect-type: 1.3.0
-      magic-string: 0.30.21
-      obug: 2.1.1
-      pathe: 2.0.3
-      picomatch: 4.0.4
-      std-env: 4.0.0
-      tinybench: 2.9.0
-      tinyexec: 1.0.4
-      tinyglobby: 0.2.15
-      tinyrainbow: 3.1.0
-      vite: 6.3.5(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.3)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@opentelemetry/api': 1.8.0
-      '@types/node': 25.3.3
-      '@vitest/browser-playwright': 4.1.0(msw@2.12.10(@types/node@25.3.3)(typescript@5.9.3))(playwright@1.52.0)(vite@6.3.5(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.0)
-    transitivePeerDependencies:
-      - msw
 
   vitest@4.1.0(@opentelemetry/api@1.9.0)(@types/node@25.3.3)(@vitest/browser-playwright@4.1.0)(msw@2.12.10(@types/node@25.3.3)(typescript@5.9.3))(vite@6.3.5(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)(yaml@2.8.3)):
     dependencies:
