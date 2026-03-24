@@ -253,6 +253,6 @@ Users can review past events, see when plants were last watered, and observe pat
 
 This provides useful feedback that complements the existing daily watering workflow.
 
-## Use the ADLC orchestrator
+## ADLC
 
-Build this task using the `plantz-adlc-orchestrator` skill.
+Build this task using the `_adlc` skill.

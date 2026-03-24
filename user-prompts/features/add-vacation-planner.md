@@ -283,6 +283,6 @@ The vacation planner analyzes plant schedules, generates actionable recommendati
 
 The feature should fit naturally with existing plant management and daily watering workflows.
 
-## Use the ADLC orchestrator
+## ADLC
 
-Build this task using the `plantz-adlc-orchestrator` skill.
+Build this task using the `_adlc` skill.

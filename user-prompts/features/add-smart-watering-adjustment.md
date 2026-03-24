@@ -267,6 +267,6 @@ Users receive suggestions when watering patterns suggest a schedule adjustment, 
 
 The feature complements the existing watering workflow by adding adaptive intelligence while keeping the user in control of schedule changes.
 
-## Use the ADLC orchestrator
+## ADLC
 
-Build this task using the `plantz-adlc-orchestrator` skill.
+Build this task using the `_adlc` skill.

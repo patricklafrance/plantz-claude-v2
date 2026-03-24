@@ -340,6 +340,6 @@ The feature reduces confusion, avoids duplicate work, and better reflects real-w
 
 This introduces significant complexity across domain modeling, workflows, and UI, making it a strong candidate for testing advanced agent orchestration.
 
-## Use the ADLC orchestrator
+## ADLC
 
-Build this task using the `plantz-adlc-orchestrator` skill.
+Build this task using the `_adlc` skill.

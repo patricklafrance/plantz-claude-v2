@@ -24,6 +24,6 @@ A persistent top-right ribbon (visible on all pages once authenticated) showing:
 
 Use a simple session mechanism — a token or user ID stored in sessionStorage. No real JWT or OAuth needed.
 
-## Use the ADLC orchestrator
+## ADLC
 
-Build this feature using the `plantz-adlc-orchestrator` skill.
+Build this feature using the `_adlc` skill.

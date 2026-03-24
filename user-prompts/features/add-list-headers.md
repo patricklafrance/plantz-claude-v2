@@ -12,6 +12,6 @@ Add a header component (e.g., `PlantListHeader`) that renders column labels — 
 
 Instead of cramming name, quantity, watering type, and location into a tight left-aligned block, distribute them across the row width so the layout uses the available space on wider screens. Each piece of data should align under its corresponding header label. On mobile, the current stacked layout can remain.
 
-## Use the ADLC orchestrator
+## ADLC
 
-Build this task using the `plantz-adlc-orchestrator` skill.
+Build this task using the `_adlc` skill.
