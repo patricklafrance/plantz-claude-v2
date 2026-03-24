@@ -41,19 +41,19 @@ Node 24+, pnpm 10, TypeScript 7 (tsgo), Rsbuild, Vite (Storybooks), Tailwind CSS
 
 ## Agent harness
 
-The harness enhances the agent's natural capabilities instead of micromanaging each step. Skills define *what* to do — lightweight orchestration that tells the agent where to go next. Hooks enforce *how well* — automated verification, autofix, and context delivery that runs whether the agent remembers or not.
+The harness enhances the agent's natural capabilities instead of micromanaging each step. Skills define _what_ to do — lightweight orchestration that tells the agent where to go next. Hooks enforce _how well_ — automated verification, autofix, and context delivery that runs whether the agent remembers or not.
 
 This design is based on three principles from the [Agent Harness](https://medium.com/@bijit211987/agent-harness-b1f6d5a7a1d1) article:
 
-| # | Principle | Status | Implementation |
-|---|-----------|--------|----------------|
-| 1 | Verification is not optional | :white_check_mark: Implemented | SubagentStop hooks, pre-commit guards, permissions |
-| 2 | Context should be delivered, not requested | :construction: Planned | — |
-| 3 | Supervision must be real-time | :construction: Planned | — |
+| #   | Principle                                  | Status                         | Implementation                                     |
+| --- | ------------------------------------------ | ------------------------------ | -------------------------------------------------- |
+| 1   | Verification is not optional               | :white_check_mark: Implemented | SubagentStop hooks, pre-commit guards, permissions |
+| 2   | Context should be delivered, not requested | :construction: Planned         | —                                                  |
+| 3   | Supervision must be real-time              | :construction: Planned         | —                                                  |
 
 ### ADLC workflow
 
-Eleven skills form an Agent Development Life Cycle (ADLC). The entry point receives a feature request, creates a branch, and sequences the phases — each phase spawns a focused subagent. Hooks fire at each subagent's completion to verify its work before the workflow advances.
+Three skills and eight custom agents form an Agent Development Life Cycle (ADLC). Skills run inline in the main conversation as orchestrators — they can spawn agents. Agents run as isolated subprocesses — their `name` flows to SubagentStop hooks for verification. Hooks fire at each agent's completion to verify its work before the workflow advances.
 
 ```mermaid
 flowchart TD
@@ -90,23 +90,30 @@ flowchart TD
     style Coord fill:#f0f9ff,stroke:#0284c7
 ```
 
-| Skill | What it does |
-|-------|--------------|
-| `_adlc` | Entry point. Cleans `.adlc/`, creates a branch, runs all phases sequentially |
-| `_adlc-domain-mapper` | Analyzes feature terms against existing modules, writes placement decisions |
-| `_adlc-plan-loop` | Spawns planner → architect gate, loops on rejection (max 5 iterations) |
-| `_adlc-planner` | Drafts a multi-slice plan with acceptance criteria per slice |
-| `_adlc-architect` | Structural review gate — flags wrong boundaries, missing denormalization, weak criteria |
-| `_adlc-slice-loop` | Code → verify cycle for one slice, commits on success (max 5 fix attempts) |
-| `_adlc-coder` | Implements a single slice — code, MSW handlers, Storybook stories |
-| `_adlc-reviewer` | Verifies acceptance criteria via browser screenshots and interactions |
-| `_adlc-document` | Updates domain docs and architecture references to reflect what was built |
-| `_adlc-pr` | Pushes branch, opens PR with summary and technical changes |
-| `_adlc-monitor` | Polls CI workflows, auto-fixes failures (lint, Chromatic, Lighthouse) |
+**Skills** (orchestrators — run inline, spawn agents):
+
+| Skill              | What it does                                                                 |
+| ------------------ | ---------------------------------------------------------------------------- |
+| `_adlc`            | Entry point. Cleans `.adlc/`, creates a branch, runs all phases sequentially |
+| `_adlc-plan-loop`  | Spawns planner → architect gate, loops on rejection (max 5 iterations)       |
+| `_adlc-slice-loop` | Code → verify cycle for one slice, commits on success (max 5 fix attempts)   |
+
+**Agents** (workers — run as isolated subprocesses, verified by SubagentStop hooks):
+
+| Agent                 | What it does                                                                            |
+| --------------------- | --------------------------------------------------------------------------------------- |
+| `_adlc-domain-mapper` | Analyzes feature terms against existing modules, writes placement decisions             |
+| `_adlc-planner`       | Drafts a multi-slice plan with acceptance criteria per slice                            |
+| `_adlc-architect`     | Structural review gate — flags wrong boundaries, missing denormalization, weak criteria |
+| `_adlc-coder`         | Implements a single slice — code, MSW handlers, Storybook stories                       |
+| `_adlc-reviewer`      | Verifies acceptance criteria via browser screenshots and interactions                   |
+| `_adlc-document`      | Updates domain docs and architecture references to reflect what was built               |
+| `_adlc-pr`            | Pushes branch, opens PR with summary and technical changes                              |
+| `_adlc-monitor`       | Polls CI workflows, auto-fixes failures (lint, Chromatic, Lighthouse)                   |
 
 All inter-step coordination goes through files in `.adlc/` — plan-header, slices, verification-results, implementation-notes, domain-mapping. This makes handoffs explicit and debuggable.
 
-**Files:** [`.claude/skills/_adlc*/`](.claude/skills/)
+**Files:** [`.claude/skills/_adlc*/`](.claude/skills/), [`.claude/agents/`](.claude/agents/)
 
 ### Principle 1: Verification is not optional
 
@@ -118,31 +125,31 @@ Hooks fall into four categories: **verificators** that block completion until ch
 
 Block a subagent's completion until its deliverables meet structural and quality checks. If any check fails, the problems are fed back to the agent for correction.
 
-| Agent | Check | What it validates |
-|-------|-------|-------------------|
-| `_adlc-coder` | lint | Full monorepo lint — oxlint, oxfmt, typecheck, syncpack, knip |
-| `_adlc-coder` | tests | Full monorepo tests — Vitest + Storybook a11y via Playwright |
-| `_adlc-coder` | no-file-disable | Rejects file-level `/* oxlint-disable */` comments (line-level only) |
-| `_adlc-coder` | no-secrets | gitleaks scan on changed files |
-| `_adlc-coder` | import-guard | 4-layer architectural boundary enforcement (host → modules → packages) |
-| `_adlc-coder` | implementation-notes | `.adlc/implementation-notes.md` must be created or updated |
-| `_adlc-coder` | story-coverage | Every changed component in a module needs a matching `.stories.tsx` |
-| `_adlc-planner` | plan-header | `.adlc/plan-header.md` must exist and be non-empty |
-| `_adlc-planner` | slice-files | At least one `.md` file in `.adlc/slices/` |
-| `_adlc-planner` | slice-criteria | Every slice must have `- [ ]` acceptance criteria |
-| `_adlc-architect` | no-plan-mutations | Must not modify plan files (read-only review) |
-| `_adlc-architect` | revision-slice-refs | Revision must reference specific slices with evidence |
-| `_adlc-domain-mapper` | mapping-file | `.adlc/domain-mapping.md` must exist |
-| `_adlc-domain-mapper` | no-plan-mutations | Must not modify plan files |
-| `_adlc-reviewer` | verification-results | `.adlc/verification-results.md` must exist |
-| `_adlc-reviewer` | criteria-coverage | Results must cover every acceptance criterion from the slice |
+| Agent                 | Check                | What it validates                                                      |
+| --------------------- | -------------------- | ---------------------------------------------------------------------- |
+| `_adlc-coder`         | lint                 | Full monorepo lint — oxlint, oxfmt, typecheck, syncpack, knip          |
+| `_adlc-coder`         | tests                | Full monorepo tests — Vitest + Storybook a11y via Playwright           |
+| `_adlc-coder`         | no-file-disable      | Rejects file-level `/* oxlint-disable */` comments (line-level only)   |
+| `_adlc-coder`         | no-secrets           | gitleaks scan on changed files                                         |
+| `_adlc-coder`         | import-guard         | 4-layer architectural boundary enforcement (host → modules → packages) |
+| `_adlc-coder`         | implementation-notes | `.adlc/implementation-notes.md` must be created or updated             |
+| `_adlc-coder`         | story-coverage       | Every changed component in a module needs a matching `.stories.tsx`    |
+| `_adlc-planner`       | plan-header          | `.adlc/plan-header.md` must exist and be non-empty                     |
+| `_adlc-planner`       | slice-files          | At least one `.md` file in `.adlc/slices/`                             |
+| `_adlc-planner`       | slice-criteria       | Every slice must have `- [ ]` acceptance criteria                      |
+| `_adlc-architect`     | no-plan-mutations    | Must not modify plan files (read-only review)                          |
+| `_adlc-architect`     | revision-slice-refs  | Revision must reference specific slices with evidence                  |
+| `_adlc-domain-mapper` | mapping-file         | `.adlc/domain-mapping.md` must exist                                   |
+| `_adlc-domain-mapper` | no-plan-mutations    | Must not modify plan files                                             |
+| `_adlc-reviewer`      | verification-results | `.adlc/verification-results.md` must exist                             |
+| `_adlc-reviewer`      | criteria-coverage    | Results must cover every acceptance criterion from the slice           |
 
 #### Context refreshers
 
 By the time a subagent reaches completion, its original skill instructions are buried under thousands of tokens of code and tool output. Context refreshers block once per slice with a concise checklist — forcing recency-bias attention on concerns that are easy to forget.
 
-| Agent | Refresh | What it reminds |
-|-------|---------|-----------------|
+| Agent         | Refresh         | What it reminds                                    |
+| ------------- | --------------- | -------------------------------------------------- |
 | `_adlc-coder` | context-refresh | MSW handlers, story variants, implementation notes |
 
 Uses `.adlc/markers.json` keyed by slice name so the checklist fires once per slice — not on every stop attempt.
@@ -151,18 +158,18 @@ Uses `.adlc/markers.json` keyed by slice name so the checklist fires once per sl
 
 Run corrections before validation to reduce noise. The coder pipeline formats all files with oxfmt before lint checks, so formatting violations never appear as failures.
 
-| Agent | Autofix | What it does |
-|-------|---------|--------------|
+| Agent         | Autofix       | What it does                        |
+| ------------- | ------------- | ----------------------------------- |
 | `_adlc-coder` | oxfmt-autofix | `oxfmt --write .` before lint phase |
 
 #### Pre-commit and tool guards
 
 Constraints that apply to every tool call, regardless of which skill is running.
 
-| Hook | Trigger | What it does |
-|------|---------|--------------|
-| `enforce-pnpm` | Every Bash call | Blocks `npm`, `npx`, `pnpx`, `pnpm dlx` — only `pnpm` allowed |
-| `pre-tool-use-bash` | `git commit` | Intercepts commits — runs oxfmt autofix + lint + tests before allowing |
+| Hook                | Trigger         | What it does                                                           |
+| ------------------- | --------------- | ---------------------------------------------------------------------- |
+| `enforce-pnpm`      | Every Bash call | Blocks `npm`, `npx`, `pnpx`, `pnpm dlx` — only `pnpm` allowed          |
+| `pre-tool-use-bash` | `git commit`    | Intercepts commits — runs oxfmt autofix + lint + tests before allowing |
 
 #### Permissions
 
@@ -211,12 +218,12 @@ All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live 
 
 Non-ADLC skills that agents load at runtime for scaffolding and validation.
 
-| Skill | What it does |
-|-------|--------------|
-| `_scaffold-domain` | Creates a new domain directory with its first module and domain Storybook |
-| `_scaffold-domain-module` | Scaffolds a new Squide module — files, host registration, Storybook wiring |
-| `_scaffold-domain-storybook` | Scaffolds a domain-scoped Storybook with Chromatic CI integration |
-| `_validate-modules` | Validates module structure and wiring (files, exports, host registration, Storybook) |
+| Skill                        | What it does                                                                         |
+| ---------------------------- | ------------------------------------------------------------------------------------ |
+| `_scaffold-domain`           | Creates a new domain directory with its first module and domain Storybook            |
+| `_scaffold-domain-module`    | Scaffolds a new Squide module — files, host registration, Storybook wiring           |
+| `_scaffold-domain-storybook` | Scaffolds a domain-scoped Storybook with Chromatic CI integration                    |
+| `_validate-modules`          | Validates module structure and wiring (files, exports, host registration, Storybook) |
 
 Scaffolding skills use a **reference module pattern** — instead of hardcoding versions or configs, they read a canonical module (`apps/management/plants/`) at runtime and clone from it.
 

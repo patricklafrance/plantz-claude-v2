@@ -46,8 +46,8 @@ Add the new domain to the domain table in `agent-docs/references/domains.md`.
 
 ### 5. Scaffold first module
 
-Spawn `subagent_type: "_scaffold-domain-module"` with the `domain` and `module` inputs.
+Run the `_scaffold-domain-module` skill with the `domain` and `module` inputs.
 
 ### 6. Scaffold domain storybook
 
-Spawn `subagent_type: "_scaffold-domain-storybook"` with the `domain` input.
+Run the `_scaffold-domain-storybook` skill with the `domain` input.
