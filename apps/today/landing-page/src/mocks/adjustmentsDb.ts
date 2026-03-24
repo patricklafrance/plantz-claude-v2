@@ -25,7 +25,9 @@ export const adjustmentsDb = {
     isDismissed(plantId: string, currentEventCount: number): boolean {
         const record = dismissedStore.get(plantId);
 
-        if (!record) return false;
+        if (!record) {
+            return false;
+        }
 
         // If 3+ new watered events have occurred since dismissal, show again
         if (currentEventCount - record.eventCountAtDismissal >= 3) {

@@ -24,7 +24,9 @@ export function LandingPage() {
     const { data: allPlants, isReady } = useLiveQuery(q => q.from({ plant: collection }));
 
     const plants = useMemo(() => {
-        if (!allPlants) return [];
+        if (!allPlants) {
+            return [];
+        }
 
         // First sort by name, then filter to only plants due for watering, then apply user filters
         const sorted = allPlants.toSorted((a, b) => a.name.localeCompare(b.name));
@@ -77,7 +79,9 @@ export function LandingPage() {
     }, [collection]);
 
     const handleMarkWatered = useCallback(async () => {
-        if (!detailPlant) return;
+        if (!detailPlant) {
+            return;
+        }
 
         try {
             await createCareEvent(detailPlant.id, "watered");
@@ -90,7 +94,9 @@ export function LandingPage() {
 
     const handleBulkMarkWatered = useCallback(async () => {
         const ids = plants.filter(p => selectedIds.has(p.id)).map(p => p.id);
-        if (ids.length === 0) return;
+        if (ids.length === 0) {
+            return;
+        }
 
         try {
             await createBulkCareEvents(ids, "watered");

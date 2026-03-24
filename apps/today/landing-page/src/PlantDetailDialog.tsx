@@ -15,7 +15,9 @@ interface PlantDetailDialogProps {
 }
 
 export function PlantDetailDialog({ plant, open, onOpenChange, careSection, onMarkWatered }: PlantDetailDialogProps) {
-    if (!plant) return null;
+    if (!plant) {
+        return null;
+    }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>

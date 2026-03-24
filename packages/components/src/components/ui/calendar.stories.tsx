@@ -67,7 +67,9 @@ export const RangeSelection: Story = {
                 today={FIXED_TODAY}
                 selected={range}
                 onSelect={value => {
-                    if (value) setRange(value);
+                    if (value) {
+                        setRange(value);
+                    }
                 }}
             />
         );

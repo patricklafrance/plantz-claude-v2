@@ -16,19 +16,37 @@ const MODULE_SRC_RE = /^apps\/[^/]+\/[^/]+\/src\//;
 function isExcluded(filePath) {
     const name = basename(filePath);
 
-    if (name.endsWith(".stories.tsx")) return true;
-    if (name.endsWith(".test.tsx")) return true;
-    if (name === "index.tsx") return true;
-    if (name.startsWith("register")) return true;
-    if (name === "storybook.setup.tsx") return true;
-    if (/Context\.tsx$/.test(name)) return true;
+    if (name.endsWith(".stories.tsx")) {
+        return true;
+    }
+    if (name.endsWith(".test.tsx")) {
+        return true;
+    }
+    if (name === "index.tsx") {
+        return true;
+    }
+    if (name.startsWith("register")) {
+        return true;
+    }
+    if (name === "storybook.setup.tsx") {
+        return true;
+    }
+    if (name.endsWith("Context.tsx")) {
+        return true;
+    }
 
     // Directories that never contain standalone components
-    if (filePath.includes("/mocks/")) return true;
-    if (/^apps\/[^/]+\/storybook\//.test(filePath)) return true;
+    if (filePath.includes("/mocks/")) {
+        return true;
+    }
+    if (/^apps\/[^/]+\/storybook\//.test(filePath)) {
+        return true;
+    }
 
     // Host app — no per-component stories
-    if (filePath.startsWith("apps/host/")) return true;
+    if (filePath.startsWith("apps/host/")) {
+        return true;
+    }
 
     return false;
 }
@@ -37,9 +55,15 @@ export function storyCoverage(cwd, changedFiles) {
     const missing = [];
 
     for (const file of changedFiles) {
-        if (!file.endsWith(".tsx")) continue;
-        if (!MODULE_SRC_RE.test(file)) continue;
-        if (isExcluded(file)) continue;
+        if (!file.endsWith(".tsx")) {
+            continue;
+        }
+        if (!MODULE_SRC_RE.test(file)) {
+            continue;
+        }
+        if (isExcluded(file)) {
+            continue;
+        }
 
         const name = basename(file, ".tsx");
         const dir = dirname(file);
@@ -50,7 +74,9 @@ export function storyCoverage(cwd, changedFiles) {
         }
     }
 
-    if (missing.length === 0) return [];
+    if (missing.length === 0) {
+        return [];
+    }
 
     return [`[story-coverage] Component files without Storybook stories:\n${missing.join("\n")}`];
 }

@@ -20,7 +20,9 @@ export function AdjustmentSection({ plantId, currentIntervalDays, onAdjustmentAc
     const { events, isLoading: isLoadingHistory } = useAdjustmentHistory(plantId);
 
     const handleAccept = useCallback(async () => {
-        if (!recommendation) return;
+        if (!recommendation) {
+            return;
+        }
 
         try {
             await acceptAdjustment(plantId, recommendation.currentInterval, recommendation.suggestedInterval);

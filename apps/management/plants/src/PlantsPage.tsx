@@ -27,7 +27,9 @@ export function PlantsPage() {
     const { data: allPlants, isReady } = useLiveQuery(q => q.from({ plant: collection }));
 
     const plants = useMemo(() => {
-        if (!allPlants) return [];
+        if (!allPlants) {
+            return [];
+        }
         const sorted = allPlants.toSorted((a, b) => a.name.localeCompare(b.name));
 
         return applyPlantFilters(sorted, filters);
@@ -74,7 +76,9 @@ export function PlantsPage() {
     }, [plants, selectedIds]);
 
     const confirmDelete = useCallback(() => {
-        if (!deleteTarget) return;
+        if (!deleteTarget) {
+            return;
+        }
         const ids = deleteTarget.map(p => p.id);
         actions.deletePlants(ids);
         setSelectedIds(prev => {
@@ -108,7 +112,9 @@ export function PlantsPage() {
     }, []);
 
     const handleDeleteDialogOpenChange = useCallback((open: boolean) => {
-        if (!open) setDeleteTarget(null);
+        if (!open) {
+            setDeleteTarget(null);
+        }
     }, []);
 
     const handleMarkWatered = useCallback(
@@ -127,7 +133,9 @@ export function PlantsPage() {
 
     const handleBulkMarkWatered = useCallback(async () => {
         const ids = plants.filter(p => selectedIds.has(p.id)).map(p => p.id);
-        if (ids.length === 0) return;
+        if (ids.length === 0) {
+            return;
+        }
 
         try {
             await createBulkCareEvents(ids, "watered");

@@ -71,7 +71,9 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
 
     function handleSubmit(e: FormEvent) {
         e.preventDefault();
-        if (!isValid) return;
+        if (!isValid) {
+            return;
+        }
 
         actions.insertPlant({
             name: name.trim(),
@@ -142,7 +144,9 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                             <Select
                                 value={location}
                                 onValueChange={v => {
-                                    if (v) setLocation(v);
+                                    if (v) {
+                                        setLocation(v);
+                                    }
                                 }}
                             >
                                 <SelectTrigger id="create-location" className="w-full" aria-required="true">
@@ -164,7 +168,9 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                             <Select
                                 value={luminosity}
                                 onValueChange={v => {
-                                    if (v) setLuminosity(v);
+                                    if (v) {
+                                        setLuminosity(v);
+                                    }
                                 }}
                             >
                                 <SelectTrigger id="create-luminosity" className="w-full" aria-required="true">
@@ -196,7 +202,9 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                             <Select
                                 value={wateringFrequency}
                                 onValueChange={v => {
-                                    if (v) setWateringFrequency(v);
+                                    if (v) {
+                                        setWateringFrequency(v);
+                                    }
                                 }}
                             >
                                 <SelectTrigger id="create-watering-frequency" className="w-full" aria-required="true">
@@ -218,7 +226,9 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                             <Select
                                 value={wateringType}
                                 onValueChange={v => {
-                                    if (v) setWateringType(v);
+                                    if (v) {
+                                        setWateringType(v);
+                                    }
                                 }}
                             >
                                 <SelectTrigger id="create-watering-type" className="w-full" aria-required="true">

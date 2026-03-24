@@ -16,12 +16,12 @@ import {
     type ModuleRegisterFunction,
     toLocalModuleDefinitions
 } from "@squide/firefly";
-import { LaunchDarklyPlugin, type FeatureFlags, isEditableLaunchDarklyClient, useLaunchDarklyClient } from "@squide/launch-darkly";
+import { LaunchDarklyPlugin, type FeatureFlags } from "@squide/launch-darkly";
 import { MswPlugin } from "@squide/msw";
 import type { Decorator } from "@storybook/react-vite";
 import type { RootLogger } from "@workleap/logging";
 import type { LDClient } from "launchdarkly-js-client-sdk";
-import { type PropsWithChildren, useEffect, useRef } from "react";
+import type { PropsWithChildren } from "react";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
@@ -108,32 +108,4 @@ function FireflyDecorator({ runtime, children: story }: FireflyDecoratorProps) {
 
 export function withFireflyDecorator(runtime: FireflyRuntime): Decorator {
     return story => <FireflyDecorator runtime={runtime}>{story()}</FireflyDecorator>;
-}
-
-// --- withFeatureFlagsOverrideDecorator ---
-
-function OverrideFeatureFlags({ overrides, children }: PropsWithChildren<{ overrides: Partial<FeatureFlags> }>) {
-    const transactionRef = useRef<{ undo: () => void } | undefined>(undefined);
-    const client = useLaunchDarklyClient();
-
-    if (!transactionRef.current) {
-        if (!isEditableLaunchDarklyClient(client)) {
-            throw new Error("[squide] The withFeatureFlagsOverrideDecorator hook can only be used with an EditableLaunchDarklyClient instance.");
-        }
-        transactionRef.current = client.startTransaction();
-        client.setFeatureFlags(overrides);
-    }
-
-    useEffect(() => {
-        return () => {
-            transactionRef.current?.undo();
-            transactionRef.current = undefined;
-        };
-    }, [transactionRef]);
-
-    return children;
-}
-
-function withFeatureFlagsOverrideDecorator(overrides: Partial<FeatureFlags>): Decorator {
-    return story => <OverrideFeatureFlags overrides={overrides}>{story()}</OverrideFeatureFlags>;
 }

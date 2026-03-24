@@ -81,7 +81,9 @@ export function useVacationPlan() {
     }, []);
 
     const savePlan = useCallback(async () => {
-        if (!state.plan) return;
+        if (!state.plan) {
+            return;
+        }
 
         dispatch({ type: "SAVE_START" });
 
@@ -103,7 +105,9 @@ export function useVacationPlan() {
     }, [state.plan, state.recommendations]);
 
     const cancelPlan = useCallback(async () => {
-        if (!state.plan) return;
+        if (!state.plan) {
+            return;
+        }
 
         await fetch(`/api/today/vacation-planner/plans/${state.plan.id}`, {
             method: "PUT",

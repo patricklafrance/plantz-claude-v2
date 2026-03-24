@@ -42,7 +42,9 @@ export function VacationPlannerPage() {
 
     const handleGenerate = useCallback(
         (startDate: Date, endDate: Date, strategy: PlanningStrategy) => {
-            if (!plants) return;
+            if (!plants) {
+                return;
+            }
             createPlan(plants, startDate, endDate, strategy);
         },
         [plants, createPlan]

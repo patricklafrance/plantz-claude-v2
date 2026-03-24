@@ -24,7 +24,9 @@ class PlantsDb {
     update(id: string, data: Partial<Plant>): Plant | undefined {
         const existing = this.#store.get(id);
 
-        if (!existing) return undefined;
+        if (!existing) {
+            return undefined;
+        }
 
         const updated: Plant = { ...existing, ...data, lastUpdateDate: new Date() };
         this.#store.set(id, updated);

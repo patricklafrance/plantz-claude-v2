@@ -7,7 +7,9 @@ function sortByDateDesc(events: CareEvent[]): CareEvent[] {
 
 export function getLastWateredDate(events: CareEvent[]): Date | null {
     const watered = events.filter(e => e.eventType === "watered");
-    if (watered.length === 0) return null;
+    if (watered.length === 0) {
+        return null;
+    }
 
     const sorted = sortByDateDesc(watered);
 
@@ -21,7 +23,9 @@ export function computeAverageInterval(events: CareEvent[]): number | null {
 }
 
 function computeAverageIntervalFromWatered(watered: CareEvent[]): number | null {
-    if (watered.length < 2) return null;
+    if (watered.length < 2) {
+        return null;
+    }
 
     let totalDays = 0;
 
@@ -55,7 +59,9 @@ export function countMissedWaterings(events: CareEvent[], expectedFrequencyDays:
 }
 
 function countMissedFromWatered(watered: CareEvent[], expectedFrequencyDays: number): number {
-    if (watered.length < 2 || expectedFrequencyDays <= 0) return 0;
+    if (watered.length < 2 || expectedFrequencyDays <= 0) {
+        return 0;
+    }
 
     let missed = 0;
     const threshold = expectedFrequencyDays * 1.5;
@@ -72,12 +78,16 @@ function countMissedFromWatered(watered: CareEvent[], expectedFrequencyDays: num
 }
 
 export function computeCareInsights(events: CareEvent[], expectedFrequencyDays = 7): CareInsight | null {
-    if (events.length === 0) return null;
+    if (events.length === 0) {
+        return null;
+    }
 
     // Pre-compute watered events once to avoid redundant filtering across helpers
     const wateredAsc = getWateredEventsByDateAsc(events);
 
-    if (wateredAsc.length === 0) return null;
+    if (wateredAsc.length === 0) {
+        return null;
+    }
 
     const lastWateredDate = wateredAsc[wateredAsc.length - 1]!.eventDate;
     const averageInterval = computeAverageIntervalFromWatered(wateredAsc);

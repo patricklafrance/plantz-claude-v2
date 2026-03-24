@@ -19,7 +19,9 @@ function computeIntervals(watered: CareEvent[]): number[] {
 }
 
 function computeVariance(intervals: number[], mean: number): number {
-    if (intervals.length === 0) return 0;
+    if (intervals.length === 0) {
+        return 0;
+    }
 
     let sumSqDiff = 0;
 

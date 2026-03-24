@@ -2,7 +2,12 @@
     "$schema": "https://unpkg.com/knip@5/schema-jsonc.json",
     "workspaces": {
         ".": {
-            "entry": ["scripts/*.ts"],
+            "entry": [
+                "scripts/*.ts",
+                ".claude/hooks/src/adlc-verification/subagent-stop.mjs",
+                ".claude/hooks/src/pre-commit/pre-tool-use-bash.mjs",
+                ".claude/hooks/src/safe-compact/post-compact.mjs"
+            ],
             "ignoreDependencies": ["netlify-cli", "agent-browser"]
         },
         "apps/host": {

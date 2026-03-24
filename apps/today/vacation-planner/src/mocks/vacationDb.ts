@@ -25,7 +25,9 @@ export const vacationDb = {
 
     update(id: string, changes: Partial<VacationPlan>): VacationPlan | null {
         const existing = plans.get(id);
-        if (!existing) return null;
+        if (!existing) {
+            return null;
+        }
 
         const updated = { ...existing, ...changes, updatedAt: new Date() };
         plans.set(id, updated);

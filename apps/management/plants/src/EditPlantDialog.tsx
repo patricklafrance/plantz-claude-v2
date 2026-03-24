@@ -71,8 +71,12 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
     }, [plant]);
 
     const saveChanges = useCallback(() => {
-        if (!plantIdRef.current) return;
-        if (!name.trim() || !wateringQuantity.trim()) return;
+        if (!plantIdRef.current) {
+            return;
+        }
+        if (!name.trim() || !wateringQuantity.trim()) {
+            return;
+        }
         const id = plantIdRef.current;
 
         try {
@@ -101,7 +105,9 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
     }, [name, description, family, location, luminosity, mistLeaves, soilType, wateringFrequency, wateringQuantity, wateringType, actions]);
 
     useEffect(() => {
-        if (!plant || !open) return;
+        if (!plant || !open) {
+            return;
+        }
 
         if (debounceRef.current) {
             clearTimeout(debounceRef.current);
@@ -131,7 +137,9 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
         saveChanges
     ]);
 
-    if (!plant) return null;
+    if (!plant) {
+        return null;
+    }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -167,7 +175,9 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                             <Select
                                 value={location}
                                 onValueChange={v => {
-                                    if (v) setLocation(v);
+                                    if (v) {
+                                        setLocation(v);
+                                    }
                                 }}
                             >
                                 <SelectTrigger id="edit-location" className="w-full" aria-required="true">
@@ -189,7 +199,9 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                             <Select
                                 value={luminosity}
                                 onValueChange={v => {
-                                    if (v) setLuminosity(v);
+                                    if (v) {
+                                        setLuminosity(v);
+                                    }
                                 }}
                             >
                                 <SelectTrigger id="edit-luminosity" className="w-full" aria-required="true">
@@ -221,7 +233,9 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                             <Select
                                 value={wateringFrequency}
                                 onValueChange={v => {
-                                    if (v) setWateringFrequency(v);
+                                    if (v) {
+                                        setWateringFrequency(v);
+                                    }
                                 }}
                             >
                                 <SelectTrigger id="edit-watering-frequency" className="w-full" aria-required="true">
@@ -243,7 +257,9 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                             <Select
                                 value={wateringType}
                                 onValueChange={v => {
-                                    if (v) setWateringType(v);
+                                    if (v) {
+                                        setWateringType(v);
+                                    }
                                 }}
                             >
                                 <SelectTrigger id="edit-watering-type" className="w-full" aria-required="true">
@@ -284,7 +300,9 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                         variant="destructive"
                         size="sm"
                         onClick={() => {
-                            if (plant) onDelete(plant);
+                            if (plant) {
+                                onDelete(plant);
+                            }
                         }}
                     >
                         Delete
