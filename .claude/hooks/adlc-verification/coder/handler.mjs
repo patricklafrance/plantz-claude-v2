@@ -15,6 +15,7 @@ import { lint } from "./lint.mjs";
 import { noFileDisable } from "./no-file-disable.mjs";
 import { noSecrets } from "./no-secrets.mjs";
 import { oxfmtAutofix } from "./oxfmt-autofix.mjs";
+import { storyCoverage } from "./story-coverage.mjs";
 import { tests } from "./tests.mjs";
 
 export default async function handleCoder(cwd) {
@@ -30,7 +31,8 @@ export default async function handleCoder(cwd) {
         Promise.resolve(noFileDisable(cwd, changedFiles)),
         noSecrets(cwd, changedFiles),
         Promise.resolve(checkNoCrossBoundaryImports(cwd, changedFiles)),
-        Promise.resolve(implementationNotesCheck(changedFiles))
+        Promise.resolve(implementationNotesCheck(changedFiles)),
+        Promise.resolve(storyCoverage(cwd, changedFiles))
     ]);
 
     // Phase 3: kill dev server ports regardless of outcome

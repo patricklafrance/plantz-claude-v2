@@ -2,15 +2,15 @@
 
 Seven GitHub Actions workflows in `.github/workflows/`:
 
-| File                   | Purpose                                                                                    |
-| ---------------------- | ------------------------------------------------------------------------------------------ |
-| `ci.yml`               | Secret scan, build, oxlint, typecheck, syncpack, test-harness, test on PRs and main pushes |
-| `lighthouse.yml`       | Lighthouse CI — performance gate (error below 0.5, 3 runs, median)                         |
-| `chromatic.yml`        | Visual regression via Chromatic                                                            |
-| `claude.yml`           | Claude Code agent for issue/PR comments and `/fix` iteration                               |
-| `code-review.yml`      | Automated PR code review via Claude                                                        |
-| `audit-agent-docs.yml` | Weekly agent-docs freshness audit                                                          |
-| `smoke-tests.yml`      | Smoke-test the host app on PRs via Claude                                                  |
+| File                   | Purpose                                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------- |
+| `ci.yml`               | Secret scan, build, oxfmt, oxlint, typecheck, syncpack, test-harness, test on PRs and main pushes |
+| `lighthouse.yml`       | Lighthouse CI — performance gate (error below 0.5, 3 runs, median)                                |
+| `chromatic.yml`        | Visual regression via Chromatic                                                                   |
+| `claude.yml`           | Claude Code agent for issue/PR comments and `/fix` iteration                                      |
+| `code-review.yml`      | Automated PR code review via Claude                                                               |
+| `audit-agent-docs.yml` | Weekly agent-docs freshness audit                                                                 |
+| `smoke-tests.yml`      | Smoke-test the host app on PRs via Claude                                                         |
 
 Read the YAML files directly for triggers, steps, and concurrency rules.
 

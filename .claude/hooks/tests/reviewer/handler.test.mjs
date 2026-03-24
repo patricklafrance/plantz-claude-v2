@@ -26,8 +26,7 @@ describe("reviewer handler (orchestration)", () => {
     });
 
     it("should run coverage check when results file exists", () => {
-        mkdirSync(join(tmp, ".adlc/slices"), { recursive: true });
-        writeFileSync(join(tmp, ".adlc/slices/01-plant-list.md"), loadFixture("planner", "slice-01-plant-list.valid.md"));
+        writeFileSync(join(tmp, ".adlc/current-slice.md"), loadFixture("planner", "slice-01-plant-list.valid.md"));
         // Results exist but have no criteria → coverage check kicks in
         writeFileSync(
             join(tmp, ".adlc/verification-results.md"),
@@ -39,8 +38,7 @@ describe("reviewer handler (orchestration)", () => {
     });
 
     it("should pass when all deliverables are valid", () => {
-        mkdirSync(join(tmp, ".adlc/slices"), { recursive: true });
-        writeFileSync(join(tmp, ".adlc/slices/01-plant-list.md"), loadFixture("planner", "slice-01-plant-list.valid.md"));
+        writeFileSync(join(tmp, ".adlc/current-slice.md"), loadFixture("planner", "slice-01-plant-list.valid.md"));
         writeFileSync(join(tmp, ".adlc/verification-results.md"), loadFixture("reviewer", "results-slice-1-all-pass.valid.md"));
         expect(handleReviewer(tmp)).toHaveLength(0);
     });

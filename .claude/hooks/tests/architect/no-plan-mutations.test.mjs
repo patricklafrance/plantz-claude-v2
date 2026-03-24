@@ -53,6 +53,18 @@ describe("no-plan-mutations", () => {
         expect(problems[0]).toContain("01-first.md");
     });
 
+    it("should list all modified plan files in error", () => {
+        writeFileSync(join(tmp, ".adlc/plan-header.md"), "# Plan\n");
+        writeFileSync(join(tmp, ".adlc/slices/01-first.md"), "# Slice 1\n");
+        gitInit(tmp);
+        writeFileSync(join(tmp, ".adlc/plan-header.md"), "# Plan: Modified\n");
+        writeFileSync(join(tmp, ".adlc/slices/01-first.md"), "# Slice 1: Modified\n");
+        const problems = noPlanMutations(tmp);
+        expect(problems).toHaveLength(1);
+        expect(problems[0]).toContain("plan-header.md");
+        expect(problems[0]).toContain("01-first.md");
+    });
+
     it("should pass when non-plan .adlc files are modified", () => {
         writeFileSync(join(tmp, ".adlc/architect-revision.md"), "# Revision\n");
         gitInit(tmp);

@@ -12,7 +12,7 @@ describe("criteria-coverage", () => {
 
     beforeEach(() => {
         tmp = mkdtempSync(join(tmpdir(), "adlc-cc-"));
-        mkdirSync(join(tmp, ".adlc/slices"), { recursive: true });
+        mkdirSync(join(tmp, ".adlc"), { recursive: true });
     });
 
     afterEach(() => {
@@ -23,19 +23,19 @@ describe("criteria-coverage", () => {
         expect(criteriaCoverage(tmp)).toHaveLength(0);
     });
 
-    it("should return [] when slice cannot be located (no title match)", () => {
+    it("should return [] when current-slice.md does not exist", () => {
         writeFileSync(join(tmp, ".adlc/verification-results.md"), "# Verification Results\n\n- [x] Some criterion\n");
         expect(criteriaCoverage(tmp)).toHaveLength(0);
     });
 
     it("should pass when all criteria are covered", () => {
-        writeFileSync(join(tmp, ".adlc/slices/01-plant-list.md"), loadFixture("planner", "slice-01-plant-list.valid.md"));
+        writeFileSync(join(tmp, ".adlc/current-slice.md"), loadFixture("planner", "slice-01-plant-list.valid.md"));
         writeFileSync(join(tmp, ".adlc/verification-results.md"), loadFixture("reviewer", "results-slice-1-all-pass.valid.md"));
         expect(criteriaCoverage(tmp)).toHaveLength(0);
     });
 
     it("should fail when criteria are missing from results", () => {
-        writeFileSync(join(tmp, ".adlc/slices/02-watering.md"), loadFixture("planner", "slice-02-watering.valid.md"));
+        writeFileSync(join(tmp, ".adlc/current-slice.md"), loadFixture("planner", "slice-02-watering.valid.md"));
         writeFileSync(
             join(tmp, ".adlc/verification-results.md"),
             [
@@ -58,8 +58,17 @@ describe("criteria-coverage", () => {
     });
 
     it("should count failed criteria as covered", () => {
-        writeFileSync(join(tmp, ".adlc/slices/02-watering.md"), loadFixture("planner", "slice-02-watering.valid.md"));
+        writeFileSync(join(tmp, ".adlc/current-slice.md"), loadFixture("planner", "slice-02-watering.valid.md"));
         writeFileSync(join(tmp, ".adlc/verification-results.md"), loadFixture("reviewer", "results-slice-2-with-failure.valid.md"));
+        expect(criteriaCoverage(tmp)).toHaveLength(0);
+    });
+
+    it("should match criteria despite spacing and case differences", () => {
+        writeFileSync(join(tmp, ".adlc/current-slice.md"), "# Slice 1\n\n- [ ] Shows  a   3-column   GRID\n- [ ]   each CARD has  a thumbnail\n");
+        writeFileSync(
+            join(tmp, ".adlc/verification-results.md"),
+            "# Verification Results: Slice 1\n\n## Passed\n\n- [x] shows a 3-column grid\n- [x] Each card has a thumbnail\n"
+        );
         expect(criteriaCoverage(tmp)).toHaveLength(0);
     });
 });

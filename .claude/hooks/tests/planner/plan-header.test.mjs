@@ -25,6 +25,13 @@ describe("plan-header", () => {
         expect(problems[0]).toContain("plan-header.md");
     });
 
+    it("should fail when plan-header.md is empty", () => {
+        writeFileSync(join(tmp, ".adlc/plan-header.md"), "");
+        const problems = planHeader(tmp);
+        expect(problems).toHaveLength(1);
+        expect(problems[0]).toContain("plan-header.md");
+    });
+
     it("should pass when plan-header.md exists and is non-empty", () => {
         writeFileSync(join(tmp, ".adlc/plan-header.md"), loadFixture("planner", "plan-header.valid.md"));
         expect(planHeader(tmp)).toHaveLength(0);

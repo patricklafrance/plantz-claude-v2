@@ -3,7 +3,7 @@
  * the verification results (either Passed or Failed).
  */
 
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 // ── Parsers ─────────────────────────────────────────────────
@@ -50,30 +50,6 @@ function normalize(text) {
     return text.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
-// ── Slice path discovery ────────────────────────────────────
-
-/**
- * Extract the slice number from the verification results title and
- * find the matching slice file in .adlc/slices/.
- */
-function findSlicePath(cwd, resultsContent) {
-    const titleMatch = resultsContent.match(/^#\s+Verification Results:\s*Slice\s+(\d+)/im);
-
-    if (!titleMatch) {
-        return null;
-    }
-
-    const sliceNumber = titleMatch[1].padStart(2, "0");
-    const slicesDir = resolve(cwd, ".adlc", "slices");
-
-    try {
-        const match = readdirSync(slicesDir).find(f => f.startsWith(sliceNumber) && f.endsWith(".md"));
-        return match ? resolve(slicesDir, match) : null;
-    } catch {
-        return null;
-    }
-}
-
 // ── Check ───────────────────────────────────────────────────
 
 export function criteriaCoverage(cwd) {
@@ -87,14 +63,14 @@ export function criteriaCoverage(cwd) {
         return [];
     }
 
-    const slicePath = findSlicePath(cwd, resultsContent);
-
-    if (!slicePath) {
-        // Can't locate the slice — skip the coverage check
+    let sliceContent;
+    try {
+        sliceContent = readFileSync(resolve(cwd, ".adlc", "current-slice.md"), "utf8");
+    } catch {
+        // No current-slice.md — skip the coverage check
         return [];
     }
 
-    const sliceContent = readFileSync(slicePath, "utf8");
     const expected = parseSliceCriteria(sliceContent);
     const reported = parseResultsCriteria(resultsContent);
 

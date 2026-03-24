@@ -39,4 +39,16 @@ describe("architect handler (composition)", () => {
         expect(problems).toHaveLength(1);
         expect(problems[0]).toContain("slice references");
     });
+
+    it("should collect problems from both checks", () => {
+        // Invalid revision (no slice refs) AND modified plan file → 2 problems
+        writeFileSync(join(tmp, ".adlc/architect-revision.md"), loadFixture("architect", "revision-no-refs.invalid.md"));
+        writeFileSync(join(tmp, ".adlc/plan-header.md"), "# Plan\n");
+        execSync('git add -A && git commit -m "add plan"', { cwd: tmp, stdio: "ignore" });
+        writeFileSync(join(tmp, ".adlc/plan-header.md"), "# Plan: Modified\n");
+        const problems = handleArchitect(tmp);
+        expect(problems).toHaveLength(2);
+        expect(problems.some(p => p.includes("plan files"))).toBe(true);
+        expect(problems.some(p => p.includes("slice references"))).toBe(true);
+    });
 });

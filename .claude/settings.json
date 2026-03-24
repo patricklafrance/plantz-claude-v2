@@ -5,12 +5,28 @@
         "allow": ["Edit(.claude/**)", "Write(.claude/**)"]
     },
     "hooks": {
+        "PreToolUse": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/enforce-pnpm.sh"
+                    },
+                    {
+                        "type": "command",
+                        "command": "node .claude/hooks/pre-commit/pre-tool-use-bash.mjs",
+                        "timeout": 180000
+                    }
+                ]
+            }
+        ],
         "PostCompact": [
             {
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/safe-compact/restore.mjs"
+                        "command": "node .claude/hooks/safe-compact/post-compact.mjs"
                     }
                 ]
             }

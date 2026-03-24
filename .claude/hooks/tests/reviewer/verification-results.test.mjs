@@ -25,6 +25,13 @@ describe("verification-results", () => {
         expect(problems[0]).toContain("Missing deliverable");
     });
 
+    it("should fail when verification-results.md is empty", () => {
+        writeFileSync(join(tmp, ".adlc/verification-results.md"), "");
+        const problems = resultsFile(tmp);
+        expect(problems).toHaveLength(1);
+        expect(problems[0]).toContain("Missing deliverable");
+    });
+
     it("should pass when verification-results.md exists and is non-empty", () => {
         writeFileSync(join(tmp, ".adlc/verification-results.md"), loadFixture("reviewer", "results-slice-1-all-pass.valid.md"));
         expect(resultsFile(tmp)).toHaveLength(0);

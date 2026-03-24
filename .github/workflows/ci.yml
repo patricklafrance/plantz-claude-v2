@@ -69,6 +69,14 @@ jobs:
                       pnpm build-host
                   fi
 
+            - name: Oxfmt
+              run: |
+                  if [ "${{ github.event_name }}" == "pull_request" ]; then
+                      pnpm turbo run oxfmt --continue --filter=...[${{ github.event.pull_request.base.sha }}]
+                  else
+                      pnpm turbo run oxfmt
+                  fi
+
             - name: Oxlint
               run: |
                   if [ "${{ github.event_name }}" == "pull_request" ]; then
@@ -88,10 +96,10 @@ jobs:
             - name: Syncpack
               run: pnpm turbo run syncpack
 
-            - name: Test harness (ADLC hooks)
+            - name: Test harness
               run: pnpm test-harness
 
-            - name: Test packages
+            - name: Test app
               # For a PR, only test the projects that are diverging from the pull request original baseline.
               run: |
                   if [ "${{ github.event_name }}" == "pull_request" ]; then
