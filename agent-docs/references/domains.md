@@ -16,7 +16,6 @@
 | -------------- | ----------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------- |
 | **management** | Admin and configuration | `management/plants`      | Plant inventory ownership — CRUD, metadata, per-user plant collections                                     |
 |                |                         | `management/user`        | User identity and preferences — profile editing, display settings                                          |
-|                |                         | `management/household`   | Household membership — setup, invitations, member roles, shared access                                     |
 | **today**      | Daily care dashboard    | `today/landing-page`     | Daily care execution — what needs attention now, watering actions, care event recording, schedule insights |
 |                |                         | `today/vacation-planner` | Absence-aware care planning — trip dates, plant forecasts, delegation                                      |
 
