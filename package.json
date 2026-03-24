@@ -28,6 +28,7 @@
         "typecheck": "tsgo",
         "oxlint": "oxlint --react-plugin --import-plugin --jsx-a11y-plugin --react-perf-plugin --promise-plugin --vitest-plugin",
         "oxfmt": "oxfmt --check",
+        "oxfmt-fix": "oxfmt",
         "knip": "knip",
         "syncpack": "syncpack lint",
         "clean": "pnpm -r --parallel --include-workspace-root exec pnpm dlx rimraf dist storybook-static .turbo .rslib node_modules/.cache",
@@ -54,14 +55,14 @@
         "turbo": "2.8.12",
         "vitest": "4.1.0"
     },
-    "pnpm": {
-        "overrides": {
-            "@opentelemetry/api": "1.9.0"
-        }
-    },
     "engines": {
         "node": ">=24.0.0",
         "pnpm": ">=10"
     },
-    "packageManager": "pnpm@10.30.1"
+    "packageManager": "pnpm@10.30.1",
+    "pnpm": {
+        "overrides": {
+            "@opentelemetry/api": "1.9.0"
+        }
+    }
 }
