@@ -33,10 +33,11 @@ Implement the slice.
 - Read references: `domains.md`, `msw-tanstack-query.md`, `storybook.md`, `tailwind-postcss.md`, `agent-browser.md`.
 - Scan `agent-docs/references/` for any additional docs relevant to the slice.
 - Load if relevant to the slice: `shadcn`, `workleap-web-configs`, `workleap-logging`.
+- Load the `agent-browser` skill for browser automation commands.
 
 ### 2. Implement
 
-Code with a browser open — validate as you go. Use the dev servers defined in `agent-docs/references/agent-browser.md`.
+Code with a browser open — validate as you go. Follow the instructions defined in `agent-docs/references/agent-browser.md` and the specified dev servers.
 
 - **Draft:** Implement the slice scope to fulfill its acceptance criteria.
 - **Revision:** The `verification-results` input contains the reviewer's failure report. Fix only what failed. The report may include a "Sanity Issues" section — these are host app integration problems found outside of Storybook stories.

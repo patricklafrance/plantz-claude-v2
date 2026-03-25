@@ -12,7 +12,7 @@ function pipeToHook(command) {
         const stdout = execFileSync("bash", [HOOK_PATH], {
             input: JSON.stringify({ tool_input: { command } }),
             encoding: "utf8",
-            timeout: 5000
+            timeout: 15_000
         });
         return { exitCode: 0, stdout, stderr: "" };
     } catch (error) {
@@ -76,6 +76,37 @@ describe("enforce-pnpm", () => {
 
     it("should not block commands containing npm as substring", () => {
         const result = pipeToHook("echo npm is great");
+        expect(result.exitCode).toBe(0);
+    });
+
+    // ── RTK-wrapped commands ──────────────────────────────
+
+    it("should block rtk-wrapped npm commands", () => {
+        const result = pipeToHook("rtk npm install lodash");
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain("pnpm");
+    });
+
+    it("should block rtk-wrapped npx commands", () => {
+        const result = pipeToHook("rtk npx create-react-app my-app");
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain("pnpm exec");
+    });
+
+    it("should block rtk-wrapped pnpx commands", () => {
+        const result = pipeToHook("rtk pnpx something");
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain("pnpm exec");
+    });
+
+    it("should block rtk-wrapped pnpm dlx commands", () => {
+        const result = pipeToHook("rtk pnpm dlx create-react-app my-app");
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain("pnpm exec");
+    });
+
+    it("should allow rtk-wrapped pnpm commands", () => {
+        const result = pipeToHook("rtk pnpm install lodash");
         expect(result.exitCode).toBe(0);
     });
 });

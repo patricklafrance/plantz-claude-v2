@@ -19,19 +19,18 @@ const MARKER_KEY_PREFIX = "context-refresh:";
 // ── Slice key ───────────────────────────────────────────────
 
 /**
- * Derive a stable key from the current-slice.md first heading.
- * e.g. "# Slice 1: Plant List" → "slice-1-plant-list"
+ * Extract the `id` field from YAML frontmatter.
+ * e.g. "---\nid: slice-1\n---\n# Slice 1: Plant List" → "slice-1"
  */
-export function deriveSliceKey(content) {
-    const match = content.match(/^#\s+(.+)$/m);
-    if (!match) {
+export function extractSliceId(content) {
+    const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (!fmMatch) {
         return null;
     }
 
-    return match[1]
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
+    const idMatch = fmMatch[1].match(/^id:\s*(.+)$/m);
+
+    return idMatch ? idMatch[1].trim() : null;
 }
 
 // ── Markers ─────────────────────────────────────────────────
@@ -78,7 +77,7 @@ export function contextRefresh(cwd) {
         return [];
     }
 
-    const sliceKey = deriveSliceKey(sliceContent);
+    const sliceKey = extractSliceId(sliceContent);
     if (!sliceKey) {
         return [];
     }

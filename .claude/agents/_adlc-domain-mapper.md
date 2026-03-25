@@ -19,7 +19,8 @@ Decide where a feature belongs before planning begins.
 
 ### 1. Load context
 
-- Read the feature description, the project's domain reference doc (e.g. `domains.md`), and the architecture doc.
+- Read the feature description.
+- Read `agent-docs/references/domains.md`.
 - Scan existing modules in affected domains: read actual code — components, routes, pages, API calls. Heuristics applied to PRD text alone produce wrong answers.
 
 ### 2. Apply the decision tree

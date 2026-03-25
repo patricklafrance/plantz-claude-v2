@@ -43,6 +43,12 @@ Node 24+, pnpm 10, TypeScript 7 (tsgo), Rsbuild, Vite (Storybooks), Tailwind CSS
 
 The harness enhances the agent's natural capabilities instead of micromanaging each step. Skills define _what_ to do — lightweight orchestration that tells the agent where to go next. Hooks enforce _how well_ — automated verification, autofix, and context delivery that runs whether the agent remembers or not.
 
+### Token compression
+
+A PreToolUse hook (`rtk-rewrite.sh`) rewrites Bash commands through [RTK](https://github.com/rtk-ai/rtk) for 60–90% token savings on git, gh, lint, and test output. The hook delegates to `rtk rewrite` — if RTK doesn't support the command, it passes through unchanged. When RTK is not installed, the hook is a no-op.
+
+### Design principles
+
 This design is based on three principles from the [Agent Harness](https://medium.com/@bijit211987/agent-harness-b1f6d5a7a1d1) article:
 
 | #   | Principle                                  | Status                         | Implementation                                     |
@@ -165,10 +171,11 @@ Run corrections before validation to reduce noise. Formatting violations never a
 
 Constraints that apply to every tool call, regardless of which skill is running.
 
-| Hook                | Trigger         | What it does                                                           |
-| ------------------- | --------------- | ---------------------------------------------------------------------- |
-| `enforce-pnpm`      | Every Bash call | Blocks `npm`, `npx`, `pnpx`, `pnpm dlx` — only `pnpm` allowed          |
-| `pre-tool-use-bash` | `git commit`    | Intercepts commits — runs oxfmt autofix + lint + tests before allowing |
+| Hook                | Trigger         | What it does                                                                                             |
+| ------------------- | --------------- | -------------------------------------------------------------------------------------------------------- |
+| `enforce-pnpm`      | Every Bash call | Blocks `npm`, `npx`, `pnpx`, `pnpm dlx` — including `rtk`-wrapped forms                                  |
+| `pre-tool-use-bash` | `git commit`    | Intercepts commits — runs oxfmt autofix + lint + tests before allowing                                   |
+| `rtk-rewrite`       | Every Bash call | Rewrites supported commands through `rtk` for token-compressed output. No-op when `rtk` is not installed |
 
 #### Permissions
 
@@ -178,7 +185,7 @@ Deny rules in `.claude/settings.json` block `Edit` and `Write` on `.env` and `.e
 
 #### Hook architecture
 
-All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live in `.claude/hooks/tests/`, mirroring the same structure. Currently 32 test files covering 128 tests.
+All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live in `.claude/hooks/tests/`, mirroring the same structure.
 
 ```
 .claude/hooks/
@@ -193,6 +200,7 @@ All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live 
       reviewer/                  # 2 checks
     pre-commit/                  # git commit interceptor + lint/test pipeline
     enforce-pnpm.sh              # Package manager guard
+    rtk-rewrite.sh               # RTK command rewrite (token compression)
   tests/
     architect/                   # 3 test files
     coder/                       # 13 test files
@@ -236,12 +244,27 @@ Scaffolding skills use a **reference module pattern** — instead of hardcoding 
 
 - Node.js 24+
 - pnpm 10+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
 
 ### Install
 
 ```bash
 pnpm install
 ```
+
+#### RTK
+
+Optional — install [RTK](https://github.com/rtk-ai/rtk) for token-compressed Bash output during Claude Code sessions (60–90% savings):
+
+```bash
+# macOS / Linux
+curl -fsSL https://rtk.sh | bash
+
+# Windows (winget)
+winget install rtk-ai.rtk
+```
+
+When `rtk` is on `PATH`, the `rtk-rewrite` hook rewrites Bash commands automatically. Without it, the hook is a no-op.
 
 ### Seed data
 

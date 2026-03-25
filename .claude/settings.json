@@ -18,6 +18,10 @@
                         "type": "command",
                         "command": "node .claude/hooks/src/pre-commit/pre-tool-use-bash.mjs",
                         "timeout": 180000
+                    },
+                    {
+                        "type": "command",
+                        "command": "bash .claude/hooks/src/rtk-rewrite.sh"
                     }
                 ]
             }

@@ -1,3 +1,7 @@
+---
+id: slice-2
+---
+
 # Slice 2: Watering
 
 > **Depends on:** Slice 1 (plant detail view)

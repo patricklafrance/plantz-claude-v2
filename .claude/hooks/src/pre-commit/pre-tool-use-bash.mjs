@@ -19,7 +19,7 @@ import handlePreCommit from "./handler.mjs";
 const input = JSON.parse(readFileSync(0, "utf8"));
 const command = input.tool_input?.command ?? "";
 
-// Only intercept git commit commands.
+// Only intercept git commit commands (raw or rtk-wrapped).
 if (!/\bgit\s+commit(?:\s|$)/.test(command)) {
     process.exit(0);
 }

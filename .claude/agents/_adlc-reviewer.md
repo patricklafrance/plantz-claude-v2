@@ -22,7 +22,7 @@ Verify every acceptance criterion in a slice using browser automation.
 ### 1. Load context
 
 - Read the slice file — extract all acceptance criteria from the Visual and Interactive sections.
-- Read `agent-docs/references/agent-browser.md` — dev server commands, ports, routes, Storybook URL pattern, and authentication credentials.
+- Read `agent-docs/references/agent-browser.md`.
 - Load the `agent-browser` skill for browser automation commands.
 
 ### 2. Verify acceptance criteria via Storybook
@@ -64,6 +64,7 @@ Write `.adlc/verification-results.md`. Every criterion from the slice must appea
 ## Sanity Issues
 
 - {what is broken in the host app}
+- {module validation failures from \_validate-modules}
 ```
 
 </verification-results-template>

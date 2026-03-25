@@ -1,3 +1,7 @@
+---
+id: slice-1
+---
+
 # Slice 1: Plant List
 
 > **Depends on:** None

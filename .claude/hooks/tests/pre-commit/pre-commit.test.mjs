@@ -46,17 +46,39 @@ describe("pre-commit entry point", () => {
         expect(result.stdout.trim()).toBe("");
     });
 
-    it("should run pipeline for git commit and return valid output", () => {
-        const result = pipeToHook({ tool_input: { command: "git commit -m 'test'" } }, 5 * 60_000);
+    it(
+        "should run pipeline for git commit and return valid output",
+        () => {
+            const result = pipeToHook({ tool_input: { command: "git commit -m 'test'" } }, 5 * 60_000);
 
-        if (result.exitCode === 0 && result.stdout.trim() === "") {
-            // All checks passed — clean repo
-            expect(true).toBe(true);
-        } else {
-            expect(result.exitCode).toBe(0);
-            const parsed = JSON.parse(result.stdout);
-            expect(parsed.decision).toBe("block");
-            expect(typeof parsed.reason).toBe("string");
-        }
-    });
+            if (result.exitCode === 0 && result.stdout.trim() === "") {
+                // All checks passed — clean repo
+                expect(true).toBe(true);
+            } else {
+                expect(result.exitCode).toBe(0);
+                const parsed = JSON.parse(result.stdout);
+                expect(parsed.decision).toBe("block");
+                expect(typeof parsed.reason).toBe("string");
+            }
+        },
+        5 * 60_000
+    );
+
+    it(
+        "should run pipeline for rtk-wrapped git commit",
+        () => {
+            const result = pipeToHook({ tool_input: { command: "rtk git commit -m 'test'" } }, 5 * 60_000);
+
+            if (result.exitCode === 0 && result.stdout.trim() === "") {
+                // All checks passed — clean repo
+                expect(true).toBe(true);
+            } else {
+                expect(result.exitCode).toBe(0);
+                const parsed = JSON.parse(result.stdout);
+                expect(parsed.decision).toBe("block");
+                expect(typeof parsed.reason).toBe("string");
+            }
+        },
+        5 * 60_000
+    );
 });

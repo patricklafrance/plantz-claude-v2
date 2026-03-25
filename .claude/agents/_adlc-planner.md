@@ -82,6 +82,10 @@ All files written to `.adlc/`.
 <slice-template>
 
 ```markdown
+---
+id: slice-{N}
+---
+
 # Slice {N}: {Title}
 
 > **Depends on:** Slice {X} ({what it provides}), or None
