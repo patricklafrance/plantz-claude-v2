@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -23,6 +23,10 @@ function readMetrics(cwd) {
     return JSON.parse(readFileSync(join(cwd, ".adlc", "run-metrics.json"), "utf8"));
 }
 
+function readDetails(cwd, file) {
+    return JSON.parse(readFileSync(join(cwd, ".adlc", file), "utf8"));
+}
+
 describe("run-metrics", () => {
     let cwd;
 
@@ -34,14 +38,15 @@ describe("run-metrics", () => {
         rmSync(cwd, { recursive: true, force: true });
     });
 
-    it("should create run-metrics.json with per-tool breakdown and totals", () => {
+    it("should create run-metrics.json with per-tool breakdown, model, and detail file", () => {
         const transcript = makeTranscript([
             { type: "user", timestamp: "2026-03-25T10:00:00.000Z", message: { role: "user", content: "hello" } },
             {
                 type: "assistant",
                 timestamp: "2026-03-25T10:00:05.000Z",
                 message: {
-                    content: [{ type: "tool_use", id: "t1", name: "Read", input: {} }],
+                    model: "claude-sonnet-4-20250514",
+                    content: [{ type: "tool_use", id: "t1", name: "Read", input: { file_path: "/src/app.ts" } }],
                     usage: { input_tokens: 100, output_tokens: 50, cache_read_input_tokens: 200, cache_creation_input_tokens: 80 }
                 }
             },
@@ -54,9 +59,10 @@ describe("run-metrics", () => {
                 type: "assistant",
                 timestamp: "2026-03-25T10:01:30.000Z",
                 message: {
+                    model: "claude-sonnet-4-20250514",
                     content: [
-                        { type: "tool_use", id: "t2", name: "Edit", input: {} },
-                        { type: "tool_use", id: "t3", name: "Read", input: {} }
+                        { type: "tool_use", id: "t2", name: "Edit", input: { file_path: "/src/app.ts", old_string: "a", new_string: "b" } },
+                        { type: "tool_use", id: "t3", name: "Read", input: { file_path: "/src/utils.ts" } }
                     ],
                     usage: { input_tokens: 120, output_tokens: 60, cache_read_input_tokens: 200, cache_creation_input_tokens: 0 }
                 }
@@ -75,6 +81,7 @@ describe("run-metrics", () => {
                 type: "assistant",
                 timestamp: "2026-03-25T10:02:00.000Z",
                 message: {
+                    model: "claude-sonnet-4-20250514",
                     content: [{ type: "text", text: "done" }],
                     usage: { input_tokens: 80, output_tokens: 30, cache_read_input_tokens: 100, cache_creation_input_tokens: 0 }
                 }
@@ -85,43 +92,60 @@ describe("run-metrics", () => {
         transcript.cleanup();
 
         const metrics = readMetrics(cwd);
-
-        expect(metrics.runs).toHaveLength(1);
-
         const run = metrics.runs[0];
-        expect(run.agent).toBe("_adlc-coder");
 
-        // Token totals: (100+50+200+80) + (120+60+200+0) + (80+30+100+0) = 1020
-        expect(run.tokens.input).toBe(300);
-        expect(run.tokens.output).toBe(140);
-        expect(run.tokens.cacheRead).toBe(500);
-        expect(run.tokens.cacheCreation).toBe(80);
-        expect(run.tokens.total).toBe(1020);
+        // Model
+        expect(run.model).toBe("claude-sonnet-4-20250514");
+
+        // Context tokens: (100+50+200+80) + (120+60+200+0) + (80+30+100+0) = 1020
+        expect(run.tokens.contextTokens).toBe(1020);
+        // Billable: input(300) + output(140×5) + cacheRead(500×0.1) + cacheCreation(80×1.25)
+        //         = 300 + 700 + 50 + 100 = 1150
+        expect(run.tokens.billable).toBe(1150);
 
         // Per-tool breakdown
-        // Turn 1: 1 tool (Read), 430 tokens → Read gets 430
-        // Turn 2: 2 tools (Edit, Read), 380 tokens → each gets 190
         expect(run.tools.Read).toEqual({ count: 2, tokens: 620, durationMs: 3000 });
         expect(run.tools.Edit).toEqual({ count: 1, tokens: 190, durationMs: 2000 });
 
-        expect(run.totalToolUses).toBe(3);
-        expect(run.duration).toBe("2m 0s");
+        // Detail file link
+        expect(run.detailsFile).toBe("run-details/001-_adlc-coder.json");
 
-        // Totals should match the single run
-        expect(metrics.totals.tokens.total).toBe(1020);
-        expect(metrics.totals.tools.Read).toEqual({ count: 2, tokens: 620, durationMs: 3000 });
-        expect(metrics.totals.tools.Edit).toEqual({ count: 1, tokens: 190, durationMs: 2000 });
+        // Detail file contents
+        const details = readDetails(cwd, run.detailsFile);
+        expect(details.agent).toBe("_adlc-coder");
+        expect(details.model).toBe("claude-sonnet-4-20250514");
+        expect(details.calls).toHaveLength(3);
+
+        // First call: Read /src/app.ts
+        expect(details.calls[0].name).toBe("Read");
+        expect(details.calls[0].input).toEqual({ file_path: "/src/app.ts" });
+        expect(details.calls[0].durationMs).toBe(1000);
+        expect(details.calls[0].tokens).toBe(430);
+        expect(details.calls[0].cacheReadTokens).toBe(200);
+        expect(details.calls[0].cacheCreationTokens).toBe(80);
+
+        // Second call: Edit (shared turn with Read, tokens split)
+        expect(details.calls[1].name).toBe("Edit");
+        expect(details.calls[1].input).toEqual({ file_path: "/src/app.ts", old_string: "a", new_string: "b" });
+        expect(details.calls[1].tokens).toBe(190);
+        expect(details.calls[1].cacheReadTokens).toBe(100);
+        expect(details.calls[1].cacheCreationTokens).toBe(0);
+
+        // Third call: Read /src/utils.ts
+        expect(details.calls[2].name).toBe("Read");
+        expect(details.calls[2].input).toEqual({ file_path: "/src/utils.ts" });
     });
 
-    it("should append runs and aggregate totals across agents", () => {
+    it("should number detail files sequentially across runs", () => {
         const t1 = makeTranscript([
             { type: "user", timestamp: "2026-03-25T10:00:00.000Z", message: {} },
             {
                 type: "assistant",
                 timestamp: "2026-03-25T10:00:30.000Z",
                 message: {
-                    usage: { input_tokens: 50, output_tokens: 20, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 },
-                    content: [{ type: "tool_use", id: "t1", name: "Bash", input: {} }]
+                    model: "claude-sonnet-4-20250514",
+                    usage: { input_tokens: 50, output_tokens: 20 },
+                    content: [{ type: "tool_use", id: "t1", name: "Bash", input: { command: "pnpm test" } }]
                 }
             }
         ]);
@@ -131,11 +155,9 @@ describe("run-metrics", () => {
                 type: "assistant",
                 timestamp: "2026-03-25T11:05:00.000Z",
                 message: {
-                    usage: { input_tokens: 1000, output_tokens: 500, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 },
-                    content: [
-                        { type: "tool_use", id: "t1", name: "Read", input: {} },
-                        { type: "tool_use", id: "t2", name: "Bash", input: {} }
-                    ]
+                    model: "claude-opus-4-6",
+                    usage: { input_tokens: 1000, output_tokens: 500 },
+                    content: [{ type: "tool_use", id: "t1", name: "Read", input: { file_path: "/a.ts" } }]
                 }
             }
         ]);
@@ -147,15 +169,18 @@ describe("run-metrics", () => {
 
         const metrics = readMetrics(cwd);
 
-        expect(metrics.runs).toHaveLength(2);
-        expect(metrics.runs[0].agent).toBe("_adlc-planner");
-        expect(metrics.runs[1].agent).toBe("_adlc-coder");
+        expect(metrics.runs[0].detailsFile).toBe("run-details/001-_adlc-planner.json");
+        expect(metrics.runs[1].detailsFile).toBe("run-details/002-_adlc-coder.json");
+        expect(metrics.runs[0].model).toBe("claude-sonnet-4-20250514");
+        expect(metrics.runs[1].model).toBe("claude-opus-4-6");
 
-        // Totals aggregate across runs
-        expect(metrics.totals.tokens.total).toBe(1570);
-        expect(metrics.totals.tools.Bash.count).toBe(2);
-        expect(metrics.totals.tools.Read.count).toBe(1);
-        expect(metrics.totals.totalToolUses).toBe(3);
+        // Both detail files exist
+        expect(existsSync(join(cwd, ".adlc", "run-details", "001-_adlc-planner.json"))).toBe(true);
+        expect(existsSync(join(cwd, ".adlc", "run-details", "002-_adlc-coder.json"))).toBe(true);
+
+        // Detail file has tool call with input
+        const d2 = readDetails(cwd, metrics.runs[1].detailsFile);
+        expect(d2.calls[0].input).toEqual({ file_path: "/a.ts" });
     });
 
     it("should preserve chronological order for resume tracking", () => {
@@ -182,7 +207,12 @@ describe("run-metrics", () => {
         const metrics = readMetrics(cwd);
 
         expect(metrics.runs.map(r => r.agent)).toEqual(["_adlc-coder", "_adlc-reviewer", "_adlc-coder"]);
-        expect(metrics.totals.tokens.total).toBe(360);
+        expect(metrics.runs.map(r => r.detailsFile)).toEqual([
+            "run-details/001-_adlc-coder.json",
+            "run-details/002-_adlc-reviewer.json",
+            "run-details/003-_adlc-coder.json"
+        ]);
+        expect(metrics.totals.tokens.contextTokens).toBe(360);
     });
 
     it("should track tool duration from tool_result timestamps", () => {
@@ -192,7 +222,7 @@ describe("run-metrics", () => {
                 type: "assistant",
                 timestamp: "2026-03-25T10:00:01.000Z",
                 message: {
-                    content: [{ type: "tool_use", id: "t1", name: "Bash", input: {} }],
+                    content: [{ type: "tool_use", id: "t1", name: "Bash", input: { command: "pnpm test" } }],
                     usage: { input_tokens: 100, output_tokens: 50 }
                 }
             },
@@ -205,7 +235,7 @@ describe("run-metrics", () => {
                 type: "assistant",
                 timestamp: "2026-03-25T10:00:15.000Z",
                 message: {
-                    content: [{ type: "tool_use", id: "t2", name: "Bash", input: {} }],
+                    content: [{ type: "tool_use", id: "t2", name: "Bash", input: { command: "pnpm lint" } }],
                     usage: { input_tokens: 120, output_tokens: 60 }
                 }
             },
@@ -219,11 +249,35 @@ describe("run-metrics", () => {
         recordMetrics(transcript.path, "_adlc-coder", cwd);
         transcript.cleanup();
 
-        const run = readMetrics(cwd).runs[0];
+        const metrics = readMetrics(cwd);
+        const run = metrics.runs[0];
 
-        // Bash: t1 took 10s, t2 took 5s → 15s total
         expect(run.tools.Bash.count).toBe(2);
         expect(run.tools.Bash.durationMs).toBe(15000);
+
+        // Detail file has individual durations
+        const details = readDetails(cwd, run.detailsFile);
+        expect(details.calls[0].durationMs).toBe(10000);
+        expect(details.calls[0].input).toEqual({ command: "pnpm test" });
+        expect(details.calls[1].durationMs).toBe(5000);
+        expect(details.calls[1].input).toEqual({ command: "pnpm lint" });
+    });
+
+    it("should handle model being null when not in transcript", () => {
+        const transcript = makeTranscript([
+            { type: "user", timestamp: "2026-03-25T10:00:00.000Z", message: {} },
+            {
+                type: "assistant",
+                timestamp: "2026-03-25T10:00:30.000Z",
+                message: { usage: { input_tokens: 50, output_tokens: 20 }, content: [] }
+            }
+        ]);
+
+        recordMetrics(transcript.path, "_adlc-coder", cwd);
+        transcript.cleanup();
+
+        const metrics = readMetrics(cwd);
+        expect(metrics.runs[0].model).toBeNull();
     });
 
     it("should handle missing transcript gracefully", () => {

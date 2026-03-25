@@ -27,8 +27,7 @@ Implement the slice.
 
 ### 1. Load context
 
-- Read `.adlc/plan-header.md`, the slice file, `agent-docs/ARCHITECTURE.md`, and `agent-docs/adr/index.md`.
-- Read references: `domains.md`, `msw-tanstack-query.md`, `storybook.md`, `tailwind-postcss.md`, `agent-browser.md`.
+- Read ALL of the following in a single parallel batch (one Read call per file, all in the same response): `.adlc/plan-header.md`, the slice file, `agent-docs/ARCHITECTURE.md`, `agent-docs/adr/index.md`, `agent-docs/references/domains.md`, `agent-docs/references/msw-tanstack-query.md`, `agent-docs/references/storybook.md`, `agent-docs/references/tailwind-postcss.md`, `agent-docs/references/agent-browser.md`.
 - Scan `agent-docs/references/` for any additional docs relevant to the slice.
 - Load if relevant to the slice: `shadcn`, `workleap-web-configs`, `workleap-logging`, `_scaffold-domain`, `_scaffold-domain-module`, `_scaffold-domain-storybook`.
 

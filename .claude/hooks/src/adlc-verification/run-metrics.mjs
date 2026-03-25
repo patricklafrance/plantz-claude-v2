@@ -2,11 +2,14 @@
  * Parse a subagent transcript and append run metrics to .adlc/run-metrics.json.
  *
  * Extracts per-run token breakdown, per-tool use counts / tokens / duration,
- * and wall time from the JSONL transcript written by Claude Code.
- * Recomputes totals on each write.
+ * individual tool call details, model info, and wall time from the JSONL
+ * transcript written by Claude Code. Recomputes totals on each write.
+ *
+ * Per-run detail files are written to .adlc/run-details/ and linked from
+ * the main metrics file.
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 /**
@@ -33,17 +36,44 @@ export function recordMetrics(transcriptPath, agentType, cwd) {
         metrics = { runs: [], totals: null };
     }
 
+    // Write detail file
+    const runIndex = metrics.runs.length + 1;
+    const detailsFile = `run-details/${String(runIndex).padStart(3, "0")}-${agentType}.json`;
+    const detailsPath = resolve(cwd, ".adlc", detailsFile);
+
+    const detailsDir = resolve(cwd, ".adlc", "run-details");
+    if (!existsSync(detailsDir)) {
+        mkdirSync(detailsDir, { recursive: true });
+    }
+
+    writeFileSync(
+        detailsPath,
+        JSON.stringify(
+            {
+                agent: agentType,
+                model: parsed.model,
+                calls: parsed.toolCalls
+            },
+            null,
+            2
+        ) + "\n"
+    );
+
+    // Append run entry
     metrics.runs.push({
         agent: agentType,
+        model: parsed.model,
         tokens: {
             input: parsed.inputTokens,
             output: parsed.outputTokens,
             cacheRead: parsed.cacheReadTokens,
             cacheCreation: parsed.cacheCreationTokens,
-            total: parsed.totalTokens
+            contextTokens: parsed.contextTokens,
+            billable: parsed.billableTokens
         },
         tools: parsed.tools,
         totalToolUses: parsed.totalToolUses,
+        detailsFile,
         durationMs: parsed.durationMs,
         duration: formatDuration(parsed.durationMs),
         startedAt: parsed.firstTimestamp,
@@ -76,9 +106,12 @@ function parseTranscript(transcriptPath) {
     const toolTokens = {};
     const toolDurations = {};
 
-    // Map tool_use id → { name, timestamp } for duration matching
-    const pendingTools = {};
+    // Individual tool call records for the detail file
+    const toolCalls = [];
+    // Map tool_use id → index in toolCalls for completion matching
+    const pendingById = {};
 
+    let model = null;
     let firstTimestamp = null;
     let lastTimestamp = null;
 
@@ -101,6 +134,11 @@ function parseTranscript(transcriptPath) {
         const content = entry.message?.content;
 
         if (entry.type === "assistant") {
+            // Extract model from first assistant message
+            if (!model && entry.message?.model) {
+                model = entry.message.model;
+            }
+
             const usage = entry.message?.usage;
             if (usage) {
                 inputTokens += usage.input_tokens || 0;
@@ -114,21 +152,37 @@ function parseTranscript(transcriptPath) {
                 const toolUseBlocks = content.filter(b => b.type === "tool_use");
 
                 if (toolUseBlocks.length > 0) {
-                    const turnTokens = usage
-                        ? (usage.input_tokens || 0) +
-                          (usage.output_tokens || 0) +
-                          (usage.cache_read_input_tokens || 0) +
-                          (usage.cache_creation_input_tokens || 0)
-                        : 0;
-                    const perToolTokens = Math.round(turnTokens / toolUseBlocks.length);
+                    const turnInput = usage?.input_tokens || 0;
+                    const turnOutput = usage?.output_tokens || 0;
+                    const turnCacheRead = usage?.cache_read_input_tokens || 0;
+                    const turnCacheCreation = usage?.cache_creation_input_tokens || 0;
+                    const turnTotal = turnInput + turnOutput + turnCacheRead + turnCacheCreation;
+                    const n = toolUseBlocks.length;
 
                     for (const block of toolUseBlocks) {
                         const name = block.name || "unknown";
+                        const perToolTokens = Math.round(turnTotal / n);
+
+                        // Aggregate stats
                         toolCounts[name] = (toolCounts[name] || 0) + 1;
                         toolTokens[name] = (toolTokens[name] || 0) + perToolTokens;
 
+                        // Individual call record
+                        const callRecord = {
+                            id: block.id || null,
+                            name,
+                            input: block.input || {},
+                            dispatchedAt: entry.timestamp || null,
+                            completedAt: null,
+                            durationMs: 0,
+                            tokens: perToolTokens,
+                            cacheReadTokens: Math.round(turnCacheRead / n),
+                            cacheCreationTokens: Math.round(turnCacheCreation / n)
+                        };
+                        toolCalls.push(callRecord);
+
                         if (block.id && entry.timestamp) {
-                            pendingTools[block.id] = { name, timestamp: entry.timestamp };
+                            pendingById[block.id] = toolCalls.length - 1;
                         }
                     }
                 }
@@ -139,13 +193,17 @@ function parseTranscript(transcriptPath) {
         if (entry.type === "user" && Array.isArray(content) && entry.timestamp) {
             for (const block of content) {
                 if (block.type === "tool_result" && block.tool_use_id) {
-                    const pending = pendingTools[block.tool_use_id];
-                    if (pending) {
-                        const duration = new Date(entry.timestamp) - new Date(pending.timestamp);
+                    const idx = pendingById[block.tool_use_id];
+                    if (idx !== undefined) {
+                        const call = toolCalls[idx];
+                        const duration = new Date(entry.timestamp) - new Date(call.dispatchedAt);
                         if (duration >= 0) {
-                            toolDurations[pending.name] = (toolDurations[pending.name] || 0) + duration;
+                            call.completedAt = entry.timestamp;
+                            call.durationMs = duration;
+                            const name = call.name;
+                            toolDurations[name] = (toolDurations[name] || 0) + duration;
                         }
-                        delete pendingTools[block.tool_use_id];
+                        delete pendingById[block.tool_use_id];
                     }
                 }
             }
@@ -162,7 +220,8 @@ function parseTranscript(transcriptPath) {
         };
     }
 
-    const totalTokens = inputTokens + outputTokens + cacheReadTokens + cacheCreationTokens;
+    const contextTokens = inputTokens + outputTokens + cacheReadTokens + cacheCreationTokens;
+    const billableTokens = computeBillable(inputTokens, outputTokens, cacheReadTokens, cacheCreationTokens);
     const totalToolUses = Object.values(toolCounts).reduce((sum, c) => sum + c, 0);
     const durationMs = firstTimestamp && lastTimestamp ? new Date(lastTimestamp) - new Date(firstTimestamp) : 0;
 
@@ -171,9 +230,12 @@ function parseTranscript(transcriptPath) {
         outputTokens,
         cacheReadTokens,
         cacheCreationTokens,
-        totalTokens,
+        contextTokens,
+        billableTokens,
         tools,
+        toolCalls,
         totalToolUses,
+        model,
         durationMs,
         firstTimestamp,
         lastTimestamp
@@ -183,7 +245,7 @@ function parseTranscript(transcriptPath) {
 // ── Totals ──────────────────────────────────────────────────
 
 function computeTotals(runs) {
-    const tokens = { input: 0, output: 0, cacheRead: 0, cacheCreation: 0, total: 0 };
+    const tokens = { input: 0, output: 0, cacheRead: 0, cacheCreation: 0, contextTokens: 0, billable: 0 };
     const tools = {};
     let totalToolUses = 0;
     let durationMs = 0;
@@ -193,7 +255,8 @@ function computeTotals(runs) {
         tokens.output += run.tokens.output;
         tokens.cacheRead += run.tokens.cacheRead;
         tokens.cacheCreation += run.tokens.cacheCreation;
-        tokens.total += run.tokens.total;
+        tokens.contextTokens += run.tokens.contextTokens;
+        tokens.billable += run.tokens.billable;
 
         for (const [name, data] of Object.entries(run.tools)) {
             if (!tools[name]) {
@@ -214,6 +277,14 @@ function computeTotals(runs) {
         durationMs,
         duration: formatDuration(durationMs)
     };
+}
+
+// ── Billing ─────────────────────────────────────────────────
+
+// Weighted cost in input-token equivalents. Ratios are consistent across
+// Claude model tiers: cache read = 0.1×, cache creation = 1.25×, output = 5×.
+function computeBillable(input, output, cacheRead, cacheCreation) {
+    return Math.round(input + output * 5 + cacheRead * 0.1 + cacheCreation * 1.25);
 }
 
 // ── Formatting ──────────────────────────────────────────────
