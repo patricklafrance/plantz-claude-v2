@@ -25,7 +25,9 @@ import { recordMetrics } from "./run-metrics.mjs";
 const input = JSON.parse(readFileSync(0, "utf8"));
 
 // Already in a stop-hook continuation — let it through to avoid loops.
+// Still record metrics: the transcript now covers the full run including retries.
 if (input.stop_hook_active) {
+    recordMetrics(input.agent_transcript_path, input.agent_type, input.cwd);
     process.exit(0);
 }
 

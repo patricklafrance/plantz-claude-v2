@@ -43,7 +43,7 @@
         "@types/node": "25.3.3",
         "@typescript/native-preview": "7.0.0-dev.20260303.1",
         "@workleap/typescript-configs": "3.0.7",
-        "agent-browser": "0.21.2",
+        "agent-browser": "0.22.3",
         "cross-env": "10.1.0",
         "knip": "5.86.0",
         "netlify-cli": "24.0.1",

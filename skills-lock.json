@@ -9,7 +9,7 @@
     "agent-browser": {
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",
-      "computedHash": "d2c78cbc27fe0be2cf559df5d7f09bdd19b8b674976b88f17a03fdeea371a67c"
+      "computedHash": "e9c3cd40ddc045919d34ffa5d80bc0f5d330db328b33c181e589fabe6f973328"
     },
     "best-practices": {
       "source": "addyosmani/web-quality-skills",
@@ -44,7 +44,7 @@
     "turborepo": {
       "source": "vercel/turborepo",
       "sourceType": "github",
-      "computedHash": "e07dc388090445b040ea215e371a7a34bf88bdc0a6f091bbcbed53c113e23d57"
+      "computedHash": "125f88565920487d9a86408352e5cddc21bbd69fac966b2d2ab2222310fd815f"
     },
     "vite": {
       "source": "antfu/skills",
@@ -75,6 +75,11 @@
       "source": "workleap/wl-squide",
       "sourceType": "github",
       "computedHash": "841182c9a942891e2107cc1c1860636867360c691ab9acae24dff16870cf649a"
+    },
+    "workleap-telemetry": {
+      "source": "workleap/wl-telemetry",
+      "sourceType": "github",
+      "computedHash": "cf5d111ab8115185e7dca17b5d9e01bd482f2641e0a224fa2f389805a20fca33"
     },
     "workleap-web-configs": {
       "source": "workleap/wl-web-configs",

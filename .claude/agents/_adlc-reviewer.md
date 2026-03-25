@@ -5,6 +5,7 @@ model: opus
 effort: medium
 skills:
     - _validate-modules
+    - agent-browser
 ---
 
 # Harness Reviewer
@@ -23,7 +24,6 @@ Verify every acceptance criterion in a slice using browser automation.
 
 - Read the slice file — extract all acceptance criteria from the Visual and Interactive sections.
 - Read `agent-docs/references/agent-browser.md`.
-- Load the `agent-browser` skill for browser automation commands.
 
 ### 2. Verify acceptance criteria via Storybook
 

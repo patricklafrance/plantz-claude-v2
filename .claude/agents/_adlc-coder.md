@@ -1,16 +1,14 @@
 ---
 name: _adlc-coder
 description: Implement a single slice from the plan. Writes code and Storybook stories to the repo.
-model: opus
+model: sonnet
 effort: medium
 skills:
     - accessibility
     - frontend-design
     - workleap-react-best-practices
     - workleap-squide
-    - _scaffold-domain
-    - _scaffold-domain-module
-    - _scaffold-domain-storybook
+    - agent-browser
 ---
 
 # Harness Coder
@@ -32,8 +30,7 @@ Implement the slice.
 - Read `.adlc/plan-header.md`, the slice file, `agent-docs/ARCHITECTURE.md`, and `agent-docs/adr/index.md`.
 - Read references: `domains.md`, `msw-tanstack-query.md`, `storybook.md`, `tailwind-postcss.md`, `agent-browser.md`.
 - Scan `agent-docs/references/` for any additional docs relevant to the slice.
-- Load if relevant to the slice: `shadcn`, `workleap-web-configs`, `workleap-logging`.
-- Load the `agent-browser` skill for browser automation commands.
+- Load if relevant to the slice: `shadcn`, `workleap-web-configs`, `workleap-logging`, `_scaffold-domain`, `_scaffold-domain-module`, `_scaffold-domain-storybook`.
 
 ### 2. Implement
 

@@ -169,7 +169,7 @@ Run corrections before validation to reduce noise. Formatting violations never a
 
 #### Run metrics
 
-On successful completion, the SubagentStop hook parses the agent's transcript JSONL to extract total tokens (input + output + cache), tool use count, and wall time, then appends a row to `.adlc/run-metrics.md`. Metrics are recorded for all agents — both verified (coder, reviewer, etc.) and unverified (`_adlc`, `_adlc-pr`).
+On every agent completion, the SubagentStop hook parses the agent's transcript JSONL and appends a run entry to `.adlc/run-metrics.json`. Each entry includes a token breakdown (input, output, cache read, cache creation), per-tool use counts (e.g. `Read: 12, Edit: 5`), wall time, and timestamps. Totals are recomputed on each write. Metrics are recorded for all agents — verified (coder, reviewer, etc.) and unverified (`_adlc`, `_adlc-pr`) — including resumed agents after reviewer failures, preserving chronological order.
 
 #### Pre-commit and tool guards
 
