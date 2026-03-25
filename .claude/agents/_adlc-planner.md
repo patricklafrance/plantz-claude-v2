@@ -98,6 +98,12 @@ One sentence: what the user can see or do after this slice ships.
 
 - {Target module or package}: {logical unit of work}
 
+## Reference Packages
+
+- `@packages/{name}` or `@modules/{domain}/{name}` — {what patterns to look at and why}
+
+List existing packages or modules the coder should study before implementing. Focus on patterns to replicate (schema shape, MSW conventions, component/story structure). Omit when the slice only modifies code the coder will already read from the scope.
+
 ## Acceptance Criteria
 
 Be specific. Two tags only:
