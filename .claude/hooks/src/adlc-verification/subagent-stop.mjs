@@ -18,6 +18,7 @@ import handleDocument from "./document/handler.mjs";
 import handleDomainMapper from "./domain-mapper/handler.mjs";
 import handlePlanner from "./planner/handler.mjs";
 import handleReviewer from "./reviewer/handler.mjs";
+import { recordMetrics } from "./run-metrics.mjs";
 
 // ── Stdin ──────────────────────────────────────────────────
 
@@ -28,7 +29,7 @@ if (input.stop_hook_active) {
     process.exit(0);
 }
 
-const { agent_type: agentType, cwd } = input;
+const { agent_type: agentType, agent_transcript_path: transcriptPath, cwd } = input;
 
 // ── Handlers ───────────────────────────────────────────────
 //
@@ -54,14 +55,16 @@ const handlers = {
 
 const handle = handlers[agentType];
 
-// No handler for this agent (e.g. _adlc, _adlc-pr) → allow.
+// No handler for this agent (e.g. _adlc, _adlc-pr) → record metrics and allow.
 if (!handle) {
+    recordMetrics(transcriptPath, agentType, cwd);
     process.exit(0);
 }
 
 const problems = await Promise.resolve(handle(cwd));
 
 if (problems.length === 0) {
+    recordMetrics(transcriptPath, agentType, cwd);
     process.exit(0);
 }
 
