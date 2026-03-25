@@ -167,6 +167,10 @@ Run corrections before validation to reduce noise. Formatting violations never a
 | `_adlc-coder`    | oxfmt-autofix | `oxfmt --write .` before lint phase |
 | `_adlc-document` | oxfmt-autofix | `oxfmt --write .` after doc updates |
 
+#### Run metrics
+
+On successful completion, the SubagentStop hook parses the agent's transcript JSONL to extract total tokens (input + output + cache), tool use count, and wall time, then appends a row to `.adlc/run-metrics.md`. Metrics are recorded for all agents — both verified (coder, reviewer, etc.) and unverified (`_adlc`, `_adlc-pr`).
+
 #### Pre-commit and tool guards
 
 Constraints that apply to every tool call, regardless of which skill is running.
@@ -174,6 +178,7 @@ Constraints that apply to every tool call, regardless of which skill is running.
 | Hook                | Trigger         | What it does                                                                                             |
 | ------------------- | --------------- | -------------------------------------------------------------------------------------------------------- |
 | `enforce-pnpm`      | Every Bash call | Blocks `npm`, `npx`, `pnpx`, `pnpm dlx` — including `rtk`-wrapped forms                                  |
+| `gitignore-guard`   | `git commit`    | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` (all ADLC artifacts are ephemeral)   |
 | `pre-tool-use-bash` | `git commit`    | Intercepts commits — runs oxfmt autofix + lint + tests before allowing                                   |
 | `rtk-rewrite`       | Every Bash call | Rewrites supported commands through `rtk` for token-compressed output. No-op when `rtk` is not installed |
 
@@ -192,22 +197,26 @@ All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live 
   src/
     adlc-verification/
       subagent-stop.mjs          # Router — dispatches to agent-specific handlers
+      run-metrics.mjs            # Parses transcript JSONL, appends to .adlc/run-metrics.md
       utils.mjs                  # Shared utilities (hasFile, run, getChangedFiles)
       architect/                 # 2 checks
-      coder/                     # 8 checks + 1 autofix + 1 context refresh
+      coder/                     # 7 checks + 1 autofix + 1 context refresh
+      document/                  # 1 autofix
       domain-mapper/             # 2 checks
       planner/                   # 3 checks
       reviewer/                  # 2 checks
-    pre-commit/                  # git commit interceptor + lint/test pipeline
+    pre-commit/                  # git commit interceptor + lint/test/gitignore-guard pipeline
     enforce-pnpm.sh              # Package manager guard
     rtk-rewrite.sh               # RTK command rewrite (token compression)
   tests/
+    *.test.mjs                   # 6 root-level tests (subagent-stop, run-metrics, utils, etc.)
     architect/                   # 3 test files
-    coder/                       # 13 test files
+    coder/                       # 11 test files
+    document/                    # 1 test file
     domain-mapper/               # 2 test files
     planner/                     # 4 test files
     reviewer/                    # 3 test files
-    pre-commit/                  # 5 test files
+    pre-commit/                  # 6 test files
     fixtures/                    # Valid/invalid markdown fixtures
 ```
 

@@ -4,12 +4,14 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { bashPath } from "./resolve-bash.mjs";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const HOOK_PATH = resolve(__dirname, "../src/rtk-rewrite.sh");
 
 let hasRtk;
 try {
-    execFileSync("bash", ["-c", "command -v rtk"], { encoding: "utf8", timeout: 5_000 });
+    execFileSync(bashPath ?? "bash", ["-c", "command -v rtk"], { encoding: "utf8", timeout: 5_000 });
     hasRtk = true;
 } catch {
     hasRtk = false;
@@ -17,7 +19,7 @@ try {
 
 function pipeToHook(command, env) {
     try {
-        const stdout = execFileSync("bash", [HOOK_PATH], {
+        const stdout = execFileSync(bashPath, [HOOK_PATH], {
             input: JSON.stringify({ tool_input: { command } }),
             encoding: "utf8",
             timeout: 15_000,
@@ -40,7 +42,7 @@ function parseOutput(result) {
     return JSON.parse(result.stdout);
 }
 
-describe("rtk-rewrite", () => {
+describe.skipIf(!bashPath)("rtk-rewrite", () => {
     describe.skipIf(!hasRtk)("with rtk installed", () => {
         it("should rewrite git status to rtk git status", () => {
             const result = pipeToHook("git status");
@@ -84,7 +86,7 @@ describe("rtk-rewrite", () => {
             // Use Node's path.delimiter for cross-platform PATH splitting (`;` on Windows, `:` on Linux/macOS).
             // On Windows, resolve the native path via `where`; on Unix, `which` already returns the right format.
             const whichCmd = process.platform === "win32" ? "where rtk" : "which rtk";
-            const rtkBin = execFileSync("bash", ["-c", whichCmd], { encoding: "utf8", timeout: 5_000 }).trim().split("\n")[0];
+            const rtkBin = execFileSync(bashPath, ["-c", whichCmd], { encoding: "utf8", timeout: 5_000 }).trim().split("\n")[0];
             const rtkDir = dirname(rtkBin);
 
             const filteredPath = process.env.PATH.split(delimiter)

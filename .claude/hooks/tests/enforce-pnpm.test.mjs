@@ -4,12 +4,14 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { bashPath } from "./resolve-bash.mjs";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const HOOK_PATH = resolve(__dirname, "../src/enforce-pnpm.sh");
 
 function pipeToHook(command) {
     try {
-        const stdout = execFileSync("bash", [HOOK_PATH], {
+        const stdout = execFileSync(bashPath, [HOOK_PATH], {
             input: JSON.stringify({ tool_input: { command } }),
             encoding: "utf8",
             timeout: 15_000
@@ -24,7 +26,7 @@ function pipeToHook(command) {
     }
 }
 
-describe("enforce-pnpm", () => {
+describe.skipIf(!bashPath)("enforce-pnpm", () => {
     it("should block npm commands", () => {
         const result = pipeToHook("npm install lodash");
         expect(result.exitCode).toBe(2);
