@@ -16,12 +16,47 @@
                     },
                     {
                         "type": "command",
+                        "command": "node .claude/hooks/src/browser-supervisor/pre-tool-use.mjs",
+                        "timeout": 5000
+                    },
+                    {
+                        "type": "command",
                         "command": "node .claude/hooks/src/pre-commit/pre-tool-use-bash.mjs",
                         "timeout": 180000
                     },
                     {
                         "type": "command",
                         "command": "bash .claude/hooks/src/rtk-rewrite.sh"
+                    }
+                ]
+            },
+            {
+                "matcher": "Read",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node .claude/hooks/src/browser-supervisor/pre-tool-use.mjs",
+                        "timeout": 5000
+                    }
+                ]
+            },
+            {
+                "matcher": "Write",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node .claude/hooks/src/browser-supervisor/pre-tool-use.mjs",
+                        "timeout": 5000
+                    }
+                ]
+            },
+            {
+                "matcher": "Edit",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node .claude/hooks/src/browser-supervisor/pre-tool-use.mjs",
+                        "timeout": 5000
                     }
                 ]
             }
@@ -44,6 +79,11 @@
                         "type": "command",
                         "command": "node .claude/hooks/src/adlc-verification/subagent-stop.mjs",
                         "timeout": 180000
+                    },
+                    {
+                        "type": "command",
+                        "command": "node .claude/hooks/src/browser-supervisor/subagent-stop.mjs",
+                        "timeout": 5000
                     }
                 ]
             }

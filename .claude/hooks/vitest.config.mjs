@@ -5,6 +5,6 @@ export default defineConfig({
         root: ".claude/hooks",
         include: ["tests/**/*.test.mjs"],
         testTimeout: 5 * 60_000,
-        pool: "forks"
+        pool: "threads"
     }
 });

@@ -32,70 +32,20 @@ netstat -ano | grep :<PORT> | grep LISTENING
 taskkill //PID <PID> //T //F
 ```
 
-## Efficiency guidelines
+## Browser verification
 
-Each Bash call has overhead. Minimize round-trips with these techniques.
+Browser efficiency is enforced by the harness supervisor. Key commands for reference:
 
-### Batch command
-
-Combine commands that don't need intermediate output into a single `batch` call:
-
-```bash
-echo '[
-  ["open", "http://localhost:6006/?path=/story/..."],
-  ["wait", "--load", "networkidle"],
-  ["snapshot", "-i", "-c"]
-]' | pnpm exec agent-browser batch --json
-```
-
-Use `--bail` to stop on first error. Use batch for: open+wait+snapshot, multi-field fills, open+wait+screenshot.
-
-### Scoped snapshots
-
-Full-page snapshots waste tokens. Scope them down:
-
-```bash
-pnpm exec agent-browser snapshot -i -c              # interactive + compact
-pnpm exec agent-browser snapshot -i -c -s "#main"   # scoped to CSS selector
-pnpm exec agent-browser snapshot -i -d 3            # limit tree depth
-```
-
-### DOM verification over screenshots
-
-Prefer text-based DOM checks over screenshots — they're faster and use fewer tokens.
-
-**`diff snapshot`** — shows what changed after an action:
-
-```bash
-pnpm exec agent-browser snapshot -i          # baseline
-pnpm exec agent-browser click @e2            # action
-pnpm exec agent-browser diff snapshot        # +/- diff of the DOM tree
-```
-
-**`eval --stdin`** — batch multiple checks into one call:
-
-```bash
-pnpm exec agent-browser eval --stdin <<'EOF'
-JSON.stringify({
-  rowCount: document.querySelectorAll('table tbody tr').length,
-  hasDialog: !!document.querySelector('[role=dialog]'),
-  buttonText: document.querySelector('button[type=submit]')?.textContent
-})
-EOF
-```
-
-**Boolean checks:** `is visible <sel>`, `is enabled <sel>`, `is checked <sel>`.
-
-Reserve screenshots for when you need to verify visual rendering (layout, colors, spacing).
-
-### Semantic locators
-
-Use `find` for one-step locate+action instead of snapshot → find ref → click:
-
-```bash
-pnpm exec agent-browser find role button click --name "Create Household"
-pnpm exec agent-browser find text "Sign In" click
-```
+| Command                             | Use for                               |
+| ----------------------------------- | ------------------------------------- |
+| `diff snapshot`                     | See what changed after an action      |
+| `eval --stdin`                      | Batch multiple DOM checks in one call |
+| `is visible <sel>`                  | Boolean element check                 |
+| `is enabled <sel>`                  | Boolean element check                 |
+| `find role button click --name "X"` | One-step locate + action              |
+| `batch --json`                      | Combine open + wait + snapshot        |
+| `snapshot -i -c`                    | Compact interactive snapshot          |
+| `screenshot`                        | Visual layout verification only       |
 
 ## Host app
 

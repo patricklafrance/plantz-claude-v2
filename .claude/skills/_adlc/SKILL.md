@@ -32,7 +32,7 @@ Plan → architect review cycle. Max 5 iterations.
 2. Spawn the `_adlc-architect` agent. If the agent fails, print the error and stop.
 3. No `.adlc/architect-revision.md` → plan approved. Continue to step 4.
 4. Read and save the revision content, then delete the file.
-5. Spawn a fresh `_adlc-planner` agent with `mode: revision` and the rejection as `revision-note`. If the agent fails, print the error and stop.
+5. Resume the `_adlc-planner` agent via `SendMessage` with `mode: revision` and the rejection as `revision-note`. If the agent fails, print the error and stop.
 6. Go back to sub-step 2. Max 5 total iterations — if exceeded, print the unresolved problems and stop.
 
 ### 4. Branch
