@@ -69,7 +69,7 @@ export function recordMetrics(transcriptPath, agentType, cwd) {
             cacheRead: parsed.cacheReadTokens,
             cacheCreation: parsed.cacheCreationTokens,
             conversationTokens: parsed.conversationTokens,
-            billable: parsed.billableTokens
+            billableTokens: parsed.billableTokens
         },
         tools: parsed.tools,
         totalToolUses: parsed.totalToolUses,
@@ -184,7 +184,7 @@ function parseTranscript(transcriptPath) {
                             tokens: perToolTokens,
                             cacheReadTokens: perCacheRead,
                             cacheCreationTokens: perCacheCreation,
-                            billable: computeBillable(Math.round(turnInput / n), Math.round(turnOutput / n), perCacheRead, perCacheCreation),
+                            billableTokens: computeBillable(Math.round(turnInput / n), Math.round(turnOutput / n), perCacheRead, perCacheCreation),
                             conversationTokens: lastTurnInputSide
                         };
                         toolCalls.push(callRecord);
@@ -252,7 +252,7 @@ function parseTranscript(transcriptPath) {
 // ── Totals ──────────────────────────────────────────────────
 
 function computeTotals(runs) {
-    const tokens = { input: 0, output: 0, cacheRead: 0, cacheCreation: 0, billable: 0 };
+    const tokens = { input: 0, output: 0, cacheRead: 0, cacheCreation: 0, billableTokens: 0 };
     const tools = {};
     let totalToolUses = 0;
     let durationMs = 0;
@@ -262,7 +262,7 @@ function computeTotals(runs) {
         tokens.output += run.tokens.output;
         tokens.cacheRead += run.tokens.cacheRead;
         tokens.cacheCreation += run.tokens.cacheCreation;
-        tokens.billable += run.tokens.billable;
+        tokens.billableTokens += run.tokens.billableTokens;
 
         for (const [name, data] of Object.entries(run.tools)) {
             if (!tools[name]) {

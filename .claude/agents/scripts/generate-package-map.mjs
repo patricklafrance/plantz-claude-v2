@@ -14,7 +14,7 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 
 const cwd = process.cwd();
 const ADLC_DIR = resolve(cwd, ".adlc");
@@ -52,18 +52,17 @@ const nameToPath = buildWorkspaceMap(cwd);
 const sections = [];
 
 for (const ref of references) {
-    const pkgPath = nameToPath.get(ref.name);
+    const resolved = resolvePackageRef(ref.name, nameToPath, cwd);
 
-    if (!pkgPath) {
+    if (!resolved) {
         sections.push(`## ${ref.name} → (not found in workspace)\n`);
         continue;
     }
 
-    const relPath = relative(cwd, pkgPath).replace(/\\/g, "/");
-    const srcDir = resolve(pkgPath, "src");
-    const sourceFiles = existsSync(srcDir) ? globSourceFiles(srcDir, pkgPath) : [];
+    const { displayPath, srcDir, pkgRoot } = resolved;
+    const sourceFiles = existsSync(srcDir) ? globSourceFiles(srcDir, pkgRoot) : [];
 
-    let section = `## ${ref.name} → ${relPath}\n\n`;
+    let section = `## ${ref.name} → ${displayPath}\n\n`;
 
     section += "### Source Files\n\n";
     if (sourceFiles.length === 0) {
@@ -88,6 +87,166 @@ mkdirSync(ADLC_DIR, { recursive: true });
 writeFileSync(OUTPUT_PATH, output);
 
 // ── Helpers ────────────────────────────────────────────────
+
+/**
+ * Resolve a package reference to a filesystem path.
+ *
+ * First tries a direct workspace map lookup. If that fails, attempts to
+ * resolve the reference as a subpath export (e.g., `@packages/core-plants/db`
+ * → base package `@packages/core-plants` with subpath `./db`).
+ *
+ * Returns { displayPath, srcDir, pkgRoot } or null if unresolvable.
+ */
+function resolvePackageRef(name, nameToPath, root) {
+    // Direct lookup — package name matches exactly.
+    const directPath = nameToPath.get(name);
+
+    if (directPath) {
+        return {
+            displayPath: relative(root, directPath).replace(/\\/g, "/"),
+            srcDir: resolve(directPath, "src"),
+            pkgRoot: directPath
+        };
+    }
+
+    // Subpath export resolution.
+    // For scoped packages like `@scope/pkg/sub`, the base is `@scope/pkg`
+    // and the subpath is `./sub`. For deeper paths like `@scope/pkg/a/b`,
+    // the base is still `@scope/pkg` and the subpath is `./a/b`.
+    const subpathResult = resolveSubpathExport(name, nameToPath);
+
+    if (subpathResult) {
+        const { basePkgPath, entryDir } = subpathResult;
+        const absoluteEntryDir = resolve(basePkgPath, entryDir);
+
+        return {
+            displayPath: relative(root, absoluteEntryDir).replace(/\\/g, "/"),
+            srcDir: absoluteEntryDir,
+            pkgRoot: basePkgPath
+        };
+    }
+
+    return null;
+}
+
+/**
+ * Try to resolve a package reference as a subpath export.
+ *
+ * Given `@scope/pkg/sub`, looks up `@scope/pkg` in the workspace map,
+ * reads its package.json exports, and resolves the `./sub` subpath to
+ * the directory containing its entry point.
+ *
+ * Returns { basePkgPath, entryDir } or null.
+ */
+function resolveSubpathExport(name, nameToPath) {
+    // For scoped packages: @scope/pkg/sub → base = @scope/pkg, rest = sub
+    // For unscoped packages: pkg/sub → base = pkg, rest = sub
+    let baseName;
+    let subpath;
+
+    if (name.startsWith("@")) {
+        // Scoped: split after the second segment
+        const parts = name.split("/");
+
+        if (parts.length < 3) {
+            return null; // Just `@scope/pkg` with no subpath
+        }
+
+        baseName = `${parts[0]}/${parts[1]}`;
+        subpath = `./${parts.slice(2).join("/")}`;
+    } else {
+        const slashIdx = name.indexOf("/");
+
+        if (slashIdx === -1) {
+            return null; // No subpath
+        }
+
+        baseName = name.slice(0, slashIdx);
+        subpath = `./${name.slice(slashIdx + 1)}`;
+    }
+
+    const basePkgPath = nameToPath.get(baseName);
+
+    if (!basePkgPath) {
+        return null;
+    }
+
+    // Read the base package's package.json to get its exports field.
+    let pkg;
+    try {
+        pkg = JSON.parse(readFileSync(resolve(basePkgPath, "package.json"), "utf8"));
+    } catch {
+        return null;
+    }
+
+    const exports = pkg.exports;
+
+    if (!exports || typeof exports !== "object") {
+        return null;
+    }
+
+    const exportEntry = exports[subpath];
+
+    if (!exportEntry) {
+        return null;
+    }
+
+    // The export value can be a string or an object with conditions
+    // (e.g., { import: "./src/foo.ts", require: "./src/foo.cjs" }).
+    const entryFile = typeof exportEntry === "string" ? exportEntry : resolveConditionValue(exportEntry);
+
+    if (!entryFile) {
+        return null;
+    }
+
+    // Use the directory containing the entry point file.
+    const entryDir = dirname(entryFile);
+
+    return { basePkgPath, entryDir };
+}
+
+/**
+ * Resolve a conditional export value object to a file path string.
+ * Tries common conditions in priority order.
+ */
+function resolveConditionValue(obj) {
+    if (typeof obj === "string") {
+        return obj;
+    }
+
+    if (typeof obj !== "object" || obj === null) {
+        return null;
+    }
+
+    // Try conditions in priority order
+    const conditions = ["import", "default", "types", "require", "node", "browser"];
+
+    for (const cond of conditions) {
+        if (obj[cond]) {
+            const val = obj[cond];
+
+            // Could be nested conditions
+            if (typeof val === "string") {
+                return val;
+            }
+
+            if (typeof val === "object") {
+                return resolveConditionValue(val);
+            }
+        }
+    }
+
+    // Fallback: take the first value
+    const values = Object.values(obj);
+
+    for (const val of values) {
+        if (typeof val === "string") {
+            return val;
+        }
+    }
+
+    return null;
+}
 
 /**
  * Extract the content of a ## section from markdown.

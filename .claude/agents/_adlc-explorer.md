@@ -1,5 +1,5 @@
 ---
-name: _adlc-packages-explorer
+name: _adlc-explorer
 description: Survey reference packages for a slice and return a structured summary of patterns, types, and exports the coder needs to replicate.
 model: sonnet
 effort: medium
@@ -29,11 +29,12 @@ If highlighted files import types or utilities from other files in the same pack
 
 ### 3. Write the summary
 
-Synthesize findings and write the result to `.adlc/packages-exploration-summary.md`. Use the template below.
+Synthesize findings and write the result to `.adlc/current-explorer-summary.md`. Use the template below.
 
-- Keep the output under ~3000 tokens.
+- Keep the output under ~6000 tokens.
 - Use concrete function names and import paths — the coder does search-replace (e.g., `Plant` → `Household`), not abstraction.
 - Do NOT use generalized `<Entity>` placeholders.
+- Prefer verbatim code over prose. The coder will NOT re-read the original files — this summary is the only reference it gets.
 
 <output-template>
 
@@ -50,13 +51,16 @@ Synthesize findings and write the result to `.adlc/packages-exploration-summary.
 
 ### Key Files (verbatim)
 
-{FULL code only for files with non-obvious wiring:
+{Include FULL verbatim code for every file the coder will replicate:
 
-- Module-level collection factory with optimistic actions (NOT the shared factory in @packages/core-\*)
-- Module registration
+- Module registration function
+- Collection factory with optimistic actions (NOT the shared factory in @packages/core-\*)
+- Context provider (the full file — provider component, hook, type)
+- MSW CRUD handlers (main handler file with all routes)
+- MSW story handler factory (`createHandlers.ts`)
 - Storybook decorator setup
-
-For context providers, skip the full file but include the export names (provider, hook, type).
+- One representative page component (the main page, not every dialog)
+- One representative story file (the page story — shows decorator wiring, MSW parameter shape, and story variants)
 
 Note import sources:
 
