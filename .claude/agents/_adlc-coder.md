@@ -28,7 +28,7 @@ Implement the slice.
 ### 1. Load context
 
 - Read ALL of the following in a single parallel batch (one Read call per file, all in the same response): `.adlc/plan-header.md`, the slice file, `agent-docs/ARCHITECTURE.md`, `agent-docs/adr/index.md`, `agent-docs/references/domains.md`, `agent-docs/references/msw-tanstack-query.md`, `agent-docs/references/storybook.md`, `agent-docs/references/tailwind-postcss.md`, `agent-docs/references/agent-browser.md`.
-- If the slice has a "Reference Packages" section, read the source files of those packages in parallel batches (one batch per package, all Read calls in the same response). Skip broad codebase scanning when references are provided.
+- Read `.adlc/packages-exploration-summary.md` for pre-surveyed reference patterns. Only Read source files when you need exact code to **edit** or the summary doesn't cover it.
 - Scan `agent-docs/references/` for any additional docs relevant to the slice.
 - Load if relevant to the slice: `shadcn`, `workleap-web-configs`, `workleap-logging`, `_scaffold-domain`, `_scaffold-domain-module`, `_scaffold-domain-storybook`.
 

@@ -1,11 +1,14 @@
 import type { Decorator } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NoopLogger } from "@workleap/logging";
 
 import { SessionProvider } from "@packages/core-module";
 
 import { initializeFireflyForStorybook, withFireflyDecorator } from "../../storybook/firefly.tsx";
 
-const runtime = await initializeFireflyForStorybook();
+const runtime = await initializeFireflyForStorybook({
+    loggers: [new NoopLogger()]
+});
 
 export const fireflyDecorator = withFireflyDecorator(runtime);
 

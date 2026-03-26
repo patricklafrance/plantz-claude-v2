@@ -97,8 +97,8 @@ describe("run-metrics", () => {
         // Model
         expect(run.model).toBe("claude-sonnet-4-20250514");
 
-        // Context tokens: (100+50+200+80) + (120+60+200+0) + (80+30+100+0) = 1020
-        expect(run.tokens.contextTokens).toBe(1020);
+        // Conversation tokens: last turn's input side = 80 + 100 + 0 = 180
+        expect(run.tokens.conversationTokens).toBe(180);
         // Billable: input(300) + output(140×5) + cacheRead(500×0.1) + cacheCreation(80×1.25)
         //         = 300 + 700 + 50 + 100 = 1150
         expect(run.tokens.billable).toBe(1150);
@@ -116,23 +116,32 @@ describe("run-metrics", () => {
         expect(details.model).toBe("claude-sonnet-4-20250514");
         expect(details.calls).toHaveLength(3);
 
-        // First call: Read /src/app.ts
+        // First call: Read /src/app.ts (turn 1: 1 tool, 430 context tokens)
         expect(details.calls[0].name).toBe("Read");
         expect(details.calls[0].input).toEqual({ file_path: "/src/app.ts" });
         expect(details.calls[0].durationMs).toBe(1000);
         expect(details.calls[0].tokens).toBe(430);
         expect(details.calls[0].cacheReadTokens).toBe(200);
         expect(details.calls[0].cacheCreationTokens).toBe(80);
+        // billable: input(100) + output(50×5) + cacheRead(200×0.1) + cacheCreation(80×1.25) = 100+250+20+100 = 470
+        expect(details.calls[0].billable).toBe(470);
+        // conversationTokens at turn 1: input(100) + cacheRead(200) + cacheCreation(80) = 380
+        expect(details.calls[0].conversationTokens).toBe(380);
 
-        // Second call: Edit (shared turn with Read, tokens split)
+        // Second call: Edit (turn 2: shared with Read, split 2 ways)
         expect(details.calls[1].name).toBe("Edit");
         expect(details.calls[1].input).toEqual({ file_path: "/src/app.ts", old_string: "a", new_string: "b" });
         expect(details.calls[1].tokens).toBe(190);
         expect(details.calls[1].cacheReadTokens).toBe(100);
         expect(details.calls[1].cacheCreationTokens).toBe(0);
+        // billable: input(60) + output(30×5) + cacheRead(100×0.1) + cacheCreation(0) = 60+150+10+0 = 220
+        expect(details.calls[1].billable).toBe(220);
+        // conversationTokens at turn 2: input(120) + cacheRead(200) + cacheCreation(0) = 320
+        expect(details.calls[1].conversationTokens).toBe(320);
 
-        // Third call: Read /src/utils.ts
+        // Third call: Read /src/utils.ts (same turn 2, same conversationTokens)
         expect(details.calls[2].name).toBe("Read");
+        expect(details.calls[2].conversationTokens).toBe(320);
         expect(details.calls[2].input).toEqual({ file_path: "/src/utils.ts" });
     });
 
@@ -212,7 +221,8 @@ describe("run-metrics", () => {
             "run-details/002-_adlc-reviewer.json",
             "run-details/003-_adlc-coder.json"
         ]);
-        expect(metrics.totals.tokens.contextTokens).toBe(360);
+        // input: 240, output: 120 → billable: 240 + 120×5 = 840
+        expect(metrics.totals.tokens.billable).toBe(840);
     });
 
     it("should track tool duration from tool_result timestamps", () => {

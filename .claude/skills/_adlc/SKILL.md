@@ -44,17 +44,18 @@ Plan → architect review cycle. Max 5 iterations.
 Code → verify cycle. Max 5 fix attempts per slice. Process each slice in `.adlc/slices/` numerically. For each slice:
 
 1. Copy the slice file to `.adlc/current-slice.md` (overwrite if exists).
-2. Spawn the `_adlc-coder` agent with the slice file and `mode: draft`. If the agent fails, print the error and stop.
-3. Spawn the `_adlc-reviewer` agent pointing at the slice file. If the agent fails, print the error and stop.
-4. All criteria pass and no sanity issues:
+2. Spawn the `_adlc-packages-explorer` agent.
+3. Spawn the `_adlc-coder` agent with the slice file and `mode: draft`. If the agent fails, print the error and stop.
+4. Spawn the `_adlc-reviewer` agent pointing at the slice file. If the agent fails, print the error and stop.
+5. All criteria pass and no sanity issues:
     1. Rename `verification-results.md` to `verification-{slice-filename}.md` (e.g. `verification-01-user-list.md`).
     2. Run `/simplify`.
     3. Commit the slice changes (no push).
-    4. Delete `.adlc/current-slice.md`.
+    4. Delete `.adlc/current-slice.md`, `.adlc/current-package-map.md`, and `.adlc/packages-exploration-summary.md`.
     5. Move to the next slice.
-5. Read and save the verification content, then delete `verification-results.md`.
-6. Resume the `_adlc-coder` agent via `SendMessage` with `mode: revision` and the saved verification report as `verification-results`.
-7. Go back to sub-step 3. Max 5 fix attempts per slice — if exceeded, print the unresolved failures and stop.
+6. Read and save the verification content, then delete `verification-results.md`.
+7. Resume the `_adlc-coder` agent via `SendMessage` with `mode: revision` and the saved verification report as `verification-results`.
+8. Go back to sub-step 4. Max 5 fix attempts per slice — if exceeded, print the unresolved failures and stop.
 
 ### 6. Doc phase
 

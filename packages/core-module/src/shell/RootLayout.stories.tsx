@@ -1,6 +1,7 @@
 import type { FireflyRuntime } from "@squide/firefly";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NoopLogger } from "@workleap/logging";
 import { userEvent, within } from "storybook/test";
 
 import { initializeFireflyForStorybook, withFireflyDecorator } from "../../../storybook/firefly.tsx";
@@ -8,6 +9,7 @@ import { SessionProvider } from "../SessionContext.tsx";
 import { RootLayout } from "./RootLayout.tsx";
 
 const runtime = await initializeFireflyForStorybook({
+    loggers: [new NoopLogger()],
     localModules: [
         async (rt: FireflyRuntime) => {
             rt.registerNavigationItem({

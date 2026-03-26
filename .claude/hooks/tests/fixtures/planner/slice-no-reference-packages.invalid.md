@@ -14,10 +14,6 @@ User can browse all their plants in a responsive grid.
 
 - plant-list module: Grid layout, plant cards, navigation to detail
 
-## Reference Packages
-
-- `@packages/core-plants` — schema shape, collection factory, seed data
-
 ## Acceptance Criteria
 
 ### Visual [visual]

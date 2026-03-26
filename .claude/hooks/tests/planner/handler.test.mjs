@@ -38,8 +38,15 @@ describe("planner handler (orchestration)", () => {
         writeFileSync(join(tmp, ".adlc/plan-header.md"), loadFixture("planner", "plan-header.valid.md"));
         writeFileSync(join(tmp, ".adlc/slices/01-empty.md"), loadFixture("planner", "slice-no-criteria.invalid.md"));
         const problems = handlePlanner(tmp);
-        expect(problems).toHaveLength(1);
-        expect(problems[0]).toContain("no acceptance criteria");
+        expect(problems.some(p => p.includes("no acceptance criteria"))).toBe(true);
+    });
+
+    it("should report reference packages problems when slices exist but lack the section", () => {
+        mkdirSync(join(tmp, ".adlc/slices"), { recursive: true });
+        writeFileSync(join(tmp, ".adlc/plan-header.md"), loadFixture("planner", "plan-header.valid.md"));
+        writeFileSync(join(tmp, ".adlc/slices/01-no-refs.md"), loadFixture("planner", "slice-no-reference-packages.invalid.md"));
+        const problems = handlePlanner(tmp);
+        expect(problems.some(p => p.includes("Reference Packages"))).toBe(true);
     });
 
     it("should pass when all deliverables are valid", () => {

@@ -14,6 +14,10 @@ User can see and manage water levels for their plants.
 
 - watering module: Water level display, watering action
 
+## Reference Packages
+
+- `@packages/core-plants` — water level schema, optimistic update pattern
+
 ## Acceptance Criteria
 
 ### Visual [visual]

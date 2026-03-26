@@ -68,7 +68,7 @@ export function recordMetrics(transcriptPath, agentType, cwd) {
             output: parsed.outputTokens,
             cacheRead: parsed.cacheReadTokens,
             cacheCreation: parsed.cacheCreationTokens,
-            contextTokens: parsed.contextTokens,
+            conversationTokens: parsed.conversationTokens,
             billable: parsed.billableTokens
         },
         tools: parsed.tools,
@@ -112,6 +112,7 @@ function parseTranscript(transcriptPath) {
     const pendingById = {};
 
     let model = null;
+    let lastTurnInputSide = 0;
     let firstTimestamp = null;
     let lastTimestamp = null;
 
@@ -145,6 +146,9 @@ function parseTranscript(transcriptPath) {
                 outputTokens += usage.output_tokens || 0;
                 cacheReadTokens += usage.cache_read_input_tokens || 0;
                 cacheCreationTokens += usage.cache_creation_input_tokens || 0;
+
+                // Overwrite on each assistant turn — final value is the conversation size
+                lastTurnInputSide = (usage.input_tokens || 0) + (usage.cache_read_input_tokens || 0) + (usage.cache_creation_input_tokens || 0);
             }
 
             // Count tool uses and attribute tokens proportionally
@@ -168,6 +172,8 @@ function parseTranscript(transcriptPath) {
                         toolTokens[name] = (toolTokens[name] || 0) + perToolTokens;
 
                         // Individual call record
+                        const perCacheRead = Math.round(turnCacheRead / n);
+                        const perCacheCreation = Math.round(turnCacheCreation / n);
                         const callRecord = {
                             id: block.id || null,
                             name,
@@ -176,8 +182,10 @@ function parseTranscript(transcriptPath) {
                             completedAt: null,
                             durationMs: 0,
                             tokens: perToolTokens,
-                            cacheReadTokens: Math.round(turnCacheRead / n),
-                            cacheCreationTokens: Math.round(turnCacheCreation / n)
+                            cacheReadTokens: perCacheRead,
+                            cacheCreationTokens: perCacheCreation,
+                            billable: computeBillable(Math.round(turnInput / n), Math.round(turnOutput / n), perCacheRead, perCacheCreation),
+                            conversationTokens: lastTurnInputSide
                         };
                         toolCalls.push(callRecord);
 
@@ -220,7 +228,6 @@ function parseTranscript(transcriptPath) {
         };
     }
 
-    const contextTokens = inputTokens + outputTokens + cacheReadTokens + cacheCreationTokens;
     const billableTokens = computeBillable(inputTokens, outputTokens, cacheReadTokens, cacheCreationTokens);
     const totalToolUses = Object.values(toolCounts).reduce((sum, c) => sum + c, 0);
     const durationMs = firstTimestamp && lastTimestamp ? new Date(lastTimestamp) - new Date(firstTimestamp) : 0;
@@ -230,7 +237,7 @@ function parseTranscript(transcriptPath) {
         outputTokens,
         cacheReadTokens,
         cacheCreationTokens,
-        contextTokens,
+        conversationTokens: lastTurnInputSide,
         billableTokens,
         tools,
         toolCalls,
@@ -245,7 +252,7 @@ function parseTranscript(transcriptPath) {
 // ── Totals ──────────────────────────────────────────────────
 
 function computeTotals(runs) {
-    const tokens = { input: 0, output: 0, cacheRead: 0, cacheCreation: 0, contextTokens: 0, billable: 0 };
+    const tokens = { input: 0, output: 0, cacheRead: 0, cacheCreation: 0, billable: 0 };
     const tools = {};
     let totalToolUses = 0;
     let durationMs = 0;
@@ -255,7 +262,6 @@ function computeTotals(runs) {
         tokens.output += run.tokens.output;
         tokens.cacheRead += run.tokens.cacheRead;
         tokens.cacheCreation += run.tokens.cacheCreation;
-        tokens.contextTokens += run.tokens.contextTokens;
         tokens.billable += run.tokens.billable;
 
         for (const [name, data] of Object.entries(run.tools)) {
