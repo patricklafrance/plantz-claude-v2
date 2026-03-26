@@ -21,6 +21,7 @@ export default defineConfig({
     ],
     test: {
         name: "management-storybook",
+        globalSetup: ["./vitest.globalSetup.ts"],
         browser: {
             enabled: true,
             provider: playwright(),
