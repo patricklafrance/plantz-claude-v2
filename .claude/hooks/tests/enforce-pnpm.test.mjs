@@ -81,6 +81,43 @@ describe.skipIf(!bashPath)("enforce-pnpm", () => {
         expect(result.exitCode).toBe(0);
     });
 
+    // ── Chained commands ─────────────────────────────────
+
+    it("should block npx after cd &&", () => {
+        const result = pipeToHook("cd C:/Dev/project && npx agent-browser screenshot");
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain("pnpm exec");
+    });
+
+    it("should block npm after cd &&", () => {
+        const result = pipeToHook("cd C:/Dev/project && npm install lodash");
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain("pnpm");
+    });
+
+    it("should block npx after semicolon", () => {
+        const result = pipeToHook("echo hello; npx something");
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain("pnpm exec");
+    });
+
+    it("should block npm after ||", () => {
+        const result = pipeToHook("pnpm install || npm install");
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain("pnpm");
+    });
+
+    it("should block npx chained with multiple &&", () => {
+        const result = pipeToHook("cd /foo && sleep 1 && npx agent-browser open http://localhost:8080");
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain("pnpm exec");
+    });
+
+    it("should allow chained pnpm commands", () => {
+        const result = pipeToHook("cd C:/Dev/project && pnpm exec agent-browser screenshot");
+        expect(result.exitCode).toBe(0);
+    });
+
     // ── RTK-wrapped commands ──────────────────────────────
 
     it("should block rtk-wrapped npm commands", () => {

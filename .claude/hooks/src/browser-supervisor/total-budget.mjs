@@ -2,7 +2,7 @@
  * Total budget — hard cap on browser calls per run.
  */
 
-export const BUDGET = 40;
+export const BUDGET = 30;
 
 function message(n) {
     return `[browser-supervisor] Browser call budget exceeded (${n}/${BUDGET}). Fix the issue in source code or simplify your verification.`;

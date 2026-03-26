@@ -111,6 +111,8 @@ Be specific. Two tags only:
 - `[visual]` — UI renders correctly. e.g. "Shows a 3-column grid with name, status, and last update"
 - `[interactive]` — User action produces the expected result. e.g. "Clicking 'Submit' opens a confirmation dialog." Every mutation needs a companion loading state criterion and a UI consequence criterion.
 
+No criteria for compilation, type resolution, lint, or schema validation. Every criterion must be verifiable in a rendered story or page. Write data-layer criteria in terms of what the UI shows, not what the function returns.
+
 ### Visual [visual]
 
 - [ ] {Page or story}: {specific, verifiable description}

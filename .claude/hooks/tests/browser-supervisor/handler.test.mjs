@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { THRESHOLD as CIRCUIT_BREAKER_THRESHOLD } from "../../src/browser-supervisor/circuit-breaker.mjs";
+import { rewriteBareAgent } from "../../src/browser-supervisor/bare-rewrite.mjs";
 import { evaluate, isBrowserCommand, isScreenshotCommand } from "../../src/browser-supervisor/handler.mjs";
 import { readState, writeState } from "../../src/browser-supervisor/state.mjs";
 import { BUDGET as TOTAL_BUDGET } from "../../src/browser-supervisor/total-budget.mjs";
@@ -36,6 +37,43 @@ describe("isBrowserCommand", () => {
 
     it("should handle empty command", () => {
         expect(isBrowserCommand("")).toBe(false);
+    });
+});
+
+// ── rewriteBareAgent ──────────────────────────────────────
+
+describe("rewriteBareAgent", () => {
+    it("should rewrite bare agent-browser at start", () => {
+        expect(rewriteBareAgent("agent-browser snapshot -i -c")).toBe("pnpm exec agent-browser snapshot -i -c");
+    });
+
+    it("should rewrite bare agent-browser after &&", () => {
+        expect(rewriteBareAgent("cd /foo && agent-browser snapshot")).toBe("cd /foo && pnpm exec agent-browser snapshot");
+    });
+
+    it("should rewrite bare agent-browser after ;", () => {
+        expect(rewriteBareAgent("sleep 1; agent-browser open http://localhost:8080")).toBe("sleep 1; pnpm exec agent-browser open http://localhost:8080");
+    });
+
+    it("should rewrite bare agent-browser after ||", () => {
+        expect(rewriteBareAgent("false || agent-browser screenshot")).toBe("false || pnpm exec agent-browser screenshot");
+    });
+
+    it("should rewrite multiple bare invocations in a chain", () => {
+        expect(rewriteBareAgent("agent-browser click @e7 && agent-browser screenshot"))
+            .toBe("pnpm exec agent-browser click @e7 && pnpm exec agent-browser screenshot");
+    });
+
+    it("should return null when already using pnpm exec", () => {
+        expect(rewriteBareAgent("pnpm exec agent-browser snapshot -i -c")).toBeNull();
+    });
+
+    it("should return null for non-browser commands", () => {
+        expect(rewriteBareAgent("git status")).toBeNull();
+    });
+
+    it("should not rewrite agent-browser in file paths", () => {
+        expect(rewriteBareAgent("cat /tmp/agent-browser-log.txt")).toBeNull();
     });
 });
 

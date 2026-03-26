@@ -27,14 +27,16 @@ Then read the following in one parallel batch:
 
 If highlighted files import types or utilities from other files in the same package, read those in a follow-up parallel batch. If a file doesn't exist, use Grep to locate the symbol within the same package.
 
+Delete `.adlc/current-package-map.md` when done.
+
 ### 3. Write the summary
 
 Synthesize findings and write the result to `.adlc/current-explorer-summary.md`. Use the template below.
 
-- Keep the output under ~6000 tokens.
-- Use concrete function names and import paths — the coder does search-replace (e.g., `Plant` → `Household`), not abstraction.
-- Do NOT use generalized `<Entity>` placeholders.
-- Prefer verbatim code over prose. The coder will NOT re-read the original files — this summary is the only reference it gets.
+- **Target ~150 lines.** The coder will READ source files before editing — the summary orients, it does not replace.
+- Do NOT include verbatim code blocks. Instead, write "**Read before editing:** `{path}`" directives.
+- Use concrete function names and import paths — no generalized `<Entity>` placeholders.
+- Include interfaces/types inline only if under 10 lines.
 
 <output-template>
 
@@ -43,30 +45,11 @@ Synthesize findings and write the result to `.adlc/current-explorer-summary.md`.
 
 ### Types & Schemas
 
-{Summarize the schema shape in 2-3 sentences. Include the schema code only if it's under 15 lines.}
+{Summarize schema shape in 2-3 sentences with field names and types. Inline the schema only if under 10 lines.}
 
 ### Exports
 
 {Exact package.json "exports" field verbatim. Then only the export names from each subpath's index.ts that are relevant to the current slice.}
-
-### Key Files (verbatim)
-
-{Include FULL verbatim code for every file the coder will replicate:
-
-- Module registration function
-- Collection factory with optimistic actions (NOT the shared factory in @packages/core-\*)
-- Context provider (the full file — provider component, hook, type)
-- MSW CRUD handlers (main handler file with all routes)
-- MSW story handler factory (`createHandlers.ts`)
-- Storybook decorator setup
-- One representative page component (the main page, not every dialog)
-- One representative story file (the page story — shows decorator wiring, MSW parameter shape, and story variants)
-
-Note import sources:
-
-- `getCurrentUserId` / `getAuthHeaders` from `"@packages/core-module"`
-- `getUserId` from `"@packages/core-module/db"`
-- `createOptimisticAction` from `"@tanstack/db"`}
 
 ### Patterns
 
@@ -76,6 +59,12 @@ Note import sources:
 - Data layer: {DB class shape, collection factory, seed data}
 - MSW handlers: {URL shape, auth, handler files, story factory}
 - Stories: {decorators, MSW wiring, Chromatic modes}
+
+### Key Files
+
+{For each file the coder will replicate or study, one line:}
+
+**Read before editing:** `{path}` — {what pattern to look at: registration, collection factory, context provider, MSW handlers, story decorator, etc.}
 
 ## Files the coder will edit
 
