@@ -44,7 +44,7 @@ Plan → architect review cycle. Max 5 iterations.
 Code → verify cycle. Max 5 fix attempts per slice. Process each slice in `.adlc/slices/` numerically. For each slice:
 
 1. Copy the slice file to `.adlc/current-slice.md` (overwrite if exists).
-2. Spawn the `_adlc-explorer` agent.
+2. Spawn the `_adlc-explorer` agent. If the agent fails, print the error and stop.
 3. Spawn the `_adlc-coder` agent with the slice file and `mode: draft`. If the agent fails, print the error and stop.
 4. Spawn the `_adlc-reviewer` agent pointing at the slice file. If the agent fails, print the error and stop.
 5. All criteria pass and no sanity issues:

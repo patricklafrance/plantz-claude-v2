@@ -279,7 +279,7 @@ function parseReferences(section) {
 
     for (const line of lines) {
         // Match: - `@scope/name` — description
-        const m = line.match(/^-\s+`([^`]+)`\s*[—–-]+\s*(.+)$/);
+        const m = line.match(/^-\s+`([^`]+)`\s*(?:\(.*?\)\s*)?[—–-]+\s*(.+)$/);
 
         if (m) {
             refs.push({ name: m[1].trim(), description: m[2].trim() });
