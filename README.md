@@ -177,7 +177,7 @@ Constraints that apply to every tool call, regardless of which skill is running.
 
 | Hook                | Trigger         | What it does                                                                                             |
 | ------------------- | --------------- | -------------------------------------------------------------------------------------------------------- |
-| `enforce-pnpm`      | Every Bash call | Blocks `npm`, `npx`, `pnpx`, `pnpm dlx` — including `rtk`-wrapped forms                                  |
+| `tool-guardrails`   | Bash + Read     | Blocks disallowed package-manager calls, bare `pnpm typecheck`, `cmd`, and `node_modules` source reads   |
 | `gitignore-guard`   | `git commit`    | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` (all ADLC artifacts are ephemeral)   |
 | `pre-tool-use-bash` | `git commit`    | Intercepts commits — runs oxfmt autofix + lint + tests before allowing                                   |
 | `rtk-rewrite`       | Every Bash call | Rewrites supported commands through `rtk` for token-compressed output. No-op when `rtk` is not installed |
@@ -206,10 +206,11 @@ All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live 
       planner/                   # 3 checks
       reviewer/                  # 2 checks
     pre-commit/                  # git commit interceptor + lint/test/gitignore-guard pipeline
-    enforce-pnpm.sh              # Package manager guard
+    tool-guardrails/             # Stateless PreToolUse guardrails for Bash + Read
     rtk-rewrite.sh               # RTK command rewrite (token compression)
   tests/
     *.test.mjs                   # 6 root-level tests (subagent-stop, run-metrics, utils, etc.)
+    tool-guardrails/             # 5 test files
     architect/                   # 3 test files
     coder/                       # 11 test files
     document/                    # 1 test file

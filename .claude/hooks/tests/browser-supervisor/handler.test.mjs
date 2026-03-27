@@ -4,8 +4,8 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { THRESHOLD as CIRCUIT_BREAKER_THRESHOLD } from "../../src/browser-supervisor/circuit-breaker.mjs";
 import { rewriteBareAgent } from "../../src/browser-supervisor/bare-rewrite.mjs";
+import { THRESHOLD as CIRCUIT_BREAKER_THRESHOLD } from "../../src/browser-supervisor/circuit-breaker.mjs";
 import { evaluate, isBrowserCommand, isScreenshotCommand } from "../../src/browser-supervisor/handler.mjs";
 import { readState, writeState } from "../../src/browser-supervisor/state.mjs";
 import { BUDGET as TOTAL_BUDGET } from "../../src/browser-supervisor/total-budget.mjs";
@@ -52,7 +52,9 @@ describe("rewriteBareAgent", () => {
     });
 
     it("should rewrite bare agent-browser after ;", () => {
-        expect(rewriteBareAgent("sleep 1; agent-browser open http://localhost:8080")).toBe("sleep 1; pnpm exec agent-browser open http://localhost:8080");
+        expect(rewriteBareAgent("sleep 1; agent-browser open http://localhost:8080")).toBe(
+            "sleep 1; pnpm exec agent-browser open http://localhost:8080"
+        );
     });
 
     it("should rewrite bare agent-browser after ||", () => {
@@ -60,8 +62,9 @@ describe("rewriteBareAgent", () => {
     });
 
     it("should rewrite multiple bare invocations in a chain", () => {
-        expect(rewriteBareAgent("agent-browser click @e7 && agent-browser screenshot"))
-            .toBe("pnpm exec agent-browser click @e7 && pnpm exec agent-browser screenshot");
+        expect(rewriteBareAgent("agent-browser click @e7 && agent-browser screenshot")).toBe(
+            "pnpm exec agent-browser click @e7 && pnpm exec agent-browser screenshot"
+        );
     });
 
     it("should return null when already using pnpm exec", () => {

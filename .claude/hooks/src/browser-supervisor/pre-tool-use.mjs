@@ -29,12 +29,14 @@ const result = evaluate(toolName, effectiveCommand, cwd);
 if (result.action === "block") {
     process.stdout.write(JSON.stringify({ decision: "block", reason: result.reason }));
 } else if (rewritten) {
-    process.stdout.write(JSON.stringify({
-        hookSpecificOutput: {
-            hookEventName: "PreToolUse",
-            updatedInput: { command: rewritten }
-        }
-    }));
+    process.stdout.write(
+        JSON.stringify({
+            hookSpecificOutput: {
+                hookEventName: "PreToolUse",
+                updatedInput: { command: rewritten }
+            }
+        })
+    );
 }
 
 process.exit(0);

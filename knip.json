@@ -5,6 +5,7 @@
             "entry": [
                 "scripts/*.ts",
                 ".claude/hooks/src/adlc-verification/subagent-stop.mjs",
+                ".claude/hooks/src/tool-guardrails/pre-tool-use.mjs",
                 ".claude/hooks/src/pre-commit/pre-tool-use-bash.mjs",
                 ".claude/hooks/src/safe-compact/post-compact.mjs",
                 ".claude/agents/scripts/generate-package-map.mjs",
