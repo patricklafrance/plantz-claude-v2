@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import checkNoCmd from "../../src/tool-guardrails/no-cmd.mjs";
+import checkNoCmd from "../../src/preflight/no-cmd.mjs";
 
 describe("no-cmd", () => {
     it("should block cmd /c", () => {

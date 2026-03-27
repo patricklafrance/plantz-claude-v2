@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import checkBareTypecheck from "../../src/tool-guardrails/bare-typecheck.mjs";
+import checkBareTypecheck from "../../src/preflight/bare-typecheck.mjs";
 
 describe("bare-typecheck", () => {
     it("should block bare pnpm typecheck", () => {

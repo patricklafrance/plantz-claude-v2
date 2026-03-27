@@ -4,10 +4,10 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { bashPath } from "./resolve-bash.mjs";
+import { bashPath } from "../resolve-bash.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const HOOK_PATH = resolve(__dirname, "../src/rtk-rewrite.sh");
+const HOOK_PATH = resolve(__dirname, "../../src/preflight/pre-tool-use.mjs");
 
 let hasRtk;
 try {
@@ -19,8 +19,8 @@ try {
 
 function pipeToHook(command, env) {
     try {
-        const stdout = execFileSync(bashPath, [HOOK_PATH], {
-            input: JSON.stringify({ tool_input: { command } }),
+        const stdout = execFileSync(process.execPath, [HOOK_PATH], {
+            input: JSON.stringify({ tool_name: "Bash", tool_input: { command } }),
             encoding: "utf8",
             timeout: 15_000,
             env: env ?? process.env

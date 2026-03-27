@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { evaluate } from "../../src/tool-guardrails/handler.mjs";
+import { evaluate } from "../../src/preflight/handler.mjs";
 
-describe("tool-guardrails handler", () => {
+describe("preflight handler", () => {
     it("should allow safe bash commands", () => {
         expect(evaluate("Bash", { command: "pnpm exec oxfmt --write ." })).toEqual({ action: "allow" });
     });

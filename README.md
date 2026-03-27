@@ -45,7 +45,7 @@ The harness enhances the agent's natural capabilities instead of micromanaging e
 
 ### Token compression
 
-A PreToolUse hook (`rtk-rewrite.sh`) rewrites Bash commands through [RTK](https://github.com/rtk-ai/rtk) for 60–90% token savings on git, gh, lint, and test output. The hook delegates to `rtk rewrite` — if RTK doesn't support the command, it passes through unchanged. When RTK is not installed, the hook is a no-op.
+The `preflight` PreToolUse hook rewrites supported Bash commands through [RTK](https://github.com/rtk-ai/rtk) for 60–90% token savings on git, gh, lint, and test output. The hook delegates to `rtk rewrite` — if RTK doesn't support the command, it passes through unchanged. When RTK is not installed, the rewrite is a no-op.
 
 ### Design principles
 
@@ -55,7 +55,7 @@ This design is based on three principles from the [Agent Harness](https://medium
 | --- | ------------------------------------------ | ------------------------------ | -------------------------------------------------- |
 | 1   | Verification is not optional               | :white_check_mark: Implemented | SubagentStop hooks, pre-commit guards, permissions |
 | 2   | Context should be delivered, not requested | :construction: Planned         | —                                                  |
-| 3   | Supervision must be real-time              | :construction: Planned         | —                                                  |
+| 3   | Supervision must be real-time              | :white_check_mark: Implemented | Supervisor hooks, recovery contracts               |
 
 ### ADLC workflow
 
@@ -175,12 +175,12 @@ On every agent completion, the SubagentStop hook parses the agent's transcript J
 
 Constraints that apply to every tool call, regardless of which skill is running.
 
-| Hook                | Trigger         | What it does                                                                                             |
-| ------------------- | --------------- | -------------------------------------------------------------------------------------------------------- |
-| `tool-guardrails`   | Bash + Read     | Blocks disallowed package-manager calls, bare `pnpm typecheck`, `cmd`, and `node_modules` source reads   |
-| `gitignore-guard`   | `git commit`    | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` (all ADLC artifacts are ephemeral)   |
-| `pre-tool-use-bash` | `git commit`    | Intercepts commits — runs oxfmt autofix + lint + tests before allowing                                   |
-| `rtk-rewrite`       | Every Bash call | Rewrites supported commands through `rtk` for token-compressed output. No-op when `rtk` is not installed |
+| Hook                | Trigger                    | What it does                                                                                                                                                          |
+| ------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `preflight`         | Bash + Read                | Rewrites `agent-browser` and RTK-supported Bash commands, then blocks disallowed package-manager calls, bare `pnpm typecheck`, `cmd`, and `node_modules` source reads |
+| `supervisor`        | Bash + Read + Write + Edit | Detects browser thrash, repeated edits, and repeated command loops in real time; blocks into recovery                                                                 |
+| `gitignore-guard`   | `git commit`               | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` (all ADLC artifacts are ephemeral)                                                                |
+| `pre-tool-use-bash` | `git commit`               | Intercepts commits — runs oxfmt autofix + lint + tests before allowing                                                                                                |
 
 #### Permissions
 
@@ -206,11 +206,12 @@ All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live 
       planner/                   # 3 checks
       reviewer/                  # 2 checks
     pre-commit/                  # git commit interceptor + lint/test/gitignore-guard pipeline
-    tool-guardrails/             # Stateless PreToolUse guardrails for Bash + Read
-    rtk-rewrite.sh               # RTK command rewrite (token compression)
+    preflight/                   # Bash/Read guardrails + command rewrites
+    supervisor/                  # Stateful real-time supervision + recovery contracts
   tests/
     *.test.mjs                   # 6 root-level tests (subagent-stop, run-metrics, utils, etc.)
-    tool-guardrails/             # 5 test files
+    preflight/                   # 7 test files
+    supervisor/                  # 2 test files
     architect/                   # 3 test files
     coder/                       # 11 test files
     document/                    # 1 test file
@@ -227,7 +228,15 @@ All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live 
 
 ### Principle 3: Supervision must be real-time
 
-:construction: **Planned** — Continuous observation of agent behavior as it works, not just verification after it finishes. The goal is to catch drift early — before it compounds into wasted iterations.
+:white_check_mark: **Implemented** — A supervisor hook now observes `Bash`, `Read`, `Write`, and `Edit` calls during execution, logs them to `.adlc/supervisor-events.jsonl`, and maintains live state in `.adlc/supervisor-state.json`.
+
+When the supervisor detects a high-signal failure mode, it blocks the next bad action and creates a recovery contract in `.adlc/supervisor-recovery.json`. While recovery is active, only recovery-progress actions are allowed through. The first MVP policies are:
+
+- `browser-thrash` — browser budget, consecutive browser circuit breaker, and screenshot nudge
+- `repeated-edit` — stops edit churn on the same file and requires a diagnosis in `.adlc/supervisor-recovery.md`
+- `tool-call-thrash` — stops repeated identical Bash commands until the agent changes evidence path or strategy
+
+This keeps supervision in-band and real-time: the harness interrupts waste as it happens and steers the agent back onto an observable recovery path before autonomy resumes.
 
 ---
 
@@ -274,7 +283,7 @@ curl -fsSL https://rtk.sh | bash
 winget install rtk-ai.rtk
 ```
 
-When `rtk` is on `PATH`, the `rtk-rewrite` hook rewrites Bash commands automatically. Without it, the hook is a no-op.
+When `rtk` is on `PATH`, `preflight` rewrites supported Bash commands automatically. Without it, the rewrite is a no-op.
 
 ### Seed data
 

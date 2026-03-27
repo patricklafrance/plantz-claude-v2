@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import checkNodeModulesRead from "../../src/tool-guardrails/node-modules-read.mjs";
+import checkNodeModulesRead from "../../src/preflight/node-modules-read.mjs";
 
 describe("node-modules-read", () => {
     it("should block Read calls into node_modules", () => {

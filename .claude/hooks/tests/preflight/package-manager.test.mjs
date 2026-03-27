@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import checkPackageManager from "../../src/tool-guardrails/package-manager.mjs";
+import checkPackageManager from "../../src/preflight/package-manager.mjs";
 
 describe("package-manager", () => {
     it("should block npm", () => {
