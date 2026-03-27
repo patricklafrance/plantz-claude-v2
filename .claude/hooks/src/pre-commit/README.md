@@ -45,6 +45,7 @@ Pipeline:
     - auto-format files
     - stage any formatting changes
 2. run in parallel:
+    - `build`
     - `lint`
     - `tests`
     - `gitignore-guard`

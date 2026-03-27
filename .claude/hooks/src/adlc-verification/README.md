@@ -61,7 +61,8 @@ Shared modules:
     - transcript parsing and run-metric recording
 
 - `utils.mjs`
-    - shared helpers such as command execution and changed-file utilities
+    - `.adlc` artifact helpers (`hasFile`, `listFiles`) and git helpers (`getChangedFiles`)
+    - re-exports `run` from `../shared/run.mjs` so coder modules can import from a single place
 
 ## Per-agent handler structure
 

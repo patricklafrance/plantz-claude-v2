@@ -182,7 +182,7 @@ Constraints that apply to every tool call, regardless of which skill is running.
 | `preflight`         | Bash + Read                | Rewrites `agent-browser` and RTK-supported Bash commands, then blocks disallowed package-manager calls, bare `pnpm typecheck`, `cmd`, and `node_modules` source reads |
 | `supervisor`        | Bash + Read + Write + Edit | Detects browser thrash, repeated edits, repeated command loops, and evidence-gated `pnpm install` misuse in real time; blocks into recovery or narrow retry paths     |
 | `gitignore-guard`   | `git commit`               | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` (all ADLC artifacts are ephemeral)                                                                |
-| `pre-tool-use-bash` | `git commit`               | Intercepts commits — runs oxfmt autofix + lint + tests before allowing                                                                                                |
+| `pre-tool-use-bash` | `git commit`               | Intercepts commits — runs oxfmt autofix, then build + lint + tests in parallel before allowing                                                                        |
 
 #### Permissions
 
@@ -200,27 +200,31 @@ All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live 
     adlc-verification/
       subagent-stop.mjs          # Router — dispatches to agent-specific handlers
       run-metrics.mjs            # Parses transcript JSONL, appends to .adlc/run-metrics.md
-      utils.mjs                  # Shared utilities (hasFile, run, getChangedFiles)
+      utils.mjs                  # .adlc artifact helpers + getChangedFiles; re-exports run from shared/
       architect/                 # 2 checks
       coder/                     # 7 checks + 1 autofix + 1 context refresh
       document/                  # 1 autofix
       domain-mapper/             # 2 checks
       planner/                   # 3 checks
       reviewer/                  # 2 checks
-    pre-commit/                  # git commit interceptor + lint/test/gitignore-guard pipeline
+    pre-commit/                  # git commit interceptor + build/lint/test/gitignore-guard pipeline
     preflight/                   # Bash/Read guardrails + command rewrites
+    shared/
+      run.mjs                    # Async shell execution — used by pre-commit and adlc-verification
     supervisor/                  # Stateful real-time supervision + recovery contracts + install evidence
   tests/
-    *.test.mjs                   # 6 root-level tests (subagent-stop, run-metrics, utils, etc.)
+    contract-sync.test.mjs       # Hook registration contract test
+    pre-commit/                  # 7 test files
     preflight/                   # 7 test files
     supervisor/                  # 3 test files
-    architect/                   # 3 test files
-    coder/                       # 11 test files
-    document/                    # 1 test file
-    domain-mapper/               # 2 test files
-    planner/                     # 4 test files
-    reviewer/                    # 3 test files
-    pre-commit/                  # 6 test files
+    adlc-verification/
+      *.test.mjs                 # 3 root tests (subagent-stop, run-metrics, utils)
+      architect/                 # 3 test files
+      coder/                     # 12 test files
+      document/                  # 1 test file
+      domain-mapper/             # 2 test files
+      planner/                   # 5 test files
+      reviewer/                  # 3 test files
     fixtures/                    # Valid/invalid markdown fixtures
 ```
 
