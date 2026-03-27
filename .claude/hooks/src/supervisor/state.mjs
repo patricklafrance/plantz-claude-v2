@@ -21,6 +21,8 @@ const DEFAULT_STATE = {
         lastCommandFingerprint: null,
         repeatCount: 0
     },
+    postEventSequence: 0,
+    installBypass: null,
     policyAttempts: {}
 };
 
@@ -39,6 +41,8 @@ export function readState(cwd) {
             browser: { ...defaults.browser, ...raw.browser },
             repeatedEdit: { ...defaults.repeatedEdit, ...raw.repeatedEdit, byFile: { ...defaults.repeatedEdit.byFile, ...raw.repeatedEdit?.byFile } },
             toolThrash: { ...defaults.toolThrash, ...raw.toolThrash },
+            postEventSequence: raw.postEventSequence ?? defaults.postEventSequence,
+            installBypass: raw.installBypass ?? defaults.installBypass,
             policyAttempts: { ...defaults.policyAttempts, ...raw.policyAttempts }
         };
     } catch {
@@ -54,6 +58,7 @@ export function writeState(cwd, state) {
 
 export function applyEventToState(state, event) {
     state.eventCount = event.index;
+    state.postEventSequence = 0;
     state.recentEvents.push({
         index: event.index,
         timestamp: event.timestamp,

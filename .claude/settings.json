@@ -61,6 +61,30 @@
                 ]
             }
         ],
+        "PostToolUse": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node .claude/hooks/src/supervisor/post-tool-use.mjs",
+                        "timeout": 5000
+                    }
+                ]
+            }
+        ],
+        "PostToolUseFailure": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node .claude/hooks/src/supervisor/post-tool-use.mjs",
+                        "timeout": 5000
+                    }
+                ]
+            }
+        ],
         "PostCompact": [
             {
                 "hooks": [

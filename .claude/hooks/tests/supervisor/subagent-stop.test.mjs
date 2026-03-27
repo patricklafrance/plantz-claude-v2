@@ -26,7 +26,7 @@ describe("supervisor subagent-stop", () => {
         }
     });
 
-    it("clears supervisor state, events, and recovery artifacts", () => {
+    it("clears supervisor state, events, recovery artifacts, and run-scoped install overrides", () => {
         tmp = mkdtempSync(join(tmpdir(), "supervisor-stop-"));
         mkdirSync(join(tmp, ".adlc"), { recursive: true });
 
@@ -34,6 +34,7 @@ describe("supervisor subagent-stop", () => {
         writeFileSync(join(tmp, ".adlc", "supervisor-events.jsonl"), "{}\n");
         writeFileSync(join(tmp, ".adlc", "supervisor-recovery.json"), "{}\n");
         writeFileSync(join(tmp, ".adlc", "supervisor-recovery.md"), "# diagnosis\n");
+        writeFileSync(join(tmp, ".adlc", "allow-install"), "approved\n");
 
         const stdout = pipeToHook({ cwd: tmp });
         expect(stdout.trim()).toBe("");
@@ -42,5 +43,6 @@ describe("supervisor subagent-stop", () => {
         expect(existsSync(join(tmp, ".adlc", "supervisor-events.jsonl"))).toBe(false);
         expect(existsSync(join(tmp, ".adlc", "supervisor-recovery.json"))).toBe(false);
         expect(existsSync(join(tmp, ".adlc", "supervisor-recovery.md"))).toBe(false);
+        expect(existsSync(join(tmp, ".adlc", "allow-install"))).toBe(false);
     });
 });

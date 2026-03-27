@@ -45,6 +45,8 @@ The harness enhances the agent's natural capabilities instead of micromanaging e
 
 ### Token compression
 
+The full `preflight` design is documented in [`.claude/hooks/src/preflight/README.md`](.claude/hooks/src/preflight/README.md).
+
 The `preflight` PreToolUse hook rewrites supported Bash commands through [RTK](https://github.com/rtk-ai/rtk) for 60–90% token savings on git, gh, lint, and test output. The hook delegates to `rtk rewrite` — if RTK doesn't support the command, it passes through unchanged. When RTK is not installed, the rewrite is a no-op.
 
 ### Design principles
@@ -178,7 +180,7 @@ Constraints that apply to every tool call, regardless of which skill is running.
 | Hook                | Trigger                    | What it does                                                                                                                                                          |
 | ------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `preflight`         | Bash + Read                | Rewrites `agent-browser` and RTK-supported Bash commands, then blocks disallowed package-manager calls, bare `pnpm typecheck`, `cmd`, and `node_modules` source reads |
-| `supervisor`        | Bash + Read + Write + Edit | Detects browser thrash, repeated edits, and repeated command loops in real time; blocks into recovery                                                                 |
+| `supervisor`        | Bash + Read + Write + Edit | Detects browser thrash, repeated edits, repeated command loops, and evidence-gated `pnpm install` misuse in real time; blocks into recovery or narrow retry paths     |
 | `gitignore-guard`   | `git commit`               | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` (all ADLC artifacts are ephemeral)                                                                |
 | `pre-tool-use-bash` | `git commit`               | Intercepts commits — runs oxfmt autofix + lint + tests before allowing                                                                                                |
 
@@ -186,7 +188,7 @@ Constraints that apply to every tool call, regardless of which skill is running.
 
 Deny rules in `.claude/settings.json` block `Edit` and `Write` on `.env` and `.env.*` files — the agent cannot accidentally modify environment secrets.
 
-**Files:** [`.claude/hooks/src/`](.claude/hooks/src/), [`.claude/hooks/tests/`](.claude/hooks/tests/), [`.claude/settings.json`](.claude/settings.json)
+**Files:** [`.claude/hooks/src/`](.claude/hooks/src/), [`.claude/hooks/src/adlc-verification/README.md`](.claude/hooks/src/adlc-verification/README.md), [`.claude/hooks/src/pre-commit/README.md`](.claude/hooks/src/pre-commit/README.md), [`.claude/hooks/src/preflight/README.md`](.claude/hooks/src/preflight/README.md), [`.claude/hooks/src/supervisor/README.md`](.claude/hooks/src/supervisor/README.md), [`.claude/hooks/tests/`](.claude/hooks/tests/), [`.claude/settings.json`](.claude/settings.json)
 
 #### Hook architecture
 
@@ -207,11 +209,11 @@ All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live 
       reviewer/                  # 2 checks
     pre-commit/                  # git commit interceptor + lint/test/gitignore-guard pipeline
     preflight/                   # Bash/Read guardrails + command rewrites
-    supervisor/                  # Stateful real-time supervision + recovery contracts
+    supervisor/                  # Stateful real-time supervision + recovery contracts + install evidence
   tests/
     *.test.mjs                   # 6 root-level tests (subagent-stop, run-metrics, utils, etc.)
     preflight/                   # 7 test files
-    supervisor/                  # 2 test files
+    supervisor/                  # 3 test files
     architect/                   # 3 test files
     coder/                       # 11 test files
     document/                    # 1 test file
@@ -228,15 +230,18 @@ All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live 
 
 ### Principle 3: Supervision must be real-time
 
-:white_check_mark: **Implemented** — A supervisor hook now observes `Bash`, `Read`, `Write`, and `Edit` calls during execution, logs them to `.adlc/supervisor-events.jsonl`, and maintains live state in `.adlc/supervisor-state.json`.
+:white_check_mark: **Implemented** — A supervisor hook now observes `Bash`, `Read`, `Write`, and `Edit` calls during execution, logs them to `.adlc/supervisor-events.jsonl`, and maintains live state in `.adlc/supervisor-state.json`. It also consumes `PostToolUse` and `PostToolUseFailure` events for Bash so command-result evidence can unlock narrow recovery paths such as a one-shot `pnpm install` bypass after real missing-dependency failures.
 
 When the supervisor detects a high-signal failure mode, it blocks the next bad action and creates a recovery contract in `.adlc/supervisor-recovery.json`. While recovery is active, only recovery-progress actions are allowed through. The first MVP policies are:
 
 - `browser-thrash` — browser budget, consecutive browser circuit breaker, and screenshot nudge
 - `repeated-edit` — stops edit churn on the same file and requires a diagnosis in `.adlc/supervisor-recovery.md`
 - `tool-call-thrash` — stops repeated identical Bash commands until the agent changes evidence path or strategy
+- `install-gate` — blocks blind `pnpm install` until manifests changed, an override exists, or a post-tool dependency failure grants a one-shot bypass
 
 This keeps supervision in-band and real-time: the harness interrupts waste as it happens and steers the agent back onto an observable recovery path before autonomy resumes.
+
+The full supervisor design is documented in [`.claude/hooks/src/supervisor/README.md`](.claude/hooks/src/supervisor/README.md), including runtime flow, state files, event semantics, recovery contracts, evidence collection, and the `pnpm install` override model.
 
 ---
 
