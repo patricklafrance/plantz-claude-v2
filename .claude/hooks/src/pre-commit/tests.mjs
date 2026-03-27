@@ -1,6 +1,6 @@
 /** Full monorepo tests via turbo (vitest + Storybook a11y). */
 
-import { run } from "../adlc-verification/utils.mjs";
+import { run } from "../shared/run.mjs";
 
 export async function tests(cwd) {
     const result = await run(cwd, "pnpm test");

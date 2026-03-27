@@ -4,6 +4,9 @@
  * Detects repeated identical Bash commands without strategy change.
  * Threshold: block on the 3rd identical command in a row unless an Edit/Write resets the sequence.
  */
+// Block after 3 identical Bash commands with no intervening edit. Two retries are
+// reasonable (transient failure, timing); a third signals the agent is stuck expecting
+// different output from the same command.
 export const TOOL_THRASH_THRESHOLD = 3;
 
 export default function checkToolCallThrash(event, state) {

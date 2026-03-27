@@ -4,10 +4,7 @@ import checkBareTypecheck from "../../src/preflight/bare-typecheck.mjs";
 
 describe("bare-typecheck", () => {
     it("should block bare pnpm typecheck", () => {
-        expect(checkBareTypecheck("Bash", { command: "pnpm typecheck" })).toEqual({
-            action: "block",
-            reason: "Blocked: use pnpm lint for full validation or pnpm --filter @package typecheck for scoped checks."
-        });
+        expect(checkBareTypecheck("Bash", { command: "pnpm typecheck" })?.reason).toContain("pnpm lint");
     });
 
     it("should block chained bare pnpm typecheck", () => {
@@ -20,6 +17,14 @@ describe("bare-typecheck", () => {
 
     it("should allow pnpm lint", () => {
         expect(checkBareTypecheck("Bash", { command: "pnpm lint" })).toBeNull();
+    });
+
+    it("should block bare pnpm run typecheck", () => {
+        expect(checkBareTypecheck("Bash", { command: "pnpm run typecheck" })?.reason).toContain("pnpm lint");
+    });
+
+    it("should block chained pnpm run typecheck", () => {
+        expect(checkBareTypecheck("Bash", { command: "cd /repo && pnpm run typecheck" })?.reason).toContain("pnpm lint");
     });
 
     it("should allow unrelated commands", () => {

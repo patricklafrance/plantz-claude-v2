@@ -2,7 +2,7 @@ import { pathIncludesNodeModules, splitCommandSegments, stripRtkPrefix } from ".
 
 const MESSAGE = "Blocked: don't read library source in node_modules. Check TypeScript types or API docs instead.";
 const BASH_READ_PREFIX = /^(?:rg|grep|find|fd|cat|less|more|head|tail|sed|awk|ls|tree|Get-Content|Select-String)(?:\s|$)/i;
-const NODE_MODULES_ARG = /(^|\s|["'])[^"'\\s]*node_modules(?:[\\/]|\\|\s|$)/;
+const NODE_MODULES_ARG = /(^|\s|["'])[^"'\s]*node_modules(?:[\\/]|\\|\s|$)/;
 
 export default function checkNodeModulesRead(toolName, toolInput) {
     if (toolName === "Read") {

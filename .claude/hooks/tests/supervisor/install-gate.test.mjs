@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { evaluate, recordToolResult } from "../../src/supervisor/handler.mjs";
+import { handlePostTool, handlePreTool } from "../../src/supervisor/handler.mjs";
 import { INSTALL_BYPASS_EVENT_TTL } from "../../src/supervisor/policies/install-gate.mjs";
 import { readState } from "../../src/supervisor/state.mjs";
 
@@ -29,7 +29,7 @@ describe("supervisor install gate", () => {
     });
 
     it("blocks pnpm install by default", () => {
-        const result = evaluate("Bash", { command: "pnpm install" }, tmp);
+        const result = handlePreTool("Bash", { command: "pnpm install" }, tmp);
 
         expect(result.action).toBe("block");
         expect(result.reason).toContain(".adlc/allow-install");
@@ -38,7 +38,7 @@ describe("supervisor install gate", () => {
     it("allows pnpm install when package.json differs from HEAD", () => {
         writeFileSync(join(tmp, "package.json"), JSON.stringify({ name: "install-gate-test", private: true, version: "1.0.0" }, null, 2) + "\n");
 
-        expect(evaluate("Bash", { command: "pnpm install" }, tmp)).toEqual({ action: "allow" });
+        expect(handlePreTool("Bash", { command: "pnpm install" }, tmp)).toEqual({ action: "allow" });
     });
 
     it("allows pnpm install when a new manifest is untracked", () => {
@@ -48,14 +48,14 @@ describe("supervisor install gate", () => {
             JSON.stringify({ name: "@repo/new-package", private: true }, null, 2) + "\n"
         );
 
-        expect(evaluate("Bash", { command: "pnpm install" }, tmp)).toEqual({ action: "allow" });
+        expect(handlePreTool("Bash", { command: "pnpm install" }, tmp)).toEqual({ action: "allow" });
     });
 
     it("allows pnpm install when an explicit override marker exists", () => {
         writeFileSync(join(tmp, ".adlc", "allow-install"), "stale workspace install approved\n");
 
-        expect(evaluate("Bash", { command: "pnpm i" }, tmp)).toEqual({ action: "allow" });
-        expect(evaluate("Bash", { command: "pnpm install" }, tmp)).toEqual({ action: "allow" });
+        expect(handlePreTool("Bash", { command: "pnpm i" }, tmp)).toEqual({ action: "allow" });
+        expect(handlePreTool("Bash", { command: "pnpm install" }, tmp)).toEqual({ action: "allow" });
 
         const events = readEvents(tmp);
         expect(events.at(-1).outcome).toBe("install-override-allowed");
@@ -65,14 +65,14 @@ describe("supervisor install gate", () => {
     it("blocks pnpm install when the override file is empty", () => {
         writeFileSync(join(tmp, ".adlc", "allow-install"), "\n");
 
-        const result = evaluate("Bash", { command: "pnpm install" }, tmp);
+        const result = handlePreTool("Bash", { command: "pnpm install" }, tmp);
         expect(result.action).toBe("block");
         expect(result.reason).toContain(".adlc/allow-install");
     });
 
     it("records dependency evidence and consumes the bypass after one install", () => {
-        evaluate("Bash", { command: "pnpm dev-host" }, tmp);
-        recordToolResult("Bash", { command: "pnpm dev-host" }, tmp, {
+        handlePreTool("Bash", { command: "pnpm dev-host" }, tmp);
+        handlePostTool("Bash", { command: "pnpm dev-host" }, tmp, {
             tool_response: {
                 stderr: "Error: Cannot find module '@plants/new-dep'"
             }
@@ -83,81 +83,81 @@ describe("supervisor install gate", () => {
         expect(stateAfterEvidence.installBypass?.remainingUses).toBe(1);
         expect(readEvidenceEvents(tmp)).toContain("install-bypass-granted");
 
-        expect(evaluate("Bash", { command: "pnpm install" }, tmp)).toEqual({ action: "allow" });
+        expect(handlePreTool("Bash", { command: "pnpm install" }, tmp)).toEqual({ action: "allow" });
         expect(readState(tmp).installBypass).toBeNull();
 
-        const blockedAgain = evaluate("Bash", { command: "pnpm install" }, tmp);
+        const blockedAgain = handlePreTool("Bash", { command: "pnpm install" }, tmp);
         expect(blockedAgain.action).toBe("block");
     });
 
     it("does not create a bypass for generic failures", () => {
-        evaluate("Bash", { command: "pnpm lint" }, tmp);
-        recordToolResult("Bash", { command: "pnpm lint" }, tmp, {
+        handlePreTool("Bash", { command: "pnpm lint" }, tmp);
+        handlePostTool("Bash", { command: "pnpm lint" }, tmp, {
             error: {
                 message: "Found 14 type errors"
             }
         });
 
         expect(readState(tmp).installBypass).toBeNull();
-        expect(evaluate("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
+        expect(handlePreTool("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
     });
 
     it("does not create a bypass for missing relative imports", () => {
-        evaluate("Bash", { command: "pnpm dev-host" }, tmp);
-        recordToolResult("Bash", { command: "pnpm dev-host" }, tmp, {
+        handlePreTool("Bash", { command: "pnpm dev-host" }, tmp);
+        handlePostTool("Bash", { command: "pnpm dev-host" }, tmp, {
             tool_response: {
                 stderr: "Error: Cannot find module './local-file'"
             }
         });
 
         expect(readState(tmp).installBypass).toBeNull();
-        expect(evaluate("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
+        expect(handlePreTool("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
     });
 
     it("does not create a bypass for missing pnpm scripts or typos", () => {
-        evaluate("Bash", { command: "pnpm dev-hsot" }, tmp);
-        recordToolResult("Bash", { command: "pnpm dev-hsot" }, tmp, {
+        handlePreTool("Bash", { command: "pnpm dev-hsot" }, tmp);
+        handlePostTool("Bash", { command: "pnpm dev-hsot" }, tmp, {
             error: {
                 message: 'Command "dev-hsot" not found'
             }
         });
 
         expect(readState(tmp).installBypass).toBeNull();
-        expect(evaluate("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
+        expect(handlePreTool("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
     });
 
     it("does not create a bypass for alias-style imports", () => {
-        evaluate("Bash", { command: "pnpm dev-host" }, tmp);
-        recordToolResult("Bash", { command: "pnpm dev-host" }, tmp, {
+        handlePreTool("Bash", { command: "pnpm dev-host" }, tmp);
+        handlePostTool("Bash", { command: "pnpm dev-host" }, tmp, {
             tool_response: {
                 stderr: "Error: Cannot find module '@/components/Button'"
             }
         });
 
         expect(readState(tmp).installBypass).toBeNull();
-        expect(evaluate("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
+        expect(handlePreTool("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
     });
 
     it("expires the evidence bypass after a short event window", () => {
-        evaluate("Bash", { command: "pnpm dev-host" }, tmp);
-        recordToolResult("Bash", { command: "pnpm dev-host" }, tmp, {
+        handlePreTool("Bash", { command: "pnpm dev-host" }, tmp);
+        handlePostTool("Bash", { command: "pnpm dev-host" }, tmp, {
             error: {
                 message: "Cannot find package 'vite' imported from /repo/apps/host/rsbuild.config.ts"
             }
         });
 
         for (let index = 0; index < INSTALL_BYPASS_EVENT_TTL; index += 1) {
-            expect(evaluate("Read", { file_path: `README-${index}.md` }, tmp)).toEqual({ action: "allow" });
+            expect(handlePreTool("Read", { file_path: `README-${index}.md` }, tmp)).toEqual({ action: "allow" });
         }
 
-        const result = evaluate("Bash", { command: "pnpm install" }, tmp);
+        const result = handlePreTool("Bash", { command: "pnpm install" }, tmp);
         expect(result.action).toBe("block");
         expect(readState(tmp).installBypass).toBeNull();
     });
 
     it("logs post-tool evidence events with unique increasing indexes", () => {
-        evaluate("Bash", { command: "pnpm dev-host" }, tmp);
-        recordToolResult("Bash", { command: "pnpm dev-host" }, tmp, {
+        handlePreTool("Bash", { command: "pnpm dev-host" }, tmp);
+        handlePostTool("Bash", { command: "pnpm dev-host" }, tmp, {
             tool_response: {
                 stderr: "Error: Cannot find module '@plants/new-dep'"
             }
@@ -171,8 +171,8 @@ describe("supervisor install gate", () => {
     });
 
     it("counts blocked install attempts toward supervisor state", () => {
-        expect(evaluate("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
-        expect(evaluate("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
+        expect(handlePreTool("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
+        expect(handlePreTool("Bash", { command: "pnpm install" }, tmp).action).toBe("block");
 
         const state = readState(tmp);
         expect(state.eventCount).toBe(2);

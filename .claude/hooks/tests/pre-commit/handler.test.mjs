@@ -1,9 +1,13 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import handlePreCommit from "../../src/pre-commit/handler.mjs";
+
+vi.mock("../../src/shared/run.mjs", () => ({
+    run: vi.fn().mockResolvedValue({ ok: true, stdout: "", stderr: "" })
+}));
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 

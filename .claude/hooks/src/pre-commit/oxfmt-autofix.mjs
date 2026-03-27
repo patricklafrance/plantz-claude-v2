@@ -1,6 +1,6 @@
 /** Auto-format with oxfmt (writes in place) and stage changes. Must run before lint. */
 
-import { run } from "../adlc-verification/utils.mjs";
+import { run } from "../shared/run.mjs";
 
 export async function oxfmtAutofix(cwd) {
     const result = await run(cwd, "pnpm exec oxfmt --write .");

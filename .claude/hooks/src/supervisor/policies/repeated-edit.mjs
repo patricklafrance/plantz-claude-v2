@@ -6,6 +6,9 @@ import { RECOVERY_DIAGNOSIS_PATH } from "../utils.mjs";
  * Detects churn on the same file and forces a diagnosis/reset before more edits.
  * Threshold: block on the 6th Edit/Write to the same file within the last 12 events.
  */
+// Block on the 6th edit to the same file within the rolling window (50% of 12 events).
+// Below this density, iterative editing is normal. At 6, the agent is churning
+// without a detectable strategy change.
 export const REPEATED_EDIT_THRESHOLD = 6;
 
 export default function checkRepeatedEdit(event, state) {

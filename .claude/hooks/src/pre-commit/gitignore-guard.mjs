@@ -1,6 +1,6 @@
 /** Block commits that un-ignore .adlc/ paths — all ADLC artifacts are ephemeral. */
 
-import { run } from "../adlc-verification/utils.mjs";
+import { run } from "../shared/run.mjs";
 
 export async function gitignoreGuard(cwd) {
     const result = await run(cwd, "git diff --cached -- .gitignore");

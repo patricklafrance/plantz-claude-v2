@@ -3,12 +3,13 @@
  *
  * Post-completion pipeline:
  *   1 — oxfmt autofix (must complete before lint)
- *   2 — lint, tests, file-disable scan, secret scan, import guard,
+ *   2 — build, lint, tests, file-disable scan, secret scan, import guard,
  *       implementation-notes check, story coverage, context refresh (parallel)
  *   3 — kill dev server ports (always)
  */
 
 import { getChangedFiles } from "../utils.mjs";
+import { build } from "./build.mjs";
 import { contextRefresh } from "./context-refresh.mjs";
 import { implementationNotesCheck } from "./implementation-notes.mjs";
 import { checkNoCrossBoundaryImports } from "./import-guard.mjs";
@@ -28,6 +29,7 @@ export default async function handleCoder(cwd) {
 
     // Phase 2: everything else in parallel
     const results = await Promise.all([
+        build(cwd),
         lint(cwd),
         tests(cwd),
         Promise.resolve(noFileDisable(cwd, changedFiles)),

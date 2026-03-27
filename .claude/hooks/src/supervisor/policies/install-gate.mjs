@@ -4,6 +4,9 @@ import { resolve } from "node:path";
 
 import { splitCommandSegments, stripRtkPrefix } from "../utils.mjs";
 
+// Bypass token expires after 3 pre-tool events. Long enough for the agent to follow
+// up with pnpm install immediately after the evidence is recorded; short enough that
+// an unrelated later install attempt cannot reuse the token.
 export const INSTALL_BYPASS_EVENT_TTL = 3;
 const ALLOW_INSTALL_OVERRIDE_PATH = ".adlc/allow-install";
 const INSTALL_COMMAND_PATTERN = /^pnpm\s+(?:install|i)(?:\s|$)/;
@@ -20,25 +23,19 @@ const PACKAGE_SPECIFIER_PATTERNS = [
  * a run-scoped manual override exists, or a short-lived missing-dependency bypass
  * token was recorded from real Bash output.
  *
- * Policy split:
- * - manifest/lockfile drift -> always allow
- * - evidence bypass -> one-shot automatic allow
- * - `.adlc/allow-install` -> manual override for the current run only, cleared on SubagentStop
+ * Pure policy: no I/O, no state mutations. Caller pre-fetches { manifestDiff, overrideReason }
+ * and applies any state side-effects (bypass consumption, expiry clearing) after the decision.
  */
-export function checkInstallGate(event, state, cwd) {
+export function checkInstallGate(event, state, { manifestDiff, overrideReason }) {
     if (event.toolName !== "Bash" || !isInstallCommand(event.commandFingerprint)) {
-        clearExpiredInstallBypass(state, event.index);
         return null;
     }
 
-    if (hasManifestDiff(cwd)) {
-        clearExpiredInstallBypass(state, event.index);
+    if (manifestDiff) {
         return null;
     }
 
-    const overrideReason = readInstallOverride(cwd);
     if (overrideReason) {
-        clearExpiredInstallBypass(state, event.index);
         return {
             action: "allow",
             outcome: "install-override-allowed",
@@ -46,7 +43,7 @@ export function checkInstallGate(event, state, cwd) {
         };
     }
 
-    if (consumeInstallBypass(state, event.index)) {
+    if (isValidBypass(state.installBypass, event.index)) {
         return {
             action: "allow",
             outcome: "install-bypass-consumed"
@@ -70,7 +67,11 @@ export function checkInstallGate(event, state, cwd) {
     };
 }
 
-export function recordInstallBypassFromResult(state, toolName, toolInput = {}, payload = {}) {
+/**
+ * Pure: extracts bypass data from a tool result payload without mutating state.
+ * Caller applies the bypass to state if a non-null value is returned.
+ */
+export function findInstallBypassData(state, toolName, toolInput = {}, payload = {}) {
     if (toolName !== "Bash") {
         return null;
     }
@@ -85,17 +86,18 @@ export function recordInstallBypassFromResult(state, toolName, toolInput = {}, p
         return null;
     }
 
-    state.installBypass = {
-        active: true,
-        reason: "missing-dependency-evidence",
-        matchedPattern: evidence.matchedPattern,
-        sourceCommand: command.trim(),
-        createdAt: new Date().toISOString(),
-        remainingUses: 1,
-        expiresAfterEvent: state.eventCount + INSTALL_BYPASS_EVENT_TTL
+    return {
+        bypass: {
+            active: true,
+            reason: "missing-dependency-evidence",
+            matchedPattern: evidence.matchedPattern,
+            sourceCommand: command.trim(),
+            createdAt: new Date().toISOString(),
+            remainingUses: 1,
+            expiresAfterEvent: state.eventCount + INSTALL_BYPASS_EVENT_TTL
+        },
+        evidence
     };
-
-    return evidence;
 }
 
 export function isInstallCommand(command) {
@@ -106,10 +108,6 @@ export function isInstallCommand(command) {
     }
 
     return false;
-}
-
-export function hasInstallOverride(cwd) {
-    return readInstallOverride(cwd) !== null;
 }
 
 export function hasManifestDiff(cwd) {
@@ -123,7 +121,17 @@ export function hasManifestDiff(cwd) {
     }
 }
 
-function consumeInstallBypass(state, eventIndex) {
+export function readInstallOverride(cwd) {
+    const overridePath = resolve(cwd, ALLOW_INSTALL_OVERRIDE_PATH);
+    if (!existsSync(overridePath)) {
+        return null;
+    }
+
+    const reason = readFileSync(overridePath, "utf8").trim();
+    return reason.length > 0 ? reason : null;
+}
+
+export function consumeInstallBypass(state, eventIndex) {
     if (!state.installBypass?.active) {
         return false;
     }
@@ -139,20 +147,22 @@ function consumeInstallBypass(state, eventIndex) {
     return true;
 }
 
-function clearExpiredInstallBypass(state, eventIndex) {
+export function clearExpiredInstallBypass(state, eventIndex) {
     if (state.installBypass?.active && state.installBypass.expiresAfterEvent != null && eventIndex > state.installBypass.expiresAfterEvent) {
         state.installBypass = null;
     }
 }
 
-function readInstallOverride(cwd) {
-    const overridePath = resolve(cwd, ALLOW_INSTALL_OVERRIDE_PATH);
-    if (!existsSync(overridePath)) {
-        return null;
+function isValidBypass(bypass, eventIndex) {
+    if (!bypass?.active) {
+        return false;
     }
 
-    const reason = readFileSync(overridePath, "utf8").trim();
-    return reason.length > 0 ? reason : null;
+    if (bypass.expiresAfterEvent != null && eventIndex > bypass.expiresAfterEvent) {
+        return false;
+    }
+
+    return (bypass.remainingUses ?? 1) > 0;
 }
 
 function findInstallEvidence(payload) {

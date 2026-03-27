@@ -30,6 +30,10 @@ describe("node-modules-read", () => {
         expect(checkNodeModulesRead("Bash", { command: "cd /repo && find node_modules -name '*.d.ts'" })?.reason).toContain("library source");
     });
 
+    it("should block bash inspection of node_modules when path contains s before node_modules", () => {
+        expect(checkNodeModulesRead("Bash", { command: "cat /some/node_modules/pkg/index.js" })?.reason).toContain("library source");
+    });
+
     it("should allow bash commands that do not inspect node_modules", () => {
         expect(checkNodeModulesRead("Bash", { command: "rg PlantList packages/core-plants/src" })).toBeNull();
     });

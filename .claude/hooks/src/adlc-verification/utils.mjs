@@ -3,11 +3,11 @@
  * All functions are pure — no module-level state.
  */
 
-import { exec as execCb, execSync } from "node:child_process";
+import { execSync } from "node:child_process";
 import { readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
-const RUN_TIMEOUT = 2 * 60_000; // 2 min per command
+export { run } from "../shared/run.mjs";
 
 // ── .adlc artifact helpers ─────────────────────────────────
 
@@ -33,20 +33,6 @@ export function listFiles(cwd, relativeDir, ext) {
 }
 
 // ── Shell / git helpers ────────────────────────────────────
-
-/** Run a command asynchronously. Never rejects — inspect `ok`. */
-export function run(cwd, cmd, opts = {}) {
-    return new Promise(done => {
-        execCb(cmd, { cwd, maxBuffer: 10 * 1024 * 1024, timeout: RUN_TIMEOUT, ...opts }, (error, stdout, stderr) => {
-            done({
-                ok: !error,
-                stdout: String(stdout),
-                stderr: String(stderr),
-                code: error?.code
-            });
-        });
-    });
-}
 
 /** Files changed in the working tree (modified + untracked) relative to cwd. */
 export function getChangedFiles(cwd) {

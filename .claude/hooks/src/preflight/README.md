@@ -161,19 +161,23 @@ Why this was added:
 Blocked:
 
 - `pnpm typecheck`
+- `pnpm run typecheck`
 
 Allowed:
 
-- `pnpm --filter <pkg> typecheck`
+- `pnpm lint` — full lint pipeline including typecheck, cached via turbo
+- `pnpm exec turbo run typecheck` — typecheck-only across all packages, cached
+- `pnpm exec turbo run typecheck --filter=@package` — scoped to one package, cached
 
 Reason:
 
-- full-workspace typecheck is expensive and often repeated blindly
+- `pnpm typecheck` runs `tsgo` at the root only — no turbo, no per-package checks, no caching
+- agents were repeating it multiple times with no new information between runs
 
 Why this was added:
 
-- agents were rerunning the full workspace typecheck several times in the same run with little or no new information
-- the cost is minutes of wasted time when a scoped typecheck or the repo’s normal lint pipeline would have been enough
+- agents were rerunning the bare root typecheck several times in the same run
+- the alternatives go through turbo and benefit from caching, so a second run is near-instant
 
 ### `node_modules` read rule
 

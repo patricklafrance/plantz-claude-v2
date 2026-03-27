@@ -5,6 +5,8 @@ import { RECOVERY_DIAGNOSIS_PATH, normalizePath } from "./utils.mjs";
 
 const RECOVERY_FILE = "supervisor-recovery.json";
 
+// ── Persistence ──────────────────────────────────────────────────────────────
+
 export function readRecovery(cwd) {
     try {
         return JSON.parse(readFileSync(resolve(cwd, ".adlc", RECOVERY_FILE), "utf8"));
@@ -27,6 +29,8 @@ export function clearRecovery(cwd) {
     }
 }
 
+// ── Domain logic ─────────────────────────────────────────────────────────────
+
 export function createRecovery(state, event, spec) {
     const attempt = (state.policyAttempts[spec.policy] ?? 0) + 1;
     state.policyAttempts[spec.policy] = attempt;
@@ -44,7 +48,7 @@ export function createRecovery(state, event, spec) {
         requiredActions: spec.requiredActions ?? [],
         exitCriteria: spec.exitCriteria ?? [],
         status: "active",
-        progress: { ...(spec.progress ?? {}) }
+        progress: { ...spec.progress }
     };
 }
 

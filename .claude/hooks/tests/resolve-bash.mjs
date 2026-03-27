@@ -13,7 +13,7 @@ import { join } from "node:path";
 function resolve() {
     // 1. Try PATH
     try {
-        execFileSync("bash", ["--version"], { encoding: "utf8", timeout: 5_000, stdio: "pipe" });
+        execFileSync("bash", ["--version"], { encoding: "utf8", timeout: 1_000, stdio: "pipe" });
         return { path: "bash" };
     } catch {
         // not on PATH

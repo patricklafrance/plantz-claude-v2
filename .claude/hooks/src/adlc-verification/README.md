@@ -125,7 +125,7 @@ What this improves:
 What the hook enforces:
 
 - formatting is auto-fixed first
-- lint and tests must pass
+- build, lint, and tests must pass
 - file-level disable comments are rejected
 - secrets are rejected
 - import-boundary violations are rejected

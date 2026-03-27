@@ -8,7 +8,13 @@ import { formatRecoveryMessage } from "../recovery.mjs";
  * - circuit breaker after 6 consecutive browser calls
  * - hard budget after 30 total browser calls in a run
  */
+// After 6 consecutive browser calls with no other tool activity, the agent is likely
+// stuck retrying an interaction. Fires early enough to interrupt a spiral before it
+// consumes significant tokens.
 export const BROWSER_CIRCUIT_BREAKER_THRESHOLD = 6;
+
+// Total browser calls allowed per agent run. Healthy verification uses ~7 calls;
+// 30 leaves headroom for complex UI workflows while still capping runaway loops.
 export const BROWSER_TOTAL_BUDGET = 30;
 
 const SCREENSHOT_MESSAGE = [
@@ -72,7 +78,6 @@ export default function checkBrowserThrash(event, state) {
     }
 
     if (event.isScreenshotCommand && !state.browser.screenshotNudgeFired) {
-        state.browser.screenshotNudgeFired = true;
         return { action: "block", severity: "nudge", reason: SCREENSHOT_MESSAGE };
     }
 

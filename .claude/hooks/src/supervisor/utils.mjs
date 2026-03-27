@@ -1,3 +1,6 @@
+// Rolling window size for pattern detection (repeated-edit, tool-thrash).
+// 12 events covers a typical decision cycle (read → edit → test → diagnose) several
+// times over without unbounded state growth.
 export const RECENT_EVENT_WINDOW = 12;
 export const RECOVERY_DIAGNOSIS_PATH = ".adlc/supervisor-recovery.md";
 const SEGMENT_SPLIT = /\s*(?:&&|\|\||;)\s*/;

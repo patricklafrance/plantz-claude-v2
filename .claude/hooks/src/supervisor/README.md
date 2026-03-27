@@ -72,13 +72,10 @@ The main rule is:
     - append-only event logging
 
 - `recovery.mjs`
-    - recovery-contract helpers
+    - recovery-contract persistence, domain logic, and orchestration hooks (`handleRecoveryGate`, `finalizeRecovery`)
 
 - `policies/`
     - policy logic
-
-- `post-tool-handlers/`
-    - result-phase evidence handlers
 
 ## Policies
 
