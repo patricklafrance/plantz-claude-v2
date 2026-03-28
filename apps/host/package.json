@@ -12,6 +12,7 @@
         "typecheck": "tsgo"
     },
     "dependencies": {
+        "@modules/management-household": "workspace:*",
         "@modules/management-plants": "workspace:*",
         "@modules/management-user": "workspace:*",
         "@modules/today-landing-page": "workspace:*",

@@ -8,6 +8,7 @@
     "type": "module",
     "scripts": {
         "dev-host": "turbo run dev --filter=@apps/host",
+        "dev-management-household": "cross-env MODULES=management/household pnpm dev-host",
         "dev-management-plants": "cross-env MODULES=management/plants pnpm dev-host",
         "dev-management-user": "cross-env MODULES=management/user pnpm dev-host",
         "dev-management-storybook": "turbo run dev --filter=@apps/management-storybook",

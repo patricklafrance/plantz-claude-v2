@@ -11,6 +11,7 @@ plantz-claude/
   apps/
     host/                          # Squide host application (@apps/host)
     management/
+      household/                   # Management domain — household module (@modules/management-household)
       plants/                      # Management domain — plants module (@modules/management-plants)
       user/                        # Management domain — user profile module (@modules/management-user)
       storybook/                   # Management domain Storybook (@apps/management-storybook)
