@@ -11,7 +11,9 @@ const defaultFilters: PlantFilters = {
     soilType: "",
     wateringFrequency: null,
     wateringType: null,
-    dueForWatering: false
+    dueForWatering: false,
+    household: null,
+    assignedTo: null
 };
 
 const meta = {
@@ -124,7 +126,9 @@ export const AllFiltersActive: Story = {
             soilType: "sand",
             wateringFrequency: "2-weeks",
             wateringType: "deep",
-            dueForWatering: true
+            dueForWatering: true,
+            household: null,
+            assignedTo: null
         },
         hasActiveFilters: true
     }

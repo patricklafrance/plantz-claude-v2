@@ -25,7 +25,11 @@ export function isDueForWatering(plant: Plant, now?: Date): boolean {
     return next <= today;
 }
 
-export function applyPlantFilters(plants: Plant[], filters: PlantFilters): Plant[] {
+export interface PlantFilterContext {
+    assignmentMap?: Map<string, { assignedUserId?: string }>;
+}
+
+export function applyPlantFilters(plants: Plant[], filters: PlantFilters, context?: PlantFilterContext): Plant[] {
     let result = plants;
 
     if (filters.name) {
@@ -53,6 +57,16 @@ export function applyPlantFilters(plants: Plant[], filters: PlantFilters): Plant
     if (filters.soilType) {
         const needle = filters.soilType.toLowerCase();
         result = result.filter(p => p.soilType?.toLowerCase().includes(needle));
+    }
+    if (filters.household) {
+        result = result.filter(p => p.householdId === filters.household);
+    }
+    if (filters.assignedTo && context?.assignmentMap) {
+        const targetUserId = filters.assignedTo;
+        result = result.filter(p => {
+            const assignment = context.assignmentMap!.get(p.id);
+            return assignment?.assignedUserId === targetUserId;
+        });
     }
 
     return result;

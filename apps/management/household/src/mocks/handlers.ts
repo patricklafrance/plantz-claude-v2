@@ -49,6 +49,14 @@ export const managementHouseholdHandlers = [
             createdAt: new Date()
         } as Household);
 
+        // Auto-add the creator as a member so the household appears in membership-based lookups
+        membersDb.add({
+            id: `member-${userId}-${id}`,
+            householdId: id,
+            userId,
+            joinedAt: new Date()
+        });
+
         return HttpResponse.json(household, { status: 201 });
     }),
 

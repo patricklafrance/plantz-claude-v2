@@ -9,6 +9,8 @@ interface FilterBarProps {
     onClear: () => void;
     hasActiveFilters: boolean;
     showDueForWatering?: boolean;
+    householdOptions?: readonly { id: string; label: string }[];
+    memberOptions?: readonly { id: string; label: string }[];
 }
 
 function FilterSelect({
@@ -44,7 +46,15 @@ function FilterSelect({
     );
 }
 
-export function FilterBar({ filters, onFilterChange, onClear, hasActiveFilters, showDueForWatering = true }: FilterBarProps) {
+export function FilterBar({
+    filters,
+    onFilterChange,
+    onClear,
+    hasActiveFilters,
+    showDueForWatering = true,
+    householdOptions,
+    memberOptions
+}: FilterBarProps) {
     return (
         <div className="border-border bg-muted/30 flex flex-wrap items-center gap-3 rounded-lg border p-3">
             <div className="flex items-center gap-2">
@@ -103,6 +113,17 @@ export function FilterBar({ filters, onFilterChange, onClear, hasActiveFilters, 
                         onCheckedChange={checked => onFilterChange("dueForWatering", checked)}
                     />
                 </div>
+            )}
+            {householdOptions && householdOptions.length > 0 && (
+                <FilterSelect label="Household" value={filters.household} onChange={v => onFilterChange("household", v)} options={householdOptions} />
+            )}
+            {memberOptions && memberOptions.length > 0 && (
+                <FilterSelect
+                    label="Assigned to"
+                    value={filters.assignedTo}
+                    onChange={v => onFilterChange("assignedTo", v)}
+                    options={memberOptions}
+                />
             )}
             {hasActiveFilters && (
                 <Button variant="ghost" size="xs" onClick={onClear}>

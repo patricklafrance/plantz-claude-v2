@@ -21,6 +21,11 @@ interface HouseholdMember {
     name: string;
 }
 
+interface HouseholdInfo {
+    id: string;
+    name: string;
+}
+
 function resolveActorName(actorId: string | undefined, memberNameMap: Map<string, string>): string | undefined {
     if (!actorId) {
         return undefined;
@@ -35,6 +40,7 @@ export function LandingPage() {
     const [wateredTodayMap, setWateredTodayMap] = useState<Map<string, string>>(new Map());
     const [assignments, setAssignments] = useState<ResponsibilityAssignment[]>([]);
     const [members, setMembers] = useState<HouseholdMember[]>([]);
+    const [households, setHouseholds] = useState<HouseholdInfo[]>([]);
     const [isWatering, setIsWatering] = useState(false);
     const listRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
@@ -49,31 +55,22 @@ export function LandingPage() {
         Promise.all([
             fetch("/api/today/assignments", { headers }).then(r => (r.ok ? r.json() : [])),
             fetch("/api/today/household-members", { headers }).then(r => (r.ok ? r.json() : [])),
-            fetch("/api/today/watered-today", { headers }).then(r => (r.ok ? r.json() : []))
+            fetch("/api/today/watered-today", { headers }).then(r => (r.ok ? r.json() : [])),
+            fetch("/api/today/households", { headers }).then(r => (r.ok ? r.json() : []))
         ]).then(
-            ([assignmentsData, membersData, wateredTodayData]: [
+            ([assignmentsData, membersData, wateredTodayData, householdsData]: [
                 ResponsibilityAssignment[],
                 HouseholdMember[],
-                { plantId: string; actorId: string }[]
+                { plantId: string; actorId: string }[],
+                HouseholdInfo[]
             ]) => {
                 setAssignments(assignmentsData);
                 setMembers(membersData);
                 setWateredTodayMap(new Map(wateredTodayData.map(w => [w.plantId, w.actorId])));
+                setHouseholds(householdsData);
             }
         );
     }, []);
-
-    const plants = useMemo(() => {
-        if (!allPlants) {
-            return [];
-        }
-
-        // First sort by name, then filter to only plants due for watering, then apply user filters
-        const sorted = allPlants.toSorted((a, b) => a.name.localeCompare(b.name));
-        const duePlants = sorted.filter(p => isDueForWatering(p));
-
-        return applyPlantFilters(duePlants, filters);
-    }, [allPlants, filters]);
 
     const assignmentMap = useMemo(() => {
         const map = new Map<string, ResponsibilityAssignment>();
@@ -83,6 +80,17 @@ export function LandingPage() {
         return map;
     }, [assignments]);
 
+    const plants = useMemo(() => {
+        if (!allPlants) {
+            return [];
+        }
+
+        const sorted = allPlants.toSorted((a, b) => a.name.localeCompare(b.name));
+        const duePlants = sorted.filter(p => isDueForWatering(p));
+
+        return applyPlantFilters(duePlants, filters, { assignmentMap });
+    }, [allPlants, filters, assignmentMap]);
+
     const memberNameMap = useMemo(() => {
         const map = new Map<string, string>();
         for (const m of members) {
@@ -90,6 +98,14 @@ export function LandingPage() {
         }
         return map;
     }, [members]);
+
+    const householdNameMap = useMemo(() => {
+        const map = new Map<string, string>();
+        for (const h of households) {
+            map.set(h.id, h.name);
+        }
+        return map;
+    }, [households]);
 
     const currentUserId = useMemo(() => getCurrentUserId(), []);
 
@@ -220,6 +236,8 @@ export function LandingPage() {
                 onClear={clearFilters}
                 hasActiveFilters={hasActiveFilters}
                 showDueForWatering={false}
+                householdOptions={households.map(h => ({ id: h.id, label: h.name }))}
+                memberOptions={members.map(m => ({ id: m.userId, label: m.name }))}
             />
 
             {selectedCount > 0 && (
@@ -261,6 +279,7 @@ export function LandingPage() {
                                     selected={selectedIds.has(plant.id)}
                                     onToggleSelect={alreadyWatered ? undefined : toggleSelect}
                                     onClick={handleViewDetail}
+                                    householdName={plant.householdId ? householdNameMap.get(plant.householdId) : undefined}
                                     badge={
                                         alreadyWatered ? (
                                             <span className="text-muted-foreground text-xs" aria-label={`Watered today by ${wateredByName}`}>

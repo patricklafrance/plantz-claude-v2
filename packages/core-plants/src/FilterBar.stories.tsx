@@ -11,7 +11,9 @@ const defaultFilters: PlantFilters = {
     soilType: "",
     wateringFrequency: null,
     wateringType: null,
-    dueForWatering: false
+    dueForWatering: false,
+    household: null,
+    assignedTo: null
 };
 
 const meta = {

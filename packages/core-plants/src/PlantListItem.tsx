@@ -20,6 +20,8 @@ interface PlantListItemProps {
     onMarkWatered?: ((plant: Plant) => void) | undefined;
     /** Optional badge or status indicator rendered next to the plant name */
     badge?: ReactNode | undefined;
+    /** Household name to display on the SharedBadge when the plant belongs to a household */
+    householdName?: string | undefined;
 }
 
 export const PlantListItem = memo(function PlantListItem({
@@ -30,7 +32,8 @@ export const PlantListItem = memo(function PlantListItem({
     onEdit,
     onDelete,
     onMarkWatered,
-    badge
+    badge,
+    householdName
 }: PlantListItemProps) {
     const due = isDueForWatering(plant);
 
@@ -68,7 +71,7 @@ export const PlantListItem = memo(function PlantListItem({
                             <span className="sr-only">Due for watering</span>
                         </>
                     )}
-                    {plant.householdId !== undefined && <SharedBadge />}
+                    {plant.householdId !== undefined && <SharedBadge householdName={householdName} />}
                     {badge}
                 </div>
                 <span className="text-muted-foreground w-full truncate text-xs whitespace-nowrap md:hidden">

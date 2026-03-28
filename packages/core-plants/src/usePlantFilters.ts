@@ -9,6 +9,8 @@ export interface PlantFilters {
     wateringFrequency: string | null;
     wateringType: string | null;
     dueForWatering: boolean;
+    household: string | null;
+    assignedTo: string | null;
 }
 
 const defaultFilters: PlantFilters = {
@@ -19,7 +21,9 @@ const defaultFilters: PlantFilters = {
     soilType: "",
     wateringFrequency: null,
     wateringType: null,
-    dueForWatering: false
+    dueForWatering: false,
+    household: null,
+    assignedTo: null
 };
 
 export function usePlantFilters() {
@@ -41,7 +45,9 @@ export function usePlantFilters() {
         filters.soilType !== "" ||
         filters.wateringFrequency !== null ||
         filters.wateringType !== null ||
-        filters.dueForWatering;
+        filters.dueForWatering ||
+        filters.household !== null ||
+        filters.assignedTo !== null;
 
     return { filters, updateFilter, clearFilters, hasActiveFilters };
 }

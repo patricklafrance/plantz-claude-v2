@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 
-import { getUserId, membersDb, usersDb } from "@packages/core-module/db";
+import { getUserId, householdsDb, membersDb, usersDb } from "@packages/core-module/db";
 
 function isSameDay(a: Date, b: Date): boolean {
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -129,6 +129,30 @@ export const todayPlantHandlers = [
         }
 
         return HttpResponse.json(allMembers);
+    }),
+
+    http.get("/api/today/households", ({ request }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const memberships = membersDb.getByUser(userId);
+        const seen = new Set<string>();
+        const households: { id: string; name: string }[] = [];
+
+        for (const m of memberships) {
+            if (!seen.has(m.householdId)) {
+                seen.add(m.householdId);
+                const h = householdsDb.getById(m.householdId);
+                if (h) {
+                    households.push({ id: h.id, name: h.name });
+                }
+            }
+        }
+
+        return HttpResponse.json(households);
     }),
 
     http.delete("/api/today/plants/:id", ({ params }) => {
