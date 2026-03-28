@@ -12,13 +12,13 @@
 
 ## Domains
 
-| Domain         | Mental model            | Modules                  | Scope                                                                                                      |
-| -------------- | ----------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| **management** | Admin and configuration | `management/household`   | Household management — create, rename, and delete the household that groups users and plants               |
-|                |                         | `management/plants`      | Plant inventory ownership — CRUD, metadata, per-user plant collections                                     |
-|                |                         | `management/user`        | User identity and preferences — profile editing, display settings                                          |
-| **today**      | Daily care dashboard    | `today/landing-page`     | Daily care execution — what needs attention now, watering actions, care event recording, schedule insights |
-|                |                         | `today/vacation-planner` | Absence-aware care planning — trip dates, plant forecasts, delegation                                      |
+| Domain         | Mental model            | Modules                  | Scope                                                                                                                            |
+| -------------- | ----------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| **management** | Admin and configuration | `management/household`   | Household management — CRUD, member invite/remove, responsibility assignment configuration (fixed/rotating/unassigned per plant) |
+|                |                         | `management/plants`      | Plant inventory ownership — CRUD, metadata, per-user plant collections, household assignment (optional `householdId` on plants)  |
+|                |                         | `management/user`        | User identity and preferences — profile editing, display settings                                                                |
+| **today**      | Daily care dashboard    | `today/landing-page`     | Daily care execution — own and shared-household plants, actor-tracked watering, responsibility badges, duplicate-watering guards |
+|                |                         | `today/vacation-planner` | Absence-aware care planning — trip dates, plant forecasts, delegation                                                            |
 
 The **host** is not a domain — it's a thin bootstrap wiring `registerShell` with domain modules.
 

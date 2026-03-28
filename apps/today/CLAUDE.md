@@ -33,6 +33,8 @@ Modules in this domain own their API surface under `/api/today/`. Each module ha
 
 Components read with `useLiveQuery`. Mutations go through MSW handlers (`DELETE /api/today/plants/:id` and `DELETE /api/today/plants`). No `api/` folder — the collection handles data fetching internally via `queryCollectionOptions`.
 
+The landing-page module also fetches supplementary household data via `fetch` + `useState` (not collections): `/api/today/assignments`, `/api/today/watered-today`, `/api/today/household-members`. The plants endpoint (`GET /api/today/plants`) merges user-owned and household-shared plants. Care event mutations include `actorId` for actor tracking, and a 409 guard prevents duplicate watering of the same plant on the same day.
+
 See `msw-tanstack-query.md` in `.claude/skills/plantz-adlc-*/references/` for implementation patterns.
 
 ## Adding a Module

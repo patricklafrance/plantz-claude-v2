@@ -28,10 +28,10 @@ Story globs in `.storybook/main.ts` must include every module in this domain. Wh
 
 Modules in this domain own their API surface under `/api/management/`. Each module has:
 
-- `src/plantsCollection.ts` — TanStack DB collection factory (`createManagementPlantsCollection`) called during registration + optimistic actions via `createOptimisticAction`. The collection is provided to components via `ManagementPlantsCollectionProvider` React Context.
-- `src/mocks/` — MSW handlers scoped to `/api/management/<entity>`
+- A TanStack DB collection factory called during Squide registration, provided to components via React Context. `management/plants` uses `createManagementPlantsCollection` from `@packages/core-plants/collection`; `management/household` defines its own `createManagementHouseholdCollection` following the same `createCollection` + `queryCollectionOptions` pattern.
+- `src/mocks/` — MSW handlers scoped to `/api/management/<entity>` (and sub-resources like `/api/management/households/:id/members`)
 
-Components read with `useLiveQuery` and write with actions from `createManagementPlantActions`. No `api/` folder — the collection handles data fetching internally via `queryCollectionOptions`.
+Components read with `useLiveQuery` and write with optimistic actions from `createOptimisticAction`. Supplementary read-mostly data (household members, responsibility assignments) uses plain `fetch` + `useState` instead of a collection. No `api/` folder — the collection handles data fetching internally via `queryCollectionOptions`.
 
 See `msw-tanstack-query.md` in `.claude/skills/plantz-adlc-*/references/` for implementation patterns.
 
