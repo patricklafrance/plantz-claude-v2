@@ -213,6 +213,9 @@ export function LandingPage() {
 
     const detailPlantWateredBy = detailPlant ? wateredTodayMap.get(detailPlant.id) : undefined;
     const detailPlantWateredByName = resolveActorName(detailPlantWateredBy, memberNameMap);
+    const detailPlantHouseholdName = detailPlant?.householdId ? householdNameMap.get(detailPlant.householdId) : undefined;
+    const detailPlantAssignment = detailPlant ? assignmentMap.get(detailPlant.id) : undefined;
+    const detailPlantAssignedMemberName = detailPlantAssignment?.assignedUserId ? memberNameMap.get(detailPlantAssignment.assignedUserId) : undefined;
 
     if (!isReady) {
         return (
@@ -317,6 +320,8 @@ export function LandingPage() {
                 wateredTodayByName={detailPlantWateredByName}
                 isWatering={isWatering}
                 onMarkWatered={detailPlantWateredBy ? undefined : handleMarkWatered}
+                householdName={detailPlantHouseholdName}
+                assignedMemberName={detailPlantAssignedMemberName}
             />
         </div>
     );

@@ -157,15 +157,15 @@ export function HouseholdPage() {
         <div className="flex flex-col gap-4 p-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-xl font-semibold">Household</h1>
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
+                    <Plus data-icon="inline-start" aria-hidden="true" />
+                    Create Household
+                </Button>
             </div>
 
             {!household ? (
                 <div className="border-border flex flex-col items-center gap-4 rounded-lg border p-8 text-center">
                     <p className="text-muted-foreground text-sm">You don&apos;t have a household yet</p>
-                    <Button size="sm" onClick={() => setCreateOpen(true)}>
-                        <Plus data-icon="inline-start" aria-hidden="true" />
-                        Create Household
-                    </Button>
                 </div>
             ) : (
                 <div className="border-border flex flex-col gap-6 rounded-lg border p-6">

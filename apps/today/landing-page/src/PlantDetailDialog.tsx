@@ -16,6 +16,10 @@ interface PlantDetailDialogProps {
     wateredTodayByName?: string;
     /** Whether a watering action is in progress */
     isWatering?: boolean;
+    /** Household name if the plant is shared */
+    householdName?: string;
+    /** Name of the member responsible for this plant, if assigned */
+    assignedMemberName?: string;
 }
 
 export function PlantDetailDialog({
@@ -25,7 +29,9 @@ export function PlantDetailDialog({
     careSection,
     onMarkWatered,
     wateredTodayByName,
-    isWatering = false
+    isWatering = false,
+    householdName,
+    assignedMemberName
 }: PlantDetailDialogProps) {
     if (!plant) {
         return null;
@@ -88,6 +94,18 @@ export function PlantDetailDialog({
                         <span className="text-muted-foreground text-xs font-medium">Next watering date</span>
                         <span className="text-sm">{format(plant.nextWateringDate, "PPP")}</span>
                     </div>
+                    {householdName && (
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-medium">Household</span>
+                                <span className="text-sm">{householdName}</span>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-medium">Assigned to</span>
+                                <span className="text-sm">{assignedMemberName ?? "Anyone"}</span>
+                            </div>
+                        </div>
+                    )}
                     <div className="text-muted-foreground text-xs">
                         Created: {format(plant.creationDate, "PPP")} · Last updated: {format(plant.lastUpdateDate, "PPP")}
                     </div>

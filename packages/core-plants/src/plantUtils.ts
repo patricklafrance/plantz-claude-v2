@@ -26,7 +26,7 @@ export function isDueForWatering(plant: Plant, now?: Date): boolean {
 }
 
 export interface PlantFilterContext {
-    assignmentMap?: Map<string, { assignedUserId?: string }>;
+    assignmentMap?: Map<string, { assignmentType?: string; assignedUserId?: string }>;
 }
 
 export function applyPlantFilters(plants: Plant[], filters: PlantFilters, context?: PlantFilterContext): Plant[] {
@@ -65,7 +65,13 @@ export function applyPlantFilters(plants: Plant[], filters: PlantFilters, contex
         const targetUserId = filters.assignedTo;
         result = result.filter(p => {
             const assignment = context.assignmentMap!.get(p.id);
-            return assignment?.assignedUserId === targetUserId;
+            if (!assignment) {
+                return false;
+            }
+            // "Fixed" to this member, or "unassigned"/"rotating" (anyone can act)
+            return (
+                assignment.assignedUserId === targetUserId || assignment.assignmentType === "unassigned" || assignment.assignmentType === "rotating"
+            );
         });
     }
 
