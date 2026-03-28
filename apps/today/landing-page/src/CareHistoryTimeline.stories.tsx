@@ -81,3 +81,34 @@ export const LongHistory: Story = {
         })
     }
 };
+
+// Events with actorId set — actor names should appear next to each event
+export const WithActorNames: Story = {
+    args: {
+        events: [
+            makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "watered", actorId: "user-alice" }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 10), eventType: "skipped", actorId: "user-bob", notes: "Soil still moist" }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 5), eventType: "watered", actorId: "user-alice" }),
+            makeCareEvent({ eventDate: new Date(2024, 5, 28), eventType: "delegated", actorId: "user-bob" })
+        ],
+        actorNameMap: new Map([
+            ["user-alice", "Alice"],
+            ["user-bob", "Bob"]
+        ])
+    }
+};
+
+// Mix of events with and without actorId
+export const PartialActorNames: Story = {
+    args: {
+        events: [
+            makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "watered", actorId: "user-alice" }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 10), eventType: "skipped" }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 5), eventType: "watered", actorId: "user-bob" })
+        ],
+        actorNameMap: new Map([
+            ["user-alice", "Alice"],
+            ["user-bob", "Bob"]
+        ])
+    }
+};

@@ -12,9 +12,21 @@ interface PlantDetailDialogProps {
     onOpenChange: (open: boolean) => void;
     careSection?: ReactNode;
     onMarkWatered?: () => void;
+    /** Name of the member who already watered this plant today, if any */
+    wateredTodayByName?: string;
+    /** Whether a watering action is in progress */
+    isWatering?: boolean;
 }
 
-export function PlantDetailDialog({ plant, open, onOpenChange, careSection, onMarkWatered }: PlantDetailDialogProps) {
+export function PlantDetailDialog({
+    plant,
+    open,
+    onOpenChange,
+    careSection,
+    onMarkWatered,
+    wateredTodayByName,
+    isWatering = false
+}: PlantDetailDialogProps) {
     if (!plant) {
         return null;
     }
@@ -87,11 +99,17 @@ export function PlantDetailDialog({ plant, open, onOpenChange, careSection, onMa
                     )}
                 </div>
                 <DialogFooter showCloseButton>
-                    {onMarkWatered && (
-                        <Button variant="default" className="sm:mr-auto" onClick={onMarkWatered}>
-                            <Droplets data-icon="inline-start" aria-hidden="true" />
-                            Mark as Watered
-                        </Button>
+                    {wateredTodayByName ? (
+                        <p className="text-muted-foreground text-sm sm:mr-auto" role="status">
+                            Watered today by {wateredTodayByName}
+                        </p>
+                    ) : (
+                        onMarkWatered && (
+                            <Button variant="default" className="sm:mr-auto" onClick={onMarkWatered} disabled={isWatering} aria-busy={isWatering}>
+                                <Droplets data-icon="inline-start" aria-hidden="true" />
+                                {isWatering ? "Watering..." : "Mark as Watered"}
+                            </Button>
+                        )
                     )}
                 </DialogFooter>
             </DialogContent>

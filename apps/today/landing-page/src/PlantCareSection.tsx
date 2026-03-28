@@ -9,9 +9,10 @@ interface PlantCareSectionProps {
     plantId: string;
     wateringFrequency?: string;
     onAdjustmentAccepted?: () => void;
+    actorNameMap?: Map<string, string>;
 }
 
-export function PlantCareSection({ plantId, wateringFrequency, onAdjustmentAccepted }: PlantCareSectionProps) {
+export function PlantCareSection({ plantId, wateringFrequency, onAdjustmentAccepted, actorNameMap }: PlantCareSectionProps) {
     const { events, isLoading } = useCareEvents(plantId);
     const insights = computeCareInsights(events);
 
@@ -33,7 +34,7 @@ export function PlantCareSection({ plantId, wateringFrequency, onAdjustmentAccep
             </div>
             <div className="flex flex-col gap-2">
                 <h3 className="text-sm font-semibold">Care History</h3>
-                <CareHistoryTimeline events={events} />
+                <CareHistoryTimeline events={events} actorNameMap={actorNameMap} />
             </div>
             {currentIntervalDays !== null && onAdjustmentAccepted && (
                 <AdjustmentSection plantId={plantId} currentIntervalDays={currentIntervalDays} onAdjustmentAccepted={onAdjustmentAccepted} />

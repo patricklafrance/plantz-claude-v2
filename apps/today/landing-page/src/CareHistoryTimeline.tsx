@@ -5,6 +5,8 @@ import type { CareEvent } from "@packages/core-plants/care-event";
 
 interface CareHistoryTimelineProps {
     events: CareEvent[];
+    /** Optional map of userId -> display name for resolving actor names */
+    actorNameMap?: Map<string, string>;
 }
 
 function groupByDay(events: CareEvent[]): Map<string, CareEvent[]> {
@@ -24,7 +26,7 @@ function groupByDay(events: CareEvent[]): Map<string, CareEvent[]> {
     return groups;
 }
 
-export function CareHistoryTimeline({ events }: CareHistoryTimelineProps) {
+export function CareHistoryTimeline({ events, actorNameMap }: CareHistoryTimelineProps) {
     if (events.length === 0) {
         return (
             <div className="flex items-center justify-center py-4">
@@ -41,12 +43,21 @@ export function CareHistoryTimeline({ events }: CareHistoryTimelineProps) {
             {[...grouped.entries()].map(([dayLabel, dayEvents]) => (
                 <div key={dayLabel} className="flex flex-col gap-1.5">
                     <span className="text-muted-foreground text-xs font-medium">{dayLabel}</span>
-                    {dayEvents.map(event => (
-                        <div key={event.id} className="flex items-center gap-2">
-                            <CareEventBadge eventType={event.eventType} />
-                            {event.notes && <span className="text-muted-foreground truncate text-xs">{event.notes}</span>}
-                        </div>
-                    ))}
+                    {dayEvents.map(event => {
+                        const actorName = event.actorId ? (actorNameMap?.get(event.actorId) ?? event.actorId) : undefined;
+
+                        return (
+                            <div key={event.id} className="flex items-center gap-2">
+                                <CareEventBadge eventType={event.eventType} />
+                                {actorName && (
+                                    <span className="text-muted-foreground shrink-0 text-xs" aria-label={`by ${actorName}`}>
+                                        by {actorName}
+                                    </span>
+                                )}
+                                {event.notes && <span className="text-muted-foreground truncate text-xs">{event.notes}</span>}
+                            </div>
+                        );
+                    })}
                 </div>
             ))}
         </div>

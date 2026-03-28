@@ -34,12 +34,37 @@ export const todayCareEventHandlers = [
 
         const body = (await request.json()) as { plantId: string; eventType: CareEventType; notes?: string };
 
+        // Duplicate-watering guard: return 409 if plant was already watered today
+        if (body.eventType === "watered") {
+            const today = new Date();
+            const existingEvents = careEventsDb.getAllByPlant(body.plantId);
+            const alreadyWateredToday = existingEvents.some(e => {
+                if (e.eventType !== "watered") {
+                    return false;
+                }
+                const eventDay = new Date(e.eventDate);
+                return (
+                    eventDay.getFullYear() === today.getFullYear() &&
+                    eventDay.getMonth() === today.getMonth() &&
+                    eventDay.getDate() === today.getDate()
+                );
+            });
+
+            if (alreadyWateredToday) {
+                return new HttpResponse(JSON.stringify({ error: "Plant already watered today" }), {
+                    status: 409,
+                    headers: { "Content-Type": "application/json" }
+                });
+            }
+        }
+
         const event = {
             id: crypto.randomUUID(),
             plantId: body.plantId,
             eventType: body.eventType,
             eventDate: new Date(),
-            notes: body.notes
+            notes: body.notes,
+            actorId: userId
         };
 
         careEventsDb.insert(event);
@@ -68,13 +93,36 @@ export const todayCareEventHandlers = [
         const body = (await request.json()) as { plantIds: string[]; eventType: CareEventType; notes?: string };
         const events = [];
 
+        const today = new Date();
+
         for (const plantId of body.plantIds) {
+            // Skip plants already watered today
+            if (body.eventType === "watered") {
+                const existingEvents = careEventsDb.getAllByPlant(plantId);
+                const alreadyWateredToday = existingEvents.some(e => {
+                    if (e.eventType !== "watered") {
+                        return false;
+                    }
+                    const eventDay = new Date(e.eventDate);
+                    return (
+                        eventDay.getFullYear() === today.getFullYear() &&
+                        eventDay.getMonth() === today.getMonth() &&
+                        eventDay.getDate() === today.getDate()
+                    );
+                });
+
+                if (alreadyWateredToday) {
+                    continue;
+                }
+            }
+
             const event = {
                 id: crypto.randomUUID(),
                 plantId,
                 eventType: body.eventType,
                 eventDate: new Date(),
-                notes: body.notes
+                notes: body.notes,
+                actorId: userId
             };
 
             careEventsDb.insert(event);

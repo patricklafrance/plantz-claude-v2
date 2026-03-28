@@ -1,5 +1,6 @@
 import { Check, Droplets, Pencil, Trash2 } from "lucide-react";
 import { memo, useCallback } from "react";
+import type { ReactNode } from "react";
 
 import { Button, Checkbox } from "@packages/components";
 
@@ -17,6 +18,8 @@ interface PlantListItemProps {
     onEdit?: ((plant: Plant) => void) | undefined;
     onDelete?: ((plant: Plant) => void) | undefined;
     onMarkWatered?: ((plant: Plant) => void) | undefined;
+    /** Optional badge or status indicator rendered next to the plant name */
+    badge?: ReactNode | undefined;
 }
 
 export const PlantListItem = memo(function PlantListItem({
@@ -26,7 +29,8 @@ export const PlantListItem = memo(function PlantListItem({
     onToggleSelect,
     onEdit,
     onDelete,
-    onMarkWatered
+    onMarkWatered,
+    badge
 }: PlantListItemProps) {
     const due = isDueForWatering(plant);
 
@@ -65,6 +69,7 @@ export const PlantListItem = memo(function PlantListItem({
                         </>
                     )}
                     {plant.householdId !== undefined && <SharedBadge />}
+                    {badge}
                 </div>
                 <span className="text-muted-foreground w-full truncate text-xs whitespace-nowrap md:hidden">
                     {plant.wateringQuantity} · {getOptionLabel(wateringTypes, plant.wateringType)} · {getOptionLabel(locations, plant.location)}

@@ -20,7 +20,7 @@ export function createCareEventHandlers(data: CareEventsData) {
             return HttpResponse.json(data);
         }),
         http.post("/api/today/care-events", async ({ request }) => {
-            const body = (await request.json()) as { plantId: string; eventType: string; notes?: string };
+            const body = (await request.json()) as { plantId: string; eventType: string; notes?: string; actorId?: string };
 
             return HttpResponse.json(
                 {
@@ -28,7 +28,8 @@ export function createCareEventHandlers(data: CareEventsData) {
                     plantId: body.plantId,
                     eventType: body.eventType,
                     eventDate: new Date(2024, 6, 20).toISOString(),
-                    notes: body.notes
+                    notes: body.notes,
+                    actorId: body.actorId ?? "user-alice"
                 },
                 { status: 201 }
             );

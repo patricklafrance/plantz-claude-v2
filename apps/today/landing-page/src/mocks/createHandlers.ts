@@ -22,6 +22,15 @@ export function createTodayPlantHandlers(data: PlantsData, activePlan?: Vacation
         }),
         http.delete("/api/today/plants/:id", () => new HttpResponse(null, { status: 204 })),
         http.delete("/api/today/plants", () => new HttpResponse(null, { status: 204 })),
-        http.get("/api/today/vacation-planner/plans/active", () => HttpResponse.json(activePlan ?? null))
+        http.get("/api/today/vacation-planner/plans/active", () => HttpResponse.json(activePlan ?? null)),
+        // Default stub for household-members: Alice and Bob
+        http.get("/api/today/household-members", () =>
+            HttpResponse.json([
+                { userId: "user-alice", name: "Alice" },
+                { userId: "user-bob", name: "Bob" }
+            ])
+        ),
+        // Default stub for watered-today: nothing watered today
+        http.get("/api/today/watered-today", () => HttpResponse.json([]))
     ];
 }
