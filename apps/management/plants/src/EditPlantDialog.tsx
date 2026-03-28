@@ -21,6 +21,8 @@ import {
     SelectValue,
     DatePicker
 } from "@packages/components";
+import { getAuthHeaders } from "@packages/core-module";
+import type { Household } from "@packages/core-module";
 import { locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
 import type { Plant } from "@packages/core-plants";
 
@@ -46,12 +48,21 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
     const [wateringFrequency, setWateringFrequency] = useState("");
     const [wateringQuantity, setWateringQuantity] = useState("");
     const [wateringType, setWateringType] = useState("");
+    const [householdId, setHouseholdId] = useState<string | undefined>(undefined);
+    const [households, setHouseholds] = useState<Household[]>([]);
     const [saved, setSaved] = useState(false);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const plantIdRef = useRef<string | null>(null);
 
     const collection = useManagementPlantsCollection();
     const actions = useMemo(() => createManagementPlantActions(collection), [collection]);
+
+    useEffect(() => {
+        fetch("/api/management/plants/households", { headers: getAuthHeaders() })
+            .then(r => (r.ok ? r.json() : []))
+            .then((data: Household[]) => setHouseholds(data))
+            .catch(() => setHouseholds([]));
+    }, []);
 
     useEffect(() => {
         if (plant) {
@@ -66,6 +77,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
             setWateringFrequency(plant.wateringFrequency);
             setWateringQuantity(plant.wateringQuantity);
             setWateringType(plant.wateringType);
+            setHouseholdId(plant.householdId);
             setSaved(false);
         }
     }, [plant]);
@@ -91,7 +103,8 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                 soilType: soilType.trim() || undefined,
                 wateringFrequency,
                 wateringQuantity: wateringQuantity.trim(),
-                wateringType
+                wateringType,
+                householdId
             });
 
             tx.isPersisted.promise.then(() => {
@@ -102,7 +115,20 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
             // The collection may not contain the plant yet (e.g. initial fetch
             // still in flight). The next debounce cycle will retry.
         }
-    }, [name, description, family, location, luminosity, mistLeaves, soilType, wateringFrequency, wateringQuantity, wateringType, actions]);
+    }, [
+        name,
+        description,
+        family,
+        location,
+        luminosity,
+        mistLeaves,
+        soilType,
+        wateringFrequency,
+        wateringQuantity,
+        wateringType,
+        householdId,
+        actions
+    ]);
 
     useEffect(() => {
         if (!plant || !open) {
@@ -132,6 +158,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
         wateringFrequency,
         wateringQuantity,
         wateringType,
+        householdId,
         plant,
         open,
         saveChanges
@@ -280,6 +307,29 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="edit-quantity">Watering quantity *</Label>
                         <Input id="edit-quantity" value={wateringQuantity} onChange={e => setWateringQuantity(e.target.value)} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="edit-household">Household</Label>
+                        <Select
+                            value={householdId ?? "none"}
+                            onValueChange={v => {
+                                setHouseholdId(v === "none" ? undefined : (v ?? undefined));
+                            }}
+                        >
+                            <SelectTrigger id="edit-household" className="w-full">
+                                <SelectValue>{householdId ? (households.find(h => h.id === householdId)?.name ?? householdId) : "None"}</SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="none">None</SelectItem>
+                                    {households.map(h => (
+                                        <SelectItem key={h.id} value={h.id}>
+                                            {h.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label>Next watering date</Label>

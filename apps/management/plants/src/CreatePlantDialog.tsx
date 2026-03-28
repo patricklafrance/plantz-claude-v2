@@ -1,4 +1,4 @@
-import { useState, useMemo, type FormEvent } from "react";
+import { useState, useMemo, useEffect, type FormEvent } from "react";
 
 import {
     Dialog,
@@ -19,6 +19,8 @@ import {
     SelectValue,
     DatePicker
 } from "@packages/components";
+import { getAuthHeaders } from "@packages/core-module";
+import type { Household } from "@packages/core-module";
 import { locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
 
 import { useManagementPlantsCollection } from "./ManagementPlantsContext.tsx";
@@ -49,11 +51,20 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
     const [wateringQuantity, setWateringQuantity] = useState("");
     const [wateringType, setWateringType] = useState("surface");
     const [firstWateringDate, setFirstWateringDate] = useState<Date | undefined>(defaultFirstWateringDate ?? tomorrow());
+    const [householdId, setHouseholdId] = useState<string | undefined>(undefined);
+    const [households, setHouseholds] = useState<Household[]>([]);
 
     const collection = useManagementPlantsCollection();
     const actions = useMemo(() => createManagementPlantActions(collection), [collection]);
 
     const isValid = name.trim() !== "" && wateringQuantity.trim() !== "" && firstWateringDate !== undefined;
+
+    useEffect(() => {
+        fetch("/api/management/plants/households", { headers: getAuthHeaders() })
+            .then(r => (r.ok ? r.json() : []))
+            .then((data: Household[]) => setHouseholds(data))
+            .catch(() => setHouseholds([]));
+    }, []);
 
     function resetForm() {
         setName("");
@@ -67,6 +78,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
         setWateringQuantity("");
         setWateringType("surface");
         setFirstWateringDate(defaultFirstWateringDate ?? tomorrow());
+        setHouseholdId(undefined);
     }
 
     function handleSubmit(e: FormEvent) {
@@ -86,7 +98,8 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
             wateringFrequency,
             wateringQuantity: wateringQuantity.trim(),
             wateringType,
-            nextWateringDate: firstWateringDate!
+            nextWateringDate: firstWateringDate!,
+            householdId
         });
 
         // Close optimistically — the UI updates instantly via TanStack DB
@@ -262,6 +275,29 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                                 Watering quantity is required.
                             </p>
                         )}
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="create-household">Household</Label>
+                        <Select
+                            value={householdId ?? "none"}
+                            onValueChange={v => {
+                                setHouseholdId(v === "none" ? undefined : (v ?? undefined));
+                            }}
+                        >
+                            <SelectTrigger id="create-household" className="w-full">
+                                <SelectValue>{householdId ? (households.find(h => h.id === householdId)?.name ?? householdId) : "None"}</SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="none">None</SelectItem>
+                                    {households.map(h => (
+                                        <SelectItem key={h.id} value={h.id}>
+                                            {h.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label>First watering date *</Label>

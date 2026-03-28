@@ -6,6 +6,8 @@ import { EditPlantDialog } from "./EditPlantDialog.tsx";
 import { createManagementPlantHandlers } from "./mocks/index.ts";
 import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
 
+const SEED_HOUSEHOLDS = [{ id: "household-green-house", name: "Green House", ownerId: "user-alice", createdAt: new Date(2025, 0, 1) }];
+
 // The dialog auto-saves via PUT after a 500ms debounce. The collection must
 // contain every plant referenced by the stories so the optimistic update in
 // `plantsCollection.update(id, …)` finds the item. Without this the debounce
@@ -16,7 +18,9 @@ const editPlants = [
     makePlant({ id: "test-edit-3", name: "Monstera Deliciosa" }),
     makePlant({ id: "test-edit-4", name: "Monstera Deliciosa" }),
     makePlant({ id: "test-edit-5", name: "Monstera Deliciosa" }),
-    makePlant({ id: "test-edit-6", name: "Monstera Deliciosa" })
+    makePlant({ id: "test-edit-6", name: "Monstera Deliciosa" }),
+    makePlant({ id: "test-edit-7", name: "Monstera Deliciosa", householdId: "household-green-house" }),
+    makePlant({ id: "test-edit-8", name: "Monstera Deliciosa", householdId: "household-green-house" })
 ];
 
 const meta = {
@@ -34,7 +38,7 @@ const meta = {
                 "dark desktop": { theme: "dark", viewport: 1280 }
             }
         },
-        msw: { handlers: createManagementPlantHandlers(editPlants) }
+        msw: { handlers: createManagementPlantHandlers(editPlants, SEED_HOUSEHOLDS) }
     },
     args: {
         open: true,
@@ -140,5 +144,24 @@ export const Closed: Story = {
             name: "Monstera Deliciosa"
         }),
         open: false
+    }
+};
+
+export const WithHousehold: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-7",
+            name: "Monstera Deliciosa",
+            householdId: "household-green-house"
+        })
+    }
+};
+
+export const WithNoHousehold: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-8",
+            name: "Monstera Deliciosa"
+        })
     }
 };

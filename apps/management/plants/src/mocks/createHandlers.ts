@@ -1,11 +1,15 @@
 import { delay, http, HttpResponse } from "msw";
 
+import type { Household } from "@packages/core-module";
 import type { Plant } from "@packages/core-plants";
 
 type PlantsData = Plant[] | "loading" | "error";
 
-export function createManagementPlantHandlers(data: PlantsData) {
+export function createManagementPlantHandlers(data: PlantsData, households: Household[] = []) {
     return [
+        http.get("/api/management/plants/households", () => {
+            return HttpResponse.json(households);
+        }),
         http.get("/api/management/plants", async () => {
             if (data === "loading") {
                 await delay("infinite");

@@ -1,10 +1,23 @@
 import { http, HttpResponse } from "msw";
 
-import { getUserId } from "@packages/core-module/db";
+import { getUserId, householdsDb, membersDb } from "@packages/core-module/db";
 import type { Plant } from "@packages/core-plants";
 import { plantsDb } from "@packages/core-plants/db";
 
 export const managementPlantHandlers = [
+    http.get("/api/management/plants/households", ({ request }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const memberships = membersDb.getByUser(userId);
+        const households = memberships.map(m => householdsDb.getById(m.householdId)).filter(h => h !== undefined);
+
+        return HttpResponse.json(households);
+    }),
+
     http.get("/api/management/plants", ({ request }) => {
         const userId = getUserId(request);
 

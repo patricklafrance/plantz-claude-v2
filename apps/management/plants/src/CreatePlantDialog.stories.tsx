@@ -1,12 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { CreatePlantDialog } from "./CreatePlantDialog.tsx";
-import { managementPlantHandlers } from "./mocks/index.ts";
+import { createManagementPlantHandlers } from "./mocks/index.ts";
 import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
 
 // Fixed date for deterministic Chromatic snapshots — passed as a prop so the
 // DatePicker always displays the same value regardless of when the snapshot runs.
 const FIXED_FIRST_WATERING_DATE = new Date(2026, 2, 11, 0, 0, 0, 0);
+
+const SEED_HOUSEHOLDS = [{ id: "household-green-house", name: "Green House", ownerId: "user-alice", createdAt: new Date(2025, 0, 1) }];
 
 const meta = {
     title: "Management/Plants/Components/CreatePlantDialog",
@@ -23,7 +25,7 @@ const meta = {
                 "dark desktop": { theme: "dark", viewport: 1280 }
             }
         },
-        msw: { handlers: managementPlantHandlers }
+        msw: { handlers: createManagementPlantHandlers([], SEED_HOUSEHOLDS) }
     },
     args: {
         open: true,
