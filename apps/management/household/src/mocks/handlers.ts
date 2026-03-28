@@ -156,12 +156,24 @@ export const managementHouseholdHandlers = [
         }
 
         const { id } = params;
-        const assignments = assignmentsDb.getAllByHousehold(id as string);
+        const householdId = id as string;
 
-        const enriched = assignments.map(a => ({
-            ...a,
-            plantName: plantsDb.get(a.plantId)?.name ?? a.plantId
-        }));
+        // Build assignment list from all plants in this household, merging with explicit assignments
+        const existingAssignments = new Map(assignmentsDb.getAllByHousehold(householdId).map(a => [a.plantId, a]));
+        const householdPlants = plantsDb.getAll().filter(p => p.householdId === householdId);
+
+        const enriched = householdPlants.map(plant => {
+            const existing = existingAssignments.get(plant.id);
+
+            return {
+                id: existing?.id ?? `${householdId}-${plant.id}`,
+                householdId,
+                plantId: plant.id,
+                assignmentType: existing?.assignmentType ?? "unassigned",
+                assignedUserId: existing?.assignedUserId,
+                plantName: plant.name
+            };
+        });
 
         return HttpResponse.json(enriched);
     }),

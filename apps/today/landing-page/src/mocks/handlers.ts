@@ -46,7 +46,23 @@ export const todayPlantHandlers = [
         }
 
         const memberships = membersDb.getByUser(userId);
-        const allAssignments = memberships.flatMap(m => assignmentsDb.getAllByHousehold(m.householdId));
+
+        // Build assignments from all household plants, merging with explicit assignments
+        const allAssignments = memberships.flatMap(m => {
+            const explicit = new Map(assignmentsDb.getAllByHousehold(m.householdId).map(a => [a.plantId, a]));
+            const householdPlants = plantsDb.getAll().filter(p => p.householdId === m.householdId);
+
+            return householdPlants.map(
+                plant =>
+                    explicit.get(plant.id) ?? {
+                        id: `${m.householdId}-${plant.id}`,
+                        householdId: m.householdId,
+                        plantId: plant.id,
+                        assignmentType: "unassigned" as const,
+                        assignedUserId: undefined
+                    }
+            );
+        });
 
         return HttpResponse.json(allAssignments);
     }),
