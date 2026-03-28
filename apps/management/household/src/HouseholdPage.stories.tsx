@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { http, HttpResponse } from "msw";
 import { userEvent, within, waitFor } from "storybook/test";
 
 import { HouseholdPage } from "./HouseholdPage.tsx";
@@ -11,6 +12,25 @@ const SEED_HOUSEHOLD = {
     ownerId: "user-alice",
     createdAt: new Date(2024, 0, 1)
 };
+
+const SEED_MEMBERS = [
+    {
+        id: "member-alice",
+        householdId: "household-1",
+        userId: "user-alice",
+        name: "Alice",
+        email: "alice@example.com",
+        joinedAt: new Date(2025, 0, 1)
+    },
+    {
+        id: "member-bob",
+        householdId: "household-1",
+        userId: "user-bob",
+        name: "Bob",
+        email: "bob@example.com",
+        joinedAt: new Date(2025, 0, 15)
+    }
+];
 
 const meta = {
     title: "Management/Household/Pages/HouseholdPage",
@@ -41,10 +61,10 @@ export const Empty: Story = {
     }
 };
 
-// [visual] HouseholdPage (with household): shows name, creation date, edit and delete buttons
+// [visual] HouseholdPage (with household): shows name, creation date, member list, edit and delete buttons
 export const WithHousehold: Story = {
     parameters: {
-        msw: { handlers: createManagementHouseholdHandlers([SEED_HOUSEHOLD]) }
+        msw: { handlers: createManagementHouseholdHandlers([SEED_HOUSEHOLD], SEED_MEMBERS) }
     }
 };
 
@@ -130,5 +150,89 @@ export const AfterDelete: Story = {
         await userEvent.click(confirmButton);
 
         await canvas.findByText(/you don't have a household yet/i);
+    }
+};
+
+// [interactive] Clicking "Invite Member" opens the InviteMemberDialog.
+// After inviting -> the MemberList displays the newly added member.
+export const AfterInviteMember: Story = {
+    parameters: {
+        msw: { handlers: createManagementHouseholdHandlers([SEED_HOUSEHOLD], SEED_MEMBERS) }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const body = within(canvasElement.ownerDocument.body);
+
+        const inviteButton = await canvas.findByRole("button", { name: /invite member/i });
+        await userEvent.click(inviteButton);
+
+        const emailInput = await body.findByLabelText(/email \*/i);
+        await userEvent.type(emailInput, "charlie@example.com");
+
+        const submitButton = await body.findByRole("button", { name: /^invite$/i });
+        await userEvent.click(submitButton);
+
+        // Dialog should close and new member should appear in the list
+        await canvas.findByText("Charlie");
+    }
+};
+
+// [interactive] Submitting an unknown email -> the dialog shows a "User not found" error without closing.
+export const InviteUnknownEmail: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                ...createManagementHouseholdHandlers([SEED_HOUSEHOLD], SEED_MEMBERS),
+                http.post("/api/management/households/:id/members", () => {
+                    return HttpResponse.json({ error: "User not found" }, { status: 422 });
+                })
+            ]
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const body = within(canvasElement.ownerDocument.body);
+
+        const inviteButton = await canvas.findByRole("button", { name: /invite member/i });
+        await userEvent.click(inviteButton);
+
+        const emailInput = await body.findByLabelText(/email \*/i);
+        await userEvent.type(emailInput, "unknown@example.com");
+
+        const submitButton = await body.findByRole("button", { name: /^invite$/i });
+        await userEvent.click(submitButton);
+
+        await body.findByText(/user not found/i);
+    }
+};
+
+// [interactive] Clicking "Remove" -> a confirmation prompt appears. After confirming -> member disappears.
+export const AfterRemoveMember: Story = {
+    parameters: {
+        msw: { handlers: createManagementHouseholdHandlers([SEED_HOUSEHOLD], SEED_MEMBERS) }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const body = within(canvasElement.ownerDocument.body);
+
+        // Wait for the member list to render
+        await canvas.findByText("Bob");
+
+        const removeButton = await canvas.findByRole("button", { name: /remove bob/i });
+        await userEvent.click(removeButton);
+
+        // Confirmation dialog should appear
+        const confirmButton = await body.findByRole("button", { name: /^remove$/i });
+        await userEvent.click(confirmButton);
+
+        // Bob should disappear from the list
+        await waitFor(() => {
+            const rows = canvasElement.querySelectorAll("[role='row']");
+            const hasBob = Array.from(rows).some(r => r.textContent?.includes("Bob"));
+
+            if (hasBob) {
+                throw new Error("Bob is still in the list");
+            }
+        });
     }
 };

@@ -17,6 +17,24 @@ class MembersDb {
     getByUser(userId: string): HouseholdMember[] {
         return this.#members.filter(m => m.userId === userId);
     }
+
+    add(member: HouseholdMember): HouseholdMember {
+        this.#members.push(member);
+
+        return member;
+    }
+
+    remove(memberId: string): boolean {
+        const idx = this.#members.findIndex(m => m.id === memberId);
+
+        if (idx === -1) {
+            return false;
+        }
+
+        this.#members.splice(idx, 1);
+
+        return true;
+    }
 }
 
 export const membersDb = new MembersDb();

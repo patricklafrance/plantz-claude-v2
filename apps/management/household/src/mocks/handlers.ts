@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
 
-import type { Household } from "@packages/core-module";
-import { getUserId, householdsDb } from "@packages/core-module/db";
+import type { Household, HouseholdMember } from "@packages/core-module";
+import { getUserId, householdsDb, membersDb, usersDb } from "@packages/core-module/db";
 
 export const managementHouseholdHandlers = [
     http.get("/api/management/households", ({ request }) => {
@@ -69,6 +69,78 @@ export const managementHouseholdHandlers = [
         const deleted = householdsDb.delete(id as string);
 
         if (!deleted) {
+            return new HttpResponse(null, { status: 404 });
+        }
+
+        return new HttpResponse(null, { status: 204 });
+    }),
+
+    http.get("/api/management/households/:id/members", ({ request, params }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const { id } = params;
+        const members = membersDb.getByHousehold(id as string);
+
+        // Enrich each member with the user's display name and email so the
+        // client does not need to make additional lookups.
+        const enriched = members.map(m => {
+            const user = usersDb.getById(m.userId);
+
+            return {
+                ...m,
+                name: user?.name ?? m.userId,
+                email: user?.email ?? ""
+            };
+        });
+
+        return HttpResponse.json(enriched);
+    }),
+
+    http.post("/api/management/households/:id/members", async ({ request, params }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const { id } = params;
+        const body = (await request.json()) as { email: string };
+        const invitedUser = usersDb.getByEmail(body.email);
+
+        if (!invitedUser) {
+            return HttpResponse.json({ error: "User not found" }, { status: 422 });
+        }
+
+        const memberId =
+            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+                ? crypto.randomUUID()
+                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+
+        const member = membersDb.add({
+            id: memberId,
+            householdId: id as string,
+            userId: invitedUser.id,
+            joinedAt: new Date()
+        } as HouseholdMember);
+
+        return HttpResponse.json(member, { status: 201 });
+    }),
+
+    http.delete("/api/management/households/:id/members/:memberId", ({ request, params }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const { memberId } = params;
+        const removed = membersDb.remove(memberId as string);
+
+        if (!removed) {
             return new HttpResponse(null, { status: 404 });
         }
 
