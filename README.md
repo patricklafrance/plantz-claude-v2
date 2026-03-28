@@ -43,12 +43,6 @@ Node 24+, pnpm 10, TypeScript 7 (tsgo), Rsbuild, Vite (Storybooks), Tailwind CSS
 
 The harness enhances the agent's natural capabilities instead of micromanaging each step. Skills define _what_ to do — lightweight orchestration that tells the agent where to go next. Hooks enforce _how well_ — automated verification, autofix, and context delivery that runs whether the agent remembers or not.
 
-### Token compression
-
-The full `preflight` design is documented in [`.claude/hooks/src/preflight/README.md`](.claude/hooks/src/preflight/README.md).
-
-The `preflight` PreToolUse hook rewrites supported Bash commands through [RTK](https://github.com/rtk-ai/rtk) for 60–90% token savings on git, gh, lint, and test output. The hook delegates to `rtk rewrite` — if RTK doesn't support the command, it passes through unchanged. When RTK is not installed, the rewrite is a no-op.
-
 ### Design principles
 
 This design is based on three principles from the [Agent Harness](https://medium.com/@bijit211987/agent-harness-b1f6d5a7a1d1) article:
@@ -57,7 +51,7 @@ This design is based on three principles from the [Agent Harness](https://medium
 | --- | ------------------------------------------ | ------------------------------ | -------------------------------------------------- |
 | 1   | Verification is not optional               | :white_check_mark: Implemented | SubagentStop hooks, pre-commit guards, permissions |
 | 2   | Context should be delivered, not requested | :construction: Planned         | —                                                  |
-| 3   | Supervision must be real-time              | :white_check_mark: Implemented | Supervisor hooks, recovery contracts               |
+| 3   | Supervision must be real-time              | :white_check_mark: Implemented | Supervisor hooks, wall-clock circuit breaker       |
 
 ### ADLC workflow
 
@@ -177,25 +171,25 @@ On every agent completion, the SubagentStop hook parses the agent's transcript J
 
 Constraints that apply to every tool call, regardless of which skill is running.
 
-| Hook                | Trigger                    | What it does                                                                                                                                                          |
-| ------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `preflight`         | Bash + Read                | Rewrites `agent-browser` and RTK-supported Bash commands, then blocks disallowed package-manager calls, bare `pnpm typecheck`, `cmd`, and `node_modules` source reads |
-| `supervisor`        | Bash + Read + Write + Edit | Detects browser thrash, repeated edits, repeated command loops, and evidence-gated `pnpm install` misuse in real time; blocks into recovery or narrow retry paths     |
-| `gitignore-guard`   | `git commit`               | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` (all ADLC artifacts are ephemeral)                                                                |
-| `pre-tool-use-bash` | `git commit`               | Intercepts commits — runs oxfmt autofix, then build + lint + tests in parallel before allowing                                                                        |
+| Hook                | Trigger                    | What it does                                                                                                                                                                       |
+| ------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `preflight`         | Bash + Read + Glob         | Rewrites bare `agent-browser` commands, then blocks disallowed package-manager calls, bare `pnpm typecheck`, `cmd`, and `node_modules` source reads (type definitions are allowed) |
+| `adlc-supervisor`   | Bash + Read + Write + Edit | Wall-clock circuit breaker (nudge + hard stop), browser thrash detection, and evidence-gated `pnpm install` blocking in real time                                                  |
+| `gitignore-guard`   | `git commit`               | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` (all ADLC artifacts are ephemeral)                                                                             |
+| `pre-tool-use-bash` | `git commit`               | Intercepts commits — runs oxfmt autofix, then build + lint + tests in parallel before allowing                                                                                     |
 
 #### Permissions
 
 Deny rules in `.claude/settings.json` block `Edit` and `Write` on `.env` and `.env.*` files — the agent cannot accidentally modify environment secrets.
 
-**Files:** [`.claude/hooks/src/`](.claude/hooks/src/), [`.claude/hooks/src/adlc-verification/README.md`](.claude/hooks/src/adlc-verification/README.md), [`.claude/hooks/src/pre-commit/README.md`](.claude/hooks/src/pre-commit/README.md), [`.claude/hooks/src/preflight/README.md`](.claude/hooks/src/preflight/README.md), [`.claude/hooks/src/supervisor/README.md`](.claude/hooks/src/supervisor/README.md), [`.claude/hooks/tests/`](.claude/hooks/tests/), [`.claude/settings.json`](.claude/settings.json)
+**Files:** [`agent-hooks/src/`](agent-hooks/src/), [`agent-hooks/src/adlc-verification/README.md`](agent-hooks/src/adlc-verification/README.md), [`agent-hooks/src/pre-commit/README.md`](agent-hooks/src/pre-commit/README.md), [`agent-hooks/src/preflight/README.md`](agent-hooks/src/preflight/README.md), [`agent-hooks/src/adlc-supervisor/README.md`](agent-hooks/src/adlc-supervisor/README.md), [`agent-hooks/tests/`](agent-hooks/tests/), [`.claude/settings.json`](.claude/settings.json)
 
 #### Hook architecture
 
-All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live in `.claude/hooks/tests/`, mirroring the same structure.
+All hook source lives in `agent-hooks/src/`, organized by concern. Tests live in `agent-hooks/tests/`, mirroring the same structure.
 
 ```
-.claude/hooks/
+agent-hooks/
   src/
     adlc-verification/
       subagent-stop.mjs          # Router — dispatches to agent-specific handlers
@@ -211,12 +205,12 @@ All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live 
     preflight/                   # Bash/Read guardrails + command rewrites
     shared/
       run.mjs                    # Async shell execution — used by pre-commit and adlc-verification
-    supervisor/                  # Stateful real-time supervision + recovery contracts + install evidence
+    adlc-supervisor/             # Stateful real-time supervision + wall-clock breaker + install evidence
   tests/
     contract-sync.test.mjs       # Hook registration contract test
     pre-commit/                  # 7 test files
     preflight/                   # 7 test files
-    supervisor/                  # 3 test files
+    adlc-supervisor/             # 3 test files
     adlc-verification/
       *.test.mjs                 # 3 root tests (subagent-stop, run-metrics, utils)
       architect/                 # 3 test files
@@ -234,18 +228,17 @@ All hook source lives in `.claude/hooks/src/`, organized by concern. Tests live 
 
 ### Principle 3: Supervision must be real-time
 
-:white_check_mark: **Implemented** — A supervisor hook now observes `Bash`, `Read`, `Write`, and `Edit` calls during execution, logs them to `.adlc/supervisor-events.jsonl`, and maintains live state in `.adlc/supervisor-state.json`. It also consumes `PostToolUse` and `PostToolUseFailure` events for Bash so command-result evidence can unlock narrow recovery paths such as a one-shot `pnpm install` bypass after real missing-dependency failures.
+:white_check_mark: **Implemented** — The `adlc-supervisor` hook now observes `Bash`, `Read`, `Write`, and `Edit` calls during execution, logs them to `.adlc/supervisor-events.jsonl`, and maintains live state in `.adlc/supervisor-state.json`. It also consumes `PostToolUse` and `PostToolUseFailure` events for Bash so command-result evidence can unlock narrow recovery paths such as a one-shot `pnpm install` bypass after real missing-dependency failures.
 
-When the supervisor detects a high-signal failure mode, it blocks the next bad action and creates a recovery contract in `.adlc/supervisor-recovery.json`. While recovery is active, only recovery-progress actions are allowed through. The first MVP policies are:
+The policies are:
 
+- `wall-clock` — nudge + hard stop circuit breaker with per-agent thresholds, catches runaway agents that produce "loose spirals" evading micro-pattern detection
 - `browser-thrash` — browser budget, consecutive browser circuit breaker, and screenshot nudge
-- `repeated-edit` — stops edit churn on the same file and requires a diagnosis in `.adlc/supervisor-recovery.md`
-- `tool-call-thrash` — stops repeated identical Bash commands until the agent changes evidence path or strategy
 - `install-gate` — blocks blind `pnpm install` until manifests changed, an override exists, or a post-tool dependency failure grants a one-shot bypass
 
-This keeps supervision in-band and real-time: the harness interrupts waste as it happens and steers the agent back onto an observable recovery path before autonomy resumes.
+This keeps supervision in-band and real-time: the harness interrupts waste as it happens.
 
-The full supervisor design is documented in [`.claude/hooks/src/supervisor/README.md`](.claude/hooks/src/supervisor/README.md), including runtime flow, state files, event semantics, recovery contracts, evidence collection, and the `pnpm install` override model.
+The full design is documented in [`agent-hooks/src/adlc-supervisor/README.md`](agent-hooks/src/adlc-supervisor/README.md), including runtime flow, state files, event semantics, evidence collection, and the `pnpm install` override model.
 
 ---
 
@@ -279,20 +272,6 @@ Scaffolding skills use a **reference module pattern** — instead of hardcoding 
 ```bash
 pnpm install
 ```
-
-#### RTK
-
-Optional — install [RTK](https://github.com/rtk-ai/rtk) for token-compressed Bash output during Claude Code sessions (60–90% savings):
-
-```bash
-# macOS / Linux
-curl -fsSL https://rtk.sh | bash
-
-# Windows (winget)
-winget install rtk-ai.rtk
-```
-
-When `rtk` is on `PATH`, `preflight` rewrites supported Bash commands automatically. Without it, the rewrite is a no-op.
 
 ### Seed data
 

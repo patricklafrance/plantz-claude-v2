@@ -26,8 +26,8 @@ importers:
         specifier: 3.0.7
         version: 3.0.7(typescript@5.9.3)
       agent-browser:
-        specifier: 0.22.3
-        version: 0.22.3
+        specifier: 0.23.0
+        version: 0.23.0
       cross-env:
         specifier: 10.1.0
         version: 10.1.0
@@ -4042,8 +4042,8 @@ packages:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
 
-  agent-browser@0.22.3:
-    resolution: {integrity: sha512-8gTcrSrkP/NQUegWABNhW6ik5q/WwAoVhAWAqun1WFGW2VJIHFzF7H6M+1SEEjk1TQ0/jbDNcVLQTb7jnntKRw==}
+  agent-browser@0.23.0:
+    resolution: {integrity: sha512-OR/hUNFHw37j+GSiJgzdXZHuqMaAltvaJ9xv697K1Cqq2sCNQsPxcm9p+Nj5ZSdwzNoeA2nR7t2cKsPTl2a5ZQ==}
     hasBin: true
 
   ajv-errors@3.0.0:
@@ -11178,7 +11178,7 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  agent-browser@0.22.3: {}
+  agent-browser@0.23.0: {}
 
   ajv-errors@3.0.0(ajv@8.18.0):
     dependencies:

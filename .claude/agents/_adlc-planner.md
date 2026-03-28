@@ -106,22 +106,22 @@ List existing packages or modules the coder should study before implementing. Fo
 
 ## Acceptance Criteria
 
-Be specific. Two tags only:
+Criteria describe what the user sees or experiences — not how the code is structured. Avoid component names, story names, and data model field names; the coder decides those. Two tags only:
 
-- `[visual]` — UI renders correctly. e.g. "Shows a 3-column grid with name, status, and last update"
-- `[interactive]` — User action produces the expected result. e.g. "Clicking 'Submit' opens a confirmation dialog." Every mutation needs a companion loading state criterion and a UI consequence criterion.
+- `[visual]` — UI renders correctly. e.g. "Shared plants display a badge next to their name"
+- `[interactive]` — User action produces the expected result. e.g. "Clicking 'Submit' opens a confirmation dialog." Every mutation needs a companion loading state criterion and a UI consequence criterion. Each criterion describes one observable state — not a sequence. "Clicking 'Water' shows a loading spinner" and "After watering the last-watered date updates" are two criteria, not one.
 
 No criteria for compilation, type resolution, lint, or schema validation. Every criterion must be verifiable in a rendered story or page. Write data-layer criteria in terms of what the UI shows, not what the function returns.
 
 ### Visual [visual]
 
-- [ ] {Page or story}: {specific, verifiable description}
+- [ ] {what the user sees — specific, verifiable, no implementation details}
 
 ### Interactive [interactive]
 
-- [ ] {User action} -> {expected outcome}
-- [ ] {Mutation action} -> {loading state on trigger element}
-- [ ] {After mutation} -> {UI consequence}
+- [ ] {user action} -> {expected outcome}
+- [ ] {mutation action} -> {loading state on trigger element}
+- [ ] {after mutation} -> {UI consequence}
 ```
 
 </slice-template>

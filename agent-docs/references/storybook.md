@@ -11,6 +11,33 @@ For `packages/components/` stories, see that package's own `CLAUDE.md`.
 
 Every story file must cover **every visually distinct state**. One story per prop/state combination that produces a visually different rendering. Include edge cases: empty/null fields, long text overflow, boundary conditions, open/closed states. Skip combinations that look identical.
 
+## Interactive State Stories
+
+Play functions reach states that require interaction. A menu has a `Default` (closed) story and a `WithMenuOpen` story — the play function clicks the trigger because you can't render the open state without interaction.
+
+Use `userEvent` and `within` from `storybook/test`:
+
+```ts
+import { userEvent, within } from "storybook/test";
+
+export const WithMenuOpen: Story = {
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await userEvent.click(canvas.getByLabelText("User menu"));
+    }
+};
+```
+
+For `[interactive]` acceptance criteria, create one state story per visually distinct stage of the interaction:
+
+- **Loading state** — play function triggers the action with a delayed MSW handler so the spinner is visible
+- **Success state** — play function triggers the action and waits for the MSW response to resolve
+- **Error state** — play function triggers the action against a failing MSW handler
+
+Each story is a state snapshot. The play function is the mechanism to reach that state.
+
+**Async patterns:** When a play function triggers a mutation, use `canvas.findByText(...)` or `canvas.findByRole(...)` (which retry until found) to wait for the post-mutation UI to render before the story snapshot is captured.
+
 ## Chromatic Modes
 
 All domain story files must set in `meta`:

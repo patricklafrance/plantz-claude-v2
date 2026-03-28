@@ -12,16 +12,16 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/preflight/pre-tool-use.mjs"
+                        "command": "node agent-hooks/src/preflight/pre-tool-use.mjs"
                     },
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/supervisor/pre-tool-use.mjs",
+                        "command": "node agent-hooks/src/adlc-supervisor/pre-tool-use.mjs",
                         "timeout": 5000
                     },
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/pre-commit/pre-tool-use-bash.mjs",
+                        "command": "node agent-hooks/src/pre-commit/pre-tool-use-bash.mjs",
                         "timeout": 180000
                     }
                 ]
@@ -31,12 +31,21 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/preflight/pre-tool-use.mjs"
+                        "command": "node agent-hooks/src/preflight/pre-tool-use.mjs"
                     },
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/supervisor/pre-tool-use.mjs",
+                        "command": "node agent-hooks/src/adlc-supervisor/pre-tool-use.mjs",
                         "timeout": 5000
+                    }
+                ]
+            },
+            {
+                "matcher": "Glob",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node agent-hooks/src/preflight/pre-tool-use.mjs"
                     }
                 ]
             },
@@ -45,7 +54,7 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/supervisor/pre-tool-use.mjs",
+                        "command": "node agent-hooks/src/adlc-supervisor/pre-tool-use.mjs",
                         "timeout": 5000
                     }
                 ]
@@ -55,7 +64,7 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/supervisor/pre-tool-use.mjs",
+                        "command": "node agent-hooks/src/adlc-supervisor/pre-tool-use.mjs",
                         "timeout": 5000
                     }
                 ]
@@ -67,7 +76,7 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/supervisor/post-tool-use.mjs",
+                        "command": "node agent-hooks/src/adlc-supervisor/post-tool-use.mjs",
                         "timeout": 5000
                     }
                 ]
@@ -79,7 +88,7 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/supervisor/post-tool-use.mjs",
+                        "command": "node agent-hooks/src/adlc-supervisor/post-tool-use.mjs",
                         "timeout": 5000
                     }
                 ]
@@ -90,7 +99,7 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/safe-compact/post-compact.mjs"
+                        "command": "node agent-hooks/src/safe-compact/post-compact.mjs"
                     }
                 ]
             }
@@ -101,12 +110,12 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/adlc-verification/subagent-stop.mjs",
+                        "command": "node agent-hooks/src/adlc-verification/subagent-stop.mjs",
                         "timeout": 180000
                     },
                     {
                         "type": "command",
-                        "command": "node .claude/hooks/src/supervisor/subagent-stop.mjs",
+                        "command": "node agent-hooks/src/adlc-supervisor/subagent-stop.mjs",
                         "timeout": 5000
                     }
                 ]

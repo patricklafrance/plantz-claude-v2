@@ -7,7 +7,7 @@
  * resolves package names to filesystem paths, globs source files, and writes
  * `.adlc/current-package-map.md` with a file tree + highlighted files per package.
  *
- * Usage: node .claude/hooks/src/generate-package-map.mjs
+ * Usage: node .claude/agents/scripts/generate-package-map.mjs
  *
  * Produces `.adlc/current-package-map.md` — consumed by the Explore agent to
  * selectively read key files instead of scanning entire packages.

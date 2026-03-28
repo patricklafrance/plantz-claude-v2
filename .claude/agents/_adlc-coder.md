@@ -37,10 +37,10 @@ Implement the slice.
 Code with a browser open — validate as you go. Follow the instructions defined in `agent-docs/references/agent-browser.md` and the specified dev servers.
 
 - **Draft:** Implement the slice scope to fulfill its acceptance criteria.
-- **Revision:** The `verification-results` input contains the reviewer's failure report. Fix only what failed. The report may include a "Sanity Issues" section — these are host app integration problems found outside of Storybook stories.
+- **Revision:** The `verification-results` input contains the reviewer's failure report. Fix only what failed. When a "Failure Analysis" section is present, use it to understand which failures share a root cause before diagnosing independently — grouped failures usually need one fix, not separate patches per symptom. The report may include a "Sanity Issues" section — these are host app integration problems found outside of Storybook stories.
 - When the slice scope requires a new module, domain, or storybook, use the corresponding `scaffold-*` skill.
 - Every module owns its complete data layer — no partial data layers. Follow `agent-docs/references/msw-tanstack-query.md`.
-- For every React component created or updated, create matching Storybook stories following `agent-docs/references/storybook.md`. Every `[visual]` and `[interactive]` acceptance criterion must have a corresponding story.
+- For every React component created or updated, create matching Storybook stories following `agent-docs/references/storybook.md`. Every acceptance criterion must have a corresponding story. For `[interactive]` criteria, create state stories for each stage of the interaction (loading, success, error) using play functions to reach those states — each story is a state snapshot, not an interaction test.
 
 ### 3. Record implementation notes
 

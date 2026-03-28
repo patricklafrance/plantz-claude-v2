@@ -4,14 +4,14 @@
         ".": {
             "entry": [
                 "scripts/*.ts",
-                ".claude/hooks/src/adlc-verification/subagent-stop.mjs",
-                ".claude/hooks/src/preflight/pre-tool-use.mjs",
-                ".claude/hooks/src/pre-commit/pre-tool-use-bash.mjs",
-                ".claude/hooks/src/safe-compact/post-compact.mjs",
+                "agent-hooks/src/adlc-verification/subagent-stop.mjs",
+                "agent-hooks/src/preflight/pre-tool-use.mjs",
+                "agent-hooks/src/pre-commit/pre-tool-use-bash.mjs",
+                "agent-hooks/src/safe-compact/post-compact.mjs",
                 ".claude/agents/scripts/generate-package-map.mjs",
-                ".claude/hooks/src/supervisor/post-tool-use.mjs",
-                ".claude/hooks/src/supervisor/pre-tool-use.mjs",
-                ".claude/hooks/src/supervisor/subagent-stop.mjs"
+                "agent-hooks/src/adlc-supervisor/post-tool-use.mjs",
+                "agent-hooks/src/adlc-supervisor/pre-tool-use.mjs",
+                "agent-hooks/src/adlc-supervisor/subagent-stop.mjs"
             ],
             "ignoreDependencies": ["netlify-cli", "agent-browser"]
         },

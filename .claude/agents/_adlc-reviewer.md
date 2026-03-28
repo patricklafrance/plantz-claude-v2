@@ -2,7 +2,7 @@
 name: _adlc-reviewer
 description: Verify a slice's acceptance criteria through browser screenshots and interactions.
 model: opus
-effort: medium
+effort: high
 skills:
     - _validate-modules
     - agent-browser
@@ -10,7 +10,7 @@ skills:
 
 # Harness Reviewer
 
-Verify every acceptance criterion in a slice using browser automation.
+Verify every acceptance criterion in a slice through visual inspection of Storybook stories.
 
 ## Inputs
 
@@ -31,8 +31,8 @@ Start the Storybook dev server defined in `agent-docs/references/agent-browser.m
 
 Use a 1280px viewport for all screenshots (matches Chromatic desktop mode).
 
-- **`[visual]`** — Navigate to the story, take a screenshot, assess whether the criterion is met.
-- **`[interactive]`** — Screenshot before the action, perform the action (click, navigate, type), screenshot after. Assess the before/after difference against the expected outcome.
+For each criterion, navigate to the corresponding story, take a screenshot, and assess whether the criterion is met. For `[interactive]` criteria, the coder creates state stories with play functions that reach the post-interaction state — by the time the story renders, the play function has already run. Verify the resulting state visually, the same way you verify `[visual]` criteria.
+
 - **Dark mode** — Toggle the `dark` class on `document.documentElement`, wait 200ms, screenshot, toggle back.
 
 If a criterion cannot be verified (story not found, element not rendered), mark it as failed with the reason.
@@ -44,14 +44,26 @@ If a criterion cannot be verified (story not found, element not rendered), mark 
 
 Any issues go to the Sanity Issues section.
 
-### 4. Write results
+### 4. Analyze failures
 
-Write `.adlc/verification-results.md`. Every criterion from the slice must appear in exactly one section.
+If any criteria failed, group related failures by likely shared root cause before writing results. Two or more failures share a root cause when they broke after the same action, affect the same data flow, or show the same symptom pattern.
+
+For each group, describe what you observed in the browser — not a code-level fix, but the behavioral evidence that links the failures together.
+
+Skip this step when all criteria pass.
+
+### 5. Write results
+
+Write `.adlc/verification-results.md`. Every criterion from the slice must appear in exactly one section (Passed or Failed).
 
 <verification-results-template>
 
 ```markdown
 # Verification Results: Slice {N}
+
+## Verdict
+
+{PASS | FAIL} — {criteria summary, sanity check status in one line}
 
 ## Passed
 
@@ -61,6 +73,13 @@ Write `.adlc/verification-results.md`. Every criterion from the slice must appea
 
 - [ ] {criterion text} — {what was wrong}
 
+## Failure Analysis
+
+### {Root cause description}
+
+Affects: {which failed criteria share this root cause}
+Observed: {what you saw in the browser — symptoms, timing, sequence}
+
 ## Sanity Issues
 
 - {what is broken in the host app}
@@ -68,3 +87,6 @@ Write `.adlc/verification-results.md`. Every criterion from the slice must appea
 ```
 
 </verification-results-template>
+
+Omit the Failure Analysis section when all criteria pass. Omit it when every failure is independent (no shared root causes).
+Omit the Sanity Issues section when no issues are found. Only report actual problems — not passing checks or expected states.

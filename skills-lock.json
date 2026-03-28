@@ -9,7 +9,7 @@
     "agent-browser": {
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",
-      "computedHash": "e9c3cd40ddc045919d34ffa5d80bc0f5d330db328b33c181e589fabe6f973328"
+      "computedHash": "9757e62a964103e0b5659ccae7aab3ee893957e2c7f2a9a872851773d06efe7e"
     },
     "best-practices": {
       "source": "addyosmani/web-quality-skills",
