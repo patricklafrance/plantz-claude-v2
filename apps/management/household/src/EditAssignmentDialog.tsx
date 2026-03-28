@@ -113,6 +113,7 @@ export function EditAssignmentDialog({ assignment, members, householdId, open, o
     }
 
     const isSubmitDisabled = isPending || (assignmentType === "fixed" && !assignedUserId);
+    const selectedMemberName = assignedUserId ? (members.find(m => m.userId === assignedUserId)?.name ?? assignedUserId) : undefined;
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -154,9 +155,7 @@ export function EditAssignmentDialog({ assignment, members, householdId, open, o
                                 <Label htmlFor="assigned-member">Member *</Label>
                                 <Select value={assignedUserId} onValueChange={v => setAssignedUserId(v ?? "")} disabled={isPending}>
                                     <SelectTrigger id="assigned-member" className="w-full" aria-invalid={error && !assignedUserId ? true : undefined}>
-                                        <SelectValue placeholder="Select a member">
-                                            {assignedUserId ? (members.find(m => m.userId === assignedUserId)?.name ?? assignedUserId) : undefined}
-                                        </SelectValue>
+                                        <SelectValue placeholder="Select a member">{selectedMemberName}</SelectValue>
                                     </SelectTrigger>
                                     <SelectContent>
                                         {members.map(m => (

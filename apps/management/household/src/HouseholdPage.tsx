@@ -9,6 +9,7 @@ import { getAuthHeaders } from "@packages/core-module";
 import type { AssignmentRow } from "./AssignmentList.tsx";
 import { AssignmentList } from "./AssignmentList.tsx";
 import { CreateHouseholdDialog } from "./CreateHouseholdDialog.tsx";
+import { formatDate } from "./dateUtils.ts";
 import { DeleteHouseholdConfirmDialog } from "./DeleteHouseholdConfirmDialog.tsx";
 import { EditAssignmentDialog } from "./EditAssignmentDialog.tsx";
 import { EditHouseholdDialog } from "./EditHouseholdDialog.tsx";
@@ -17,10 +18,6 @@ import { useManagementHouseholdCollection } from "./ManagementHouseholdContext.t
 import type { MemberRow } from "./MemberList.tsx";
 import { MemberList } from "./MemberList.tsx";
 import { RemoveMemberConfirmDialog } from "./RemoveMemberConfirmDialog.tsx";
-
-function formatDate(date: Date): string {
-    return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-}
 
 interface EnrichedMember {
     id: string;
@@ -60,16 +57,12 @@ async function fetchAssignments(householdId: string): Promise<AssignmentRow[]> {
 export function HouseholdPage() {
     const [createOpen, setCreateOpen] = useState(false);
     const [editHousehold, setEditHousehold] = useState<Household | null>(null);
-    const [editOpen, setEditOpen] = useState(false);
     const [deleteHousehold, setDeleteHousehold] = useState<Household | null>(null);
-    const [deleteOpen, setDeleteOpen] = useState(false);
     const [inviteOpen, setInviteOpen] = useState(false);
     const [removeMember, setRemoveMember] = useState<MemberRow | null>(null);
-    const [removeOpen, setRemoveOpen] = useState(false);
     const [members, setMembers] = useState<EnrichedMember[]>([]);
     const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
     const [editAssignment, setEditAssignment] = useState<AssignmentRow | null>(null);
-    const [editAssignmentOpen, setEditAssignmentOpen] = useState(false);
 
     const collection = useManagementHouseholdCollection();
     const { data: households, isReady } = useLiveQuery(q => q.from({ household: collection }));
@@ -104,17 +97,14 @@ export function HouseholdPage() {
 
     function handleEdit(h: Household) {
         setEditHousehold(h);
-        setEditOpen(true);
     }
 
     function handleDelete(h: Household) {
         setDeleteHousehold(h);
-        setDeleteOpen(true);
     }
 
     function handleRemoveMember(member: MemberRow) {
         setRemoveMember(member);
-        setRemoveOpen(true);
     }
 
     function handleMemberRemoved() {
@@ -131,14 +121,12 @@ export function HouseholdPage() {
 
     function handleEditAssignment(assignment: AssignmentRow) {
         setEditAssignment(assignment);
-        setEditAssignmentOpen(true);
     }
 
     function handleAssignmentSaved(updated: AssignmentRow) {
         setAssignments(prev => prev.map(a => (a.id === updated.id ? updated : a)));
     }
 
-    // Enrich assignments with member names from loaded members
     const enrichedAssignments: AssignmentRow[] = assignments.map(a => {
         if (a.assignmentType === "fixed" && a.assignedUserId) {
             const member = members.find(m => m.userId === a.assignedUserId);
@@ -149,7 +137,6 @@ export function HouseholdPage() {
 
     const memberOptions = members.map(m => ({ id: m.id, userId: m.userId, name: m.name }));
 
-    // The API returns enriched member data (name + email) so no additional lookup is needed.
     const memberRows: MemberRow[] = members.map(m => ({
         id: m.id,
         name: m.name,
@@ -213,9 +200,7 @@ export function HouseholdPage() {
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-semibold">Responsibility Assignments</h3>
-                        </div>
+                        <h3 className="text-sm font-semibold">Responsibility Assignments</h3>
                         <div className="border-border rounded-lg border">
                             <AssignmentList assignments={enrichedAssignments} onEdit={handleEditAssignment} />
                         </div>
@@ -224,24 +209,40 @@ export function HouseholdPage() {
             )}
 
             <CreateHouseholdDialog open={createOpen} onOpenChange={setCreateOpen} />
-            <EditHouseholdDialog household={editHousehold} open={editOpen} onOpenChange={setEditOpen} />
-            <DeleteHouseholdConfirmDialog household={deleteHousehold} open={deleteOpen} onOpenChange={setDeleteOpen} />
+            <EditHouseholdDialog
+                household={editHousehold}
+                open={editHousehold !== null}
+                onOpenChange={open => {
+                    if (!open) setEditHousehold(null);
+                }}
+            />
+            <DeleteHouseholdConfirmDialog
+                household={deleteHousehold}
+                open={deleteHousehold !== null}
+                onOpenChange={open => {
+                    if (!open) setDeleteHousehold(null);
+                }}
+            />
             {household && (
                 <>
                     <InviteMemberDialog householdId={household.id} open={inviteOpen} onOpenChange={setInviteOpen} onInvited={handleMemberInvited} />
                     <RemoveMemberConfirmDialog
                         member={removeMember}
                         householdId={household.id}
-                        open={removeOpen}
-                        onOpenChange={setRemoveOpen}
+                        open={removeMember !== null}
+                        onOpenChange={open => {
+                            if (!open) setRemoveMember(null);
+                        }}
                         onRemoved={handleMemberRemoved}
                     />
                     <EditAssignmentDialog
                         assignment={editAssignment}
                         members={memberOptions}
                         householdId={household.id}
-                        open={editAssignmentOpen}
-                        onOpenChange={setEditAssignmentOpen}
+                        open={editAssignment !== null}
+                        onOpenChange={open => {
+                            if (!open) setEditAssignment(null);
+                        }}
                         onSaved={handleAssignmentSaved}
                     />
                 </>

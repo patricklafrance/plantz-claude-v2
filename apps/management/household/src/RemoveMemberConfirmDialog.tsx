@@ -45,7 +45,6 @@ export function RemoveMemberConfirmDialog({ member, householdId, open, onOpenCha
 
     function handleOpenChange(nextOpen: boolean) {
         if (!nextOpen && isPending) {
-            // Don't allow closing while removing
             return;
         }
         onOpenChange(nextOpen);

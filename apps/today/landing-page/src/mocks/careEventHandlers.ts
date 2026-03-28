@@ -1,6 +1,10 @@
 import { http, HttpResponse } from "msw";
 
 import { getUserId } from "@packages/core-module/db";
+
+function isSameDay(a: Date, b: Date): boolean {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
 import { getFrequencyDays } from "@packages/core-plants";
 import type { CareEventType } from "@packages/core-plants/care-event";
 import { careEventsDb, plantsDb } from "@packages/core-plants/db";
@@ -38,17 +42,7 @@ export const todayCareEventHandlers = [
         if (body.eventType === "watered") {
             const today = new Date();
             const existingEvents = careEventsDb.getAllByPlant(body.plantId);
-            const alreadyWateredToday = existingEvents.some(e => {
-                if (e.eventType !== "watered") {
-                    return false;
-                }
-                const eventDay = new Date(e.eventDate);
-                return (
-                    eventDay.getFullYear() === today.getFullYear() &&
-                    eventDay.getMonth() === today.getMonth() &&
-                    eventDay.getDate() === today.getDate()
-                );
-            });
+            const alreadyWateredToday = existingEvents.some(e => e.eventType === "watered" && isSameDay(new Date(e.eventDate), today));
 
             if (alreadyWateredToday) {
                 return new HttpResponse(JSON.stringify({ error: "Plant already watered today" }), {
@@ -99,17 +93,7 @@ export const todayCareEventHandlers = [
             // Skip plants already watered today
             if (body.eventType === "watered") {
                 const existingEvents = careEventsDb.getAllByPlant(plantId);
-                const alreadyWateredToday = existingEvents.some(e => {
-                    if (e.eventType !== "watered") {
-                        return false;
-                    }
-                    const eventDay = new Date(e.eventDate);
-                    return (
-                        eventDay.getFullYear() === today.getFullYear() &&
-                        eventDay.getMonth() === today.getMonth() &&
-                        eventDay.getDate() === today.getDate()
-                    );
-                });
+                const alreadyWateredToday = existingEvents.some(e => e.eventType === "watered" && isSameDay(new Date(e.eventDate), today));
 
                 if (alreadyWateredToday) {
                     continue;

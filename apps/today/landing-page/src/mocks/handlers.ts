@@ -1,6 +1,10 @@
 import { http, HttpResponse } from "msw";
 
 import { getUserId, membersDb, usersDb } from "@packages/core-module/db";
+
+function isSameDay(a: Date, b: Date): boolean {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
 import { assignmentsDb, careEventsDb, plantsDb } from "@packages/core-plants/db";
 
 export const todayPlantHandlers = [
@@ -19,10 +23,10 @@ export const todayPlantHandlers = [
         const householdPlantIds = new Set(ownPlants.map(p => p.id));
         const householdPlants: typeof ownPlants = [];
 
-        for (const membership of memberships) {
-            const allPlants = plantsDb.getAll();
-            for (const plant of allPlants) {
-                if (plant.householdId === membership.householdId && !householdPlantIds.has(plant.id)) {
+        if (memberships.length > 0) {
+            const membershipHouseholdIds = new Set(memberships.map(m => m.householdId));
+            for (const plant of plantsDb.getAll()) {
+                if (plant.householdId && membershipHouseholdIds.has(plant.householdId) && !householdPlantIds.has(plant.id)) {
                     householdPlants.push(plant);
                     householdPlantIds.add(plant.id);
                 }
@@ -59,10 +63,10 @@ export const todayPlantHandlers = [
         const memberships = membersDb.getByUser(userId);
         const allVisiblePlantIds = new Set(ownPlants.map(p => p.id));
 
-        for (const membership of memberships) {
-            const allPlants = plantsDb.getAll();
-            for (const plant of allPlants) {
-                if (plant.householdId === membership.householdId) {
+        if (memberships.length > 0) {
+            const membershipHouseholdIds = new Set(memberships.map(m => m.householdId));
+            for (const plant of plantsDb.getAll()) {
+                if (plant.householdId && membershipHouseholdIds.has(plant.householdId)) {
                     allVisiblePlantIds.add(plant.id);
                 }
             }
@@ -73,13 +77,7 @@ export const todayPlantHandlers = [
 
         for (const plantId of allVisiblePlantIds) {
             const events = careEventsDb.getAllByPlant(plantId);
-            const wateredEvent = events.find(e => {
-                if (e.eventType !== "watered" || !e.actorId) {
-                    return false;
-                }
-                const d = new Date(e.eventDate);
-                return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate();
-            });
+            const wateredEvent = events.find(e => e.eventType === "watered" && !!e.actorId && isSameDay(new Date(e.eventDate), today));
 
             if (wateredEvent?.actorId) {
                 wateredToday.push({ plantId, actorId: wateredEvent.actorId });

@@ -21,11 +21,17 @@ interface HouseholdMember {
     name: string;
 }
 
+function resolveActorName(actorId: string | undefined, memberNameMap: Map<string, string>): string | undefined {
+    if (!actorId) {
+        return undefined;
+    }
+    return memberNameMap.get(actorId) ?? "a household member";
+}
+
 export function LandingPage() {
     const { filters, updateFilter, clearFilters, hasActiveFilters } = usePlantFilters();
     const [detailPlant, setDetailPlant] = useState<Plant | null>(null);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-    // Map of plantId -> actorId for plants watered today
     const [wateredTodayMap, setWateredTodayMap] = useState<Map<string, string>>(new Map());
     const [assignments, setAssignments] = useState<ResponsibilityAssignment[]>([]);
     const [members, setMembers] = useState<HouseholdMember[]>([]);
@@ -69,7 +75,6 @@ export function LandingPage() {
         return applyPlantFilters(duePlants, filters);
     }, [allPlants, filters]);
 
-    // Build an assignment map: plantId -> assignment
     const assignmentMap = useMemo(() => {
         const map = new Map<string, ResponsibilityAssignment>();
         for (const a of assignments) {
@@ -78,7 +83,6 @@ export function LandingPage() {
         return map;
     }, [assignments]);
 
-    // Build a member name map: userId -> name
     const memberNameMap = useMemo(() => {
         const map = new Map<string, string>();
         for (const m of members) {
@@ -87,7 +91,7 @@ export function LandingPage() {
         return map;
     }, [members]);
 
-    const currentUserId = getCurrentUserId();
+    const currentUserId = useMemo(() => getCurrentUserId(), []);
 
     const virtualizer = useWindowVirtualizer({
         count: plants.length,
@@ -191,9 +195,8 @@ export function LandingPage() {
         [totalSize]
     );
 
-    // Determine if the detail plant is already watered today
     const detailPlantWateredBy = detailPlant ? wateredTodayMap.get(detailPlant.id) : undefined;
-    const detailPlantWateredByName = detailPlantWateredBy ? (memberNameMap.get(detailPlantWateredBy) ?? "a household member") : undefined;
+    const detailPlantWateredByName = resolveActorName(detailPlantWateredBy, memberNameMap);
 
     if (!isReady) {
         return (
@@ -239,7 +242,7 @@ export function LandingPage() {
                         const plant = plants[virtualRow.index]!;
                         const assignment = assignmentMap.get(plant.id);
                         const wateredByActorId = wateredTodayMap.get(plant.id);
-                        const wateredByName = wateredByActorId ? (memberNameMap.get(wateredByActorId) ?? "a household member") : undefined;
+                        const wateredByName = resolveActorName(wateredByActorId, memberNameMap);
                         const alreadyWatered = wateredTodayMap.has(plant.id);
 
                         // oxlint-disable-next-line react-perf/jsx-no-new-object-as-prop -- Virtual row positioning requires per-item inline styles

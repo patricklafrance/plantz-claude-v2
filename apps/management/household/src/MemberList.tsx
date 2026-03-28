@@ -2,6 +2,8 @@ import { UserMinus } from "lucide-react";
 
 import { Badge, Button } from "@packages/components";
 
+import { formatDate } from "./dateUtils.ts";
+
 export interface MemberRow {
     id: string;
     name: string;
@@ -13,10 +15,6 @@ export interface MemberRow {
 interface MemberListProps {
     members: MemberRow[];
     onRemove: (member: MemberRow) => void;
-}
-
-function formatDate(date: Date): string {
-    return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 
 export function MemberList({ members, onRemove }: MemberListProps) {

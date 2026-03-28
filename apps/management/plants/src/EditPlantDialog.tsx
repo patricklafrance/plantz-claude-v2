@@ -21,13 +21,12 @@ import {
     SelectValue,
     DatePicker
 } from "@packages/components";
-import { getAuthHeaders } from "@packages/core-module";
-import type { Household } from "@packages/core-module";
 import { locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
 import type { Plant } from "@packages/core-plants";
 
 import { useManagementPlantsCollection } from "./ManagementPlantsContext.tsx";
 import { createManagementPlantActions } from "./plantsCollection.ts";
+import { useHouseholds } from "./useHouseholds.ts";
 
 interface EditPlantDialogProps {
     plant: Plant | null;
@@ -49,20 +48,13 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
     const [wateringQuantity, setWateringQuantity] = useState("");
     const [wateringType, setWateringType] = useState("");
     const [householdId, setHouseholdId] = useState<string | undefined>(undefined);
-    const [households, setHouseholds] = useState<Household[]>([]);
     const [saved, setSaved] = useState(false);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const plantIdRef = useRef<string | null>(null);
 
     const collection = useManagementPlantsCollection();
     const actions = useMemo(() => createManagementPlantActions(collection), [collection]);
-
-    useEffect(() => {
-        fetch("/api/management/plants/households", { headers: getAuthHeaders() })
-            .then(r => (r.ok ? r.json() : []))
-            .then((data: Household[]) => setHouseholds(data))
-            .catch(() => setHouseholds([]));
-    }, []);
+    const households = useHouseholds();
 
     useEffect(() => {
         if (plant) {

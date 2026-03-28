@@ -49,7 +49,6 @@ export function DeleteHouseholdConfirmDialog({ household, open, onOpenChange }: 
 
     function handleOpenChange(nextOpen: boolean) {
         if (!nextOpen && isPending) {
-            // Don't allow closing while deleting
             return;
         }
         onOpenChange(nextOpen);

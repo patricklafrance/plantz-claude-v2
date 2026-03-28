@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, type FormEvent } from "react";
+import { useState, useMemo, type FormEvent } from "react";
 
 import {
     Dialog,
@@ -19,12 +19,11 @@ import {
     SelectValue,
     DatePicker
 } from "@packages/components";
-import { getAuthHeaders } from "@packages/core-module";
-import type { Household } from "@packages/core-module";
 import { locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
 
 import { useManagementPlantsCollection } from "./ManagementPlantsContext.tsx";
 import { createManagementPlantActions } from "./plantsCollection.ts";
+import { useHouseholds } from "./useHouseholds.ts";
 
 interface CreatePlantDialogProps {
     open: boolean;
@@ -52,19 +51,12 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
     const [wateringType, setWateringType] = useState("surface");
     const [firstWateringDate, setFirstWateringDate] = useState<Date | undefined>(defaultFirstWateringDate ?? tomorrow());
     const [householdId, setHouseholdId] = useState<string | undefined>(undefined);
-    const [households, setHouseholds] = useState<Household[]>([]);
 
     const collection = useManagementPlantsCollection();
     const actions = useMemo(() => createManagementPlantActions(collection), [collection]);
+    const households = useHouseholds();
 
     const isValid = name.trim() !== "" && wateringQuantity.trim() !== "" && firstWateringDate !== undefined;
-
-    useEffect(() => {
-        fetch("/api/management/plants/households", { headers: getAuthHeaders() })
-            .then(r => (r.ok ? r.json() : []))
-            .then((data: Household[]) => setHouseholds(data))
-            .catch(() => setHouseholds([]));
-    }, []);
 
     function resetForm() {
         setName("");

@@ -1,16 +1,12 @@
 import { Pencil } from "lucide-react";
 
 import { Button } from "@packages/components";
+import type { ResponsibilityAssignment } from "@packages/core-plants/assignment";
 
-export interface AssignmentRow {
-    id: string;
-    householdId: string;
-    plantId: string;
+export type AssignmentRow = ResponsibilityAssignment & {
     plantName: string;
-    assignmentType: "fixed" | "rotating" | "unassigned";
-    assignedUserId?: string;
     assignedMemberName?: string;
-}
+};
 
 interface AssignmentListProps {
     assignments: AssignmentRow[];
