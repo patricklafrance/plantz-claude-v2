@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw";
 
 import type { Household, HouseholdMember } from "@packages/core-module";
 import { getUserId, householdsDb, membersDb, usersDb } from "@packages/core-module/db";
+import { assignmentsDb, plantsDb } from "@packages/core-plants/db";
 
 export const managementHouseholdHandlers = [
     http.get("/api/management/households", ({ request }) => {
@@ -145,5 +146,44 @@ export const managementHouseholdHandlers = [
         }
 
         return new HttpResponse(null, { status: 204 });
+    }),
+
+    http.get("/api/management/households/:id/assignments", ({ request, params }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const { id } = params;
+        const assignments = assignmentsDb.getAllByHousehold(id as string);
+
+        const enriched = assignments.map(a => ({
+            ...a,
+            plantName: plantsDb.get(a.plantId)?.name ?? a.plantId
+        }));
+
+        return HttpResponse.json(enriched);
+    }),
+
+    http.put("/api/management/households/:id/assignments/:plantId", async ({ request, params }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const { id: householdId, plantId } = params;
+        const body = (await request.json()) as { assignmentType: "fixed" | "rotating" | "unassigned"; assignedUserId?: string };
+
+        const assignment = assignmentsDb.insert({
+            id: `${householdId as string}-${plantId as string}`,
+            householdId: householdId as string,
+            plantId: plantId as string,
+            assignmentType: body.assignmentType,
+            assignedUserId: body.assignmentType === "fixed" ? body.assignedUserId : undefined
+        });
+
+        return HttpResponse.json(assignment);
     })
 ];

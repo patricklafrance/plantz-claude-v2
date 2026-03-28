@@ -149,6 +149,9 @@ importers:
       '@packages/core-module':
         specifier: workspace:*
         version: link:../../../packages/core-module
+      '@packages/core-plants':
+        specifier: workspace:*
+        version: link:../../../packages/core-plants
       '@squide/firefly':
         specifier: ^16.2.0
         version: 16.2.0(@opentelemetry/api@1.9.0)(@tanstack/react-query@5.90.21(react@19.2.4))(launchdarkly-js-client-sdk@3.9.0)(msw@2.12.10(@types/node@25.3.3)(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react-router@7.12.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)

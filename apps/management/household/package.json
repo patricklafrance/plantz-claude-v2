@@ -13,6 +13,7 @@
     "dependencies": {
         "@packages/components": "workspace:*",
         "@packages/core-module": "workspace:*",
+        "@packages/core-plants": "workspace:*",
         "@tanstack/db": "^0.5.32",
         "@tanstack/query-db-collection": "^1.0.29",
         "@tanstack/react-db": "^0.1.76",

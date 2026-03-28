@@ -6,8 +6,11 @@ import { Button } from "@packages/components";
 import type { Household } from "@packages/core-module";
 import { getAuthHeaders } from "@packages/core-module";
 
+import type { AssignmentRow } from "./AssignmentList.tsx";
+import { AssignmentList } from "./AssignmentList.tsx";
 import { CreateHouseholdDialog } from "./CreateHouseholdDialog.tsx";
 import { DeleteHouseholdConfirmDialog } from "./DeleteHouseholdConfirmDialog.tsx";
+import { EditAssignmentDialog } from "./EditAssignmentDialog.tsx";
 import { EditHouseholdDialog } from "./EditHouseholdDialog.tsx";
 import { InviteMemberDialog } from "./InviteMemberDialog.tsx";
 import { useManagementHouseholdCollection } from "./ManagementHouseholdContext.tsx";
@@ -42,6 +45,18 @@ async function fetchMembers(householdId: string): Promise<EnrichedMember[]> {
     return raw.map(m => ({ ...m, joinedAt: new Date(m.joinedAt) }));
 }
 
+async function fetchAssignments(householdId: string): Promise<AssignmentRow[]> {
+    const response = await fetch(`/api/management/households/${householdId}/assignments`, {
+        headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+        return [];
+    }
+
+    return (await response.json()) as AssignmentRow[];
+}
+
 export function HouseholdPage() {
     const [createOpen, setCreateOpen] = useState(false);
     const [editHousehold, setEditHousehold] = useState<Household | null>(null);
@@ -52,6 +67,9 @@ export function HouseholdPage() {
     const [removeMember, setRemoveMember] = useState<MemberRow | null>(null);
     const [removeOpen, setRemoveOpen] = useState(false);
     const [members, setMembers] = useState<EnrichedMember[]>([]);
+    const [assignments, setAssignments] = useState<AssignmentRow[]>([]);
+    const [editAssignment, setEditAssignment] = useState<AssignmentRow | null>(null);
+    const [editAssignmentOpen, setEditAssignmentOpen] = useState(false);
 
     const collection = useManagementHouseholdCollection();
     const { data: households, isReady } = useLiveQuery(q => q.from({ household: collection }));
@@ -63,6 +81,11 @@ export function HouseholdPage() {
         setMembers(fetched);
     }, []);
 
+    const loadAssignments = useCallback(async (h: Household) => {
+        const fetched = await fetchAssignments(h.id);
+        setAssignments(fetched);
+    }, []);
+
     useEffect(() => {
         if (household) {
             void loadMembers(household);
@@ -70,6 +93,14 @@ export function HouseholdPage() {
             setMembers([]);
         }
     }, [household, loadMembers]);
+
+    useEffect(() => {
+        if (household) {
+            void loadAssignments(household);
+        } else {
+            setAssignments([]);
+        }
+    }, [household, loadAssignments]);
 
     function handleEdit(h: Household) {
         setEditHousehold(h);
@@ -97,6 +128,26 @@ export function HouseholdPage() {
             void loadMembers(household);
         }
     }
+
+    function handleEditAssignment(assignment: AssignmentRow) {
+        setEditAssignment(assignment);
+        setEditAssignmentOpen(true);
+    }
+
+    function handleAssignmentSaved(updated: AssignmentRow) {
+        setAssignments(prev => prev.map(a => (a.id === updated.id ? updated : a)));
+    }
+
+    // Enrich assignments with member names from loaded members
+    const enrichedAssignments: AssignmentRow[] = assignments.map(a => {
+        if (a.assignmentType === "fixed" && a.assignedUserId) {
+            const member = members.find(m => m.userId === a.assignedUserId);
+            return { ...a, assignedMemberName: member?.name ?? a.assignedUserId };
+        }
+        return a;
+    });
+
+    const memberOptions = members.map(m => ({ id: m.id, userId: m.userId, name: m.name }));
 
     // The API returns enriched member data (name + email) so no additional lookup is needed.
     const memberRows: MemberRow[] = members.map(m => ({
@@ -160,6 +211,15 @@ export function HouseholdPage() {
                             <MemberList members={memberRows} onRemove={handleRemoveMember} />
                         </div>
                     </div>
+
+                    <div className="flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-semibold">Responsibility Assignments</h3>
+                        </div>
+                        <div className="border-border rounded-lg border">
+                            <AssignmentList assignments={enrichedAssignments} onEdit={handleEditAssignment} />
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -175,6 +235,14 @@ export function HouseholdPage() {
                         open={removeOpen}
                         onOpenChange={setRemoveOpen}
                         onRemoved={handleMemberRemoved}
+                    />
+                    <EditAssignmentDialog
+                        assignment={editAssignment}
+                        members={memberOptions}
+                        householdId={household.id}
+                        open={editAssignmentOpen}
+                        onOpenChange={setEditAssignmentOpen}
+                        onSaved={handleAssignmentSaved}
                     />
                 </>
             )}

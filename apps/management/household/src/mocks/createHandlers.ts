@@ -1,6 +1,6 @@
 import { delay, http, HttpResponse } from "msw";
 
-import type { Household, HouseholdMember } from "@packages/core-module";
+import type { Household } from "@packages/core-module";
 
 type HouseholdsData = Household[] | "loading" | "error";
 
@@ -13,13 +13,25 @@ interface MemberSeed {
     joinedAt: Date;
 }
 
-export function createManagementHouseholdHandlers(data: HouseholdsData, memberSeeds: MemberSeed[] = []) {
+interface AssignmentSeed {
+    id: string;
+    householdId: string;
+    plantId: string;
+    plantName: string;
+    assignmentType: "fixed" | "rotating" | "unassigned";
+    assignedUserId?: string;
+}
+
+export function createManagementHouseholdHandlers(data: HouseholdsData, memberSeeds: MemberSeed[] = [], assignmentSeeds: AssignmentSeed[] = []) {
     // Keep a mutable copy so POST/PUT/DELETE mutations are visible to the
     // subsequent GET refetch that `collection.utils.refetch()` triggers.
     const store: Household[] = typeof data === "string" ? [] : [...data];
 
     // Mutable members store for Storybook — mirrors the membersDb pattern
     const membersStore: MemberSeed[] = [...memberSeeds];
+
+    // Mutable assignments store for Storybook — mirrors the assignmentsDb pattern
+    const assignmentsStore: AssignmentSeed[] = [...assignmentSeeds];
 
     return [
         http.get("/api/management/households", async () => {
@@ -143,6 +155,42 @@ export function createManagementHouseholdHandlers(data: HouseholdsData, memberSe
             }
 
             return new HttpResponse(null, { status: 204 });
+        }),
+
+        http.get("/api/management/households/:id/assignments", ({ params }) => {
+            const householdId = params["id"] as string;
+            const assignments = assignmentsStore.filter(a => a.householdId === householdId);
+
+            return HttpResponse.json(assignments);
+        }),
+
+        http.put("/api/management/households/:id/assignments/:plantId", async ({ params, request }) => {
+            const householdId = params["id"] as string;
+            const plantId = params["plantId"] as string;
+            const body = (await request.json()) as { assignmentType: "fixed" | "rotating" | "unassigned"; assignedUserId?: string };
+
+            const id = `${householdId}-${plantId}`;
+            const existingIdx = assignmentsStore.findIndex(a => a.id === id);
+
+            const existing = existingIdx !== -1 ? assignmentsStore[existingIdx] : assignmentsStore.find(a => a.plantId === plantId);
+            const plantName = existing?.plantName ?? plantId;
+
+            const updated: AssignmentSeed = {
+                id,
+                householdId,
+                plantId,
+                plantName,
+                assignmentType: body.assignmentType,
+                assignedUserId: body.assignmentType === "fixed" ? body.assignedUserId : undefined
+            };
+
+            if (existingIdx !== -1) {
+                assignmentsStore[existingIdx] = updated;
+            } else {
+                assignmentsStore.push(updated);
+            }
+
+            return HttpResponse.json(updated);
         })
     ];
 }

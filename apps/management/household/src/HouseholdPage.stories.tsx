@@ -32,6 +32,36 @@ const SEED_MEMBERS = [
     }
 ];
 
+const SEED_ASSIGNMENTS = [
+    {
+        id: "household-1-plant-1",
+        householdId: "household-1",
+        plantId: "plant-1",
+        plantName: "Monstera Deliciosa",
+        assignmentType: "fixed" as const,
+        assignedUserId: "user-alice",
+        assignedMemberName: "Alice"
+    },
+    {
+        id: "household-1-plant-2",
+        householdId: "household-1",
+        plantId: "plant-2",
+        plantName: "Fiddle Leaf Fig",
+        assignmentType: "rotating" as const,
+        assignedUserId: undefined,
+        assignedMemberName: undefined
+    },
+    {
+        id: "household-1-plant-3",
+        householdId: "household-1",
+        plantId: "plant-3",
+        plantName: "Snake Plant",
+        assignmentType: "unassigned" as const,
+        assignedUserId: undefined,
+        assignedMemberName: undefined
+    }
+];
+
 const meta = {
     title: "Management/Household/Pages/HouseholdPage",
     component: HouseholdPage,
@@ -65,6 +95,13 @@ export const Empty: Story = {
 export const WithHousehold: Story = {
     parameters: {
         msw: { handlers: createManagementHouseholdHandlers([SEED_HOUSEHOLD], SEED_MEMBERS) }
+    }
+};
+
+// [visual] HouseholdPage: shows assignments section with mixed assignment types
+export const WithAssignments: Story = {
+    parameters: {
+        msw: { handlers: createManagementHouseholdHandlers([SEED_HOUSEHOLD], SEED_MEMBERS, SEED_ASSIGNMENTS) }
     }
 };
 
@@ -234,5 +271,145 @@ export const AfterRemoveMember: Story = {
                 throw new Error("Bob is still in the list");
             }
         });
+    }
+};
+
+// [interactive] Clicking "Edit" on an assignment row opens the EditAssignmentDialog pre-filled
+export const EditFixedAssignment: Story = {
+    parameters: {
+        msw: { handlers: createManagementHouseholdHandlers([SEED_HOUSEHOLD], SEED_MEMBERS, SEED_ASSIGNMENTS) }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const body = within(canvasElement.ownerDocument.body);
+
+        // Wait for the assignment list to render
+        await canvas.findByText("Monstera Deliciosa");
+
+        const editButton = await canvas.findByRole("button", { name: /edit assignment for monstera deliciosa/i });
+        await userEvent.click(editButton);
+
+        // Dialog should open pre-filled with "fixed" selected
+        await body.findByRole("radio", { name: /fixed/i });
+    }
+};
+
+// [interactive] Switching assignment to "Fixed" and choosing a member, then saving -> row updates
+// Uses a single-plant seed to keep the "Bob" assertion unambiguous (Bob also appears in the Members
+// table, so we scope the check to the assignment row's specific cell)
+export const AfterSaveFixedAssignment: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementHouseholdHandlers([SEED_HOUSEHOLD], SEED_MEMBERS, [
+                { id: "household-1-plant-3", householdId: "household-1", plantId: "plant-3", plantName: "Snake Plant", assignmentType: "unassigned" }
+            ])
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const body = within(canvasElement.ownerDocument.body);
+
+        // Wait for Snake Plant (unassigned) to render
+        await canvas.findByText("Snake Plant");
+
+        const editButton = await canvas.findByRole("button", { name: /edit assignment for snake plant/i });
+        await userEvent.click(editButton);
+
+        // Select "Fixed"
+        const fixedRadio = await body.findByRole("radio", { name: /fixed/i });
+        await userEvent.click(fixedRadio);
+
+        // Select Bob as the member
+        const memberSelect = await body.findByRole("combobox");
+        await userEvent.click(memberSelect);
+        const bobOption = await body.findByRole("option", { name: /bob/i });
+        await userEvent.click(bobOption);
+
+        const saveButton = await body.findByRole("button", { name: /^save$/i });
+        await userEvent.click(saveButton);
+
+        // The assignment row should now show Bob — check within the assignments table only
+        const assignmentTable = await canvas.findByRole("table", { name: /plant responsibility assignments/i });
+        await within(assignmentTable).findByText("Bob");
+    }
+};
+
+// [interactive] Switching from "Fixed" to "Rotating" and saving -> row updates to "Rotating"
+// Single-plant seed so the only "Rotating" text that can appear is from the updated row
+export const AfterSaveRotatingAssignment: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementHouseholdHandlers([SEED_HOUSEHOLD], SEED_MEMBERS, [
+                {
+                    id: "household-1-plant-1",
+                    householdId: "household-1",
+                    plantId: "plant-1",
+                    plantName: "Monstera Deliciosa",
+                    assignmentType: "fixed",
+                    assignedUserId: "user-alice"
+                }
+            ])
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const body = within(canvasElement.ownerDocument.body);
+
+        // Wait for Monstera Deliciosa (fixed / Alice) to render
+        const assignmentTable = await canvas.findByRole("table", { name: /plant responsibility assignments/i });
+        await within(assignmentTable).findByText("Alice");
+
+        const editButton = await canvas.findByRole("button", { name: /edit assignment for monstera deliciosa/i });
+        await userEvent.click(editButton);
+
+        // Switch to "Rotating"
+        const rotatingRadio = await body.findByRole("radio", { name: /rotating/i });
+        await userEvent.click(rotatingRadio);
+
+        const saveButton = await body.findByRole("button", { name: /^save$/i });
+        await userEvent.click(saveButton);
+
+        // The row should now show "Rotating" instead of Alice
+        await within(assignmentTable).findByText("Rotating");
+    }
+};
+
+// [interactive] Switching to "Unassigned" and saving -> row updates to "Anyone"
+// Single-plant seed so the only "Anyone" text comes from the updated row
+export const AfterSaveUnassignedAssignment: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementHouseholdHandlers([SEED_HOUSEHOLD], SEED_MEMBERS, [
+                {
+                    id: "household-1-plant-1",
+                    householdId: "household-1",
+                    plantId: "plant-1",
+                    plantName: "Monstera Deliciosa",
+                    assignmentType: "fixed",
+                    assignedUserId: "user-alice"
+                }
+            ])
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const body = within(canvasElement.ownerDocument.body);
+
+        // Wait for Monstera Deliciosa (fixed / Alice) to render
+        const assignmentTable = await canvas.findByRole("table", { name: /plant responsibility assignments/i });
+        await within(assignmentTable).findByText("Alice");
+
+        const editButton = await canvas.findByRole("button", { name: /edit assignment for monstera deliciosa/i });
+        await userEvent.click(editButton);
+
+        // Switch to "Unassigned"
+        const unassignedRadio = await body.findByRole("radio", { name: /unassigned/i });
+        await userEvent.click(unassignedRadio);
+
+        const saveButton = await body.findByRole("button", { name: /^save$/i });
+        await userEvent.click(saveButton);
+
+        // The row for Monstera should now show "Anyone"
+        await within(assignmentTable).findByText("Anyone");
     }
 };
