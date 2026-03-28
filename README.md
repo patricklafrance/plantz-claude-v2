@@ -209,8 +209,8 @@ agent-hooks/
   tests/
     contract-sync.test.mjs       # Hook registration contract test
     pre-commit/                  # 7 test files
-    preflight/                   # 7 test files
-    adlc-supervisor/             # 3 test files
+    preflight/                   # 6 test files
+    adlc-supervisor/             # 4 test files
     adlc-verification/
       *.test.mjs                 # 3 root tests (subagent-stop, run-metrics, utils)
       architect/                 # 3 test files

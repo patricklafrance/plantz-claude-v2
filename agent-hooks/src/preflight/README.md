@@ -81,7 +81,7 @@ Those belong to `supervisor`.
     - Blocks bare `pnpm typecheck` without `--filter`
 
 - `node-modules-read.mjs`
-    - Blocks `Read` access to `node_modules`
+    - Blocks `Read` and `Glob` access to `node_modules` (type definitions allowed)
     - Blocks Bash inspection commands into `node_modules`
 
 ## Rewrites
