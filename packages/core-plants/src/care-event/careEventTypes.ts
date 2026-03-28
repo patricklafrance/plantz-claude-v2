@@ -6,6 +6,7 @@ export interface CareEvent {
     eventType: CareEventType;
     eventDate: Date;
     notes?: string;
+    actorId?: string;
 }
 
 export interface CareInsight {

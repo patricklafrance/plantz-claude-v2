@@ -144,4 +144,9 @@ export function generatePlants(count?: number, userId?: string): Plant[] {
 }
 
 // Pre-generated stable seed data for consistent dev experience
-export const defaultSeedPlants: Plant[] = generatePlants(125, "user-alice").concat(generatePlants(125, "user-bob"));
+// The first 30 of Alice's plants are shared in the "Green House" household.
+const alicePlants = generatePlants(125, "user-alice").map((plant, index) =>
+    index < 30 ? { ...plant, householdId: "household-green-house" } : plant
+);
+
+export const defaultSeedPlants: Plant[] = alicePlants.concat(generatePlants(125, "user-bob"));

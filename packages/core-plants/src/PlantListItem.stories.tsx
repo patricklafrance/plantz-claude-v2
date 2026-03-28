@@ -173,6 +173,18 @@ export const MistLeavesFalse: Story = {
     }
 };
 
+export const SharedPlant: Story = {
+    args: {
+        plant: makePlant({ householdId: "household-green-house" })
+    }
+};
+
+export const SharedPlantDue: Story = {
+    args: {
+        plant: makePlant({ householdId: "household-green-house", nextWateringDate: FAR_PAST })
+    }
+};
+
 export const WithHeader: Story = {
     args: {
         plant: makePlant()

@@ -9,6 +9,7 @@ export { FilterBar } from "./FilterBar.tsx";
 export { usePlantFilters } from "./usePlantFilters.ts";
 export type { PlantFilters } from "./usePlantFilters.ts";
 export { CareEventBadge } from "./CareEventBadge.tsx";
+export { SharedBadge } from "./SharedBadge.tsx";
 export { CareInsightsSummary } from "./CareInsightsSummary.tsx";
 export { AdjustmentSuggestionCard } from "./AdjustmentSuggestionCard.tsx";
 export { AdjustmentHistoryList } from "./AdjustmentHistoryList.tsx";

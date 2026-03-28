@@ -12,7 +12,8 @@
         "./db": "./src/msw/index.ts",
         "./test-utils": "./src/test-utils/index.ts",
         "./care-event": "./src/care-event/index.ts",
-        "./vacation": "./src/vacation/index.ts"
+        "./vacation": "./src/vacation/index.ts",
+        "./assignment": "./src/assignment/index.ts"
     },
     "scripts": {
         "typecheck": "tsgo"

@@ -5,5 +5,6 @@ export const careEventSchema = z.object({
     plantId: z.string(),
     eventType: z.enum(["watered", "skipped", "delegated"]),
     eventDate: z.coerce.date(),
-    notes: z.string().optional()
+    notes: z.string().optional(),
+    actorId: z.string().optional()
 });
