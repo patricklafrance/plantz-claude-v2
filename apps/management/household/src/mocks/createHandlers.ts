@@ -32,14 +32,33 @@ export interface StoryMyInvitation {
     inviterName: string;
 }
 
+export interface StoryPlant {
+    id: string;
+    name: string;
+    householdId: string;
+}
+
+export interface StoryAssignment {
+    id: string;
+    plantId: string;
+    householdId: string;
+    strategy: "fixed" | "rotating" | "unassigned";
+    assignedUserId?: string;
+    responsibleUserName?: string;
+    lastRotatedDate?: Date;
+}
+
 interface CreateHandlersOptions {
     households: HouseholdData;
     members?: StoryMember[];
     pendingInvitations?: StoryInvitation[];
     myInvitations?: StoryMyInvitation[];
+    sharedPlants?: StoryPlant[];
+    assignments?: StoryAssignment[];
     postDelay?: "infinite";
     inviteResult?: "success" | "user-not-found" | "loading";
     acceptDeclineDelay?: "infinite";
+    assignmentUpdateDelay?: "infinite";
 }
 
 export function createManagementHouseholdHandlers(options: CreateHandlersOptions) {
@@ -48,10 +67,16 @@ export function createManagementHouseholdHandlers(options: CreateHandlersOptions
         members = [],
         pendingInvitations = [],
         myInvitations = [],
+        sharedPlants = [],
+        assignments = [],
         postDelay,
         inviteResult = "success",
-        acceptDeclineDelay
+        acceptDeclineDelay,
+        assignmentUpdateDelay
     } = options;
+
+    // Clone assignments so story mutations don't leak across stories
+    const mutableAssignments = assignments.map(a => ({ ...a }));
 
     return [
         http.get("/api/management/household", async () => {
@@ -127,6 +152,69 @@ export function createManagementHouseholdHandlers(options: CreateHandlersOptions
             }
 
             return HttpResponse.json({ status: "declined" });
+        }),
+        http.get("/api/management/household/:id/shared-plants", ({ params }) => {
+            if (typeof households === "string") {
+                return HttpResponse.json([]);
+            }
+
+            const householdPlants = sharedPlants.filter(p => p.householdId === params.id);
+
+            return HttpResponse.json(householdPlants);
+        }),
+        http.get("/api/management/household/:id/assignments", ({ params }) => {
+            if (typeof households === "string") {
+                return HttpResponse.json([]);
+            }
+
+            const householdAssignments = mutableAssignments.filter(a => a.householdId === params.id);
+
+            return HttpResponse.json(householdAssignments);
+        }),
+        http.patch("/api/management/household/assignments/:plantId", async ({ params, request }) => {
+            if (assignmentUpdateDelay === "infinite") {
+                await delay("infinite");
+
+                return HttpResponse.json({});
+            }
+
+            const body = (await request.json()) as { strategy: string; assignedUserId?: string };
+            const existing = mutableAssignments.find(a => a.plantId === params.plantId);
+
+            if (existing) {
+                existing.strategy = body.strategy as "fixed" | "rotating" | "unassigned";
+                existing.assignedUserId = body.strategy === "fixed" ? body.assignedUserId : undefined;
+
+                // Resolve responsibleUserName for the response
+                if (body.strategy === "fixed" && body.assignedUserId) {
+                    const member = members.find(m => m.userId === body.assignedUserId);
+                    existing.responsibleUserName = member?.userName;
+                } else if (body.strategy === "rotating" && members.length > 0) {
+                    existing.responsibleUserName = members[0]?.userName;
+                } else {
+                    existing.responsibleUserName = undefined;
+                }
+
+                return HttpResponse.json(existing);
+            }
+
+            const newAssignment = {
+                id: `assignment-new-${params.plantId}`,
+                plantId: params.plantId as string,
+                householdId: typeof households !== "string" && households[0] ? households[0].id : "h-1",
+                strategy: body.strategy as "fixed" | "rotating" | "unassigned",
+                assignedUserId: body.strategy === "fixed" ? body.assignedUserId : undefined,
+                responsibleUserName: undefined as string | undefined
+            };
+
+            if (body.strategy === "fixed" && body.assignedUserId) {
+                const member = members.find(m => m.userId === body.assignedUserId);
+                newAssignment.responsibleUserName = member?.userName;
+            }
+
+            mutableAssignments.push(newAssignment);
+
+            return HttpResponse.json(newAssignment);
         })
     ];
 }

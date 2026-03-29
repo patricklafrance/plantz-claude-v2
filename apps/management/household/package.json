@@ -14,6 +14,7 @@
         "@packages/components": "workspace:*",
         "@packages/core-household": "workspace:*",
         "@packages/core-module": "workspace:*",
+        "@packages/core-plants": "workspace:*",
         "@tanstack/db": "^0.5.32",
         "@tanstack/react-db": "^0.1.76",
         "lucide-react": "^0.577.0"

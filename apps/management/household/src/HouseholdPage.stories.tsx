@@ -5,7 +5,14 @@ import { screen, userEvent, within } from "storybook/test";
 import { makeHousehold } from "@packages/core-household/test-utils";
 
 import { HouseholdPage } from "./HouseholdPage.tsx";
-import { createManagementHouseholdHandlers, type StoryInvitation, type StoryMember, type StoryMyInvitation } from "./mocks/createHandlers.ts";
+import {
+    createManagementHouseholdHandlers,
+    type StoryAssignment,
+    type StoryInvitation,
+    type StoryMember,
+    type StoryMyInvitation,
+    type StoryPlant
+} from "./mocks/createHandlers.ts";
 import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
 
 const aliceHousehold = makeHousehold({ id: "h-1", name: "The Plant House" });
@@ -37,6 +44,28 @@ const myInvitationFromAlice: StoryMyInvitation = {
     householdName: "The Plant House",
     inviterName: "Alice"
 };
+
+const bobMember: StoryMember = {
+    id: "m-2",
+    householdId: "h-1",
+    userId: "user-bob",
+    userName: "Bob",
+    joinedDate: new Date(2025, 1, 15)
+};
+
+const sharedPlants: StoryPlant[] = [
+    { id: "plant-1", name: "Monstera Deliciosa", householdId: "h-1" },
+    { id: "plant-2", name: "Fiddle Leaf Fig", householdId: "h-1" },
+    { id: "plant-3", name: "Snake Plant", householdId: "h-1" },
+    { id: "plant-4", name: "Pothos", householdId: "h-1" }
+];
+
+const mixedAssignments: StoryAssignment[] = [
+    { id: "a-1", plantId: "plant-1", householdId: "h-1", strategy: "fixed", assignedUserId: "user-alice", responsibleUserName: "Alice" },
+    { id: "a-2", plantId: "plant-2", householdId: "h-1", strategy: "rotating", responsibleUserName: "Bob", lastRotatedDate: new Date(2025, 0, 1) },
+    { id: "a-3", plantId: "plant-3", householdId: "h-1", strategy: "unassigned" },
+    { id: "a-4", plantId: "plant-4", householdId: "h-1", strategy: "fixed", assignedUserId: "user-bob", responsibleUserName: "Bob" }
+];
 
 const meta = {
     title: "Management/Household/Pages/HouseholdPage",
@@ -405,5 +434,135 @@ export const AfterDecline: Story = {
 
         // Wait for the invitation to disappear
         await canvas.findByText("No household yet");
+    }
+};
+
+// --- Slice 4: Shared plants & responsibility assignment ---
+
+// [visual] The household detail page shows a section listing all plants shared with the household
+// [visual] Each shared plant displays its current responsibility setting
+// [visual] When set to a specific member, that member's name is displayed next to the plant
+// [visual] When set to rotating, a "Rotating" label is displayed with the name of the member currently in rotation
+export const WithSharedPlants: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementHouseholdHandlers({
+                households: [aliceHousehold],
+                members: [aliceMember, bobMember],
+                sharedPlants,
+                assignments: mixedAssignments
+            })
+        }
+    }
+};
+
+// [visual] Shared plants with no assignments yet (all unassigned)
+export const WithSharedPlantsUnassigned: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementHouseholdHandlers({
+                households: [aliceHousehold],
+                members: [aliceMember, bobMember],
+                sharedPlants,
+                assignments: []
+            })
+        }
+    }
+};
+
+// [interactive] Clicking on a plant's responsibility setting opens a selector with options
+export const WithResponsibilitySelectorOpen: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementHouseholdHandlers({
+                households: [aliceHousehold],
+                members: [aliceMember, bobMember],
+                sharedPlants,
+                assignments: mixedAssignments
+            })
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        // Wait for the shared plants section to render, then click the first select trigger
+        const trigger = await canvas.findByLabelText("Responsibility for Monstera Deliciosa");
+        await userEvent.click(trigger);
+    }
+};
+
+// [interactive] Selecting a responsibility option shows a loading indicator on the selector
+export const WithAssignmentUpdateLoading: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementHouseholdHandlers({
+                households: [aliceHousehold],
+                members: [aliceMember, bobMember],
+                sharedPlants,
+                assignments: mixedAssignments,
+                assignmentUpdateDelay: "infinite"
+            })
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const trigger = await canvas.findByLabelText("Responsibility for Snake Plant");
+        await userEvent.click(trigger);
+
+        // Select "Rotating" from the dropdown (renders in a portal)
+        const option = await screen.findByRole("option", { name: "Rotating" });
+        await userEvent.click(option);
+    }
+};
+
+// [interactive] After the assignment succeeds, the updated responsibility is displayed on the plant row
+export const AfterAssignmentChange: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementHouseholdHandlers({
+                households: [aliceHousehold],
+                members: [aliceMember, bobMember],
+                sharedPlants,
+                assignments: mixedAssignments
+            })
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        // Change Snake Plant (unassigned) to "Alice" (fixed)
+        const trigger = await canvas.findByLabelText("Responsibility for Snake Plant");
+        await userEvent.click(trigger);
+
+        const option = await screen.findByRole("option", { name: "Alice" });
+        await userEvent.click(option);
+
+        // After the mutation resolves, the assignment should be updated
+        // Wait for the select to re-enable (loading finished)
+        await canvas.findByLabelText("Responsibility for Snake Plant");
+    }
+};
+
+// [interactive] Changing from one strategy to another updates the display accordingly
+export const AfterStrategySwitch: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementHouseholdHandlers({
+                households: [aliceHousehold],
+                members: [aliceMember, bobMember],
+                sharedPlants,
+                assignments: mixedAssignments
+            })
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        // Change Monstera (fixed:Alice) to "Rotating"
+        const trigger = await canvas.findByLabelText("Responsibility for Monstera Deliciosa");
+        await userEvent.click(trigger);
+
+        const option = await screen.findByRole("option", { name: "Rotating" });
+        await userEvent.click(option);
+
+        // Wait for the assignment to be updated
+        await canvas.findByLabelText("Responsibility for Monstera Deliciosa");
     }
 };

@@ -1,6 +1,7 @@
 import type { HouseholdInvitation } from "../householdInvitationSchema.ts";
 import type { HouseholdMember } from "../householdMemberSchema.ts";
 import type { Household } from "../householdSchema.ts";
+import type { ResponsibilityAssignment } from "../responsibilityAssignmentSchema.ts";
 
 function generateId(): string {
     if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -48,3 +49,8 @@ export const defaultSeedInvitations: HouseholdInvitation[] = [
         creationDate: new Date(2025, 0, 2)
     }
 ];
+
+// Seed assignments are populated by the host after plants are shared.
+// This empty default is used by reset(); the host generates assignments
+// for pre-shared plants covering all three strategies.
+export const defaultSeedAssignments: ResponsibilityAssignment[] = [];

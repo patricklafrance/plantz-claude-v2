@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
 
 import {
+    assignmentsDb,
     defaultSeedHouseholds,
     defaultSeedInvitations,
     defaultSeedMembers,
@@ -27,9 +28,24 @@ invitationsDb.reset(defaultSeedInvitations);
 const aliceHousehold = defaultSeedHouseholds[0];
 if (aliceHousehold) {
     const alicePlants = plantsDb.getAllByUser("user-alice");
-    for (const plant of alicePlants.slice(0, 5)) {
+    const sharedPlants = alicePlants.slice(0, 5);
+
+    for (const plant of sharedPlants) {
         plantsDb.update(plant.id, { householdId: aliceHousehold.id });
     }
+
+    // Seed responsibility assignments covering all three strategies
+    const strategies = ["fixed", "rotating", "unassigned"] as const;
+    const seedAssignments = sharedPlants.map((plant, i) => ({
+        id: `assignment-${i + 1}`,
+        plantId: plant.id,
+        householdId: aliceHousehold.id,
+        strategy: strategies[i % strategies.length]!,
+        assignedUserId: strategies[i % strategies.length] === "fixed" ? "user-alice" : undefined,
+        lastRotatedDate: strategies[i % strategies.length] === "rotating" ? new Date(2025, 0, 1) : undefined
+    }));
+
+    assignmentsDb.reset(seedAssignments);
 }
 
 const runtime = initializeFirefly({

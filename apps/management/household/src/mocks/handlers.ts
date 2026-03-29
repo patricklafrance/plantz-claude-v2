@@ -1,8 +1,9 @@
 import { http, HttpResponse } from "msw";
 
 import type { Household } from "@packages/core-household";
-import { householdsDb, invitationsDb, membersDb } from "@packages/core-household/db";
+import { assignmentsDb, householdsDb, invitationsDb, membersDb } from "@packages/core-household/db";
 import { getUserId, usersDb } from "@packages/core-module/db";
+import { plantsDb } from "@packages/core-plants/db";
 
 export const managementHouseholdHandlers = [
     http.get("/api/management/household", ({ request }) => {
@@ -205,5 +206,138 @@ export const managementHouseholdHandlers = [
         }
 
         return HttpResponse.json(invitation);
+    }),
+
+    // --- Shared plants & responsibility assignment handlers ---
+
+    http.get("/api/management/household/:id/shared-plants", ({ params, request }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const plants = plantsDb.getAllByHousehold(params.id as string);
+
+        return HttpResponse.json(plants);
+    }),
+
+    http.get("/api/management/household/:id/assignments", ({ params, request }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const assignments = assignmentsDb.getAllByHousehold(params.id as string);
+
+        // Enrich with responsible user name
+        const members = membersDb.getAllByHousehold(params.id as string);
+        const enriched = assignments.map(assignment => {
+            let responsibleUserName: string | undefined;
+
+            if (assignment.strategy === "fixed" && assignment.assignedUserId) {
+                const user = usersDb.getById(assignment.assignedUserId);
+                responsibleUserName = user?.name;
+            } else if (assignment.strategy === "rotating") {
+                // Compute current rotation member
+                const sorted = [...members].sort((a, b) => {
+                    const dateDiff = a.joinedDate.getTime() - b.joinedDate.getTime();
+
+                    return dateDiff !== 0 ? dateDiff : a.id.localeCompare(b.id);
+                });
+
+                if (sorted.length > 0 && assignment.lastRotatedDate) {
+                    const daysSinceRotation = Math.floor((Date.now() - assignment.lastRotatedDate.getTime()) / (1000 * 60 * 60 * 24));
+                    const index = daysSinceRotation % sorted.length;
+                    const member = sorted[index];
+
+                    if (member) {
+                        const user = usersDb.getById(member.userId);
+                        responsibleUserName = user?.name;
+                    }
+                } else if (sorted.length > 0) {
+                    const user = usersDb.getById(sorted[0]!.userId);
+                    responsibleUserName = user?.name;
+                }
+            }
+
+            return {
+                ...assignment,
+                responsibleUserName
+            };
+        });
+
+        return HttpResponse.json(enriched);
+    }),
+
+    http.post("/api/management/household/assignments", async ({ request }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const body = (await request.json()) as { plantId: string; householdId: string; strategy: string; assignedUserId?: string };
+
+        const id =
+            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+                ? crypto.randomUUID()
+                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+
+        const assignment = assignmentsDb.insert({
+            id,
+            plantId: body.plantId,
+            householdId: body.householdId,
+            strategy: body.strategy as "fixed" | "rotating" | "unassigned",
+            assignedUserId: body.assignedUserId,
+            lastRotatedDate: body.strategy === "rotating" ? new Date() : undefined
+        });
+
+        return HttpResponse.json(assignment, { status: 201 });
+    }),
+
+    http.patch("/api/management/household/assignments/:plantId", async ({ params, request }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const body = (await request.json()) as { strategy: string; assignedUserId?: string };
+        const assignment = assignmentsDb.getByPlant(params.plantId as string);
+
+        if (!assignment) {
+            // Create a new assignment if one doesn't exist yet
+            const membership = membersDb.getByUserId(userId);
+
+            if (!membership) {
+                return new HttpResponse(null, { status: 403 });
+            }
+
+            const id =
+                typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+                    ? crypto.randomUUID()
+                    : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+
+            const newAssignment = assignmentsDb.insert({
+                id,
+                plantId: params.plantId as string,
+                householdId: membership.householdId,
+                strategy: body.strategy as "fixed" | "rotating" | "unassigned",
+                assignedUserId: body.strategy === "fixed" ? body.assignedUserId : undefined,
+                lastRotatedDate: body.strategy === "rotating" ? new Date() : undefined
+            });
+
+            return HttpResponse.json(newAssignment);
+        }
+
+        const updated = assignmentsDb.update(assignment.id, {
+            strategy: body.strategy as "fixed" | "rotating" | "unassigned",
+            assignedUserId: body.strategy === "fixed" ? body.assignedUserId : undefined,
+            lastRotatedDate: body.strategy === "rotating" ? new Date() : assignment.lastRotatedDate
+        });
+
+        return HttpResponse.json(updated);
     })
 ];
