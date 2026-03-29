@@ -15,16 +15,14 @@ Verify every acceptance criterion in a slice through visual inspection of Storyb
 
 ## Inputs
 
-| Input        | Description                               |
-| ------------ | ----------------------------------------- |
-| `slice-path` | Path to the slice file in `.adlc/slices/` |
+No inputs — reads `.adlc/current-slice.md` directly.
 
 ## Process
 
 ### 1. Load context
 
-- Read the slice file — extract all acceptance criteria from the Visual and Interactive sections.
-- Read the current slice's implementation notes from `.adlc/implementation-notes/`.
+- Read `.adlc/current-slice.md` — extract all acceptance criteria from the Visual and Interactive sections.
+- Read the current slice's implementation notes from `.adlc/implementation-notes/{id}.md`, where `{id}` is the frontmatter `id` from the slice.
 - Read `agent-docs/references/agent-browser.md`.
 
 ### 2. Verify acceptance criteria via Storybook
@@ -42,7 +40,7 @@ If a criterion cannot be verified (story not found, element not rendered), mark 
 ### 3. Sanity checks
 
 - Start the host app dev server defined in `agent-docs/references/agent-browser.md`. Navigate through the pages affected by the slice. Look for obvious breakage — blank pages, console errors, broken layouts.
-- Extract the affected module paths from the slice file. Run `_validate-modules` with those paths.
+- Run `_validate-modules` only for modules tagged `(new)` in the slice's Scope section. Skip `(extend)` modules — their wiring was validated when they were first created.
 
 Any issues go to the Sanity Issues section.
 

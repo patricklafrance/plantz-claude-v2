@@ -14,6 +14,12 @@ const DEFAULT_STATE = {
         recoveryTier: 0,
         nonBrowserSinceRecovery: 0
     },
+    test: {
+        consecutiveWithoutEdit: 0,
+        totalCalls: 0,
+        recoveryTier: 0,
+        editsSinceRecovery: 0
+    },
     startedAt: null,
     wallClock: {
         nudgeFired: false
@@ -35,6 +41,7 @@ export function readState(cwd) {
             ...defaults,
             ...raw,
             browser: { ...defaults.browser, ...raw.browser },
+            test: { ...defaults.test, ...raw.test },
             wallClock: { ...defaults.wallClock, ...raw.wallClock },
             postEventSequence: raw.postEventSequence ?? defaults.postEventSequence,
             installBypass: raw.installBypass ?? defaults.installBypass
@@ -65,7 +72,8 @@ export function applyEventToState(state, event) {
         targetPath: event.targetPath,
         commandFingerprint: event.commandFingerprint,
         isBrowserCommand: event.isBrowserCommand,
-        isScreenshotCommand: event.isScreenshotCommand
+        isScreenshotCommand: event.isScreenshotCommand,
+        isTestCommand: event.isTestCommand
     });
 
     // Keep only the most recent events for rolling-window policies.
@@ -80,6 +88,17 @@ export function applyEventToState(state, event) {
     if (event.toolName === "Bash" && event.isBrowserCommand) {
         state.browser.consecutiveCalls += 1;
         state.browser.totalCalls += 1;
+    }
+
+    // Test thrash tracking: Edit/Write resets the edit-gap counter.
+    if (event.toolName === "Edit" || event.toolName === "Write") {
+        state.test.consecutiveWithoutEdit = 0;
+        state.test.editsSinceRecovery += 1;
+    }
+
+    if (event.toolName === "Bash" && event.isTestCommand) {
+        state.test.consecutiveWithoutEdit += 1;
+        state.test.totalCalls += 1;
     }
 
     return state;

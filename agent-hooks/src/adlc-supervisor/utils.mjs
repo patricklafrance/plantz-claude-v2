@@ -32,3 +32,7 @@ export function isBrowserCommand(command) {
 export function isScreenshotCommand(command) {
     return isBrowserCommand(command) && /\bscreenshot\b/.test(command);
 }
+
+export function isTestCommand(command) {
+    return /\b(pnpm\s+(--filter\s+\S+\s+)?test\b|pnpm\s+turbo\s+run\s+test\b|vitest\b)/.test(command);
+}

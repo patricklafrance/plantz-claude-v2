@@ -119,8 +119,162 @@ Savings scale with more parallelizable slices, but many features have linear dep
 
 ### Decision
 
-Deferred. The engineering cost (hook modifications, port management, revision loop state machines, merge conflict handling) is high relative to ~10-15% wall clock savings. Revisit if:
+Deferred as a Claude Code–native solution. The nesting restriction blocks the clean 3-level architecture, and the flatten-to-2-levels workaround has too many rough edges (wrong `cwd` in hooks, fragile absolute paths, revision loop state management). See the Agent SDK exploration below for the viable path forward.
 
-- Claude Code lifts the nested subagent restriction
-- A feature requires 5+ parallelizable slices where the gain justifies the complexity
-- An external orchestrator approach becomes worth building for other reasons
+---
+
+## Parallel Slices via Claude Agent SDK
+
+**Date:** 2026-03-28
+**Verdict:** Viable path forward — the only clean way to parallelize slices. Not yet adopted (requires engineering investment).
+
+### What it is
+
+Replace the `_adlc` SKILL.md orchestrator with an external Node.js script using `@anthropic-ai/claude-agent-sdk`. The SDK spawns N parallel Claude Code instances (one per slice, each in its own git worktree), and each instance can spawn its own subagents (explorer, coder, reviewer) — bypassing the nested subagent restriction entirely.
+
+### Why it was evaluated
+
+The git worktree exploration (above) identified that Claude Code's hard restriction on nested subagent spawning ([#4182](https://github.com/anthropics/claude-code/issues/4182), [#19077](https://github.com/anthropics/claude-code/issues/19077), [#32731](https://github.com/anthropics/claude-code/issues/32731)) blocks the natural 3-level hierarchy. Agent teams were also evaluated but teammates cannot spawn subagents ([#32731](https://github.com/anthropics/claude-code/issues/32731)) or use custom agent definitions ([#24316](https://github.com/anthropics/claude-code/issues/24316)). Skills cannot bypass the nesting restriction either — they inherit the parent's tool access. The SDK is the only mechanism that gives each instance full subagent capability.
+
+### Architecture
+
+```
+External Node.js Orchestrator (parallel-slices.mjs)
+  │
+  ├── Phase 1-4: serial planning (domain-mapper → planner → architect → branch)
+  │
+  ├── Phase 5: parallel slice execution
+  │   ├── query({ cwd: worktree-1, agents: {explorer, coder, reviewer} })
+  │   ├── query({ cwd: worktree-2, agents: {explorer, coder, reviewer} })
+  │   └── query({ cwd: worktree-3, agents: {explorer, coder, reviewer} })
+  │
+  ├── Merge worktree branches back to feature branch
+  │
+  └── Phase 6-9: serial post-processing (simplify → document → PR → monitor)
+```
+
+Each `query()` call is a top-level Claude Code instance with:
+
+- `cwd` pointing to a git worktree
+- `agents` with programmatic subagent definitions (explorer on Sonnet, coder/reviewer on Opus)
+- `hooks` as in-process JavaScript callbacks (not stdin/stdout processes)
+- `settingSources: ["project"]` to load CLAUDE.md, skills, agent-docs
+- `permissionMode: "bypassPermissions"` for headless execution
+- `maxBudgetUsd` for per-slice cost caps
+
+### What the harness keeps vs. sheds
+
+The move to the SDK replaces the **plumbing** (process-boundary wiring) while preserving the **logic** (policies, verification, agent prompts).
+
+**Stays as-is (unchanged logic):**
+
+- All 10 agent definitions (`.claude/agents/_adlc-*.md`) — read by a ~30-line loader, passed as `prompt` strings
+- 15 of 17 skills (all except `_adlc` and `_safe-compact`) — loaded via `settingSources: ["project"]`
+- Supervisor policies (`browser-thrash.mjs`, `wall-clock.mjs`, `install-gate.mjs`) — pure functions `(event, state) → decision`
+- Verification handlers (`coder/handler.mjs`, `simplify/handler.mjs`, etc.) — pure functions `(cwd) → problems[]`
+- Preflight guards (package-manager, no-cmd, bare-typecheck) — same checks
+- `generate-package-map.mjs` — runs inside each worktree's explorer
+- `agent-docs/` — present in every worktree
+- Intra-worktree file handoffs (explorer-summary, verification-results, implementation-notes)
+- ~70% of the test suite (unit tests of pure policy/handler functions)
+
+**Rewired (same logic, different transport):**
+
+- Hook entry points become SDK `hooks:` callbacks instead of stdin/stdout processes
+- State management moves from disk (`supervisor-state.json`) to closure variables
+- SubagentStop verification becomes a direct function call to the same handlers
+- PreToolUse/PostToolUse supervision becomes in-process callbacks calling the same policies
+
+**Fully replaced:**
+
+- `_adlc` SKILL.md → SDK orchestrator script (~500-800 lines TypeScript)
+- `_safe-compact` skill + hooks → SDK manages state in-process
+- Hook entry-point wrappers (`subagent-stop.mjs`, `pre-tool-use.mjs`, `post-tool-use.mjs`) — ~200 lines of stdin/stdout glue
+- State serialization layer (`state.mjs`, `context.mjs`, `events.mjs`) — ~200 lines of disk I/O
+- `settings.json` hook registrations → SDK `hooks:` configuration
+- `markers.json` → each worktree starts fresh
+- ~20% of tests (integration tests of the stdin/stdout protocol)
+
+**Consequence: Claude Code interactive sessions are no longer supported.** The supervisor, verification, and preflight hooks would only fire for SDK-spawned agents. A developer running `claude` in the terminal would not get wall-clock circuit breakers, browser-thrash detection, or verification gates. This is acceptable if the harness is only used for automated ADLC runs.
+
+### Phantom dependency elimination (planner optimization)
+
+Research revealed that most inter-slice dependencies are **phantom** — caused by conflating "the schema/data exists" with "the UI that creates it exists." In a mock-data architecture (MSW + TanStack DB), seed data makes every entity available from the start.
+
+If the planner hoists all schemas, DB singletons, and seed data into a thin foundation slice, nearly all downstream dependencies vanish:
+
+```
+Current:  [1] → [2, 3, 5] → [4] → [6]     (4 waves)
+Optimized: [Foundation] → [1-6 all parallel]  (2 waves)
+```
+
+The foundation slice is purely mechanical (types, DBs, factories, seed data, module skeletons). The planner would emit explicit wave declarations:
+
+```markdown
+## Execution Waves
+
+### Wave 0 — Foundation
+
+| Slice               | Touches                                      |
+| ------------------- | -------------------------------------------- |
+| `00-infrastructure` | Schemas, DBs, seed data, module registration |
+
+### Wave 1 — Feature Slices (parallel)
+
+| Slice               | Parallel Group       |
+| ------------------- | -------------------- |
+| `01-household-crud` | management-household |
+| `02-invitations`    | management-household |
+| `03-plant-sharing`  | management-plants    |
+| ...                 | ...                  |
+```
+
+Slices in the same `parallel-group` (same module) serialize within the wave; slices in different groups run in parallel.
+
+### New infrastructure required
+
+| Component                  | Complexity | Description                                                                                                   |
+| -------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------- |
+| SDK orchestrator script    | High       | ~500-800 lines. Full pipeline: plan → worktree fan-out → parallel slices → merge → post-processing.           |
+| Agent definition loader    | Low        | ~30 lines. Reads `.claude/agents/*.md`, parses YAML frontmatter, returns SDK-compatible objects.              |
+| Dependency DAG scheduler   | Medium     | Parses `Depends on:` from slices, groups into waves, schedules parallel `query()` calls per wave.             |
+| Worktree lifecycle manager | Medium     | `git worktree add` from feature branch, seed `.adlc/`, `pnpm install`, merge back, clean up.                  |
+| Port allocator             | Medium     | Each worktree's reviewer needs unique Storybook + host app ports. Passed via env vars.                        |
+| Result collector           | Low        | After each worktree merge: copy `implementation-notes/` and `verification-results/` to main `.adlc/`.         |
+| Metrics aggregator         | Low        | Merge per-worktree `run-metrics.json` into central file. Parallel-friendly naming: `{slice-id}/{agent}.json`. |
+
+### SDK key capabilities
+
+| Feature                               | Value                                                                         |
+| ------------------------------------- | ----------------------------------------------------------------------------- |
+| `cwd` per instance                    | Point each to a different worktree                                            |
+| `agents` option                       | Programmatic subagent definitions (model, prompt, tools per agent)            |
+| `hooks` option                        | In-process JavaScript callbacks — no serialization, shared state via closures |
+| `settingSources: ["project"]`         | Loads CLAUDE.md, skills from the repo                                         |
+| `permissionMode: "bypassPermissions"` | Headless execution                                                            |
+| `maxBudgetUsd`                        | Per-slice cost caps                                                           |
+| `maxTurns`                            | Per-slice turn limits                                                         |
+| ~12s cold start per instance          | Paid once per slice, parallel                                                 |
+
+### Benefits beyond parallelism
+
+1. **No process-spawn overhead.** Supervisor hooks fire as function calls instead of spawning a Node.js process + JSON serialization on every tool call.
+2. **Deterministic orchestration.** `while` loops and `if` statements replace natural-language step counting. More predictable, more debuggable.
+3. **Programmatic error recovery.** Real retry policies, partial failure modes (one slice failing doesn't kill others), budget caps, timeouts.
+4. **Unified observability.** The orchestrator can log every agent spawn, verification result, and merge in a structured format.
+
+### Costs and risks
+
+1. **~500-800 lines of TypeScript** replaces ~80 lines of Markdown. More powerful but more to maintain.
+2. **Loss of Claude's adaptive judgment** for orchestration edge cases. The SDK script must pre-code every error path.
+3. **New dependency** (`@anthropic-ai/claude-agent-sdk`) in the project.
+4. **`effort` frontmatter has no SDK equivalent.** Must approximate via prompt hints or wait for API support.
+5. **12s cold start per `query()` call** (parallel, so paid once per wave, not per slice).
+
+### Decision
+
+Not yet adopted. This is the most promising path to parallel slice execution and offers significant benefits beyond parallelism (deterministic orchestration, in-process hooks, structured observability). The engineering investment is real (~500-800 lines orchestrator + infrastructure) but the harness logic (policies, verification, agent prompts) carries over with minimal changes. Revisit when:
+
+- A feature warrants the parallelism investment (5+ independent slices)
+- The harness is mature enough that the orchestration layer is the bottleneck, not the verification/policy layer
+- The team is ready to drop Claude Code interactive session support for the harness

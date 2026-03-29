@@ -83,7 +83,7 @@ All files written to `.adlc/`.
 
 ```markdown
 ---
-id: slice-{N}
+id: NN-{title}
 ---
 
 # Slice {N}: {Title}
@@ -96,7 +96,7 @@ One sentence: what the user can see or do after this slice ships.
 
 ## Scope
 
-- {Target module or package}: {logical unit of work}
+- {Target module or package} (new|extend): {logical unit of work}
 
 ## Reference Packages
 

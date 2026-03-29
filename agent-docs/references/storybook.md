@@ -38,6 +38,27 @@ Each story is a state snapshot. The play function is the mechanism to reach that
 
 **Async patterns:** When a play function triggers a mutation, use `canvas.findByText(...)` or `canvas.findByRole(...)` (which retry until found) to wait for the post-mutation UI to render before the story snapshot is captured.
 
+### Portal-based components (Base UI Dialog, AlertDialog, Popover, Select)
+
+Base UI renders Dialog, AlertDialog, Popover, and Select content via a **portal** outside the Storybook canvas root. In play functions, `canvas.findByRole("dialog")` will fail because the portal is not inside `canvasElement`. Use `screen` from `@testing-library/react` instead:
+
+```ts
+import { screen } from "@testing-library/react";
+
+export const WithDialogOpen: Story = {
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await userEvent.click(canvas.getByRole("button", { name: /create/i }));
+        // Portal renders outside canvas — use screen, not canvas
+        await screen.findByRole("dialog");
+    }
+};
+```
+
+### Base UI Select `SelectValue` rendering
+
+`SelectValue` renders the raw encoded option value (e.g., `"fixed:user-alice"`) until the dropdown portal mounts on first open. Use a `placeholder` prop or a custom `ValueDisplay` component that maps values to human-readable labels so the initial render shows meaningful text.
+
 ## Chromatic Modes
 
 All domain story files must set in `meta`:

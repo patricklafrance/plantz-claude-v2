@@ -9,6 +9,7 @@
                 "agent-hooks/src/pre-commit/pre-tool-use-bash.mjs",
                 "agent-hooks/src/safe-compact/post-compact.mjs",
                 ".claude/agents/scripts/generate-package-map.mjs",
+                ".claude/agents/scripts/wait-for-dev-server.mjs",
                 "agent-hooks/src/adlc-supervisor/post-tool-use.mjs",
                 "agent-hooks/src/adlc-supervisor/pre-tool-use.mjs",
                 "agent-hooks/src/adlc-supervisor/subagent-stop.mjs"

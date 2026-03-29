@@ -12,6 +12,7 @@ import {
     isInstallCommand,
     readInstallOverride
 } from "./policies/install-gate.mjs";
+import checkTestThrash from "./policies/test-thrash.mjs";
 import checkWallClock from "./policies/wall-clock.mjs";
 
 const preToolChecks = [
@@ -34,6 +35,22 @@ const preToolChecks = [
             // the density window.
             context.nextState.browser.totalCalls -= 1;
             context.nextState.browser.consecutiveCalls -= 1;
+            context.nextState.recentEvents = context.nextState.recentEvents.filter(e => e.index !== context.event.index);
+        }
+        return result;
+    },
+    context => {
+        const result = checkTestThrash(context.event, context.nextState);
+        if (result?.severity === "recovery") {
+            context.nextState.test.recoveryTier = result.tier;
+            context.nextState.test.editsSinceRecovery = 0;
+        }
+        if (result?.severity === "gate") {
+            // Gate-blocked calls never reach the test runner — undo the
+            // test counters that applyEventToState already set so
+            // blocked retries don't burn the total budget.
+            context.nextState.test.totalCalls -= 1;
+            context.nextState.test.consecutiveWithoutEdit -= 1;
             context.nextState.recentEvents = context.nextState.recentEvents.filter(e => e.index !== context.event.index);
         }
         return result;

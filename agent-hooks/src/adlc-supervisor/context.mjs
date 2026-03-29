@@ -1,6 +1,6 @@
 import { appendEvent } from "./events.mjs";
 import { applyEventToState, readState, writeState } from "./state.mjs";
-import { fingerprintCommand, getTargetPath, isBrowserCommand, isScreenshotCommand } from "./utils.mjs";
+import { fingerprintCommand, getTargetPath, isBrowserCommand, isScreenshotCommand, isTestCommand } from "./utils.mjs";
 
 function normalizeEvent(toolName, toolInput, state, input) {
     const command = toolName === "Bash" ? String(toolInput?.command ?? "") : "";
@@ -14,6 +14,7 @@ function normalizeEvent(toolName, toolInput, state, input) {
         commandFingerprint: toolName === "Bash" ? fingerprintCommand(command) : null,
         isBrowserCommand: toolName === "Bash" ? isBrowserCommand(command) : false,
         isScreenshotCommand: toolName === "Bash" ? isScreenshotCommand(command) : false,
+        isTestCommand: toolName === "Bash" ? isTestCommand(command) : false,
         index: state.eventCount + 1
     };
 }
@@ -67,6 +68,7 @@ export function createPostToolContext(toolName, toolInput, cwd, input = {}) {
             commandFingerprint: toolName === "Bash" ? fingerprintCommand(command) : null,
             isBrowserCommand: toolName === "Bash" ? isBrowserCommand(command) : false,
             isScreenshotCommand: toolName === "Bash" ? isScreenshotCommand(command) : false,
+            isTestCommand: toolName === "Bash" ? isTestCommand(command) : false,
             index,
             phase: input.hook_event_name ?? input.hook_event_name_override ?? "PostToolUse"
         }
