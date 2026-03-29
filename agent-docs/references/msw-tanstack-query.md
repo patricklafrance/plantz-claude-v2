@@ -2,11 +2,11 @@
 
 ## Data Flow
 
-1. Modules create a TanStack DB collection during Squide registration via `createPlantsCollection` factory from `@packages/core-plants/collection`, provided to components via React Context
+1. Modules create a TanStack DB collection during Squide registration via a collection factory (`createPlantsCollection` from `@packages/core-plants/collection` or `createHouseholdCollection` from `@packages/core-household/collection`), provided to components via React Context
 2. Components read data with `useLiveQuery((q) => q.from({ plant: collection }))` — returns `{ data, isReady }`
 3. Components write data with `createOptimisticAction` — applies optimistic update instantly, then persists to server
 4. The collection's `queryFn` calls plain `fetch()` against domain-scoped endpoints (`/api/management/plants` or `/api/today/plants`)
-5. MSW intercepts requests and serves from an in-memory `Map<string, Plant>` (shared DB in `@packages/core-plants/db`)
+5. MSW intercepts requests and serves from in-memory stores (shared DB in `@packages/core-plants/db` for plants/care-events, `@packages/core-household/db` for households/members/invitations/assignments)
 6. API client functions parse responses through `plantSchema.parse()` to convert ISO date strings to `Date` objects via `z.coerce.date()`
 
 ## Collection Factory
@@ -60,7 +60,7 @@ export async function registerManagementPlants(runtime: FireflyRuntime, queryCli
 
 ## Module-Specific Handlers
 
-Every module registers its own MSW handlers in `src/mocks/`. Never rely on another module's handlers. The host only owns `/api/auth/*`. Module endpoints follow `/api/<domain>/<entity>`. Handlers share state through shared DB singletons (`plantsDb`, `usersDb`), not through shared handler code. This is a hard rule — without it, modules aren't independently loadable and Storybook stories break.
+Every module registers its own MSW handlers in `src/mocks/`. Never rely on another module's handlers. The host only owns `/api/auth/*`. Module endpoints follow `/api/<domain>/<entity>`. Handlers share state through shared DB singletons (`plantsDb`, `careEventsDb`, `usersDb` from core-plants/core-module; `householdsDb`, `membersDb`, `invitationsDb`, `assignmentsDb` from core-household), not through shared handler code. This is a hard rule — without it, modules aren't independently loadable and Storybook stories break.
 
 ## Storybook Setup
 

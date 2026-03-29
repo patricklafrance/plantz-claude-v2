@@ -59,7 +59,7 @@ Do NOT use legacy `chromatic.viewports`. Does not apply to `packages/components/
 
 ## Tailwind CSS Source Scanning
 
-Each domain storybook's `.storybook/storybook.css` must include `@source` directives for every package whose components appear in stories. At minimum: `packages/components/src`, `packages/core-plants/src`, and each domain module's `src`.
+Each domain storybook's `.storybook/storybook.css` must include `@source` directives for every package whose components appear in stories. At minimum: `packages/components/src`, `packages/core-plants/src`, `packages/core-household/src` (if household features are used), and each domain module's `src`.
 
 **When adding a new module or package:** add a `@source` directive in `apps/host/src/styles/globals.css` and in the relevant domain storybook CSS files.
 
