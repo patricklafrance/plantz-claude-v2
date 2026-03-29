@@ -12,9 +12,10 @@ interface PlantDetailDialogProps {
     onOpenChange: (open: boolean) => void;
     careSection?: ReactNode;
     onMarkWatered?: () => void;
+    isWatering?: boolean;
 }
 
-export function PlantDetailDialog({ plant, open, onOpenChange, careSection, onMarkWatered }: PlantDetailDialogProps) {
+export function PlantDetailDialog({ plant, open, onOpenChange, careSection, onMarkWatered, isWatering = false }: PlantDetailDialogProps) {
     if (!plant) {
         return null;
     }
@@ -88,9 +89,13 @@ export function PlantDetailDialog({ plant, open, onOpenChange, careSection, onMa
                 </div>
                 <DialogFooter showCloseButton>
                     {onMarkWatered && (
-                        <Button variant="default" className="sm:mr-auto" onClick={onMarkWatered}>
-                            <Droplets data-icon="inline-start" aria-hidden="true" />
-                            Mark as Watered
+                        <Button variant="default" className="sm:mr-auto" onClick={onMarkWatered} disabled={isWatering}>
+                            {isWatering ? (
+                                <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            ) : (
+                                <Droplets data-icon="inline-start" aria-hidden="true" />
+                            )}
+                            {isWatering ? "Watering..." : "Mark as Watered"}
                         </Button>
                     )}
                 </DialogFooter>

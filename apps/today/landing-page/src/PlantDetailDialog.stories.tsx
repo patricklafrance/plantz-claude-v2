@@ -111,3 +111,12 @@ export const WithMarkWatered: Story = {
         onMarkWatered: () => {}
     }
 };
+
+// Shows the loading spinner on the "Mark as Watered" button during an async watering action
+export const WithWateringLoading: Story = {
+    args: {
+        plant: makePlant({ householdId: "household-1" }),
+        onMarkWatered: () => {},
+        isWatering: true
+    }
+};

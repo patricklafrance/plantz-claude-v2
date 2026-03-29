@@ -34,6 +34,22 @@ export function createCareEventHandlers(data: CareEventsData) {
                 },
                 { status: 201 }
             );
+        }),
+        http.post("/api/today/care-events/bulk", async ({ request }) => {
+            const body = (await request.json()) as { plantIds: string[]; eventType: string; notes?: string; actorId?: string };
+            const actorName = body.actorId === "user-alice" ? "Alice" : body.actorId === "user-bob" ? "Bob" : undefined;
+
+            const events = body.plantIds.map((plantId, index) => ({
+                id: `bulk-event-${index + 1}`,
+                plantId,
+                eventType: body.eventType,
+                eventDate: new Date().toISOString(),
+                notes: body.notes,
+                actorId: body.actorId,
+                actorName
+            }));
+
+            return HttpResponse.json(events, { status: 201 });
         })
     ];
 }

@@ -12,6 +12,7 @@
     },
     "dependencies": {
         "@packages/components": "workspace:*",
+        "@packages/core-household": "workspace:*",
         "@packages/core-module": "workspace:*",
         "@packages/core-plants": "workspace:*",
         "@tanstack/react-db": "^0.1.76",
@@ -26,6 +27,7 @@
         "@typescript/native-preview": "7.0.0-dev.20260303.1",
         "@workleap/typescript-configs": "3.0.7",
         "msw": "2.12.10",
+        "storybook": "10.2.15",
         "typescript": "5.9.3"
     },
     "peerDependencies": {

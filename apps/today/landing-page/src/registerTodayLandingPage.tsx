@@ -49,8 +49,11 @@ export async function registerTodayLandingPage(runtime: FireflyRuntime, queryCli
             adjustmentsDb,
             defaultSeedAdjustments
         } = await import("./mocks/index.ts");
+        const { membersDb, assignmentsDb, defaultSeedMembers, defaultSeedAssignments } = await import("@packages/core-household/db");
         careEventsDb.reset(defaultSeedCareEvents);
         adjustmentsDb.reset(defaultSeedAdjustments);
+        membersDb.reset(defaultSeedMembers);
+        assignmentsDb.reset(defaultSeedAssignments);
         runtime.registerRequestHandlers(todayPlantHandlers);
         runtime.registerRequestHandlers(todayCareEventHandlers);
         runtime.registerRequestHandlers(todayAdjustmentHandlers);
