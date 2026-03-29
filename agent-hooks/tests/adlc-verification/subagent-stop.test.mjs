@@ -87,6 +87,23 @@ describe("subagent-stop entry point", () => {
     });
 
     it(
+        "should run _adlc-simplify full pipeline and return valid output",
+        () => {
+            const result = pipeToHook({ agent_type: "_adlc-simplify", cwd: REPO_ROOT }, 5 * 60_000);
+
+            if (result.exitCode === 0 && result.stdout.trim() === "") {
+                expect(true).toBe(true);
+            } else {
+                expect(result.exitCode).toBe(0);
+                const parsed = JSON.parse(result.stdout);
+                expect(typeof parsed.decision).toBe("string");
+                expect(typeof parsed.reason).toBe("string");
+            }
+        },
+        5 * 60_000
+    );
+
+    it(
         "should run _adlc-coder full pipeline and return valid output",
         () => {
             const result = pipeToHook({ agent_type: "_adlc-coder", cwd: REPO_ROOT }, 5 * 60_000);

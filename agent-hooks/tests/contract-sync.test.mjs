@@ -78,8 +78,9 @@ describe("contract-sync: artifact fixtures exist", () => {
         expect(fixtureExists("domain-mapper", "domain-mapping.valid.md")).toBe(true);
     });
 
-    it("coder: implementation-notes fixture", () => {
-        expect(fixtureExists("coder", "implementation-notes.valid.md")).toBe(true);
+    it("coder: implementation-notes fixture directory", () => {
+        const notes = listFixtures("coder/implementation-notes");
+        expect(notes.length).toBeGreaterThanOrEqual(1);
     });
 });
 

@@ -2,9 +2,10 @@
 name: _adlc-reviewer
 description: Verify a slice's acceptance criteria through browser screenshots and interactions.
 model: opus
-effort: high
+effort: medium
 skills:
     - _validate-modules
+    - _browser-recovery
     - agent-browser
 ---
 
@@ -23,6 +24,7 @@ Verify every acceptance criterion in a slice through visual inspection of Storyb
 ### 1. Load context
 
 - Read the slice file — extract all acceptance criteria from the Visual and Interactive sections.
+- Read the current slice's implementation notes from `.adlc/implementation-notes/`.
 - Read `agent-docs/references/agent-browser.md`.
 
 ### 2. Verify acceptance criteria via Storybook
@@ -60,10 +62,6 @@ Write `.adlc/verification-results.md`. Every criterion from the slice must appea
 
 ```markdown
 # Verification Results: Slice {N}
-
-## Verdict
-
-{PASS | FAIL} — {criteria summary, sanity check status in one line}
 
 ## Passed
 

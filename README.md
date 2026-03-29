@@ -132,7 +132,7 @@ Block a subagent's completion until its deliverables meet structural and quality
 | `_adlc-coder`         | no-file-disable      | Rejects file-level `/* oxlint-disable */` comments (line-level only)   |
 | `_adlc-coder`         | no-secrets           | gitleaks scan on changed files                                         |
 | `_adlc-coder`         | import-guard         | 4-layer architectural boundary enforcement (host → modules → packages) |
-| `_adlc-coder`         | implementation-notes | `.adlc/implementation-notes.md` must be created or updated             |
+| `_adlc-coder`         | implementation-notes | A file in `.adlc/implementation-notes/` must be created or updated     |
 | `_adlc-coder`         | story-coverage       | Every changed component in a module needs a matching `.stories.tsx`    |
 | `_adlc-planner`       | plan-header          | `.adlc/plan-header.md` must exist and be non-empty                     |
 | `_adlc-planner`       | slice-files          | At least one `.md` file in `.adlc/slices/`                             |

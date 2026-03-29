@@ -10,7 +10,9 @@ const DEFAULT_STATE = {
     browser: {
         consecutiveCalls: 0,
         totalCalls: 0,
-        screenshotNudgeFired: false
+        screenshotNudgeFired: false,
+        recoveryTier: 0,
+        nonBrowserSinceRecovery: 0
     },
     startedAt: null,
     wallClock: {
@@ -72,6 +74,7 @@ export function applyEventToState(state, event) {
 
     if (event.toolName !== "Bash" || !event.isBrowserCommand) {
         state.browser.consecutiveCalls = 0;
+        state.browser.nonBrowserSinceRecovery += 1;
     }
 
     if (event.toolName === "Bash" && event.isBrowserCommand) {

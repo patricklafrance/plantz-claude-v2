@@ -20,7 +20,8 @@ Create a pull request that summarizes the feature and the technical changes.
 ### 1. Load context
 
 - Read `.adlc/plan-header.md`.
-- Read `.adlc/implementation-notes.md`.
+- Read all files in `.adlc/implementation-notes/`.
+- Read final verification results from `.adlc/verification-results/` — only files without an attempt suffix (e.g. `01-plant-list.md`, not `01-plant-list-1.md`).
 
 ### 2. Create the PR
 
@@ -36,6 +37,10 @@ Push the branch and open a PR. The title should be short and descriptive of the 
 ## Technical Changes
 
 {Most important structural changes — new modules, new packages, data model additions, new ADRs. Derived from plan-header and implementation-notes.}
+
+## Acceptance Criteria
+
+{For each slice, list all criteria from its final verification results with their pass/fail status. Use the same checkbox format as the verification file.}
 ```
 
 </pr-body-template>

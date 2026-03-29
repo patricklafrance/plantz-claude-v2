@@ -58,7 +58,7 @@ const CONTEXT_REFRESH_MESSAGE = [
     "",
     "1. **MSW handlers** — If you added or changed data-fetching code, are the matching MSW handlers in the module's `src/mocks/` created or updated?",
     "2. **Story variants** — Do your `.stories.tsx` files cover the meaningful states (loading, empty, error, populated)? Are MSW handlers wired via `parameters.msw.handlers`?",
-    "3. **Implementation notes** — Does `.adlc/implementation-notes.md` capture any non-obvious decisions, workarounds, or deviations from the slice plan?",
+    "3. **Implementation notes** — Does your `.adlc/implementation-notes/` file capture any non-obvious decisions, workarounds, or deviations from the slice plan?",
     "",
     "Fix anything missing before stopping."
 ].join("\n");

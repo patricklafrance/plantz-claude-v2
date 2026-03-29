@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { oxfmtAutofix } from "../../../src/adlc-verification/coder/oxfmt-autofix.mjs";
+import { tests } from "../../../src/adlc-verification/shared/tests.mjs";
 
 vi.mock("../../../src/adlc-verification/utils.mjs", () => ({
     run: vi.fn().mockResolvedValue({ ok: true, stdout: "", stderr: "" }),
@@ -14,9 +14,9 @@ vi.mock("../../../src/adlc-verification/utils.mjs", () => ({
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../..");
 
-describe("oxfmt-autofix", () => {
-    it("should return empty array on success", async () => {
-        const result = await oxfmtAutofix(REPO_ROOT);
+describe("tests", () => {
+    it("should return an array", async () => {
+        const result = await tests(REPO_ROOT);
         expect(Array.isArray(result)).toBe(true);
     });
 });

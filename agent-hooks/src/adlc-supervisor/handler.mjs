@@ -20,6 +20,22 @@ const preToolChecks = [
         if (result?.severity === "nudge") {
             context.nextState.browser.screenshotNudgeFired = true;
         }
+        if (result?.severity === "recovery") {
+            context.nextState.browser.recoveryTier = result.tier;
+            context.nextState.browser.nonBrowserSinceRecovery = 0;
+            // Clear the rolling window so stale browser events don't
+            // immediately re-trigger density after the gate is cleared.
+            context.nextState.recentEvents = [];
+        }
+        if (result?.severity === "gate") {
+            // Gate-blocked calls never reach the browser — undo the
+            // browser counters that applyEventToState already set so
+            // blocked retries don't burn the total budget or pollute
+            // the density window.
+            context.nextState.browser.totalCalls -= 1;
+            context.nextState.browser.consecutiveCalls -= 1;
+            context.nextState.recentEvents = context.nextState.recentEvents.filter(e => e.index !== context.event.index);
+        }
         return result;
     }
 ];

@@ -19,6 +19,7 @@ import handleDomainMapper from "./domain-mapper/handler.mjs";
 import handlePlanner from "./planner/handler.mjs";
 import handleReviewer from "./reviewer/handler.mjs";
 import { recordMetrics } from "./run-metrics.mjs";
+import handleSimplify from "./simplify/handler.mjs";
 
 // ── Stdin ──────────────────────────────────────────────────
 
@@ -52,7 +53,8 @@ const handlers = {
     "_adlc-document": handleDocument,
     "_adlc-domain-mapper": handleDomainMapper,
     "_adlc-planner": handlePlanner,
-    "_adlc-reviewer": handleReviewer
+    "_adlc-reviewer": handleReviewer,
+    "_adlc-simplify": handleSimplify
 };
 
 const handle = handlers[agentType];

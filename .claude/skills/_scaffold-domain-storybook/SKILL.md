@@ -121,7 +121,19 @@ In `.github/workflows/chromatic.yml`, add a step after the last domain step but 
       debug: true
 ```
 
-### 7. Install and verify
+### 7. Update knip config
+
+In root `knip.json`, add a workspace entry for the new storybook:
+
+<knip-entry>
+"apps/{domain}/storybook": {
+    "ignoreDependencies": ["@packages/components", "@packages/core-plants", "launchdarkly-js-client-sdk"]
+}
+</knip-entry>
+
+Copy the `ignoreDependencies` list from an existing domain storybook — it changes when shared packages are added.
+
+### 8. Install and verify
 
 1. Run `pnpm install`.
 2. Run `pnpm lint` — fix any issues.

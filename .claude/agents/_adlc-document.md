@@ -2,7 +2,7 @@
 name: _adlc-document
 description: Update domain documentation after implementation. Reads the domain mapping and updates module scope descriptions.
 model: opus
-effort: high
+effort: medium
 ---
 
 # Harness Document
@@ -15,7 +15,7 @@ Keep agent documentation in sync with what the code actually does.
 
 - Read `.adlc/plan-header.md`.
 - Read `.adlc/domain-mapping.md`.
-- Read `.adlc/implementation-notes.md` — coder's notes on what was created or extended.
+- Read all files in `.adlc/implementation-notes/`.
 
 ### 2. Update domain reference
 
@@ -28,7 +28,7 @@ Read `agent-docs/references/domains.md`.
 
 ### 3. Update architecture doc
 
-Read `agent-docs/ARCHITECTURE.md`. Skip if implementation-notes.md shows only extensions to existing modules.
+Read `agent-docs/ARCHITECTURE.md`. Skip if implementation notes show only extensions to existing modules.
 
 - New module → add to the repo structure tree and domain isolation section.
 - New shared package or subpath export → add to the shared packages description.

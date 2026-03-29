@@ -1,8 +1,6 @@
 ---
-name: validate-modules
+name: _validate-modules
 description: Validate that Squide local modules conform to the expected structure and wiring.
-model: sonnet
-effort: medium
 license: MIT
 ---
 
@@ -36,7 +34,8 @@ Derived from the module path `apps/{domain}/{module}/`. **PascalCase** means spl
 - **File structure** — These 5 files exist: `package.json`, `tsconfig.json`, `src/index.ts`, `src/{registerFunction}.tsx`, `src/{PageComponent}.tsx`.
 - **Package.json** — `name` matches derived name, `license` is `"Apache-2.0"`, `author` is `"Patrick Lafrance"`, `exports` is `"./src/index.ts"`.
 - **Barrel export** — `src/index.ts` exports the register function.
-- **Host registration** — `apps/host/src/getActiveModules.tsx` imports the register function and has the registry key in `ModuleRegistry`. `apps/host/package.json` lists the package in dependencies.
+- **Register function $id** — If `src/{registerFunction}.tsx` calls `registerNavigationItem`, the `$id` value matches `{domain}-{module}`. Skip if no nav item is registered.
+- **Host registration** — `apps/host/src/getActiveModules.tsx` imports the register function and has the registry key `"{domain}/{module}"` (with `/`, not `-`) in `ModuleRegistry`. `apps/host/package.json` lists the package in dependencies.
 - **Host CSS** — `apps/host/src/styles/globals.css` has a `@source` directive for the module.
 - **Domain storybook** — `apps/{domain}/storybook/.storybook/main.ts` has a story glob and `storybook.css` has a `@source` directive. Skip if domain storybook doesn't exist.
 - **Unified storybook** — `apps/storybook/.storybook/main.ts` has a story glob and `storybook.css` has a `@source` directive.

@@ -60,9 +60,21 @@ Create only these 5 files — no domain-specific source files (dialogs, schemas,
 
 ### 3. Register in host
 
-1. `apps/host/src/getActiveModules.tsx` — add import and `ModuleRegistry` entry.
-2. `apps/host/package.json` — add `"{packageName}": "workspace:*"` to dependencies.
-3. `apps/host/src/styles/globals.css` — add `@source` directive for the new module.
+Add three things so the host app can load the module at runtime:
+
+1. **`apps/host/src/getActiveModules.tsx`** — add import and `ModuleRegistry` entry.
+
+<host-registration>
+import { {registerFunction} } from "{packageName}";
+
+// Inside ModuleRegistry:
+"{domain}/{module}": { register: {registerFunction} }
+</host-registration>
+
+`getActiveModules` reads the `MODULES` env var to filter which modules to load. The dev script (step 7) sets this variable so the new module can be run in isolation.
+
+2. **`apps/host/package.json`** — add `"{packageName}": "workspace:*"` to dependencies.
+3. **`apps/host/src/styles/globals.css`** — add `@source` directive for the new module.
 
 ### 4. Update domain storybook
 
@@ -98,3 +110,4 @@ In root `package.json`, add:
 
 1. Run `pnpm install`.
 2. Run `pnpm lint` — fix any issues.
+3. Run `_validate-modules` on the new module path. Fix any issues — the reviewer will run the same checks.

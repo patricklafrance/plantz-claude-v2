@@ -111,7 +111,7 @@ Criteria describe what the user sees or experiences — not how the code is stru
 - `[visual]` — UI renders correctly. e.g. "Shared plants display a badge next to their name"
 - `[interactive]` — User action produces the expected result. e.g. "Clicking 'Submit' opens a confirmation dialog." Every mutation needs a companion loading state criterion and a UI consequence criterion. Each criterion describes one observable state — not a sequence. "Clicking 'Water' shows a loading spinner" and "After watering the last-watered date updates" are two criteria, not one.
 
-No criteria for compilation, type resolution, lint, or schema validation. Every criterion must be verifiable in a rendered story or page. Write data-layer criteria in terms of what the UI shows, not what the function returns.
+No criteria for compilation, type resolution, lint, or schema validation. Every criterion must be verifiable in a rendered story or page. Write data-layer criteria in terms of what the UI shows, not what the function returns. If a criterion names a component, story, or internal artifact, rewrite it as the user-visible change that artifact produces.
 
 ### Visual [visual]
 

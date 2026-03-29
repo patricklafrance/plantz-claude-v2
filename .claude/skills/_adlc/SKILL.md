@@ -1,7 +1,7 @@
 ---
 name: _adlc
 description: Entry point for end-to-end feature development. Sequences planning, slice-by-slice implementation, and documentation.
-model: sonnet
+model: opus
 effort: medium
 license: MIT
 ---
@@ -16,7 +16,7 @@ Orchestrate end-to-end feature development. Never edit application or library so
 
 1. Working tree must be clean. If not, print the issue and stop.
 2. Delete `.adlc/` if it exists.
-3. Create `.adlc/` with `slices/`.
+3. Create `.adlc/` with `slices/`, `implementation-notes/`, and `verification-results/`.
 
 ### 2. Domain mapping
 
@@ -48,17 +48,17 @@ Code → verify cycle. Max 5 fix attempts per slice. Process each slice in `.adl
 3. Spawn the `_adlc-coder` agent with the slice file and `mode: draft`. If the agent fails, print the error and stop.
 4. Spawn the `_adlc-reviewer` agent pointing at the slice file. If the agent fails, print the error and stop.
 5. All criteria pass and no sanity issues:
-    1. Rename `verification-results.md` to `verification-{slice-filename}.md` (e.g. `verification-01-user-list.md`).
+    1. Move `verification-results.md` to `verification-results/{slice-filename}.md`.
     2. Commit the slice changes (no push).
     3. Delete `.adlc/current-slice.md` and `.adlc/current-explorer-summary.md`.
     4. Move to the next slice.
-6. Read and save the verification content, then delete `verification-results.md`.
+6. Move `verification-results.md` to `verification-results/{slice-filename}-{attempt}.md`. Read the verification content.
 7. Resume the `_adlc-coder` agent via `SendMessage` with `mode: revision` and the saved verification report as `verification-results`.
 8. Go back to sub-step 4. Max 5 fix attempts per slice — if exceeded, print the unresolved failures and stop.
 
 ### 6. Simplify
 
-- Run `/simplify` once across all slice changes.
+- Spawn the `_adlc-simplify` agent. If the agent fails, print the error and stop.
 
 ### 7. Doc phase
 

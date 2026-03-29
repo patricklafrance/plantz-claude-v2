@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { checkNoCrossBoundaryImports } from "../../../src/adlc-verification/coder/import-guard.mjs";
+import { checkNoCrossBoundaryImports } from "../../../src/adlc-verification/shared/import-guard.mjs";
 
 describe("import-guard", () => {
     let tmp;

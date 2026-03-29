@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { lint } from "../../../src/adlc-verification/coder/lint.mjs";
+import { lint } from "../../../src/adlc-verification/shared/lint.mjs";
 
 vi.mock("../../../src/adlc-verification/utils.mjs", () => ({
     run: vi.fn().mockResolvedValue({ ok: true, stdout: "", stderr: "" }),

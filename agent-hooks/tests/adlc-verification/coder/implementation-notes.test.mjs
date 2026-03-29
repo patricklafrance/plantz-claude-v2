@@ -3,14 +3,24 @@ import { describe, expect, it } from "vitest";
 import { implementationNotesCheck } from "../../../src/adlc-verification/coder/implementation-notes.mjs";
 
 describe("implementation-notes", () => {
-    it("should pass when file is in changed list", () => {
-        const result = implementationNotesCheck([".adlc/implementation-notes.md", "apps/host/src/index.ts"]);
+    it("should pass when a file in the directory is in changed list", () => {
+        const result = implementationNotesCheck([".adlc/implementation-notes/01-shared-types.md", "apps/host/src/index.ts"]);
         expect(result).toHaveLength(0);
     });
 
-    it("should fail when file is missing from changed list", () => {
+    it("should fail when no file in the directory is in changed list", () => {
         const result = implementationNotesCheck(["apps/host/src/index.ts"]);
         expect(result).toHaveLength(1);
         expect(result[0]).toContain("implementation-notes");
+    });
+
+    it("should fail when the old single-file path is in changed list", () => {
+        const result = implementationNotesCheck([".adlc/implementation-notes.md"]);
+        expect(result).toHaveLength(1);
+    });
+
+    it("should ignore non-md files in the directory", () => {
+        const result = implementationNotesCheck([".adlc/implementation-notes/.gitkeep"]);
+        expect(result).toHaveLength(1);
     });
 });

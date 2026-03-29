@@ -1,11 +1,13 @@
-/** Verify that the coder wrote to .adlc/implementation-notes.md for the current slice. */
+/** Verify that the coder wrote to .adlc/implementation-notes/ for the current slice. */
 
-const EXPECTED_FILE = ".adlc/implementation-notes.md";
+const EXPECTED_DIR = ".adlc/implementation-notes/";
 
 export function implementationNotesCheck(changedFiles) {
-    if (changedFiles.includes(EXPECTED_FILE)) {
+    if (changedFiles.some(f => f.startsWith(EXPECTED_DIR) && f.endsWith(".md"))) {
         return [];
     }
 
-    return [`[implementation-notes] ${EXPECTED_FILE} was not created or updated. Each slice must document its changes in this file.`];
+    return [
+        `[implementation-notes] No file was created or updated in ${EXPECTED_DIR}. Each slice must document its changes in its own implementation-notes file.`
+    ];
 }
