@@ -1,9 +1,18 @@
 import { http, HttpResponse } from "msw";
 
 import type { Household } from "@packages/core-household";
+import { resolveResponsibleUser } from "@packages/core-household";
 import { assignmentsDb, householdsDb, invitationsDb, membersDb } from "@packages/core-household/db";
 import { getUserId, usersDb } from "@packages/core-module/db";
 import { plantsDb } from "@packages/core-plants/db";
+
+function generateId(): string {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID();
+    }
+
+    return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
 
 export const managementHouseholdHandlers = [
     http.get("/api/management/household", ({ request }) => {
@@ -58,10 +67,7 @@ export const managementHouseholdHandlers = [
         const body = (await request.json()) as Record<string, unknown>;
         const now = new Date();
 
-        const id =
-            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                ? crypto.randomUUID()
-                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+        const id = generateId();
 
         const household = householdsDb.insert({
             ...(body as Record<string, unknown>),
@@ -71,10 +77,7 @@ export const managementHouseholdHandlers = [
         } as Household);
 
         // Auto-add the creator as a member
-        const memberId =
-            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                ? crypto.randomUUID()
-                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+        const memberId = generateId();
 
         membersDb.insert({
             id: memberId,
@@ -104,10 +107,7 @@ export const managementHouseholdHandlers = [
             return HttpResponse.json({ error: "User not found" }, { status: 422 });
         }
 
-        const id =
-            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                ? crypto.randomUUID()
-                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+        const id = generateId();
 
         const invitation = invitationsDb.insert({
             id,
@@ -177,10 +177,7 @@ export const managementHouseholdHandlers = [
         }
 
         // Add the user as a member of the household
-        const memberId =
-            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                ? crypto.randomUUID()
-                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+        const memberId = generateId();
 
         membersDb.insert({
             id: memberId,
@@ -234,33 +231,8 @@ export const managementHouseholdHandlers = [
         // Enrich with responsible user name
         const members = membersDb.getAllByHousehold(params.id as string);
         const enriched = assignments.map(assignment => {
-            let responsibleUserName: string | undefined;
-
-            if (assignment.strategy === "fixed" && assignment.assignedUserId) {
-                const user = usersDb.getById(assignment.assignedUserId);
-                responsibleUserName = user?.name;
-            } else if (assignment.strategy === "rotating") {
-                // Compute current rotation member
-                const sorted = [...members].sort((a, b) => {
-                    const dateDiff = a.joinedDate.getTime() - b.joinedDate.getTime();
-
-                    return dateDiff !== 0 ? dateDiff : a.id.localeCompare(b.id);
-                });
-
-                if (sorted.length > 0 && assignment.lastRotatedDate) {
-                    const daysSinceRotation = Math.floor((Date.now() - assignment.lastRotatedDate.getTime()) / (1000 * 60 * 60 * 24));
-                    const index = daysSinceRotation % sorted.length;
-                    const member = sorted[index];
-
-                    if (member) {
-                        const user = usersDb.getById(member.userId);
-                        responsibleUserName = user?.name;
-                    }
-                } else if (sorted.length > 0) {
-                    const user = usersDb.getById(sorted[0]!.userId);
-                    responsibleUserName = user?.name;
-                }
-            }
+            const responsibleUserId = resolveResponsibleUser(assignment, members);
+            const responsibleUserName = responsibleUserId ? usersDb.getById(responsibleUserId)?.name : undefined;
 
             return {
                 ...assignment,
@@ -280,10 +252,7 @@ export const managementHouseholdHandlers = [
 
         const body = (await request.json()) as { plantId: string; householdId: string; strategy: string; assignedUserId?: string };
 
-        const id =
-            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                ? crypto.randomUUID()
-                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+        const id = generateId();
 
         const assignment = assignmentsDb.insert({
             id,
@@ -315,10 +284,7 @@ export const managementHouseholdHandlers = [
                 return new HttpResponse(null, { status: 403 });
             }
 
-            const id =
-                typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                    ? crypto.randomUUID()
-                    : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+            const id = generateId();
 
             const newAssignment = assignmentsDb.insert({
                 id,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { getAuthHeaders } from "@packages/core-module";
 
@@ -30,56 +30,32 @@ const EMPTY_CONTEXT: HouseholdContext = {
     memberNames: {}
 };
 
+async function fetchHouseholdContext(): Promise<HouseholdContext> {
+    const response = await fetch("/api/today/household-context", {
+        headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+        return EMPTY_CONTEXT;
+    }
+
+    const json = await response.json();
+
+    return {
+        isMember: json.isMember ?? false,
+        householdId: json.householdId,
+        currentUserId: json.currentUserId,
+        responsibilities: json.responsibilities ?? [],
+        lastCareEvents: json.lastCareEvents ?? {},
+        memberNames: json.memberNames ?? {}
+    };
+}
+
 export function useHouseholdContext(): { data: HouseholdContext; isLoading: boolean } {
-    const [data, setData] = useState<HouseholdContext>(EMPTY_CONTEXT);
-    const [isLoading, setIsLoading] = useState(true);
+    const { data, isLoading } = useQuery<HouseholdContext>({
+        queryKey: ["today", "household-context"],
+        queryFn: fetchHouseholdContext
+    });
 
-    useEffect(() => {
-        let cancelled = false;
-
-        async function fetchContext() {
-            try {
-                const response = await fetch("/api/today/household-context", {
-                    headers: getAuthHeaders()
-                });
-
-                if (!response.ok) {
-                    if (!cancelled) {
-                        setData(EMPTY_CONTEXT);
-                    }
-
-                    return;
-                }
-
-                const json = await response.json();
-
-                if (!cancelled) {
-                    setData({
-                        isMember: json.isMember ?? false,
-                        householdId: json.householdId,
-                        currentUserId: json.currentUserId,
-                        responsibilities: json.responsibilities ?? [],
-                        lastCareEvents: json.lastCareEvents ?? {},
-                        memberNames: json.memberNames ?? {}
-                    });
-                }
-            } catch {
-                if (!cancelled) {
-                    setData(EMPTY_CONTEXT);
-                }
-            } finally {
-                if (!cancelled) {
-                    setIsLoading(false);
-                }
-            }
-        }
-
-        fetchContext();
-
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    return { data, isLoading };
+    return { data: data ?? EMPTY_CONTEXT, isLoading };
 }

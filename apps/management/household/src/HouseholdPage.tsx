@@ -1,6 +1,6 @@
 import { useLiveQuery } from "@tanstack/react-db";
 import { Check, Home, Leaf, LoaderCircle, Mail, Plus, Users, X } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 import { Button, Select, SelectContent, SelectGroup, SelectItem, SelectTrigger } from "@packages/components";
 import { getAuthHeaders } from "@packages/core-module";
@@ -138,53 +138,28 @@ export function HouseholdPage() {
 
     const household = households?.[0];
 
-    const loadMembers = useCallback(async (householdId: string) => {
-        const result = await fetchMembers(householdId);
-        setMembers(result);
-    }, []);
-
-    const loadPendingInvitations = useCallback(async (householdId: string) => {
-        const result = await fetchPendingInvitations(householdId);
-        setPendingInvitations(result);
-    }, []);
-
-    const loadMyInvitations = useCallback(async () => {
-        const result = await fetchMyInvitations();
-        setMyInvitations(result);
-    }, []);
-
-    const loadSharedPlants = useCallback(async (householdId: string) => {
-        const result = await fetchSharedPlants(householdId);
-        setSharedPlants(result);
-    }, []);
-
-    const loadAssignments = useCallback(async (householdId: string) => {
-        const result = await fetchAssignments(householdId);
-        setAssignments(result);
-    }, []);
-
     useEffect(() => {
         if (household) {
-            loadMembers(household.id);
-            loadPendingInvitations(household.id);
-            loadSharedPlants(household.id);
-            loadAssignments(household.id);
+            fetchMembers(household.id).then(setMembers);
+            fetchPendingInvitations(household.id).then(setPendingInvitations);
+            fetchSharedPlants(household.id).then(setSharedPlants);
+            fetchAssignments(household.id).then(setAssignments);
         }
-    }, [household, loadMembers, loadPendingInvitations, loadSharedPlants, loadAssignments]);
+    }, [household]);
 
     useEffect(() => {
-        loadMyInvitations();
-    }, [loadMyInvitations]);
+        fetchMyInvitations().then(setMyInvitations);
+    }, []);
 
     async function handleAccept(invitationId: string) {
         setLoadingAction(`accept-${invitationId}`);
 
         try {
             await acceptInvitation(invitationId);
-            await loadMyInvitations();
+            fetchMyInvitations().then(setMyInvitations);
 
             if (household) {
-                await loadMembers(household.id);
+                fetchMembers(household.id).then(setMembers);
             }
         } finally {
             setLoadingAction(null);
@@ -196,7 +171,7 @@ export function HouseholdPage() {
 
         try {
             await declineInvitation(invitationId);
-            await loadMyInvitations();
+            fetchMyInvitations().then(setMyInvitations);
         } finally {
             setLoadingAction(null);
         }
@@ -206,7 +181,6 @@ export function HouseholdPage() {
         setLoadingAction(`assignment-${plantId}`);
 
         try {
-            // value format: "fixed:<userId>", "rotating", or "unassigned"
             let strategy: string;
             let assignedUserId: string | undefined;
 
@@ -220,7 +194,7 @@ export function HouseholdPage() {
             await updateAssignment(plantId, strategy, assignedUserId);
 
             if (household) {
-                await loadAssignments(household.id);
+                fetchAssignments(household.id).then(setAssignments);
             }
         } finally {
             setLoadingAction(null);
@@ -229,7 +203,7 @@ export function HouseholdPage() {
 
     function handleInviteSent() {
         if (household) {
-            loadPendingInvitations(household.id);
+            fetchPendingInvitations(household.id).then(setPendingInvitations);
         }
     }
 
