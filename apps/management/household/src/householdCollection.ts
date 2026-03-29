@@ -6,6 +6,7 @@ import { createHouseholdCollection, type HouseholdCollection } from "@packages/c
 import { getCurrentUserId, getAuthHeaders } from "@packages/core-module";
 
 const API_BASE = "/api/management/household";
+const INVITATIONS_API_BASE = "/api/management/household/invitations";
 
 async function fetchHouseholds(): Promise<Household[]> {
     const response = await fetch(API_BASE, {
@@ -55,4 +56,46 @@ export function createManagementHouseholdActions(householdCollection: HouseholdC
     });
 
     return { insertHousehold };
+}
+
+export async function sendInvitation(householdId: string, inviteeEmail: string): Promise<{ error?: string }> {
+    const response = await fetch(INVITATIONS_API_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify({ householdId, inviteeEmail })
+    });
+
+    if (response.status === 422) {
+        const data = (await response.json()) as { error: string };
+
+        return { error: data.error };
+    }
+
+    if (!response.ok) {
+        throw new Error(`Failed to send invitation: ${response.status}`);
+    }
+
+    return {};
+}
+
+export async function acceptInvitation(invitationId: string): Promise<void> {
+    const response = await fetch(`${INVITATIONS_API_BASE}/${invitationId}/accept`, {
+        method: "PATCH",
+        headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to accept invitation: ${response.status}`);
+    }
+}
+
+export async function declineInvitation(invitationId: string): Promise<void> {
+    const response = await fetch(`${INVITATIONS_API_BASE}/${invitationId}/decline`, {
+        method: "PATCH",
+        headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to decline invitation: ${response.status}`);
+    }
 }

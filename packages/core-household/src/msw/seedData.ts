@@ -1,3 +1,4 @@
+import type { HouseholdInvitation } from "../householdInvitationSchema.ts";
 import type { HouseholdMember } from "../householdMemberSchema.ts";
 import type { Household } from "../householdSchema.ts";
 
@@ -35,3 +36,15 @@ const aliceHousehold = generateHouseholds("user-alice");
 
 export const defaultSeedHouseholds: Household[] = [aliceHousehold.household];
 export const defaultSeedMembers: HouseholdMember[] = [...aliceHousehold.members];
+
+// Pre-generated stable seed invitation — Alice invited Bob (pending)
+export const defaultSeedInvitations: HouseholdInvitation[] = [
+    {
+        id: "inv-alice-bob",
+        householdId: aliceHousehold.household.id,
+        invitedBy: "user-alice",
+        inviteeEmail: "bob@example.com",
+        status: "pending",
+        creationDate: new Date(2025, 0, 2)
+    }
+];

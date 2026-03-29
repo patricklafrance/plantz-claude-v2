@@ -11,6 +11,10 @@ class InvitationsDb {
         return [...this.#store.values()].filter(i => i.householdId === householdId);
     }
 
+    getAllByInvitee(email: string): HouseholdInvitation[] {
+        return [...this.#store.values()].filter(i => i.inviteeEmail === email);
+    }
+
     get(id: string): HouseholdInvitation | undefined {
         return this.#store.get(id);
     }
