@@ -4,9 +4,9 @@ import type { CareEvent } from "@packages/core-plants/care-event";
 
 type CareEventsData = CareEvent[] | "loading" | "error";
 
-export function createCareEventHandlers(data: CareEventsData) {
+export function createManagementCareEventHandlers(data: CareEventsData) {
     return [
-        http.get("/api/today/care-events", async () => {
+        http.get("/api/management/care-events", async () => {
             if (data === "loading") {
                 await delay("infinite");
 
@@ -19,7 +19,7 @@ export function createCareEventHandlers(data: CareEventsData) {
 
             return HttpResponse.json(data);
         }),
-        http.post("/api/today/care-events", async ({ request }) => {
+        http.post("/api/management/care-events", async ({ request }) => {
             const body = (await request.json()) as { plantId: string; eventType: string; notes?: string; actorId?: string };
 
             return HttpResponse.json(

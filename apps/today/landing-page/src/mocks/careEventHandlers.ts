@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 
-import { getUserId } from "@packages/core-module/db";
+import { getUserId, usersDb } from "@packages/core-module/db";
 import { getFrequencyDays } from "@packages/core-plants";
 import type { CareEventType } from "@packages/core-plants/care-event";
 import { careEventsDb, plantsDb } from "@packages/core-plants/db";
@@ -20,7 +20,10 @@ export const todayCareEventHandlers = [
             return HttpResponse.json([]);
         }
 
-        const events = careEventsDb.getAllByPlant(plantId);
+        const events = careEventsDb.getAllByPlant(plantId).map(event => ({
+            ...event,
+            actorName: event.actorId ? usersDb.getById(event.actorId)?.name : undefined
+        }));
 
         return HttpResponse.json(events);
     }),
@@ -32,17 +35,20 @@ export const todayCareEventHandlers = [
             return new HttpResponse(null, { status: 401 });
         }
 
-        const body = (await request.json()) as { plantId: string; eventType: CareEventType; notes?: string };
+        const body = (await request.json()) as { plantId: string; eventType: CareEventType; notes?: string; actorId?: string };
 
         const event = {
             id: crypto.randomUUID(),
             plantId: body.plantId,
             eventType: body.eventType,
             eventDate: new Date(),
-            notes: body.notes
+            notes: body.notes,
+            actorId: body.actorId
         };
 
         careEventsDb.insert(event);
+
+        const actorName = body.actorId ? usersDb.getById(body.actorId)?.name : undefined;
 
         // When watered, advance the plant's nextWateringDate
         if (body.eventType === "watered") {
@@ -55,7 +61,7 @@ export const todayCareEventHandlers = [
             }
         }
 
-        return HttpResponse.json(event, { status: 201 });
+        return HttpResponse.json({ ...event, actorName }, { status: 201 });
     }),
 
     http.post("/api/today/care-events/bulk", async ({ request }) => {
@@ -65,7 +71,7 @@ export const todayCareEventHandlers = [
             return new HttpResponse(null, { status: 401 });
         }
 
-        const body = (await request.json()) as { plantIds: string[]; eventType: CareEventType; notes?: string };
+        const body = (await request.json()) as { plantIds: string[]; eventType: CareEventType; notes?: string; actorId?: string };
         const events = [];
 
         for (const plantId of body.plantIds) {
@@ -74,11 +80,12 @@ export const todayCareEventHandlers = [
                 plantId,
                 eventType: body.eventType,
                 eventDate: new Date(),
-                notes: body.notes
+                notes: body.notes,
+                actorId: body.actorId
             };
 
             careEventsDb.insert(event);
-            events.push(event);
+            events.push({ ...event, actorName: body.actorId ? usersDb.getById(body.actorId)?.name : undefined });
 
             if (body.eventType === "watered") {
                 const plant = plantsDb.get(plantId);

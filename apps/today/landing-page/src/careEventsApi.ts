@@ -1,4 +1,4 @@
-import { getAuthHeaders } from "@packages/core-module";
+import { getAuthHeaders, getCurrentUserId } from "@packages/core-module";
 import { careEventSchema } from "@packages/core-plants/care-event";
 import type { CareEvent, CareEventType } from "@packages/core-plants/care-event";
 
@@ -23,7 +23,7 @@ export async function createCareEvent(plantId: string, eventType: CareEventType,
             "Content-Type": "application/json",
             ...getAuthHeaders()
         },
-        body: JSON.stringify({ plantId, eventType, notes })
+        body: JSON.stringify({ plantId, eventType, notes, actorId: getCurrentUserId() })
     });
 
     if (!response.ok) {
@@ -42,7 +42,7 @@ export async function createBulkCareEvents(plantIds: string[], eventType: CareEv
             "Content-Type": "application/json",
             ...getAuthHeaders()
         },
-        body: JSON.stringify({ plantIds, eventType, notes })
+        body: JSON.stringify({ plantIds, eventType, notes, actorId: getCurrentUserId() })
     });
 
     if (!response.ok) {

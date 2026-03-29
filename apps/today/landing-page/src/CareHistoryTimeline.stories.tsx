@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { CareHistoryTimeline } from "@packages/core-plants";
 import type { CareEventType } from "@packages/core-plants/care-event";
 import { makeCareEvent } from "@packages/core-plants/test-utils";
-
-import { CareHistoryTimeline } from "./CareHistoryTimeline.tsx";
 
 const meta = {
     title: "Today/LandingPage/Components/CareHistoryTimeline",
@@ -63,6 +62,48 @@ export const MultipleEventsPerDay: Story = {
             makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "watered", notes: "Morning" }),
             makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "delegated", notes: "Evening" }),
             makeCareEvent({ eventDate: new Date(2024, 6, 10), eventType: "watered" })
+        ]
+    }
+};
+
+export const WithActorAttribution: Story = {
+    args: {
+        events: [
+            makeCareEvent({
+                eventDate: new Date(2024, 6, 15),
+                eventType: "watered",
+                actorId: "user-alice",
+                actorName: "Alice",
+                notes: "Soil was dry"
+            }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 10), eventType: "watered", actorId: "user-bob", actorName: "Bob" }),
+            makeCareEvent({
+                eventDate: new Date(2024, 6, 5),
+                eventType: "delegated",
+                actorId: "user-alice",
+                actorName: "Alice",
+                notes: "Asked neighbor"
+            }),
+            makeCareEvent({ eventDate: new Date(2024, 5, 28), eventType: "skipped", actorId: "user-bob", actorName: "Bob" }),
+            makeCareEvent({ eventDate: new Date(2024, 5, 21), eventType: "watered", actorId: "user-alice", actorName: "Alice" })
+        ]
+    }
+};
+
+export const MixedLegacyAndAttributed: Story = {
+    args: {
+        events: [
+            makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "watered", actorId: "user-alice", actorName: "Alice" }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 10), eventType: "watered" }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 5), eventType: "skipped", actorId: "user-bob", actorName: "Bob" }),
+            makeCareEvent({ eventDate: new Date(2024, 5, 28), eventType: "watered" }),
+            makeCareEvent({
+                eventDate: new Date(2024, 5, 21),
+                eventType: "delegated",
+                actorId: "user-alice",
+                actorName: "Alice",
+                notes: "While on vacation"
+            })
         ]
     }
 };

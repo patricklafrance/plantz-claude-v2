@@ -22,12 +22,16 @@ function generateEventsForPlant(plantId: string, plantIndex: number): CareEvent[
         const typeIndex = (plantIndex + i) % 7 === 0 ? 1 : (plantIndex + i) % 11 === 0 ? 2 : 0;
         const eventType = eventTypes[typeIndex]!;
 
+        // Alternate actors: mostly alice, some bob for shared plant variety
+        const actorId = (plantIndex + i) % 5 === 0 ? "user-bob" : "user-alice";
+
         events.push({
             id: `care-${plantId}-${i}`,
             plantId,
             eventType,
             eventDate,
-            notes: i % 4 === 0 ? "Soil was very dry" : undefined
+            notes: i % 4 === 0 ? "Soil was very dry" : undefined,
+            actorId
         });
     }
 

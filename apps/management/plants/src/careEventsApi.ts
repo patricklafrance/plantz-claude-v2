@@ -1,6 +1,20 @@
-import { getAuthHeaders } from "@packages/core-module";
+import { getAuthHeaders, getCurrentUserId } from "@packages/core-module";
 import { careEventSchema } from "@packages/core-plants/care-event";
 import type { CareEvent, CareEventType } from "@packages/core-plants/care-event";
+
+export async function fetchCareEvents(plantId: string): Promise<CareEvent[]> {
+    const response = await fetch(`/api/management/care-events?plantId=${encodeURIComponent(plantId)}`, {
+        headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch care events: ${response.status}`);
+    }
+
+    const data = (await response.json()) as unknown[];
+
+    return data.map(item => careEventSchema.parse(item));
+}
 
 export async function createCareEvent(plantId: string, eventType: CareEventType, notes?: string): Promise<CareEvent> {
     const response = await fetch("/api/management/care-events", {
@@ -9,7 +23,7 @@ export async function createCareEvent(plantId: string, eventType: CareEventType,
             "Content-Type": "application/json",
             ...getAuthHeaders()
         },
-        body: JSON.stringify({ plantId, eventType, notes })
+        body: JSON.stringify({ plantId, eventType, notes, actorId: getCurrentUserId() })
     });
 
     if (!response.ok) {
@@ -28,7 +42,7 @@ export async function createBulkCareEvents(plantIds: string[], eventType: CareEv
             "Content-Type": "application/json",
             ...getAuthHeaders()
         },
-        body: JSON.stringify({ plantIds, eventType, notes })
+        body: JSON.stringify({ plantIds, eventType, notes, actorId: getCurrentUserId() })
     });
 
     if (!response.ok) {

@@ -21,11 +21,12 @@ import {
     SelectValue,
     DatePicker
 } from "@packages/components";
-import { locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
+import { CareHistoryTimeline, locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
 import type { Plant } from "@packages/core-plants";
 
 import { useManagementPlantsCollection } from "./ManagementPlantsContext.tsx";
 import { createManagementPlantActions } from "./plantsCollection.ts";
+import { useCareEvents } from "./useCareEvents.ts";
 
 interface EditPlantDialogProps {
     plant: Plant | null;
@@ -52,6 +53,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
 
     const collection = useManagementPlantsCollection();
     const actions = useMemo(() => createManagementPlantActions(collection), [collection]);
+    const { events: careEvents, isLoading: careEventsLoading } = useCareEvents(open && plant ? plant.id : null);
 
     useEffect(() => {
         if (plant) {
@@ -287,6 +289,14 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                     </div>
                     <div className="text-muted-foreground text-xs">
                         Created: {format(plant.creationDate, "PPP")} · Last updated: {format(plant.lastUpdateDate, "PPP")}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <h3 className="text-sm font-semibold">Care History</h3>
+                        {careEventsLoading ? (
+                            <p className="text-muted-foreground text-sm">Loading care history...</p>
+                        ) : (
+                            <CareHistoryTimeline events={careEvents} />
+                        )}
                     </div>
                 </div>
                 <DialogFooter>

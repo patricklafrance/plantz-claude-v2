@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { makeCareEvent } from "@packages/core-plants/test-utils";
 import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/core-plants/test-utils";
 
 import { EditPlantDialog } from "./EditPlantDialog.tsx";
-import { createManagementPlantHandlers } from "./mocks/index.ts";
+import { createManagementCareEventHandlers, createManagementPlantHandlers } from "./mocks/index.ts";
 import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
 
 // The dialog auto-saves via PUT after a 500ms debounce. The collection must
@@ -16,7 +17,17 @@ const editPlants = [
     makePlant({ id: "test-edit-3", name: "Monstera Deliciosa" }),
     makePlant({ id: "test-edit-4", name: "Monstera Deliciosa" }),
     makePlant({ id: "test-edit-5", name: "Monstera Deliciosa" }),
-    makePlant({ id: "test-edit-6", name: "Monstera Deliciosa" })
+    makePlant({ id: "test-edit-6", name: "Monstera Deliciosa" }),
+    makePlant({ id: "test-edit-7", name: "Monstera Deliciosa" }),
+    makePlant({ id: "test-edit-8", name: "Monstera Deliciosa" })
+];
+
+const careEventsWithAttribution = [
+    makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "watered", actorId: "user-alice", actorName: "Alice", notes: "Soil was dry" }),
+    makeCareEvent({ eventDate: new Date(2024, 6, 10), eventType: "watered", actorId: "user-bob", actorName: "Bob" }),
+    makeCareEvent({ eventDate: new Date(2024, 6, 5), eventType: "skipped", actorId: "user-alice", actorName: "Alice" }),
+    makeCareEvent({ eventDate: new Date(2024, 5, 28), eventType: "watered" }),
+    makeCareEvent({ eventDate: new Date(2024, 5, 21), eventType: "delegated", actorId: "user-bob", actorName: "Bob", notes: "While on vacation" })
 ];
 
 const meta = {
@@ -34,7 +45,7 @@ const meta = {
                 "dark desktop": { theme: "dark", viewport: 1280 }
             }
         },
-        msw: { handlers: createManagementPlantHandlers(editPlants) }
+        msw: { handlers: [...createManagementPlantHandlers(editPlants), ...createManagementCareEventHandlers([])] }
     },
     args: {
         open: true,
@@ -130,6 +141,33 @@ export const WithMarkWatered: Story = {
 export const NullPlant: Story = {
     args: {
         plant: null
+    }
+};
+
+export const WithCareHistoryAttribution: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-7",
+            name: "Monstera Deliciosa",
+            description: "A tropical plant with large fenestrated leaves",
+            nextWateringDate: FAR_FUTURE
+        }),
+        onMarkWatered: () => {}
+    },
+    parameters: {
+        msw: { handlers: [...createManagementPlantHandlers(editPlants), ...createManagementCareEventHandlers(careEventsWithAttribution)] }
+    }
+};
+
+export const WithEmptyCareHistory: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-8",
+            name: "Monstera Deliciosa"
+        })
+    },
+    parameters: {
+        msw: { handlers: [...createManagementPlantHandlers(editPlants), ...createManagementCareEventHandlers([])] }
     }
 };
 

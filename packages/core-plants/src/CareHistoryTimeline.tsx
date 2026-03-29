@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 
-import { CareEventBadge } from "@packages/core-plants";
-import type { CareEvent } from "@packages/core-plants/care-event";
+import type { CareEvent } from "./care-event/careEventTypes.ts";
+import { CareEventBadge } from "./CareEventBadge.tsx";
 
 interface CareHistoryTimelineProps {
     events: CareEvent[];
@@ -44,6 +44,7 @@ export function CareHistoryTimeline({ events }: CareHistoryTimelineProps) {
                     {dayEvents.map(event => (
                         <div key={event.id} className="flex items-center gap-2">
                             <CareEventBadge eventType={event.eventType} />
+                            {event.actorName && <span className="text-muted-foreground text-xs">by {event.actorName}</span>}
                             {event.notes && <span className="text-muted-foreground truncate text-xs">{event.notes}</span>}
                         </div>
                     ))}

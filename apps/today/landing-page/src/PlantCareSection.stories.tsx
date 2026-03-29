@@ -102,6 +102,42 @@ export const Loading: Story = {
     }
 };
 
+export const WithActorAttribution: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                ...createCareEventHandlers([
+                    makeCareEvent({
+                        id: "e1",
+                        eventDate: new Date(2024, 6, 15),
+                        eventType: "watered",
+                        actorId: "user-alice",
+                        actorName: "Alice",
+                        notes: "Soil was dry"
+                    }),
+                    makeCareEvent({
+                        id: "e2",
+                        eventDate: new Date(2024, 6, 10),
+                        eventType: "watered",
+                        actorId: "user-bob",
+                        actorName: "Bob"
+                    }),
+                    makeCareEvent({ id: "e3", eventDate: new Date(2024, 6, 5), eventType: "skipped" }),
+                    makeCareEvent({
+                        id: "e4",
+                        eventDate: new Date(2024, 5, 28),
+                        eventType: "delegated",
+                        actorId: "user-alice",
+                        actorName: "Alice",
+                        notes: "Asked neighbor"
+                    })
+                ]),
+                ...noAdjustmentHandlers
+            ]
+        }
+    }
+};
+
 export const WithAdjustmentSuggestion: Story = {
     parameters: {
         msw: {
