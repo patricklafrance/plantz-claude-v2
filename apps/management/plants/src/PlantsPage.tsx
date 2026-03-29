@@ -12,6 +12,7 @@ import { CreatePlantDialog } from "./CreatePlantDialog.tsx";
 import { EditPlantDialog } from "./EditPlantDialog.tsx";
 import { useManagementPlantsCollection } from "./ManagementPlantsContext.tsx";
 import { createManagementPlantActions } from "./plantsCollection.ts";
+import { useHouseholdMembership } from "./useHouseholdMembership.ts";
 
 export function PlantsPage() {
     const { filters, updateFilter, clearFilters, hasActiveFilters } = usePlantFilters();
@@ -20,10 +21,12 @@ export function PlantsPage() {
     const [editPlant, setEditPlant] = useState<Plant | null>(null);
     const [editOpen, setEditOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<Plant[] | null>(null);
+    const [sharingPlantId, setSharingPlantId] = useState<string | null>(null);
     const listRef = useRef<HTMLDivElement>(null);
 
     const collection = useManagementPlantsCollection();
     const actions = useMemo(() => createManagementPlantActions(collection), [collection]);
+    const { householdId } = useHouseholdMembership();
     const { data: allPlants, isReady } = useLiveQuery(q => q.from({ plant: collection }));
 
     const plants = useMemo(() => {
@@ -146,6 +149,38 @@ export function PlantsPage() {
         }
     }, [plants, selectedIds, collection]);
 
+    const handleShare = useCallback(
+        async (plant: Plant) => {
+            if (!householdId) {
+                return;
+            }
+
+            setSharingPlantId(plant.id);
+
+            try {
+                const tx = actions.sharePlant({ id: plant.id, householdId });
+                await tx.isPersisted.promise;
+            } finally {
+                setSharingPlantId(null);
+            }
+        },
+        [householdId, actions]
+    );
+
+    const handleUnshare = useCallback(
+        async (plant: Plant) => {
+            setSharingPlantId(plant.id);
+
+            try {
+                const tx = actions.unsharePlant({ id: plant.id });
+                await tx.isPersisted.promise;
+            } finally {
+                setSharingPlantId(null);
+            }
+        },
+        [actions]
+    );
+
     const selectedCount = plants.filter(p => selectedIds.has(p.id)).length;
 
     const deleteTargetNames = deleteTarget?.map(p => p.name) ?? [];
@@ -217,10 +252,13 @@ export function PlantsPage() {
                                 <PlantListItem
                                     plant={plant}
                                     selected={selectedIds.has(plant.id)}
+                                    sharing={sharingPlantId === plant.id}
                                     onToggleSelect={toggleSelect}
                                     onEdit={handleEditPlant}
                                     onDelete={handleDeleteSingle}
                                     onMarkWatered={handleMarkWatered}
+                                    onShare={householdId ? handleShare : undefined}
+                                    onUnshare={householdId ? handleUnshare : undefined}
                                 />
                             </div>
                         );

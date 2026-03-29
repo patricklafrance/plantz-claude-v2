@@ -3,6 +3,7 @@ import { z } from "zod";
 export const plantSchema = z.object({
     id: z.string(),
     userId: z.string(),
+    householdId: z.string().optional(),
     name: z.string(),
     description: z.string().optional(),
     family: z.string().optional(),

@@ -23,6 +23,15 @@ householdsDb.reset(defaultSeedHouseholds);
 membersDb.reset(defaultSeedMembers);
 invitationsDb.reset(defaultSeedInvitations);
 
+// Pre-share a few of Alice's plants with her household for development
+const aliceHousehold = defaultSeedHouseholds[0];
+if (aliceHousehold) {
+    const alicePlants = plantsDb.getAllByUser("user-alice");
+    for (const plant of alicePlants.slice(0, 5)) {
+        plantsDb.update(plant.id, { householdId: aliceHousehold.id });
+    }
+}
+
 const runtime = initializeFirefly({
     useMsw: true,
     localModules: [registerShell, ...getActiveModules(process.env.MODULES, queryClient)],

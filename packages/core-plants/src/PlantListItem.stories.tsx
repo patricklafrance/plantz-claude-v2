@@ -173,6 +173,55 @@ export const MistLeavesFalse: Story = {
     }
 };
 
+export const SharedWithHousehold: Story = {
+    args: {
+        plant: makePlant({ householdId: "household-1" })
+    }
+};
+
+export const SharedAndDueForWatering: Story = {
+    args: {
+        plant: makePlant({ householdId: "household-1", nextWateringDate: FAR_PAST }),
+        onMarkWatered: () => {}
+    }
+};
+
+export const NotShared: Story = {
+    args: {
+        plant: makePlant({ householdId: undefined })
+    }
+};
+
+export const WithShareAction: Story = {
+    args: {
+        plant: makePlant(),
+        onShare: () => {}
+    }
+};
+
+export const WithUnshareAction: Story = {
+    args: {
+        plant: makePlant({ householdId: "household-1" }),
+        onUnshare: () => {}
+    }
+};
+
+export const ShareLoading: Story = {
+    args: {
+        plant: makePlant(),
+        onShare: () => {},
+        sharing: true
+    }
+};
+
+export const UnshareLoading: Story = {
+    args: {
+        plant: makePlant({ householdId: "household-1" }),
+        onUnshare: () => {},
+        sharing: true
+    }
+};
+
 export const WithHeader: Story = {
     args: {
         plant: makePlant()

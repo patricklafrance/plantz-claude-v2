@@ -1,10 +1,27 @@
 import { http, HttpResponse } from "msw";
 
+import { membersDb } from "@packages/core-household/db";
 import { getUserId } from "@packages/core-module/db";
 import type { Plant } from "@packages/core-plants";
 import { plantsDb } from "@packages/core-plants/db";
 
 export const managementPlantHandlers = [
+    http.get("/api/management/plants/membership", ({ request }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const membership = membersDb.getByUserId(userId);
+
+        if (!membership) {
+            return HttpResponse.json({ householdId: null });
+        }
+
+        return HttpResponse.json({ householdId: membership.householdId });
+    }),
+
     http.get("/api/management/plants", ({ request }) => {
         const userId = getUserId(request);
 
@@ -82,5 +99,41 @@ export const managementPlantHandlers = [
         plantsDb.deleteMany(body.ids);
 
         return new HttpResponse(null, { status: 204 });
+    }),
+
+    http.patch("/api/management/plants/:id/share", async ({ params, request }) => {
+        const userId = getUserId(request);
+
+        if (!userId) {
+            return new HttpResponse(null, { status: 401 });
+        }
+
+        const { id } = params;
+        const plant = plantsDb.get(id as string);
+
+        if (!plant) {
+            return new HttpResponse(null, { status: 404 });
+        }
+
+        if (plant.userId !== userId) {
+            return new HttpResponse(null, { status: 403 });
+        }
+
+        const body = (await request.json()) as { householdId: string | null };
+
+        // When sharing, verify the user belongs to the target household
+        if (body.householdId) {
+            const membership = membersDb.getByUserId(userId);
+
+            if (!membership || membership.householdId !== body.householdId) {
+                return new HttpResponse(null, { status: 403 });
+            }
+        }
+
+        const updated = plantsDb.update(id as string, {
+            householdId: body.householdId ?? undefined
+        });
+
+        return HttpResponse.json(updated);
     })
 ];

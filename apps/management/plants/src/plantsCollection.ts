@@ -115,5 +115,47 @@ export function createManagementPlantActions(plantsCollection: PlantsCollection)
         }
     });
 
-    return { insertPlant, updatePlant, deletePlant, deletePlants };
+    const sharePlant = createOptimisticAction<{ id: string; householdId: string }>({
+        onMutate: ({ id, householdId }) => {
+            plantsCollection.update(id, draft => {
+                draft.householdId = householdId;
+            });
+        },
+        mutationFn: async ({ id, householdId }) => {
+            const response = await fetch(`${API_BASE}/${id}/share`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+                body: JSON.stringify({ householdId })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to share plant ${id}: ${response.status}`);
+            }
+
+            await plantsCollection.utils.refetch();
+        }
+    });
+
+    const unsharePlant = createOptimisticAction<{ id: string }>({
+        onMutate: ({ id }) => {
+            plantsCollection.update(id, draft => {
+                draft.householdId = undefined;
+            });
+        },
+        mutationFn: async ({ id }) => {
+            const response = await fetch(`${API_BASE}/${id}/share`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+                body: JSON.stringify({ householdId: null })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to unshare plant ${id}: ${response.status}`);
+            }
+
+            await plantsCollection.utils.refetch();
+        }
+    });
+
+    return { insertPlant, updatePlant, deletePlant, deletePlants, sharePlant, unsharePlant };
 }

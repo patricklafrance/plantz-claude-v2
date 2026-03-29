@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { userEvent, within } from "storybook/test";
 
 import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/core-plants/test-utils";
 
@@ -140,5 +141,93 @@ export const ManyDueForWatering: Story = {
 export const Loading: Story = {
     parameters: {
         msw: { handlers: createManagementPlantHandlers("loading") }
+    }
+};
+
+// --- Sharing stories ---
+
+const sharedPlants = [
+    makePlant({ id: "sp-1", name: "Aloe Vera", householdId: "household-1", nextWateringDate: FAR_PAST }),
+    makePlant({ id: "sp-2", name: "Boston Fern", householdId: "household-1", nextWateringDate: FAR_FUTURE }),
+    makePlant({ id: "sp-3", name: "Calathea Orbifolia", nextWateringDate: FAR_FUTURE }),
+    makePlant({ id: "sp-4", name: "Dracaena Marginata", nextWateringDate: FAR_FUTURE }),
+    makePlant({ id: "sp-5", name: "English Ivy", householdId: "household-1", nextWateringDate: FAR_FUTURE })
+];
+
+export const WithSharedPlants: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementPlantHandlers(sharedPlants, { householdId: "household-1" })
+        }
+    }
+};
+
+export const ShareLoading: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementPlantHandlers(sharedPlants, {
+                householdId: "household-1",
+                shareDelay: "infinite"
+            })
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const shareButton = await canvas.findByLabelText("Share Calathea Orbifolia");
+        await userEvent.click(shareButton);
+    }
+};
+
+export const AfterShare: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementPlantHandlers(sharedPlants, { householdId: "household-1" })
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const shareButton = await canvas.findByLabelText("Share Calathea Orbifolia");
+        await userEvent.click(shareButton);
+        // Wait for the shared indicator to appear — findByLabelText retries until found
+        await canvas.findByLabelText("Unshare Calathea Orbifolia");
+    }
+};
+
+export const UnshareLoading: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementPlantHandlers(sharedPlants, {
+                householdId: "household-1",
+                shareDelay: "infinite"
+            })
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const unshareButton = await canvas.findByLabelText("Unshare Aloe Vera");
+        await userEvent.click(unshareButton);
+    }
+};
+
+export const AfterUnshare: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementPlantHandlers(sharedPlants, { householdId: "household-1" })
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const unshareButton = await canvas.findByLabelText("Unshare Aloe Vera");
+        await userEvent.click(unshareButton);
+        // Wait for the share button to appear after unsharing
+        await canvas.findByLabelText("Share Aloe Vera");
+    }
+};
+
+export const NoHousehold: Story = {
+    parameters: {
+        msw: {
+            handlers: createManagementPlantHandlers(sharedPlants, { householdId: null })
+        }
     }
 };

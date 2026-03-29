@@ -1,4 +1,4 @@
-import { Check, Droplets, Pencil, Trash2 } from "lucide-react";
+import { Check, Droplets, Pencil, Share2, Trash2, UserMinus, Users } from "lucide-react";
 import { memo, useCallback } from "react";
 
 import { Button, Checkbox } from "@packages/components";
@@ -11,23 +11,30 @@ import { getOptionLabel, isDueForWatering } from "./plantUtils.ts";
 interface PlantListItemProps {
     plant: Plant;
     selected?: boolean | undefined;
+    sharing?: boolean | undefined;
     onClick?: ((plant: Plant) => void) | undefined;
     onToggleSelect?: ((id: string) => void) | undefined;
     onEdit?: ((plant: Plant) => void) | undefined;
     onDelete?: ((plant: Plant) => void) | undefined;
     onMarkWatered?: ((plant: Plant) => void) | undefined;
+    onShare?: ((plant: Plant) => void) | undefined;
+    onUnshare?: ((plant: Plant) => void) | undefined;
 }
 
 export const PlantListItem = memo(function PlantListItem({
     plant,
     selected = false,
+    sharing = false,
     onClick,
     onToggleSelect,
     onEdit,
     onDelete,
-    onMarkWatered
+    onMarkWatered,
+    onShare,
+    onUnshare
 }: PlantListItemProps) {
     const due = isDueForWatering(plant);
+    const isShared = !!plant.householdId;
 
     const isClickable = !!(onClick || onEdit);
 
@@ -36,6 +43,8 @@ export const PlantListItem = memo(function PlantListItem({
     const handleEdit = useCallback(() => onEdit?.(plant), [onEdit, plant]);
     const handleDelete = useCallback(() => onDelete?.(plant), [onDelete, plant]);
     const handleMarkWatered = useCallback(() => onMarkWatered?.(plant), [onMarkWatered, plant]);
+    const handleShare = useCallback(() => onShare?.(plant), [onShare, plant]);
+    const handleUnshare = useCallback(() => onUnshare?.(plant), [onUnshare, plant]);
 
     return (
         <div
@@ -57,6 +66,12 @@ export const PlantListItem = memo(function PlantListItem({
             <div className={`flex min-w-0 flex-1 flex-col gap-0.5 ${PLANT_LIST_GRID} md:items-center md:gap-4`}>
                 <div className="flex w-full items-center gap-2">
                     <span className="truncate text-sm font-medium">{plant.name}</span>
+                    {isShared && (
+                        <>
+                            <Users className="text-primary size-3.5 shrink-0" aria-hidden="true" />
+                            <span className="sr-only">Shared with household</span>
+                        </>
+                    )}
                     {due && (
                         <>
                             <Droplets className="text-destructive size-3.5 shrink-0" aria-hidden="true" />
@@ -75,11 +90,29 @@ export const PlantListItem = memo(function PlantListItem({
                     {plant.mistLeaves && <Check className="text-muted-foreground size-3.5" aria-label="Mist leaves" />}
                 </span>
             </div>
-            {(onEdit || onDelete || (onMarkWatered && due)) && (
+            {(onEdit || onDelete || (onMarkWatered && due) || onShare || onUnshare) && (
                 <div className="relative z-10 flex shrink-0 items-center gap-1">
                     {onMarkWatered && due && (
                         <Button variant="ghost" size="icon-xs" onClick={handleMarkWatered} aria-label={`Mark ${plant.name} as watered`}>
                             <Droplets />
+                        </Button>
+                    )}
+                    {onShare && !isShared && (
+                        <Button variant="ghost" size="icon-xs" onClick={handleShare} disabled={sharing} aria-label={`Share ${plant.name}`}>
+                            {sharing ? (
+                                <span className="size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            ) : (
+                                <Share2 />
+                            )}
+                        </Button>
+                    )}
+                    {onUnshare && isShared && (
+                        <Button variant="ghost" size="icon-xs" onClick={handleUnshare} disabled={sharing} aria-label={`Unshare ${plant.name}`}>
+                            {sharing ? (
+                                <span className="size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            ) : (
+                                <UserMinus />
+                            )}
                         </Button>
                     )}
                     {onEdit && (
