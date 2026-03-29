@@ -14,6 +14,7 @@ const storybookConfig: StorybookConfig = {
         "../../../packages/core-module/src/**/*.stories.tsx",
         "../../../packages/core-plants/src/**/*.stories.tsx",
         // Management
+        "../../management/household/src/**/*.stories.tsx",
         "../../management/plants/src/**/*.stories.tsx",
         "../../management/user/src/**/*.stories.tsx",
         // Today

@@ -3,6 +3,7 @@ import { FireflyProvider, initializeFirefly } from "@squide/firefly";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
 
+import { defaultSeedHouseholds, defaultSeedMembers, householdsDb, membersDb } from "@packages/core-household/db";
 import { App, registerShell } from "@packages/core-module/shell";
 import { defaultSeedPlants, plantsDb } from "@packages/core-plants/db";
 
@@ -11,6 +12,8 @@ import { getActiveModules } from "./getActiveModules.tsx";
 const queryClient = new QueryClient();
 
 plantsDb.reset(defaultSeedPlants);
+householdsDb.reset(defaultSeedHouseholds);
+membersDb.reset(defaultSeedMembers);
 
 const runtime = initializeFirefly({
     useMsw: true,

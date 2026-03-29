@@ -60,6 +60,7 @@ The host app requires login. Demo credentials: `alice@example.com` / `password`.
 | `/`                       | today/landing-page (index redirect) |
 | `/today`                  | today/landing-page                  |
 | `/today/vacation-planner` | today/vacation-planner              |
+| `/management/household`   | management/household                |
 | `/management/plants`      | management/plants                   |
 | `/management/user`        | management/user                     |
 

@@ -12,11 +12,13 @@
         "typecheck": "tsgo"
     },
     "dependencies": {
+        "@modules/management-household": "workspace:*",
         "@modules/management-plants": "workspace:*",
         "@modules/management-user": "workspace:*",
         "@modules/today-landing-page": "workspace:*",
         "@modules/today-vacation-planner": "workspace:*",
         "@packages/components": "workspace:*",
+        "@packages/core-household": "workspace:*",
         "@packages/core-module": "workspace:*",
         "@packages/core-plants": "workspace:*",
         "@squide/firefly": "16.2.0",
