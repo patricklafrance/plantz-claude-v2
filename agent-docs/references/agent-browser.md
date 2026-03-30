@@ -21,6 +21,19 @@ You do NOT need agent-browser for:
 
 Use the **host app** for route-based verification (page navigation, login flows, cross-module interactions). Use the **unified storybook** for story-based verification (component variants, visual states).
 
+### Starting dev servers
+
+Start servers in the background **without piping through `head`** — piped commands kill the server when the pipe closes:
+
+```bash
+# CORRECT — redirect output, run_in_background handles backgrounding:
+pnpm dev-storybook > /dev/null 2>&1
+pnpm dev-host > /dev/null 2>&1
+
+# WRONG — head exits after N lines, breaking the pipe and killing the server:
+pnpm dev-storybook 2>&1 | head -5    # ← server dies
+```
+
 ### Waiting for dev servers
 
 After starting a dev server, use the readiness check instead of manual `sleep && curl` polling:
@@ -30,7 +43,7 @@ node .claude/agents/scripts/wait-for-dev-server.mjs --port 6006 --name Storybook
 node .claude/agents/scripts/wait-for-dev-server.mjs --port 8080 --name "Host app"
 ```
 
-Options: `--port <port>` (required), `--timeout 90` (seconds, default), `--name <label>` (auto-detected from port). Exit codes: 0 = ready, 1 = timed out, 2 = nothing listening (server not running). Do NOT use `sleep N && curl` loops — they waste tool calls and wall-clock time.
+Options: `--port <port>` (required), `--timeout 90` (seconds, default), `--name <label>`. Exit codes: 0 = ready, 1 = timed out. On timeout, the script reports whether the port is listening (server stuck) or not (server not running). Do NOT use `sleep N && curl` loops — they waste tool calls and wall-clock time.
 
 ### Stopping dev servers
 

@@ -26,7 +26,7 @@ export function splitCommandSegments(command) {
 }
 
 export function isBrowserCommand(command) {
-    return /pnpm\s+exec\s+agent-browser\b/.test(command);
+    return /(?:pnpm\s+exec\s+)?agent-browser\b/.test(command);
 }
 
 export function isScreenshotCommand(command) {

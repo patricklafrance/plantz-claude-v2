@@ -7,12 +7,11 @@
  * call that polls at short intervals and gives a clear pass/fail.
  *
  * Usage:
- *   node agent-hooks/src/wait-for-dev-server.mjs --port 6006 [--timeout 90] [--name Storybook]
+ *   node .claude/agents/scripts/wait-for-dev-server.mjs --port 6006 [--timeout 90] [--name Storybook]
  *
  * Exit codes:
  *   0 — Server is ready
- *   1 — Timed out (server did not respond in time)
- *   2 — Server process is not running (nothing listening, no point waiting)
+ *   1 — Timed out or nothing listening (server not running)
  */
 
 import { execSync } from "node:child_process";
@@ -24,13 +23,14 @@ const portArg = getArg(args, "--port");
 
 if (!portArg) {
     console.error("Usage: wait-for-dev-server.mjs --port <port> [--timeout 90] [--name <label>]");
-    exit(2);
+    exit(1);
 }
 
 const port = Number(portArg);
 const timeoutSec = Number(getArg(args, "--timeout") ?? 90);
 const serverName = getArg(args, "--name") ?? `localhost:${port}`;
 const pollIntervalMs = 2000;
+const gracePeriodMs = 30_000;
 
 function getArg(list, flag) {
     const idx = list.indexOf(flag);
@@ -41,9 +41,13 @@ function getArg(list, flag) {
 function isPortListening(portNum) {
     try {
         if (platform === "win32") {
-            const out = execSync(`netstat -ano | findstr ":${portNum}"`, { encoding: "utf8", timeout: 5000 });
+            const out = execSync(`netstat -ano | findstr "LISTENING"`, { encoding: "utf8", timeout: 5000 });
 
-            return out.includes("LISTENING");
+            return out.split("\n").some(line => {
+                const match = line.match(/:(\d+)\s/);
+
+                return match && match[1] === String(portNum);
+            });
         }
 
         const out = execSync(`lsof -ti :${portNum} 2>/dev/null`, { encoding: "utf8", timeout: 5000 });
@@ -80,13 +84,15 @@ async function main() {
     while (Date.now() < deadline) {
         attempt++;
 
-        // Every 5 attempts, check if anything is listening at all.
-        // If nothing is listening and we are past the first 10 seconds,
-        // bail early rather than waiting the full timeout.
-        if (attempt % 5 === 0 && Date.now() > startTime + 10_000) {
+        // After the 30s grace period (enough for cold starts), check every
+        // 5 attempts if anything is listening. If not, bail early — the
+        // server process likely died or was never started.
+        if (attempt % 5 === 0 && Date.now() > startTime + gracePeriodMs) {
             if (!isPortListening(port)) {
-                console.error(`Nothing listening on port ${port}. Is ${serverName} running?`);
-                exit(2);
+                const elapsed = Math.round((Date.now() - startTime) / 1000);
+                console.error(`Nothing listening on port ${port} after ${elapsed}s. Is ${serverName} running?`);
+                console.error(`Hint: if you started the server with \`| head\`, the pipe kills it. Use \`> /dev/null 2>&1\` instead.`);
+                exit(1);
             }
         }
 
@@ -101,7 +107,15 @@ async function main() {
         await new Promise(r => setTimeout(r, pollIntervalMs));
     }
 
-    console.error(`Timed out after ${timeoutSec}s waiting for ${serverName} on ${url}.`);
+    // On timeout, check if anything is listening to give a diagnostic hint.
+    const listening = isPortListening(port);
+    if (listening) {
+        console.error(
+            `Timed out after ${timeoutSec}s — port ${port} is listening but ${serverName} is not responding to HTTP. May need more time or the server is stuck.`
+        );
+    } else {
+        console.error(`Timed out after ${timeoutSec}s — nothing listening on port ${port}. Is ${serverName} running?`);
+    }
     exit(1);
 }
 
