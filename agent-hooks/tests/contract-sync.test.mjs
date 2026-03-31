@@ -74,8 +74,8 @@ describe("contract-sync: artifact fixtures exist", () => {
         expect(fixtureExists("plan-gate", "revision-no-refs.invalid.md")).toBe(true);
     });
 
-    it("domain-mapper: mapping fixture", () => {
-        expect(fixtureExists("domain-mapper", "domain-mapping.valid.md")).toBe(true);
+    it("module-mapper: mapping fixture", () => {
+        expect(fixtureExists("module-mapper", "module-mapping.valid.md")).toBe(true);
     });
 
     it("coder: implementation-notes fixture directory", () => {

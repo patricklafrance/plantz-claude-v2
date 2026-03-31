@@ -16,7 +16,7 @@ const THRESHOLDS = {
     "_adlc-explorer": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
     "_adlc-planner": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
     "_adlc-plan-gate": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
-    "_adlc-domain-mapper": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
+    "_adlc-module-mapper": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
     "_adlc-pr": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
     "_adlc-document": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
     "_adlc-evidence-researcher": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES },

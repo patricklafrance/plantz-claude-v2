@@ -1,11 +1,11 @@
 ---
-name: _adlc-domain-mapper
+name: _adlc-module-mapper
 description: Produce a module placement mapping.
 model: opus
 effort: high
 ---
 
-# Harness Domain Mapper
+# Harness Module Mapper
 
 Decide where a feature belongs before planning begins.
 
@@ -24,7 +24,7 @@ Run the full process below (steps 1-6). If `.adlc/placement-gate-revision.md` ex
 
 ### `evidence-revision`
 
-The Evidence Researcher has produced `.adlc/evidence-findings.md` with structured observations and inferences for your evidence gaps. Incorporate the findings and re-evaluate all rows in the mapping — not just the ones that were `insufficient_evidence`. Update `.adlc/domain-mapping.md` with revised decisions.
+The Evidence Researcher has produced `.adlc/evidence-findings.md` with structured observations and inferences for your evidence gaps. Incorporate the findings and re-evaluate all rows in the mapping — not just the ones that were `insufficient_evidence`. Update `.adlc/module-mapping.md` with revised decisions.
 
 ### `challenge-revision`
 
@@ -36,7 +36,7 @@ Challengers have produced `.adlc/current-sprawl-challenges.md` and/or `.adlc/cur
     - Cite specific artifact-level evidence for why the proposal fails
     - Acknowledge the challenger's strongest argument and explain why it doesn't hold
 4. If accepting a challenger's proposal, update the decision accordingly.
-5. Update `.adlc/domain-mapping.md` with the resolved decisions. Add a `## Challenge Resolution` section documenting what was accepted, what was rejected, and the evidence for each.
+5. Update `.adlc/module-mapping.md` with the resolved decisions. Add a `## Challenge Resolution` section documenting what was accepted, what was rejected, and the evidence for each.
 
 ## Process
 
@@ -44,11 +44,11 @@ Challengers have produced `.adlc/current-sprawl-challenges.md` and/or `.adlc/cur
 
 - Read the feature description.
 - Read `agent-docs/references/placement.md`.
-- Scan existing modules in affected domains: read actual code — components, routes, pages, API calls. Heuristics applied to PRD text alone produce wrong answers.
+- Scan existing modules and their subfolders: read actual code — components, routes, pages, API calls. Heuristics applied to PRD text alone produce wrong answers.
 
 ### 2. Apply the decision tree
 
-The domain reference doc's decision tree is a guard clause — apply it first. If it resolves a concern definitively, record the placement and skip the heuristics.
+The placement reference doc's decision tree is a guard clause — apply it first. If it resolves a concern definitively, record the placement and skip the heuristics.
 
 ### 3. Extract feature terms and actions
 
@@ -58,11 +58,11 @@ Pull entities, actions, and views from the feature description.
 
 Before applying heuristics, answer these three questions. Separate observations (what you see in the code) from inferences (what you conclude from observations).
 
-**ENTITY_DECOMPOSITION:** What are the distinct entities in this feature? For each entity: is it new, or does it extend an existing entity already owned by a module? List the entity name, whether it is new or existing, and if existing, which module owns it.
+**ENTITY_DECOMPOSITION:** What are the distinct entities in this feature? For each entity: is it new, or does it extend an existing entity already owned by a module? List the entity name, whether it is new or existing, and if existing, which module and subfolder owns it.
 
 **CROSS_MODULE_DEPENDENCIES:** Which entities in this feature need to be accessed by more than one module? Does any dependency violate the module isolation rule (modules never import from each other)? If cross-module access is needed, identify the shared package candidate.
 
-**MUTATION_LIFECYCLE_SPLIT:** For each concern: where does the mutation (create/update/delete) happen vs. where does the read/display happen? Are they in the same module? If mutation and display are in different modules, the concern likely spans a domain boundary.
+**MUTATION_LIFECYCLE_SPLIT:** For each concern: where does the mutation (create/update/delete) happen vs. where does the read/display happen? Are they in the same module? If mutation and display are in different modules, the concern likely spans a module boundary.
 
 ### 4. Run heuristics against existing modules
 
@@ -76,24 +76,24 @@ For each unresolved concern, apply heuristics 1-4. Use 5 only for the module-vs-
 | --- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | **Language alignment**                                   | Same terms + same meaning -> same module. Same term + different meaning -> bounded context boundary (Evans, Ubiquitous Language). New terms -> check lifecycle coupling (see forcing questions). New vocabulary alone does not justify a new module. |
 | 2   | **Change coupling**                                      | Feature change forces changes in module X -> same module. Independent -> potential new module. (Martin, Common Closure Principle)                                                                                                                    |
-| 3   | **Route proximity**                                      | Extends existing route tree -> extend that module. New top-level navigation -> likely new domain/module.                                                                                                                                             |
+| 3   | **Route proximity**                                      | Extends existing route tree -> extend that module. New top-level navigation -> likely new module.                                                                                                                                             |
 | 4   | **Lifecycle cohesion** _(tiebreaker)_                    | Shared forms, mutation workflows, optimistic updates, loading/error boundaries -> same module. (Vernon, Aggregate Design)                                                                                                                            |
-| 5   | **Stability boundary** _(module vs shared package only)_ | Stable + shared across domains -> shared package. Volatile + domain-specific -> stays in module. (Evans, Core/Supporting/Generic)                                                                                                                    |
+| 5   | **Stability boundary** _(module vs shared package only)_ | Stable + shared across modules -> shared package. Volatile + module-specific -> stays in module. (Evans, Core/Supporting/Generic)                                                                                                                    |
 
 </heuristics>
 
-When heuristics diverge, check the feature's purpose against the domain mental models — purpose over vocabulary.
+When heuristics diverge, check the feature's purpose against the module mental models — purpose over vocabulary.
 
 ### 5. Write output
 
-Write `.adlc/domain-mapping.md` using the template below.
+Write `.adlc/module-mapping.md` using the template below.
 
 ## Output
 
-<domain-mapping-template>
+<module-mapping-template>
 
 ```markdown
-# Domain Mapping: {Feature Name}
+# Module Mapping: {Feature Name}
 
 ## Forcing Question Answers
 
@@ -148,14 +148,14 @@ All applicable heuristics (1-4) must be evaluated for every concern. `create` re
 {Key findings — what was clear, what was ambiguous, how ambiguities were resolved}
 ```
 
-</domain-mapping-template>
+</module-mapping-template>
 
 ### Example
 
-<domain-mapping-example>
+<module-mapping-example>
 
 ```markdown
-# Domain Mapping: Export Reports
+# Module Mapping: Export Reports
 
 ## Forcing Question Answers
 
@@ -166,7 +166,7 @@ All applicable heuristics (1-4) must be evaluated for every concern. `create` re
 - **ExportFormat**: new entity, no current owner
 - **Schedule**: new entity, but extends existing scheduling in `analytics/reports`
 - Observations: `billing/invoices` has InvoiceType, InvoiceListItem. `analytics/reports` has Dashboard, DashboardWidget, ReportSchedule.
-- Inferences: ExportFormat is cross-cutting (used by both domains). Schedule extends existing ReportSchedule concept.
+- Inferences: ExportFormat is cross-cutting (used by both modules). Schedule extends existing ReportSchedule concept.
 
 ### Cross-Module Dependencies
 
@@ -202,7 +202,7 @@ All applicable heuristics (1-4) must be evaluated for every concern. `create` re
 
 ## Analysis Summary
 
-"Export" appears in both billing and analytics, but means different things — billing exports invoices (transactional), analytics exports dashboards (aggregation). Bounded context boundary per heuristic #1. Report scheduling shares mutation lifecycle with existing analytics views. No new domain needed. ExportFormat extracted to shared package per heuristic #5 (stable, cross-domain).
+"Export" appears in both billing and analytics, but means different things — billing exports invoices (transactional), analytics exports dashboards (aggregation). Bounded context boundary per heuristic #1. Report scheduling shares mutation lifecycle with existing analytics views. No new module needed. ExportFormat extracted to shared package per heuristic #5 (stable, cross-module).
 ```
 
-</domain-mapping-example>
+</module-mapping-example>

@@ -101,7 +101,7 @@ Per-agent thresholds (nudge / hard stop):
 | \_adlc-explorer            | 5 min                           | 8 min          |
 | \_adlc-planner             | 5 min                           | 8 min          |
 | \_adlc-plan-gate           | 5 min                           | 8 min          |
-| \_adlc-domain-mapper       | 5 min                           | 8 min          |
+| \_adlc-module-mapper       | 5 min                           | 8 min          |
 | \_adlc-pr                  | 5 min                           | 8 min          |
 | \_adlc-document            | 5 min                           | 8 min          |
 | \_adlc-evidence-researcher | 3 min                           | 5 min          |

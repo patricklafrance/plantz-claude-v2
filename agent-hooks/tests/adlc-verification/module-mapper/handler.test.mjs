@@ -4,10 +4,10 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import handleDomainMapper from "../../../src/adlc-verification/domain-mapper/handler.mjs";
+import handleModuleMapper from "../../../src/adlc-verification/module-mapper/handler.mjs";
 import { loadFixture } from "../../fixtures/load.mjs";
 
-describe("domain-mapper handler (composition)", () => {
+describe("module-mapper handler (composition)", () => {
     let tmp;
 
     beforeEach(() => {
@@ -20,13 +20,13 @@ describe("domain-mapper handler (composition)", () => {
     });
 
     it("should pass when mapping file exists", () => {
-        writeFileSync(join(tmp, ".adlc/domain-mapping.md"), loadFixture("domain-mapper", "domain-mapping.valid.md"));
-        expect(handleDomainMapper(tmp)).toHaveLength(0);
+        writeFileSync(join(tmp, ".adlc/module-mapping.md"), loadFixture("module-mapper", "module-mapping.valid.md"));
+        expect(handleModuleMapper(tmp)).toHaveLength(0);
     });
 
     it("should fail when mapping file is missing", () => {
-        const problems = handleDomainMapper(tmp);
+        const problems = handleModuleMapper(tmp);
         expect(problems).toHaveLength(1);
-        expect(problems[0]).toContain("domain-mapping.md");
+        expect(problems[0]).toContain("module-mapping.md");
     });
 });

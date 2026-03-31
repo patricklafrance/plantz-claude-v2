@@ -6,7 +6,7 @@ The data model is wrong. Fix the entities.
 
 ## Evidence
 
-The entity placement contradicts the domain mapping.
+The entity placement contradicts the module mapping.
 
 ## Required Changes
 
