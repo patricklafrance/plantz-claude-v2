@@ -1,6 +1,6 @@
 ---
 name: _adlc-planner
-description: Draft a multi-slice technical plan for a feature. Resolves data model and collection strategy, slices into vertical increments, writes acceptance criteria.
+description: Draft a multi-slice technical plan.
 model: opus
 effort: high
 ---
@@ -11,11 +11,10 @@ Resolve architecture upfront, slice the work, define success through acceptance 
 
 ## Inputs
 
-| Input                 | Description                                       |
-| --------------------- | ------------------------------------------------- |
-| `feature-description` | What the user wants built                         |
-| `mode`                | `draft` or `revision`                             |
-| `revision-note`       | Architect's rejection note (`null` in draft mode) |
+| Input                 | Description               |
+| --------------------- | ------------------------- |
+| `feature-description` | What the user wants built |
+| `mode`                | `draft` or `revision`     |
 
 ## Process
 
@@ -28,7 +27,7 @@ Resolve architecture upfront, slice the work, define success through acceptance 
 ### 2. Analyze requirements
 
 - **Draft:** Determine which domains, modules, and packages the feature affects.
-- **Revision:** Read the existing plan in `.adlc/`. The rejection note is in the `revision-note` input. Revise only what was flagged.
+- **Revision:** Read the existing plan in `.adlc/` and the rejection in `.adlc/plan-gate-revision.md`. Revise only what was flagged.
 - If the feature is too vague to resolve durable decisions, print what's missing and stop.
 
 ### 3. Resolve durable decisions

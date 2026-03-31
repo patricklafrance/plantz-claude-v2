@@ -11,14 +11,18 @@
 const MINUTES = 60_000;
 
 const THRESHOLDS = {
-    "_adlc-coder": { nudge: 12 * MINUTES, hardStop: 20 * MINUTES },
+    "_adlc-coder": { nudge: null, hardStop: 25 * MINUTES },
     "_adlc-reviewer": { nudge: 10 * MINUTES, hardStop: 15 * MINUTES },
     "_adlc-explorer": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
     "_adlc-planner": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
-    "_adlc-architect": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
+    "_adlc-plan-gate": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
     "_adlc-domain-mapper": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
     "_adlc-pr": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
-    "_adlc-document": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES }
+    "_adlc-document": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
+    "_adlc-evidence-researcher": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES },
+    "_adlc-sprawl-challenger": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES },
+    "_adlc-cohesion-challenger": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES },
+    "_adlc-domain-gate": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES }
 };
 
 const DEFAULT_THRESHOLD = { nudge: 10 * MINUTES, hardStop: 15 * MINUTES };
@@ -88,7 +92,7 @@ export default function checkWallClock(event, state) {
         };
     }
 
-    if (elapsed >= thresholds.nudge && !state.wallClock.nudgeFired) {
+    if (thresholds.nudge != null && elapsed >= thresholds.nudge && !state.wallClock.nudgeFired) {
         return {
             action: "block",
             severity: "nudge",

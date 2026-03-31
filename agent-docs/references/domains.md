@@ -12,12 +12,12 @@
 
 ## Domains
 
-| Domain         | Mental model            | Modules                  | Scope                                                                                                      |
-| -------------- | ----------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| **management** | Admin and configuration | `management/plants`      | Plant inventory ownership — CRUD, metadata, per-user plant collections                                     |
-|                |                         | `management/user`        | User identity and preferences — profile editing, display settings                                          |
-| **today**      | Daily care dashboard    | `today/landing-page`     | Daily care execution — what needs attention now, watering actions, care event recording, schedule insights |
-|                |                         | `today/vacation-planner` | Absence-aware care planning — trip dates, plant forecasts, delegation                                      |
+| Domain         | Mental model            | Modules                  | Scope                                                                                    |
+| -------------- | ----------------------- | ------------------------ | ---------------------------------------------------------------------------------------- |
+| **management** | Admin and configuration | `management/plants`      | Plant identity and ownership — what a plant _is_ and who owns it.                        |
+|                |                         | `management/user`        | User identity and preferences — who the user is and how they configure their experience. |
+| **today**      | Daily care dashboard    | `today/landing-page`     | Daily care execution — what needs the user's attention right now.                        |
+|                |                         | `today/vacation-planner` | Absence-aware care planning — managing periods when the user can't perform regular care. |
 
 The **host** is not a domain — it's a thin bootstrap wiring `registerShell` with domain modules.
 

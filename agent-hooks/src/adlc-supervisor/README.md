@@ -94,18 +94,22 @@ Behavior:
 
 Per-agent thresholds (nudge / hard stop):
 
-| Agent                | Nudge (T1)                      | Hard Stop (T2) |
-| -------------------- | ------------------------------- | -------------- |
-| \_adlc-coder         | 12 min                          | 20 min         |
-| \_adlc-reviewer      | 10 min                          | 15 min         |
-| \_adlc-explorer      | 5 min                           | 8 min          |
-| \_adlc-planner       | 5 min                           | 8 min          |
-| \_adlc-architect     | 5 min                           | 8 min          |
-| \_adlc-domain-mapper | 5 min                           | 8 min          |
-| \_adlc-pr            | 5 min                           | 8 min          |
-| \_adlc-document      | 5 min                           | 8 min          |
-| \_adlc-monitor       | exempt (has own 30-min timeout) |
-| default              | 10 min                          | 15 min         |
+| Agent                      | Nudge (T1)                      | Hard Stop (T2) |
+| -------------------------- | ------------------------------- | -------------- |
+| \_adlc-coder               | disabled                        | 25 min         |
+| \_adlc-reviewer            | 10 min                          | 15 min         |
+| \_adlc-explorer            | 5 min                           | 8 min          |
+| \_adlc-planner             | 5 min                           | 8 min          |
+| \_adlc-plan-gate           | 5 min                           | 8 min          |
+| \_adlc-domain-mapper       | 5 min                           | 8 min          |
+| \_adlc-pr                  | 5 min                           | 8 min          |
+| \_adlc-document            | 5 min                           | 8 min          |
+| \_adlc-evidence-researcher | 3 min                           | 5 min          |
+| \_adlc-sprawl-challenger   | 3 min                           | 5 min          |
+| \_adlc-cohesion-challenger | 3 min                           | 5 min          |
+| \_adlc-domain-gate         | 3 min                           | 5 min          |
+| \_adlc-monitor             | exempt (has own 30-min timeout) |
+| default                    | 10 min                          | 15 min         |
 
 Why this was added:
 
@@ -130,6 +134,27 @@ Why this was added:
 
 - browser-heavy reviewer and coder runs were spending too many steps on screenshots and repeated browser retries
 - the issue was not browser usage itself, but browser usage without enough source- or log-based diagnosis between attempts
+
+### `test-thrash`
+
+Defined in [test-thrash.mjs](policies/test-thrash.mjs).
+
+Purpose:
+
+- detect test-command spirals where the agent re-runs test suites without making code changes between runs
+
+Behavior:
+
+- track consecutive test commands without an intervening Edit/Write (edit-gap)
+- **nudge** after `4` consecutive test runs without edits — block one call with recovery guidance, require 1 edit before next test
+- **escalation** if the pattern continues after nudge — stronger guidance, require 2 edits before next test
+- **budget cap** at `15` total test commands per agent run — hard stop
+
+Why this was added:
+
+- agents were re-running test suites with different grep/tail filters instead of reading failure output and editing code
+- the primary signal is "consecutive test commands without an intervening Edit/Write" (edit-gap), not density
+- tiered recovery forces the agent to actually edit code before retrying
 
 ### `install-gate`
 

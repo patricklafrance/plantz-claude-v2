@@ -8,13 +8,13 @@ export function killPorts() {
             if (process.platform === "win32") {
                 execSync(
                     `powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort ${port} -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"`,
-                    { stdio: "ignore" }
+                    { stdio: "ignore", timeout: 3000 }
                 );
             } else {
-                execSync(`lsof -ti:${port} | xargs kill -9`, { stdio: "ignore" });
+                execSync(`lsof -ti:${port} | xargs kill -9`, { stdio: "ignore", timeout: 3000 });
             }
         } catch {
-            // Port not in use — ignore.
+            // Port not in use or command timed out — ignore.
         }
     }
 }

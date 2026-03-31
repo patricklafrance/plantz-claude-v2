@@ -1,6 +1,6 @@
 ---
 name: _adlc-monitor
-description: Monitor a PR's CI workflows and fix failures.
+description: Monitor CI and fix failures.
 model: sonnet
 effort: medium
 ---

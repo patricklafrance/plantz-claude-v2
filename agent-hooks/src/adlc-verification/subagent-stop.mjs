@@ -12,14 +12,18 @@
 
 import { readFileSync } from "node:fs";
 
-import handleArchitect from "./architect/handler.mjs";
 import handleCoder from "./coder/handler.mjs";
+import handleCohesionChallenger from "./cohesion-challenger/handler.mjs";
 import handleDocument from "./document/handler.mjs";
+import handleDomainGate from "./domain-gate/handler.mjs";
 import handleDomainMapper from "./domain-mapper/handler.mjs";
+import handleEvidenceResearcher from "./evidence-researcher/handler.mjs";
+import handlePlanGate from "./plan-gate/handler.mjs";
 import handlePlanner from "./planner/handler.mjs";
 import handleReviewer from "./reviewer/handler.mjs";
 import { recordMetrics } from "./run-metrics.mjs";
 import handleSimplify from "./simplify/handler.mjs";
+import handleSprawlChallenger from "./sprawl-challenger/handler.mjs";
 
 // ── Stdin ──────────────────────────────────────────────────
 
@@ -39,7 +43,7 @@ const { agent_type: agentType, agent_transcript_path: transcriptPath, cwd } = in
 // Each handler receives `cwd` and returns (or resolves to) a string[]
 // of problems. Empty array → pass.  Non-empty → block.
 
-// _adlc-architect — imported from ./architect/handler.mjs
+// _adlc-plan-gate — imported from ./plan-gate/handler.mjs
 // _adlc-document — imported from ./document/handler.mjs
 // _adlc-domain-mapper — imported from ./domain-mapper/handler.mjs
 // _adlc-planner — imported from ./planner/handler.mjs
@@ -48,10 +52,14 @@ const { agent_type: agentType, agent_transcript_path: transcriptPath, cwd } = in
 // ── Router ─────────────────────────────────────────────────
 
 const handlers = {
-    "_adlc-architect": handleArchitect,
+    "_adlc-plan-gate": handlePlanGate,
     "_adlc-coder": handleCoder,
+    "_adlc-cohesion-challenger": handleCohesionChallenger,
     "_adlc-document": handleDocument,
+    "_adlc-domain-gate": handleDomainGate,
     "_adlc-domain-mapper": handleDomainMapper,
+    "_adlc-evidence-researcher": handleEvidenceResearcher,
+    "_adlc-sprawl-challenger": handleSprawlChallenger,
     "_adlc-planner": handlePlanner,
     "_adlc-reviewer": handleReviewer,
     "_adlc-simplify": handleSimplify

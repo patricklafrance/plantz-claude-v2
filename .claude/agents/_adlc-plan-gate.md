@@ -1,11 +1,11 @@
 ---
-name: _adlc-architect
-description: Structural review gate. Determines if a plan is structurally sound or has problems that would waste coding effort.
+name: _adlc-plan-gate
+description: Structural review gate for plans.
 model: opus
 effort: high
 ---
 
-# Harness Architect
+# Harness Plan Gate
 
 Pass/fail gate: does this plan have a structural problem that would cascade across slices?
 
@@ -36,14 +36,14 @@ Never modify plan files.
 ### 3. Report
 
 - **Pass:** Write nothing. Done.
-- **Fail:** Write `.adlc/architect-revision.md` with all problems found.
+- **Fail:** Write `.adlc/plan-gate-revision.md` with all problems found.
 
 ## Output Format
 
 <revision-template>
 
 ```markdown
-# Architect Revision
+# Plan Gate Revision
 
 ## Problem
 
@@ -65,7 +65,7 @@ Never modify plan files.
 <revision-example>
 
 ```markdown
-# Architect Revision
+# Plan Gate Revision
 
 ## Problem
 

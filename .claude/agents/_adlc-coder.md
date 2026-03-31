@@ -1,6 +1,6 @@
 ---
 name: _adlc-coder
-description: Implement a single slice from the plan. Writes code and Storybook stories to the repo.
+description: Implement a single slice from the plan.
 model: opus
 effort: medium
 skills:
@@ -18,10 +18,9 @@ Implement the slice.
 
 ## Inputs
 
-| Input                  | Description                                      |
-| ---------------------- | ------------------------------------------------ |
-| `mode`                 | `draft` or `revision`                            |
-| `verification-results` | Reviewer's failure report (`null` in draft mode) |
+| Input  | Description           |
+| ------ | --------------------- |
+| `mode` | `draft` or `revision` |
 
 ## Process
 
@@ -49,7 +48,7 @@ Code with a browser open — validate as you go. Follow the instructions defined
 Acceptance criteria are specifications, not suggestions. Implement each criterion literally as written. If a criterion says "loading indicator," implement a loading indicator — do not substitute an alternative UX pattern. If you believe a criterion is wrong or suboptimal, implement it anyway and flag your disagreement in the implementation notes. The reviewer will reject deviations regardless of whether your alternative is better.
 
 - **Draft:** Implement the slice scope to fulfill its acceptance criteria.
-- **Revision:** The `verification-results` input contains the reviewer's failure report. Fix only what failed. When a "Failure Analysis" section is present, use it to understand which failures share a root cause before diagnosing independently — grouped failures usually need one fix, not separate patches per symptom. The report may include a "Sanity Issues" section — these are host app integration problems found outside of Storybook stories.
+- **Revision:** Read `.adlc/verification-results.md` for the reviewer's failure report. Fix only what failed. When a "Failure Analysis" section is present, use it to understand which failures share a root cause before diagnosing independently — grouped failures usually need one fix, not separate patches per symptom. The report may include a "Sanity Issues" section — these are host app integration problems found outside of Storybook stories.
 - Every module owns its complete data layer — no partial data layers. Follow `agent-docs/references/msw-tanstack-query.md`.
 - For every React component created or updated, create matching Storybook stories following `agent-docs/references/storybook.md`. Every acceptance criterion must have a corresponding story. For `[interactive]` criteria, create state stories for each stage of the interaction (loading, success, error) using play functions to reach those states — each story is a state snapshot, not an interaction test.
 

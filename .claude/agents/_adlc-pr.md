@@ -1,6 +1,6 @@
 ---
 name: _adlc-pr
-description: Commit, push, and open a PR with a summary of the feature and technical changes.
+description: Open a PR with summary and changes.
 model: sonnet
 effort: medium
 ---

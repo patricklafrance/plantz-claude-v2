@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { noPlanMutations } from "../../../src/adlc-verification/architect/no-plan-mutations.mjs";
+import { noPlanMutations } from "../../../src/adlc-verification/plan-gate/no-plan-mutations.mjs";
 
 function gitInit(cwd) {
     execSync("git init && git config user.email test@test.com && git config user.name test && git add -A && git commit --allow-empty -m init", {
@@ -66,9 +66,9 @@ describe("no-plan-mutations", () => {
     });
 
     it("should pass when non-plan .adlc files are modified", () => {
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), "# Revision\n");
+        writeFileSync(join(tmp, ".adlc/plan-gate-revision.md"), "# Revision\n");
         gitInit(tmp);
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), "# Revision: Updated\n");
+        writeFileSync(join(tmp, ".adlc/plan-gate-revision.md"), "# Revision: Updated\n");
         expect(noPlanMutations(tmp)).toHaveLength(0);
     });
 });

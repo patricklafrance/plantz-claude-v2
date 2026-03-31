@@ -66,12 +66,12 @@ describe("contract-sync: artifact fixtures exist", () => {
         expect(results.length).toBeGreaterThanOrEqual(1);
     });
 
-    it("architect: revision fixture", () => {
-        expect(fixtureExists("architect", "revision.valid.md")).toBe(true);
+    it("plan-gate: revision fixture", () => {
+        expect(fixtureExists("plan-gate", "revision.valid.md")).toBe(true);
     });
 
-    it("architect: invalid revision fixture (no refs)", () => {
-        expect(fixtureExists("architect", "revision-no-refs.invalid.md")).toBe(true);
+    it("plan-gate: invalid revision fixture (no refs)", () => {
+        expect(fixtureExists("plan-gate", "revision-no-refs.invalid.md")).toBe(true);
     });
 
     it("domain-mapper: mapping fixture", () => {

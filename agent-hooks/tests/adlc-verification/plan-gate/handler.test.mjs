@@ -5,10 +5,10 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import handleArchitect from "../../../src/adlc-verification/architect/handler.mjs";
+import handlePlanGate from "../../../src/adlc-verification/plan-gate/handler.mjs";
 import { loadFixture } from "../../fixtures/load.mjs";
 
-describe("architect handler (composition)", () => {
+describe("plan-gate handler (composition)", () => {
     let tmp;
 
     beforeEach(() => {
@@ -25,28 +25,28 @@ describe("architect handler (composition)", () => {
     });
 
     it("should pass when no revision file exists (architect approved)", () => {
-        expect(handleArchitect(tmp)).toHaveLength(0);
+        expect(handlePlanGate(tmp)).toHaveLength(0);
     });
 
     it("should pass when revision references a slice", () => {
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), loadFixture("architect", "revision.valid.md"));
-        expect(handleArchitect(tmp)).toHaveLength(0);
+        writeFileSync(join(tmp, ".adlc/plan-gate-revision.md"), loadFixture("plan-gate", "revision.valid.md"));
+        expect(handlePlanGate(tmp)).toHaveLength(0);
     });
 
     it("should fail when revision lacks slice references", () => {
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), loadFixture("architect", "revision-no-refs.invalid.md"));
-        const problems = handleArchitect(tmp);
+        writeFileSync(join(tmp, ".adlc/plan-gate-revision.md"), loadFixture("plan-gate", "revision-no-refs.invalid.md"));
+        const problems = handlePlanGate(tmp);
         expect(problems).toHaveLength(1);
         expect(problems[0]).toContain("slice references");
     });
 
     it("should collect problems from both checks", () => {
         // Invalid revision (no slice refs) AND modified plan file → 2 problems
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), loadFixture("architect", "revision-no-refs.invalid.md"));
+        writeFileSync(join(tmp, ".adlc/plan-gate-revision.md"), loadFixture("plan-gate", "revision-no-refs.invalid.md"));
         writeFileSync(join(tmp, ".adlc/plan-header.md"), "# Plan\n");
         execSync('git add -A && git commit -m "add plan"', { cwd: tmp, stdio: "ignore" });
         writeFileSync(join(tmp, ".adlc/plan-header.md"), "# Plan: Modified\n");
-        const problems = handleArchitect(tmp);
+        const problems = handlePlanGate(tmp);
         expect(problems).toHaveLength(2);
         expect(problems.some(p => p.includes("plan files"))).toBe(true);
         expect(problems.some(p => p.includes("slice references"))).toBe(true);

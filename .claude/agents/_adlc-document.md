@@ -1,6 +1,6 @@
 ---
 name: _adlc-document
-description: Update domain documentation after implementation. Reads the domain mapping and updates module scope descriptions.
+description: Update domain documentation after implementation.
 model: opus
 effort: medium
 ---

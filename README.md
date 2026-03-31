@@ -55,7 +55,7 @@ This design is based on three principles from the [Agent Harness](https://medium
 
 ### ADLC workflow
 
-One skill and eight custom agents form an Agent Development Life Cycle (ADLC). The `_adlc` skill runs inline in the main conversation as orchestrator — it spawns agents and manages all loops directly. Agents run as isolated subprocesses — their `name` flows to SubagentStop hooks for verification. Hooks fire at each agent's completion to verify its work before the workflow advances.
+One skill and fourteen custom agents form an Agent Development Life Cycle (ADLC). The `_adlc` skill runs inline in the main conversation as orchestrator — it spawns agents and manages all loops directly. Agents run as isolated subprocesses — their `name` flows to SubagentStop hooks for verification. Hooks fire at each agent's completion to verify its work before the workflow advances.
 
 ```mermaid
 flowchart TD
@@ -63,26 +63,31 @@ flowchart TD
 
     subgraph Coord["_adlc coordinator"]
         direction TB
-        DM["Domain Mapper"] -- "domain-mapping.md" --> PlanLoop
 
-        subgraph PlanLoop["Plan Loop (max 5 attempts)"]
-            direction LR
-            Planner["Planner"] -- "plan-header.md\nslices/*.md" --> Architect["Architect"]
-            Architect -. "revision" .-> Planner
+        subgraph Domain["Domain Mapping"]
+            direction TB
+            Mapper --> Challengers --> Gate
+            Mapper -. "evidence gaps" .-> Evidence["Evidence\nResearcher"] -. findings .-> Mapper
+            Gate -. "fail" .-> Mapper
         end
 
-        PlanLoop -- "approved plan" --> Branch["Create branch"]
-        Branch --> SliceLoop
+        Gate -- "pass" --> PlanLoop
 
-        subgraph SliceLoop["Slice Loop (per slice, max 5 attempts)"]
+        subgraph PlanLoop["Plan Loop (max 5)"]
             direction LR
-            Coder["Coder"] -- "code changes" --> Reviewer["Reviewer"]
+            Planner --> PlanGate["Plan Gate"]
+            PlanGate -. "revision" .-> Planner
+        end
+
+        PlanLoop --> SliceLoop
+
+        subgraph SliceLoop["Slice Loop (per slice)"]
+            direction LR
+            Explorer --> Coder --> Reviewer
             Reviewer -. "failures" .-> Coder
         end
 
-        SliceLoop -- "all slices done" --> Doc["Document"]
-        Doc --> PR["PR"]
-        PR --> Monitor["Monitor CI"]
+        SliceLoop --> Simplify --> Document --> PR --> Monitor
     end
 
     Monitor --> Done([PR ready])
@@ -90,6 +95,7 @@ flowchart TD
     style Start fill:#4ade80,stroke:#16a34a,color:#000
     style Done fill:#4ade80,stroke:#16a34a,color:#000
     style Coord fill:#f0f9ff,stroke:#0284c7
+    style Evidence fill:#f8f8f8,stroke:#ccc,color:#888
 ```
 
 **Skill** (orchestrator — runs inline, spawns agents):
@@ -100,16 +106,22 @@ flowchart TD
 
 **Agents** (workers — run as isolated subprocesses, verified by SubagentStop hooks):
 
-| Agent                 | What it does                                                                            |
-| --------------------- | --------------------------------------------------------------------------------------- |
-| `_adlc-domain-mapper` | Analyzes feature terms against existing modules, writes placement decisions             |
-| `_adlc-planner`       | Drafts a multi-slice plan with acceptance criteria per slice                            |
-| `_adlc-architect`     | Structural review gate — flags wrong boundaries, missing denormalization, weak criteria |
-| `_adlc-coder`         | Implements a single slice — code, MSW handlers, Storybook stories                       |
-| `_adlc-reviewer`      | Verifies acceptance criteria via browser screenshots and interactions                   |
-| `_adlc-document`      | Updates domain docs and architecture references to reflect what was built               |
-| `_adlc-pr`            | Pushes branch, opens PR with summary and technical changes                              |
-| `_adlc-monitor`       | Polls CI workflows, auto-fixes failures (lint, Chromatic, Lighthouse)                   |
+| Agent                       | What it does                                                                            |
+| --------------------------- | --------------------------------------------------------------------------------------- |
+| `_adlc-domain-mapper`       | Analyzes feature terms against existing modules, writes placement decisions             |
+| `_adlc-evidence-researcher` | Resolves mapper evidence gaps by inspecting code artifacts                              |
+| `_adlc-sprawl-challenger`   | Challenges create decisions with concrete extension proposals                           |
+| `_adlc-cohesion-challenger` | Checks extend decisions for god-module risk when new entities are introduced            |
+| `_adlc-domain-gate`         | Holistic quality gate — reviews the entire mapping for architectural coherence          |
+| `_adlc-planner`             | Drafts a multi-slice plan with acceptance criteria per slice                            |
+| `_adlc-plan-gate`           | Structural review gate — flags wrong boundaries, missing denormalization, weak criteria |
+| `_adlc-explorer`            | Surveys reference packages for a slice, returns patterns summary for the coder          |
+| `_adlc-coder`               | Implements a single slice — code, MSW handlers, Storybook stories                       |
+| `_adlc-reviewer`            | Verifies acceptance criteria via browser screenshots and interactions                   |
+| `_adlc-simplify`            | Reviews changed code for reuse, quality, and efficiency, then fixes issues              |
+| `_adlc-document`            | Updates domain docs and architecture references to reflect what was built               |
+| `_adlc-pr`                  | Pushes branch, opens PR with summary and technical changes                              |
+| `_adlc-monitor`             | Polls CI workflows, auto-fixes failures (lint, Chromatic, Lighthouse)                   |
 
 All inter-step coordination goes through files in `.adlc/` — plan-header, slices, verification-results, implementation-notes, domain-mapping. This makes handoffs explicit and debuggable.
 
@@ -125,24 +137,31 @@ Hooks fall into four categories: **verificators** that block completion until ch
 
 Block a subagent's completion until its deliverables meet structural and quality checks. If any check fails, the problems are fed back to the agent for correction.
 
-| Agent                 | Check                | What it validates                                                      |
-| --------------------- | -------------------- | ---------------------------------------------------------------------- |
-| `_adlc-coder`         | lint                 | Full monorepo lint — oxlint, oxfmt, typecheck, syncpack, knip          |
-| `_adlc-coder`         | tests                | Full monorepo tests — Vitest + Storybook a11y via Playwright           |
-| `_adlc-coder`         | no-file-disable      | Rejects file-level `/* oxlint-disable */` comments (line-level only)   |
-| `_adlc-coder`         | no-secrets           | gitleaks scan on changed files                                         |
-| `_adlc-coder`         | import-guard         | 4-layer architectural boundary enforcement (host → modules → packages) |
-| `_adlc-coder`         | implementation-notes | A file in `.adlc/implementation-notes/` must be created or updated     |
-| `_adlc-coder`         | story-coverage       | Every changed component in a module needs a matching `.stories.tsx`    |
-| `_adlc-planner`       | plan-header          | `.adlc/plan-header.md` must exist and be non-empty                     |
-| `_adlc-planner`       | slice-files          | At least one `.md` file in `.adlc/slices/`                             |
-| `_adlc-planner`       | slice-criteria       | Every slice must have `- [ ]` acceptance criteria                      |
-| `_adlc-architect`     | no-plan-mutations    | Must not modify plan files (read-only review)                          |
-| `_adlc-architect`     | revision-slice-refs  | Revision must reference specific slices with evidence                  |
-| `_adlc-domain-mapper` | mapping-file         | `.adlc/domain-mapping.md` must exist                                   |
-| `_adlc-domain-mapper` | no-plan-mutations    | Must not modify plan files                                             |
-| `_adlc-reviewer`      | verification-results | `.adlc/verification-results.md` must exist                             |
-| `_adlc-reviewer`      | criteria-coverage    | Results must cover every acceptance criterion from the slice           |
+| Agent                       | Check                | What it validates                                                                   |
+| --------------------------- | -------------------- | ----------------------------------------------------------------------------------- |
+| `_adlc-coder`               | build                | Full monorepo build                                                                 |
+| `_adlc-coder`               | lint                 | Full monorepo lint — oxlint, oxfmt, typecheck, syncpack, knip                       |
+| `_adlc-coder`               | tests                | Full monorepo tests — Vitest + Storybook a11y via Playwright                        |
+| `_adlc-coder`               | no-file-disable      | Rejects file-level `/* oxlint-disable */` comments (line-level only)                |
+| `_adlc-coder`               | no-secrets           | gitleaks scan on changed files                                                      |
+| `_adlc-coder`               | import-guard         | 4-layer architectural boundary enforcement (host → modules → packages)              |
+| `_adlc-coder`               | implementation-notes | A file in `.adlc/implementation-notes/` must be created or updated                  |
+| `_adlc-coder`               | story-coverage       | Every changed component in a module needs a matching `.stories.tsx`                 |
+| `_adlc-planner`             | plan-header          | `.adlc/plan-header.md` must exist and be non-empty                                  |
+| `_adlc-planner`             | slice-files          | At least one `.md` file in `.adlc/slices/`                                          |
+| `_adlc-planner`             | slice-criteria       | Every slice must have `- [ ]` acceptance criteria                                   |
+| `_adlc-planner`             | slice-ref-packages   | Every slice must have a Reference Packages section                                  |
+| `_adlc-plan-gate`           | no-plan-mutations    | Must not modify plan files (read-only review)                                       |
+| `_adlc-plan-gate`           | revision-slice-refs  | Revision must reference specific slices with evidence                               |
+| `_adlc-domain-mapper`       | mapping-file         | `.adlc/domain-mapping.md` must exist                                                |
+| `_adlc-domain-mapper`       | engagement-check     | After challenge-revision, every medium+ confidence challenge has a resolution entry |
+| `_adlc-evidence-researcher` | evidence-findings    | `.adlc/evidence-findings.md` must exist                                             |
+| `_adlc-sprawl-challenger`   | sprawl-challenges    | `.adlc/sprawl-challenges.md` must exist                                             |
+| `_adlc-cohesion-challenger` | cohesion-challenges  | `.adlc/cohesion-challenges.md` must exist                                           |
+| `_adlc-domain-gate`         | no-plan-mutations    | Must not modify plan files (reads mapping, shouldn't create plans)                  |
+| `_adlc-domain-gate`         | revision-issues      | If revision exists, must contain `ISSUE` blocks                                     |
+| `_adlc-reviewer`            | verification-results | `.adlc/verification-results.md` must exist                                          |
+| `_adlc-reviewer`            | criteria-coverage    | Results must cover every acceptance criterion from the slice                        |
 
 #### Context refreshers
 
@@ -161,6 +180,7 @@ Run corrections before validation to reduce noise. Formatting violations never a
 | Agent            | Autofix       | What it does                        |
 | ---------------- | ------------- | ----------------------------------- |
 | `_adlc-coder`    | oxfmt-autofix | `oxfmt --write .` before lint phase |
+| `_adlc-simplify` | oxfmt-autofix | `oxfmt --write .` before lint phase |
 | `_adlc-document` | oxfmt-autofix | `oxfmt --write .` after doc updates |
 
 #### Run metrics
@@ -174,7 +194,7 @@ Constraints that apply to every tool call, regardless of which skill is running.
 | Hook                | Trigger                    | What it does                                                                                                                                                                       |
 | ------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `preflight`         | Bash + Read + Glob         | Rewrites bare `agent-browser` commands, then blocks disallowed package-manager calls, bare `pnpm typecheck`, `cmd`, and `node_modules` source reads (type definitions are allowed) |
-| `adlc-supervisor`   | Bash + Read + Write + Edit | Wall-clock circuit breaker (nudge + hard stop), browser thrash detection, and evidence-gated `pnpm install` blocking in real time                                                  |
+| `adlc-supervisor`   | Bash + Read + Write + Edit | Wall-clock circuit breaker (nudge + hard stop), test-thrash detection, browser thrash detection, and evidence-gated `pnpm install` blocking in real time                           |
 | `gitignore-guard`   | `git commit`               | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` (all ADLC artifacts are ephemeral)                                                                             |
 | `pre-tool-use-bash` | `git commit`               | Intercepts commits — runs oxfmt autofix, then build + lint + tests in parallel before allowing                                                                                     |
 
@@ -195,30 +215,36 @@ agent-hooks/
       subagent-stop.mjs          # Router — dispatches to agent-specific handlers
       run-metrics.mjs            # Parses transcript JSONL, appends to .adlc/run-metrics.md
       utils.mjs                  # .adlc artifact helpers + getChangedFiles; re-exports run from shared/
-      architect/                 # 2 checks
-      coder/                     # 7 checks + 1 autofix + 1 context refresh
+      plan-gate/                 # 2 checks
+      coder/                     # 8 checks + 1 autofix + 1 context refresh
+      cohesion-challenger/       # 1 check
       document/                  # 1 autofix
+      domain-gate/               # 2 checks
       domain-mapper/             # 2 checks
-      planner/                   # 3 checks
+      evidence-researcher/       # 1 check
+      planner/                   # 4 checks
       reviewer/                  # 2 checks
+      simplify/                  # 5 checks + 1 autofix
+      sprawl-challenger/         # 1 check
     pre-commit/                  # git commit interceptor + build/lint/test/gitignore-guard pipeline
     preflight/                   # Bash/Read guardrails + command rewrites
     shared/
       run.mjs                    # Async shell execution — used by pre-commit and adlc-verification
     adlc-supervisor/             # Stateful real-time supervision + wall-clock breaker + install evidence
   tests/
-    contract-sync.test.mjs       # Hook registration contract test
     pre-commit/                  # 7 test files
     preflight/                   # 6 test files
-    adlc-supervisor/             # 4 test files
+    adlc-supervisor/             # 5 test files
     adlc-verification/
       *.test.mjs                 # 3 root tests (subagent-stop, run-metrics, utils)
-      architect/                 # 3 test files
-      coder/                     # 12 test files
+      plan-gate/                 # 3 test files
+      coder/                     # 6 test files
       document/                  # 1 test file
       domain-mapper/             # 2 test files
       planner/                   # 5 test files
       reviewer/                  # 3 test files
+      shared/                    # 6 test files
+      simplify/                  # 1 test file
     fixtures/                    # Valid/invalid markdown fixtures
 ```
 
@@ -233,6 +259,7 @@ agent-hooks/
 The policies are:
 
 - `wall-clock` — nudge + hard stop circuit breaker with per-agent thresholds, catches runaway agents that produce "loose spirals" evading micro-pattern detection
+- `test-thrash` — edit-gap detection with tiered recovery (nudge → escalation → budget cap), requires code edits between test reruns
 - `browser-thrash` — browser budget, consecutive browser circuit breaker, and screenshot nudge
 - `install-gate` — blocks blind `pnpm install` until manifests changed, an override exists, or a post-tool dependency failure grants a one-shot bypass
 

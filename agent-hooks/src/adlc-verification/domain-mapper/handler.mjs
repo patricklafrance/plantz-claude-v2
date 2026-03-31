@@ -3,12 +3,12 @@
  *
  * Checks:
  *   1. mapping-file     — .adlc/domain-mapping.md exists
- *   2. no-plan-mutations — must not touch plan files (reused from architect)
+ *   2. engagement-check  — after challenge-revision, verifies mapper engaged with challenges
  */
 
-import { noPlanMutations } from "../architect/no-plan-mutations.mjs";
+import { engagementCheck } from "./engagement-check.mjs";
 import { mappingFile } from "./mapping-file.mjs";
 
 export default function handleDomainMapper(cwd) {
-    return [...mappingFile(cwd), ...noPlanMutations(cwd)];
+    return [...mappingFile(cwd), ...engagementCheck(cwd)];
 }

@@ -43,12 +43,17 @@ The main router lives in `subagent-stop.mjs`.
 
 Handled agent types:
 
-- `_adlc-architect`
+- `_adlc-plan-gate`
 - `_adlc-coder`
+- `_adlc-cohesion-challenger`
 - `_adlc-document`
+- `_adlc-evidence-researcher`
+- `_adlc-domain-gate`
 - `_adlc-domain-mapper`
+- `_adlc-sprawl-challenger`
 - `_adlc-planner`
 - `_adlc-reviewer`
+- `_adlc-simplify`
 
 Unhandled agent types are allowed through, but their metrics are still recorded.
 
@@ -87,12 +92,54 @@ Handlers return:
 What the hook enforces:
 
 - the mapping artifact must exist
-- plan files must not be mutated
+- after challenge-revision, every medium+ confidence challenge must have a Challenge Resolution entry
 
 What this improves:
 
 - domain placement becomes explicit before planning starts
-- the mapper cannot silently drift into planner responsibilities
+- challenger proposals cannot be dismissed without structural engagement
+
+### `_adlc-evidence-researcher`
+
+What the hook enforces:
+
+- `.adlc/evidence-findings.md` must exist
+
+What this improves:
+
+- evidence gaps are resolved with documented findings before the mapper retries
+
+### `_adlc-sprawl-challenger`
+
+What the hook enforces:
+
+- `.adlc/sprawl-challenges.md` must exist
+
+What this improves:
+
+- every create/new-package decision gets a concrete extension counter-proposal
+
+### `_adlc-cohesion-challenger`
+
+What the hook enforces:
+
+- `.adlc/cohesion-challenges.md` must exist
+
+What this improves:
+
+- extend decisions that introduce new entities are evaluated for god-module risk
+
+### `_adlc-domain-gate`
+
+What the hook enforces:
+
+- plan files must not be mutated (reads mapping, shouldn't create plans)
+- if `.adlc/domain-gate-revision.md` exists, it must contain `### ISSUE-N` blocks
+
+What this improves:
+
+- the full mapping is reviewed holistically before planning begins
+- the gate cannot drift into planner responsibilities
 
 ### `_adlc-planner`
 
@@ -109,7 +156,7 @@ What this improves:
 - slices are harder to leave vague or underspecified
 - downstream agents have the minimum planning scaffolding they need
 
-### `_adlc-architect`
+### `_adlc-plan-gate`
 
 What the hook enforces:
 
@@ -118,7 +165,7 @@ What the hook enforces:
 
 What this improves:
 
-- architect review stays read-only
+- plan-gate review stays read-only
 - revisions are actionable instead of generic opinions
 
 ### `_adlc-coder`
@@ -152,6 +199,20 @@ What this improves:
 
 - review output is tied back to the actual plan
 - “review complete” becomes evidence-based instead of informal
+
+### `_adlc-simplify`
+
+What the hook enforces:
+
+- formatting is auto-fixed first
+- build, lint, and tests must pass
+- file-level disable comments are rejected
+- import-boundary violations are rejected
+
+What this improves:
+
+- simplification pass cannot introduce regressions
+- the same quality bar as the coder applies to refactoring
 
 ### `_adlc-document`
 

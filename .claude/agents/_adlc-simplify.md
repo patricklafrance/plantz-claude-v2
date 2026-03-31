@@ -1,6 +1,6 @@
 ---
 name: _adlc-simplify
-description: Run /simplify across slice changes and commit the result.
+description: Simplify and clean up slice changes.
 model: sonnet
 effort: medium
 ---

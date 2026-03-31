@@ -59,45 +59,41 @@ describe("wall-clock policy", () => {
             expect(checkWallClock(event, state)).toBeNull();
         });
 
-        it("returns null when under nudge threshold", () => {
-            const elapsed = THRESHOLDS["_adlc-coder"].nudge - 60_000;
+        it("returns null when under hard stop threshold for nudge-disabled agent", () => {
+            const elapsed = THRESHOLDS["_adlc-coder"].hardStop - 60_000;
             const event = makeEvent("_adlc-coder", new Date(new Date(START).getTime() + elapsed).toISOString());
             const state = makeState(START);
             expect(checkWallClock(event, state)).toBeNull();
         });
 
-        it("fires nudge at T1 threshold", () => {
-            const elapsed = THRESHOLDS["_adlc-coder"].nudge;
+        it("skips nudge when nudge threshold is null", () => {
+            // Coder has nudge: null — should never fire a nudge regardless of elapsed time
+            const elapsed = 15 * 60_000; // 15 minutes, well past where a nudge would fire
             const event = makeEvent("_adlc-coder", new Date(new Date(START).getTime() + elapsed).toISOString());
+            const state = makeState(START);
+            expect(checkWallClock(event, state)).toBeNull();
+        });
+
+        it("fires nudge at T1 threshold for nudge-enabled agent", () => {
+            const elapsed = THRESHOLDS["_adlc-reviewer"].nudge;
+            const event = makeEvent("_adlc-reviewer", new Date(new Date(START).getTime() + elapsed).toISOString());
             const state = makeState(START);
 
             const result = checkWallClock(event, state);
             expect(result.action).toBe("block");
             expect(result.severity).toBe("nudge");
             expect(result.reason).toContain("Pause and reflect");
-            expect(result.reason).toContain("12 minutes");
+            expect(result.reason).toContain("10 minutes");
         });
 
         it("does not fire nudge a second time after nudgeFired is set", () => {
-            const elapsed = THRESHOLDS["_adlc-coder"].nudge + 60_000;
-            const event = makeEvent("_adlc-coder", new Date(new Date(START).getTime() + elapsed).toISOString());
+            const elapsed = THRESHOLDS["_adlc-reviewer"].nudge + 60_000;
+            const event = makeEvent("_adlc-reviewer", new Date(new Date(START).getTime() + elapsed).toISOString());
             const state = makeState(START, true);
             expect(checkWallClock(event, state)).toBeNull();
         });
 
-        it("fires hard stop at T2 threshold even when nudge was already fired", () => {
-            const elapsed = THRESHOLDS["_adlc-coder"].hardStop;
-            const event = makeEvent("_adlc-coder", new Date(new Date(START).getTime() + elapsed).toISOString());
-            const state = makeState(START, true);
-
-            const result = checkWallClock(event, state);
-            expect(result.action).toBe("block");
-            expect(result.severity).toBe("hard-stop");
-            expect(result.reason).toContain("STOP");
-            expect(result.reason).toContain("20 minutes");
-        });
-
-        it("fires hard stop even if nudge was never fired (agent somehow reached T2 directly)", () => {
+        it("fires hard stop at T2 threshold", () => {
             const elapsed = THRESHOLDS["_adlc-coder"].hardStop;
             const event = makeEvent("_adlc-coder", new Date(new Date(START).getTime() + elapsed).toISOString());
             const state = makeState(START, false);
@@ -105,6 +101,8 @@ describe("wall-clock policy", () => {
             const result = checkWallClock(event, state);
             expect(result.action).toBe("block");
             expect(result.severity).toBe("hard-stop");
+            expect(result.reason).toContain("STOP");
+            expect(result.reason).toContain("25 minutes");
         });
 
         it("uses different thresholds for reviewer vs coder", () => {

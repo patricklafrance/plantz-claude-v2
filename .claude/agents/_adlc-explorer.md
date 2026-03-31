@@ -1,6 +1,6 @@
 ---
 name: _adlc-explorer
-description: Survey reference packages for a slice and return a structured summary of patterns, types, and exports the coder needs to replicate.
+description: Survey reference packages for a slice.
 model: sonnet
 effort: medium
 tools: Read, Glob, Grep, Bash, Write

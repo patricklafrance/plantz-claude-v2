@@ -1,5 +1,5 @@
 /**
- * If architect-revision.md exists, verify that it references at least
+ * If plan-gate-revision.md exists, verify that it references at least
  * one slice — a revision without concrete evidence is not actionable.
  */
 
@@ -11,17 +11,17 @@ import { hasFile } from "../utils.mjs";
 const SLICE_REF_RE = /slice\s+\d+/i;
 
 export function revisionSliceRefs(cwd) {
-    if (!hasFile(cwd, "architect-revision.md")) {
+    if (!hasFile(cwd, "plan-gate-revision.md")) {
         return [];
     }
 
-    const content = readFileSync(resolve(cwd, ".adlc", "architect-revision.md"), "utf8");
+    const content = readFileSync(resolve(cwd, ".adlc", "plan-gate-revision.md"), "utf8");
 
     if (SLICE_REF_RE.test(content)) {
         return [];
     }
 
     return [
-        'Revision lacks slice references: `.adlc/architect-revision.md` should cite at least one slice (e.g., "Slice 01") in the Evidence section so the planner knows what to fix.'
+        'Revision lacks slice references: `.adlc/plan-gate-revision.md` should cite at least one slice (e.g., "Slice 01") in the Evidence section so the planner knows what to fix.'
     ];
 }

@@ -51,8 +51,8 @@ describe("subagent-stop entry point", () => {
         }
     });
 
-    it("should exit 0 for _adlc-architect when no revision file exists and no plan artifacts present", () => {
-        const result = pipeToHook({ agent_type: "_adlc-architect", cwd: REPO_ROOT });
+    it("should exit 0 for _adlc-plan-gate when no revision file exists and no plan artifacts present", () => {
+        const result = pipeToHook({ agent_type: "_adlc-plan-gate", cwd: REPO_ROOT });
         expect(result.exitCode).toBe(0);
         if (existsSync(resolve(REPO_ROOT, ".adlc", "plan-header.md"))) {
             // Plan artifacts from a real run are visible — noPlanMutations will block

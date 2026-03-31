@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { revisionSliceRefs } from "../../../src/adlc-verification/architect/revision-slice-refs.mjs";
+import { revisionSliceRefs } from "../../../src/adlc-verification/plan-gate/revision-slice-refs.mjs";
 import { loadFixture } from "../../fixtures/load.mjs";
 
 describe("revision-slice-refs", () => {
@@ -24,17 +24,17 @@ describe("revision-slice-refs", () => {
     });
 
     it("should pass when revision references a slice", () => {
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), loadFixture("architect", "revision.valid.md"));
+        writeFileSync(join(tmp, ".adlc/plan-gate-revision.md"), loadFixture("plan-gate", "revision.valid.md"));
         expect(revisionSliceRefs(tmp)).toHaveLength(0);
     });
 
     it("should pass with various slice reference formats", () => {
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), "Slice 3 conflicts with Slice 12\n");
+        writeFileSync(join(tmp, ".adlc/plan-gate-revision.md"), "Slice 3 conflicts with Slice 12\n");
         expect(revisionSliceRefs(tmp)).toHaveLength(0);
     });
 
     it("should fail when no slice is referenced", () => {
-        writeFileSync(join(tmp, ".adlc/architect-revision.md"), loadFixture("architect", "revision-no-refs.invalid.md"));
+        writeFileSync(join(tmp, ".adlc/plan-gate-revision.md"), loadFixture("plan-gate", "revision-no-refs.invalid.md"));
         const problems = revisionSliceRefs(tmp);
         expect(problems).toHaveLength(1);
         expect(problems[0]).toContain("slice references");
