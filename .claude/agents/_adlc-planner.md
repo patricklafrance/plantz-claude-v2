@@ -21,18 +21,18 @@ Resolve architecture upfront, slice the work, define success through acceptance 
 ### 1. Load context
 
 - Read `agent-docs/ARCHITECTURE.md`, `agent-docs/adr/index.md`, and `agent-docs/references/placement.md`.
-- Read `.adlc/domain-mapping.md`. The Mapping table tells you which features go to which modules and packages — carry these decisions forward, don't re-derive them.
+- Read `.adlc/module-mapping.md`. The Mapping table tells you which features go to which modules and packages — carry these decisions forward, don't re-derive them.
 - Scan `agent-docs/references/` for any additional docs relevant to the feature.
 
 ### 2. Analyze requirements
 
-- **Draft:** Determine which domains, modules, and packages the feature affects.
+- **Draft:** Determine which modules and packages the feature affects.
 - **Revision:** Read the existing plan in `.adlc/` and the rejection in `.adlc/plan-gate-revision.md`. Revise only what was flagged.
 - If the feature is too vague to resolve durable decisions, print what's missing and stop.
 
 ### 3. Resolve durable decisions
 
-Resolve before slicing. Placement comes from the domain mapping — carry it forward, don't re-derive. API namespaces and routes follow from placement conventions.
+Resolve before slicing. Placement comes from the module mapping — carry it forward, don't re-derive. API namespaces and routes follow from placement conventions.
 
 - **Data model** — entity definitions, field names and types
 - **Collection strategy** — TanStack DB collection vs fetch+useState
@@ -99,7 +99,7 @@ One sentence: what the user can see or do after this slice ships.
 
 ## Reference Packages
 
-- `@packages/{name}` or `@modules/{domain}/{name}` — {what patterns to look at and why}
+- `@packages/{name}` or `@modules/{name}` — {what patterns to look at and why}
 
 List existing packages or modules the coder should study before implementing. Focus on patterns to replicate (schema shape, MSW conventions, component/story structure).
 
