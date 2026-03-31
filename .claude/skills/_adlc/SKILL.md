@@ -16,7 +16,7 @@ Orchestrate end-to-end feature development. Never edit application or library so
 
 1. Working tree must be clean. If not, print the issue and stop.
 2. Delete `.adlc/` if it exists.
-3. Create `.adlc/` with `slices/`, `implementation-notes/`, `verification-results/`, and `screenshots/`.
+3. Create `.adlc/` with `slices/`, `implementation-notes/`, `verification-results/`, `challenges/`, and `screenshots/`.
 
 ### 2. Domain mapping
 
@@ -24,7 +24,7 @@ Run the domain mapping pipeline. Max 2 gate attempts.
 
 #### 2a. Mapper
 
-1. Delete `.adlc/evidence-findings.md`, `.adlc/sprawl-challenges.md`, and `.adlc/cohesion-challenges.md`.
+1. Delete `.adlc/current-evidence-findings.md`, `.adlc/current-sprawl-challenges.md`, and `.adlc/current-cohesion-challenges.md` if they exist.
 2. Spawn the `_adlc-domain-mapper` agent with the feature description and `mode: draft`. If the agent fails, print the error and stop.
 
 #### 2b. Evidence resolution (conditional)
@@ -33,13 +33,14 @@ Run the domain mapping pipeline. Max 2 gate attempts.
 2. Spawn the `_adlc-evidence-researcher` agent. If the agent fails, print the error and stop.
 3. Resume the `_adlc-domain-mapper` agent via `SendMessage` with `mode: evidence-revision`. If the agent fails, print the error and stop.
 
-#### 2c. Challenger pass (conditional)
+#### 2c. Challenger (conditional)
 
 1. Read `.adlc/domain-mapping.md`. Determine which challengers are needed:
    - If any row has Decision = `create` or `new-package`: spawn `_adlc-sprawl-challenger`.
    - If any row has Decision = `extend+new-entity`: spawn `_adlc-cohesion-challenger`.
    - Spawn needed challengers in parallel. If either fails, print the error and stop.
-2. If challenges were produced (`.adlc/sprawl-challenges.md` or `.adlc/cohesion-challenges.md` exist and contain challenges): resume the `_adlc-domain-mapper` via `SendMessage` with `mode: challenge-revision`. If the agent fails, print the error and stop.
+2. If challenges `.adlc/current-sprawl-challenges.md` or `.adlc/current-cohesion-challenges.md` were produced: resume the `_adlc-domain-mapper` via `SendMessage` with `mode: challenge-revision`. If the agent fails, print the error and stop.
+3. Rename each `current-*-challenges.md` to `.adlc/challenges/{type}-{attempt}.md` (where `{type}` is `sprawl` or `cohesion` and `{attempt}` is the gate attempt number, starting at 1).
 
 #### 2d. Gate
 

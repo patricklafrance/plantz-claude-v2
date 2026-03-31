@@ -113,7 +113,7 @@ What this improves:
 
 What the hook enforces:
 
-- `.adlc/sprawl-challenges.md` must exist
+- `.adlc/current-sprawl-challenges.md` must exist
 
 What this improves:
 
@@ -123,7 +123,7 @@ What this improves:
 
 What the hook enforces:
 
-- `.adlc/cohesion-challenges.md` must exist
+- `.adlc/current-cohesion-challenges.md` must exist
 
 What this improves:
 

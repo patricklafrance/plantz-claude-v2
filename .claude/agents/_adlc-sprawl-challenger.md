@@ -35,7 +35,7 @@ For each decision, output a structured challenge. Include evidence both for and 
 
 ## Output
 
-Write `.adlc/sprawl-challenges.md`.
+Write `.adlc/current-sprawl-challenges.md`.
 
 <sprawl-challenges-template>
 

@@ -36,6 +36,9 @@ export function recordMetrics(transcriptPath, agentType, cwd) {
         metrics = { runs: [], totals: null };
     }
 
+    const slice = detectSlice(cwd);
+    const mode = detectMode(agentType, slice, metrics.runs);
+
     // Write detail file
     const runIndex = metrics.runs.length + 1;
     const detailsFile = `run-details/${String(runIndex).padStart(3, "0")}-${agentType}.json`;
@@ -52,6 +55,8 @@ export function recordMetrics(transcriptPath, agentType, cwd) {
             {
                 agent: agentType,
                 model: parsed.model,
+                slice,
+                mode,
                 calls: parsed.toolCalls
             },
             null,
@@ -63,6 +68,8 @@ export function recordMetrics(transcriptPath, agentType, cwd) {
     metrics.runs.push({
         agent: agentType,
         model: parsed.model,
+        slice,
+        mode,
         tokens: {
             input: parsed.inputTokens,
             output: parsed.outputTokens,
@@ -83,6 +90,39 @@ export function recordMetrics(transcriptPath, agentType, cwd) {
     metrics.totals = computeTotals(metrics.runs);
 
     writeFileSync(metricsPath, JSON.stringify(metrics, null, 2) + "\n");
+}
+
+// ── Slice & mode detection ─────────────────────────────────
+
+/** Read .adlc/current-slice.md frontmatter to get the active slice ID. */
+function detectSlice(cwd) {
+    const slicePath = resolve(cwd, ".adlc", "current-slice.md");
+    try {
+        const content = readFileSync(slicePath, "utf8");
+        const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+        if (!fmMatch) return null;
+        const idMatch = fmMatch[1].match(/^id:\s*(.+)$/m);
+        return idMatch ? idMatch[1].trim() : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Infer mode from prior runs. Agents that support draft/revision modes
+ * (_adlc-coder, _adlc-planner, _adlc-domain-mapper) are "draft" on their
+ * first run for a given slice (or globally for planners/mappers) and
+ * "revision" on subsequent runs.
+ */
+function detectMode(agentType, sliceId, existingRuns) {
+    const modedAgents = ["_adlc-coder", "_adlc-planner", "_adlc-domain-mapper"];
+    if (!modedAgents.includes(agentType)) {
+        return null;
+    }
+
+    const priorRuns = existingRuns.filter(r => r.agent === agentType && r.slice === sliceId);
+
+    return priorRuns.length === 0 ? "draft" : "revision";
 }
 
 // ── Transcript parser ───────────────────────────────────────
@@ -281,7 +321,43 @@ function computeTotals(runs) {
         tools,
         totalToolUses,
         durationMs,
-        duration: formatDuration(durationMs)
+        duration: formatDuration(durationMs),
+        rework: computeRework(runs)
+    };
+}
+
+function computeRework(runs) {
+    const revisionRuns = runs.filter(r => r.mode === "revision");
+    if (revisionRuns.length === 0) {
+        return { cycles: 0, slices: [], durationMs: 0, billableTokens: 0 };
+    }
+
+    // A rework cycle = the revision coder + the reviewer that follows it for the same slice.
+    // Collect all runs (any agent type) tagged as revision, plus the reviewer that
+    // immediately follows each revision coder for the same slice.
+    const reworkSlices = [...new Set(revisionRuns.map(r => r.slice).filter(Boolean))];
+
+    let reworkDuration = 0;
+    let reworkTokens = 0;
+    for (let i = 0; i < runs.length; i++) {
+        const run = runs[i];
+        if (run.mode !== "revision") continue;
+        reworkDuration += run.durationMs;
+        reworkTokens += run.tokens.billableTokens;
+
+        // Include the re-review that follows this revision coder
+        const next = runs[i + 1];
+        if (next && next.agent === "_adlc-reviewer" && next.slice === run.slice) {
+            reworkDuration += next.durationMs;
+            reworkTokens += next.tokens.billableTokens;
+        }
+    }
+
+    return {
+        cycles: revisionRuns.length,
+        slices: reworkSlices,
+        durationMs: reworkDuration,
+        billableTokens: reworkTokens
     };
 }
 

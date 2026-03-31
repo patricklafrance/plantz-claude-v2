@@ -299,4 +299,151 @@ describe("run-metrics", () => {
         recordMetrics(null, "_adlc-coder", cwd);
         expect(() => readFileSync(join(cwd, ".adlc", "run-metrics.json"))).toThrow();
     });
+
+    describe("slice and mode tracking", () => {
+        function writeSlice(dir, id) {
+            writeFileSync(join(dir, ".adlc", "current-slice.md"), `---\nid: ${id}\n---\n\n# Slice\n`);
+        }
+
+        function minimalTranscript(ts = "2026-03-25T10:00:00.000Z") {
+            return makeTranscript([
+                { type: "user", timestamp: ts, message: {} },
+                {
+                    type: "assistant",
+                    timestamp: ts.replace("00.000", "30.000"),
+                    message: { usage: { input_tokens: 50, output_tokens: 20 }, content: [] }
+                }
+            ]);
+        }
+
+        it("should detect slice from current-slice.md frontmatter", () => {
+            writeSlice(cwd, "03-share-plants");
+            const t = minimalTranscript();
+            recordMetrics(t.path, "_adlc-coder", cwd);
+            t.cleanup();
+
+            const metrics = readMetrics(cwd);
+            expect(metrics.runs[0].slice).toBe("03-share-plants");
+        });
+
+        it("should set slice to null when current-slice.md does not exist", () => {
+            const t = minimalTranscript();
+            recordMetrics(t.path, "_adlc-planner", cwd);
+            t.cleanup();
+
+            const metrics = readMetrics(cwd);
+            expect(metrics.runs[0].slice).toBeNull();
+        });
+
+        it("should set mode to draft for first coder run on a slice", () => {
+            writeSlice(cwd, "01-household");
+            const t = minimalTranscript();
+            recordMetrics(t.path, "_adlc-coder", cwd);
+            t.cleanup();
+
+            const metrics = readMetrics(cwd);
+            expect(metrics.runs[0].mode).toBe("draft");
+        });
+
+        it("should set mode to revision for second coder run on same slice", () => {
+            writeSlice(cwd, "03-share-plants");
+            const t1 = minimalTranscript("2026-03-25T10:00:00.000Z");
+            const t2 = minimalTranscript("2026-03-25T10:10:00.000Z");
+            const t3 = minimalTranscript("2026-03-25T10:20:00.000Z");
+
+            recordMetrics(t1.path, "_adlc-coder", cwd); // draft
+            recordMetrics(t2.path, "_adlc-reviewer", cwd); // no mode
+            recordMetrics(t3.path, "_adlc-coder", cwd); // revision
+
+            t1.cleanup();
+            t2.cleanup();
+            t3.cleanup();
+
+            const metrics = readMetrics(cwd);
+            expect(metrics.runs[0].mode).toBe("draft");
+            expect(metrics.runs[1].mode).toBeNull();
+            expect(metrics.runs[2].mode).toBe("revision");
+        });
+
+        it("should set mode to null for non-moded agents", () => {
+            writeSlice(cwd, "01-household");
+            const t = minimalTranscript();
+            recordMetrics(t.path, "_adlc-reviewer", cwd);
+            t.cleanup();
+
+            const metrics = readMetrics(cwd);
+            expect(metrics.runs[0].mode).toBeNull();
+        });
+
+        it("should not confuse coder runs across different slices", () => {
+            writeSlice(cwd, "01-household");
+            const t1 = minimalTranscript("2026-03-25T10:00:00.000Z");
+            recordMetrics(t1.path, "_adlc-coder", cwd);
+            t1.cleanup();
+
+            writeSlice(cwd, "02-invitations");
+            const t2 = minimalTranscript("2026-03-25T10:30:00.000Z");
+            recordMetrics(t2.path, "_adlc-coder", cwd);
+            t2.cleanup();
+
+            const metrics = readMetrics(cwd);
+            expect(metrics.runs[0]).toMatchObject({ slice: "01-household", mode: "draft" });
+            expect(metrics.runs[1]).toMatchObject({ slice: "02-invitations", mode: "draft" });
+        });
+
+        it("should include slice and mode in detail files", () => {
+            writeSlice(cwd, "05-actor-tracking");
+            const t = minimalTranscript();
+            recordMetrics(t.path, "_adlc-coder", cwd);
+            t.cleanup();
+
+            const details = readDetails(cwd, readMetrics(cwd).runs[0].detailsFile);
+            expect(details.slice).toBe("05-actor-tracking");
+            expect(details.mode).toBe("draft");
+        });
+
+        it("should compute rework totals in totals.rework", () => {
+            writeSlice(cwd, "03-share-plants");
+            const t1 = minimalTranscript("2026-03-25T10:00:00.000Z");
+            const t2 = minimalTranscript("2026-03-25T10:05:00.000Z");
+            const t3 = minimalTranscript("2026-03-25T10:10:00.000Z");
+            const t4 = minimalTranscript("2026-03-25T10:20:00.000Z");
+
+            recordMetrics(t1.path, "_adlc-coder", cwd); // draft
+            recordMetrics(t2.path, "_adlc-reviewer", cwd); // first review
+            recordMetrics(t3.path, "_adlc-coder", cwd); // revision
+            recordMetrics(t4.path, "_adlc-reviewer", cwd); // re-review
+
+            t1.cleanup();
+            t2.cleanup();
+            t3.cleanup();
+            t4.cleanup();
+
+            const metrics = readMetrics(cwd);
+            expect(metrics.totals.rework.cycles).toBe(1);
+            expect(metrics.totals.rework.slices).toEqual(["03-share-plants"]);
+            expect(metrics.totals.rework.durationMs).toBeGreaterThan(0);
+            expect(metrics.totals.rework.billableTokens).toBeGreaterThan(0);
+        });
+
+        it("should report zero rework when no revisions exist", () => {
+            writeSlice(cwd, "01-household");
+            const t1 = minimalTranscript("2026-03-25T10:00:00.000Z");
+            const t2 = minimalTranscript("2026-03-25T10:05:00.000Z");
+
+            recordMetrics(t1.path, "_adlc-coder", cwd);
+            recordMetrics(t2.path, "_adlc-reviewer", cwd);
+
+            t1.cleanup();
+            t2.cleanup();
+
+            const metrics = readMetrics(cwd);
+            expect(metrics.totals.rework).toEqual({
+                cycles: 0,
+                slices: [],
+                durationMs: 0,
+                billableTokens: 0
+            });
+        });
+    });
 });

@@ -23,9 +23,9 @@ Check for issues that concern-level analysis can miss:
 
 | Problem                        | What to look for                                                                                       |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| Aggregate scope overload       | Each extend passes individually, but together they bloat one module                                    |
+| Aggregate scope overload       | Each extend passes individually, but together they bloat one module or shared package                  |
 | Concern decomposition quality  | Too fine (one behavior split across rows to the same module) or too coarse (one row spans two modules) |
-| Responsibility alignment       | Placement falls outside the module's stated responsibility                                             |
+| Responsibility alignment       | Placement falls outside the module's or package's stated responsibility                                |
 | Cross-concern coherence        | Concerns sharing an entity or user flow mapped to disconnected modules                                 |
 | Residual insufficient_evidence | Unresolved concerns that are load-bearing, not edge-case noise                                         |
 

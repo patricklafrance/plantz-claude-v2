@@ -38,6 +38,40 @@ Each story is a state snapshot. The play function is the mechanism to reach that
 
 **Async patterns:** When a play function triggers a mutation, use `canvas.findByText(...)` or `canvas.findByRole(...)` (which retry until found) to wait for the post-mutation UI to render before the story snapshot is captured.
 
+### Async-conditional UI in play functions
+
+When a component renders UI conditionally based on an async hook (e.g., a Share button that only appears after `useHouseholdInfo()` resolves), play functions that try to find and click that element will race against the hook resolution. Long `findByRole` timeouts are fragile and slow.
+
+**Use an internal prop to bypass the async dependency:**
+
+```ts
+// Component — add an internal prop to pre-set the async state
+interface EditPlantDialogProps {
+    plantId: string;
+    /** @internal Test-only. Pre-sets sharing state to skip async resolution. */
+    _defaultSharing?: boolean;
+}
+
+function EditPlantDialog({ plantId, _defaultSharing }: EditPlantDialogProps) {
+    const [isShared, setIsShared] = useState(_defaultSharing ?? false);
+    // ... useHouseholdInfo() still runs but _defaultSharing provides the initial state
+}
+```
+
+```ts
+// Story — use the internal prop, no async wait needed
+export const ShareLoading: Story = {
+    args: { _defaultSharing: true },
+    parameters: { msw: { handlers: [http.put("/api/...", () => delay("infinite"))] } },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await userEvent.click(canvas.getByRole("button", { name: /share/i }));
+    }
+};
+```
+
+Prefix internal props with `_` and tag with `@internal` JSDoc. This avoids complex `waitFor` chains and produces deterministic story snapshots.
+
 ### Portal-based components (Base UI Dialog, AlertDialog, Popover, Select)
 
 Base UI renders Dialog, AlertDialog, Popover, and Select content via a **portal** outside the Storybook canvas root. In play functions, `canvas.findByRole("dialog")` will fail because the portal is not inside `canvasElement`. Use `screen` from `@testing-library/react` instead:

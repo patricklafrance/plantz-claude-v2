@@ -19,7 +19,7 @@ export function engagementCheck(cwd) {
     const adlc = resolve(cwd, ".adlc");
 
     // Collect challenges from both challenger types
-    const challenges = [...parseChallenges(adlc, "sprawl-challenges.md"), ...parseChallenges(adlc, "cohesion-challenges.md")];
+    const challenges = [...parseChallenges(adlc, "current-sprawl-challenges.md"), ...parseChallenges(adlc, "current-cohesion-challenges.md")];
 
     // No challenges → nothing to check
     if (challenges.length === 0) return [];

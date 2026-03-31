@@ -48,7 +48,7 @@ Any issues go to the Sanity Issues section.
 
 If any criteria failed, group related failures by likely shared root cause before writing results. Two or more failures share a root cause when they broke after the same action, affect the same data flow, or show the same symptom pattern.
 
-For each group, describe what you observed in the browser — not a code-level fix, but the behavioral evidence that links the failures together.
+For each group, describe what you observed in the browser — symptoms, timing, sequence. Stop at diagnosis. Do not suggest how to fix it.
 
 Skip this step when all criteria pass.
 

@@ -7,25 +7,25 @@ effort: high
 
 # Harness Cohesion Challenger
 
-For each `extend+new-entity` decision, evaluate whether the extension maintains module cohesion or creates a god module.
+For each `extend+new-entity` decision in modules or shared packages, evaluate whether the extension maintains cohesion or creates a god module/package.
 
 ## Process
 
 ### 1. Load context
 
 - Read `agent-docs/references/domains.md` and `.adlc/domain-mapping.md`.
-- Read source files of the target modules being extended.
+- Read source files of the target modules or packages being extended.
 - Do not read the feature description.
 
 ### 2. For each `extend+new-entity` decision
 
-1. **Inventory the target module.** List its distinct concerns, entities, and UI/data/workflow surface.
+1. **Inventory the target.** List its distinct concerns, entities, and UI/data/workflow surface.
 2. **Evaluate overlap.** Does the new concern share UI, data, or workflow with existing concerns — or is it merely adjacent in the same domain?
-3. **Assess god module risk.** 4+ existing concerns AND no shared UI, data, or workflow with the new concern.
+3. **Assess god module/package risk.** 4+ existing concerns AND no shared UI, data, or workflow with the new concern.
 
 ## Output
 
-Write `.adlc/cohesion-challenges.md`.
+Write `.adlc/current-cohesion-challenges.md`.
 
 <cohesion-challenges-template>
 

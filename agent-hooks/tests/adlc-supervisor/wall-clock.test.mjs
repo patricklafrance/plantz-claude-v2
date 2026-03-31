@@ -102,7 +102,7 @@ describe("wall-clock policy", () => {
             expect(result.action).toBe("block");
             expect(result.severity).toBe("hard-stop");
             expect(result.reason).toContain("STOP");
-            expect(result.reason).toContain("25 minutes");
+            expect(result.reason).toContain("30 minutes");
         });
 
         it("uses different thresholds for reviewer vs coder", () => {

@@ -8,12 +8,12 @@
 import { hasFile } from "../utils.mjs";
 
 export default function handleCohesionChallenger(cwd) {
-    if (hasFile(cwd, "cohesion-challenges.md")) {
+    if (hasFile(cwd, "current-cohesion-challenges.md")) {
         return [];
     }
 
     return [
-        "Missing deliverable: `.adlc/cohesion-challenges.md` was not created. " +
+        "Missing deliverable: `.adlc/current-cohesion-challenges.md` was not created. " +
             "The cohesion challenger must produce assessments for each `extend+new-entity` decision."
     ];
 }

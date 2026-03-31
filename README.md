@@ -75,7 +75,7 @@ flowchart TD
 
         subgraph PlanLoop["Plan Loop (max 5)"]
             direction LR
-            Planner --> PlanGate["Plan Gate"]
+            Planner --> PlanGate["Gate"]
             PlanGate -. "revision" .-> Planner
         end
 
@@ -156,8 +156,8 @@ Block a subagent's completion until its deliverables meet structural and quality
 | `_adlc-domain-mapper`       | mapping-file         | `.adlc/domain-mapping.md` must exist                                                |
 | `_adlc-domain-mapper`       | engagement-check     | After challenge-revision, every medium+ confidence challenge has a resolution entry |
 | `_adlc-evidence-researcher` | evidence-findings    | `.adlc/evidence-findings.md` must exist                                             |
-| `_adlc-sprawl-challenger`   | sprawl-challenges    | `.adlc/sprawl-challenges.md` must exist                                             |
-| `_adlc-cohesion-challenger` | cohesion-challenges  | `.adlc/cohesion-challenges.md` must exist                                           |
+| `_adlc-sprawl-challenger`   | sprawl-challenges    | `.adlc/current-sprawl-challenges.md` must exist                                     |
+| `_adlc-cohesion-challenger` | cohesion-challenges  | `.adlc/current-cohesion-challenges.md` must exist                                   |
 | `_adlc-domain-gate`         | no-plan-mutations    | Must not modify plan files (reads mapping, shouldn't create plans)                  |
 | `_adlc-domain-gate`         | revision-issues      | If revision exists, must contain `ISSUE` blocks                                     |
 | `_adlc-reviewer`            | verification-results | `.adlc/verification-results.md` must exist                                          |

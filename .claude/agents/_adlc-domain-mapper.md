@@ -28,7 +28,7 @@ The Evidence Researcher has produced `.adlc/evidence-findings.md` with structure
 
 ### `challenge-revision`
 
-Challengers have produced `.adlc/sprawl-challenges.md` and/or `.adlc/cohesion-challenges.md`. For each challenge:
+Challengers have produced `.adlc/current-sprawl-challenges.md` and/or `.adlc/current-cohesion-challenges.md`. For each challenge:
 
 1. Read the challenger proposals.
 2. For each challenge, you see **two competing proposals on equal footing** — the challenger's proposal and your original decision. Treat these as "Proposal A" and "Proposal B" without anchoring on which is yours. Select the proposal with stronger artifact-level evidence.
@@ -84,19 +84,7 @@ For each unresolved concern, apply heuristics 1-4. Use 5 only for the module-vs-
 
 When heuristics diverge, check the feature's purpose against the domain mental models — purpose over vocabulary.
 
-### 5. Converge
-
-Fill a convergence table. **All applicable heuristics (1-4) must be evaluated for every concern.** A "create" verdict requires unanimous agreement across all heuristics. If any heuristic supports extension, the decision must be "extend" unless the mapper cites a specific artifact-level failure that makes extension infeasible (route tree collision, lifecycle incompatibility, isolation violation). "Introduces new concepts" and "reduces cohesion" without naming the conflicting artifacts are not valid failures.
-
-If heuristics genuinely conflict and you lack enough information to resolve the conflict, emit `insufficient_evidence` with structured evidence gaps (see output template).
-
-Use `extend+new-entity` (not plain `extend`) when the concern places entities from the Entity Decomposition that are marked "new" into an existing module. This triggers the cohesion challenger to evaluate god-module risk.
-
-| Concern   | Language    | Change coupling | Routes      | Lifecycle   | Decision                                                    |
-| --------- | ----------- | --------------- | ----------- | ----------- | ----------------------------------------------------------- |
-| {concern} | -> {module} | -> {module}     | -> {module} | -> {module} | extend / extend+new-entity / create / insufficient_evidence |
-
-### 6. Write output
+### 5. Write output
 
 Write `.adlc/domain-mapping.md` using the template below.
 
@@ -132,9 +120,11 @@ Write `.adlc/domain-mapping.md` using the template below.
 
 ## Convergence Table
 
-| Concern   | Language    | Change Coupling | Routes      | Lifecycle   | Decision                                |
-| --------- | ----------- | --------------- | ----------- | ----------- | --------------------------------------- |
-| {concern} | -> {module} | -> {module}     | -> {module} | -> {module} | extend / create / insufficient_evidence |
+All applicable heuristics (1-4) must be evaluated for every concern. `create` requires unanimous agreement — if any heuristic supports extension, the decision must be `extend` unless the mapper cites a specific artifact-level failure (route tree collision, lifecycle incompatibility, isolation violation). "Introduces new concepts" and "reduces cohesion" without naming conflicting artifacts are not valid failures. Use `extend+new-entity` when placing new entities into an existing module — this triggers the cohesion challenger. Use `insufficient_evidence` when heuristics genuinely conflict and you lack information to resolve it.
+
+| Concern   | Language    | Change Coupling | Routes      | Lifecycle   | Decision                                                    |
+| --------- | ----------- | --------------- | ----------- | ----------- | ----------------------------------------------------------- |
+| {concern} | -> {module} | -> {module}     | -> {module} | -> {module} | extend / extend+new-entity / create / insufficient_evidence |
 
 ## Mapping
 

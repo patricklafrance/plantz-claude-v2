@@ -68,4 +68,8 @@ Re-read the slice's acceptance criteria. For each criterion, list the file(s) th
 ### Changes
 
 - {Extended or created} `{module or package}` — {what changed}
+
+### Gotchas
+
+{Optional — skip if the slice had no surprises. One bullet per non-obvious discovery: what failed, why, what works instead.}
 ```

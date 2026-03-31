@@ -11,7 +11,7 @@
 const MINUTES = 60_000;
 
 const THRESHOLDS = {
-    "_adlc-coder": { nudge: null, hardStop: 25 * MINUTES },
+    "_adlc-coder": { nudge: null, hardStop: 30 * MINUTES },
     "_adlc-reviewer": { nudge: 10 * MINUTES, hardStop: 15 * MINUTES },
     "_adlc-explorer": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
     "_adlc-planner": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
