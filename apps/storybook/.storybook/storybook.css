@@ -1,9 +1,0 @@
-@import "../../../packages/components/src/styles/globals.css";
-
-@source "../../../packages/components/src/**/*.{ts,tsx}";
-@source "../../../packages/core-module/src/**/*.{ts,tsx}";
-@source "../../../packages/core-plants/src/**/*.{ts,tsx}";
-@source "../../management/plants/src/**/*.{ts,tsx}";
-@source "../../management/user/src/**/*.{ts,tsx}";
-@source "../../today/landing-page/src/**/*.{ts,tsx}";
-@source "../../today/vacation-planner/src/**/*.{ts,tsx}";

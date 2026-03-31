@@ -16,11 +16,11 @@
             ],
             "ignoreDependencies": ["netlify-cli", "agent-browser"]
         },
-        "apps/host": {
+        "apps/host-app": {
             "entry": ["src/index.tsx", "rsbuild.build.ts", "rsbuild.dev.ts"],
             "ignoreDependencies": ["@tailwindcss/postcss", "@workleap/browserslist-config", "tailwindcss"]
         },
-        "apps/storybook": {
+        "apps/unified-storybook": {
             "ignoreDependencies": [
                 "@packages/components",
                 "@packages/core-plants",
@@ -34,17 +34,19 @@
                 "playwright"
             ]
         },
-        "apps/management/storybook": {
+        "apps/management-storybook": {
             "ignoreDependencies": ["@packages/components", "@packages/core-plants", "launchdarkly-js-client-sdk"]
         },
-        "apps/today/storybook": {
+        "apps/watering-storybook": {
             "ignoreDependencies": ["@packages/components", "@packages/core-plants", "launchdarkly-js-client-sdk"]
         },
+        "modules/management": {},
+        "modules/watering": {},
         "packages/components": {
             "entry": ["rslib.build.ts", "rslib.dev.ts", "postcss.config.mjs"],
             "ignoreDependencies": ["@tailwindcss/postcss"]
         },
-        "packages/storybook": {
+        "apps/packages-storybook": {
             "ignoreDependencies": ["@packages/components", "@packages/core-module", "@packages/core-plants", "launchdarkly-js-client-sdk"]
         }
     }

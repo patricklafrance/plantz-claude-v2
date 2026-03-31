@@ -1,0 +1,6 @@
+@import "../../../packages/components/src/styles/globals.css";
+
+@source "../../../packages/components/src/**/*.{ts,tsx}";
+@source "../../../packages/core-plants/src/**/*.{ts,tsx}";
+@source "../../../modules/management/inventory/src/**/*.{ts,tsx}";
+@source "../../../modules/management/account/src/**/*.{ts,tsx}";

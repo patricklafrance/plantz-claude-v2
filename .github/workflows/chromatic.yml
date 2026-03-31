@@ -107,23 +107,23 @@ jobs:
               uses: chromaui/action@latest
               with:
                   projectToken: ${{ secrets.MANAGEMENT_CHROMATIC_PROJECT_TOKEN }}
-                  workingDir: apps/management/storybook
+                  workingDir: apps/management-storybook
                   onlyChanged: true
                   exitOnceUploaded: true
                   autoAcceptChanges: main
                   skip: ${{ steps.affected-storybooks.outputs['@apps/management-storybook'] == 'false' }}
                   debug: true
 
-            - name: Chromatic - Today
-              id: chromatic-today
+            - name: Chromatic - Watering
+              id: chromatic-watering
               uses: chromaui/action@latest
               with:
-                  projectToken: ${{ secrets.TODAY_CHROMATIC_PROJECT_TOKEN }}
-                  workingDir: apps/today/storybook
+                  projectToken: ${{ secrets.WATERING_CHROMATIC_PROJECT_TOKEN }}
+                  workingDir: apps/watering-storybook
                   onlyChanged: true
                   exitOnceUploaded: true
                   autoAcceptChanges: main
-                  skip: ${{ steps.affected-storybooks.outputs['@apps/today-storybook'] == 'false' }}
+                  skip: ${{ steps.affected-storybooks.outputs['@apps/watering-storybook'] == 'false' }}
                   debug: true
 
             - name: Chromatic - Packages
@@ -131,7 +131,7 @@ jobs:
               uses: chromaui/action@latest
               with:
                   projectToken: ${{ secrets.PACKAGES_CHROMATIC_PROJECT_TOKEN }}
-                  workingDir: packages/storybook
+                  workingDir: apps/packages-storybook
                   onlyChanged: true
                   exitOnceUploaded: true
                   autoAcceptChanges: main
