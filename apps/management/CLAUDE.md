@@ -37,4 +37,4 @@ See `msw-tanstack-query.md` in `.claude/skills/plantz-adlc-*/references/` for im
 
 ## Adding a Module
 
-Use `/scaffold-domain-module` with `domain=management`. The skill handles host registration, storybook wiring, and affected-detection updates.
+Use `/scaffold-module` with `module=management`. The skill handles host registration, storybook wiring, and affected-detection updates.

@@ -60,8 +60,8 @@ Before doing any work, the agent must read:
 
 ### Scaffolding
 
-- To scaffold a new domain module, load and use the `plantz-scaffold-domain-module` skill.
-- To scaffold a new domain Storybook, load and use the `plantz-scaffold-domain-storybook` skill.
+- To scaffold a new module, load and use the `_scaffold-module` skill.
+- To scaffold a new Storybook, load and use the `_scaffold-storybook` skill.
 
 ---
 
@@ -254,7 +254,7 @@ Implements the plan or fixes issues reported by the test phase.
 1. Read `agent-docs/ARCHITECTURE.md`, `agent-docs/adr/index.md`, `agent-docs/odr/index.md`, and all files in this skill's `references/` directory.
 2. Load the skills referenced in this skill's `references/` files.
 3. Read the plan file for architectural context. If an issues file is provided, read it and the previous changes file to understand what was done and what failed. If the issues file contains visual verification or accessibility findings, also read the referenced screenshots in `./tmp/runs/[run-uuid]/screenshots/` for context — visual issues typically require Tailwind class adjustments (`overflow`, `min-height`, `dark:` variants).
-4. If `iteration` is 1 and the plan requires scaffolding a new module, load and use the `plantz-scaffold-domain-module` skill. If it requires a new Storybook, use `plantz-scaffold-domain-storybook`. Skip this step on fix iterations (iteration > 1) — scaffolding is already done.
+4. If `iteration` is 1 and the plan requires scaffolding a new module, load and use the `_scaffold-module` skill. If it requires a new Storybook, use `_scaffold-storybook`. Skip this step on fix iterations (iteration > 1) — scaffolding is already done.
 5. Implement the changes. Follow all technology rules from this skill's `references/` files.
 6. Write a summary of all changes to `./tmp/runs/[run-uuid]/changes-[iteration].md`.
 

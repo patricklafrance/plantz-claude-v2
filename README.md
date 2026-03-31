@@ -273,14 +273,13 @@ The full design is documented in [`agent-hooks/src/adlc-supervisor/README.md`](a
 
 Non-ADLC skills that agents load at runtime for scaffolding and validation.
 
-| Skill                        | What it does                                                                         |
-| ---------------------------- | ------------------------------------------------------------------------------------ |
-| `_scaffold-domain`           | Creates a new domain directory with its first module and domain Storybook            |
-| `_scaffold-domain-module`    | Scaffolds a new Squide module — files, host registration, Storybook wiring           |
-| `_scaffold-domain-storybook` | Scaffolds a domain-scoped Storybook with Chromatic CI integration                    |
-| `_validate-modules`          | Validates module structure and wiring (files, exports, host registration, Storybook) |
+| Skill                 | What it does                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------ |
+| `_scaffold-module`    | Scaffolds a new Squide module or subfolder — files, host registration, Storybook wiring |
+| `_scaffold-storybook` | Scaffolds a module-scoped Storybook with Chromatic CI integration                    |
+| `_validate-modules`   | Validates module structure and wiring (files, exports, host registration, Storybook) |
 
-Scaffolding skills use a **reference module pattern** — instead of hardcoding versions or configs, they read a canonical module (`apps/management/plants/`) at runtime and clone from it.
+Scaffolding skills use a **reference module pattern** — instead of hardcoding versions or configs, they read a canonical module (`modules/management/`) at runtime and clone from it.
 
 **Files:** [`.claude/skills/`](.claude/skills/)
 
