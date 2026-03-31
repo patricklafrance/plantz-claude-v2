@@ -9,61 +9,59 @@ A plants watering application and proof-of-concept for Claude Code agent workflo
 ```
 plantz-claude/
   apps/
-    host/                          # Squide host application (@apps/host)
-    management/
-      plants/                      # Management domain — plants module (@modules/management-plants)
-      user/                        # Management domain — user profile module (@modules/management-user)
-      storybook/                   # Management domain Storybook (@apps/management-storybook)
-    today/
-      landing-page/                # Today domain — landing page module (@modules/today-landing-page)
-      vacation-planner/            # Today domain — vacation planner module (@modules/today-vacation-planner)
-      storybook/                   # Today domain Storybook (@apps/today-storybook)
-    storybook/                     # Unified Storybook — all stories in the repo (@apps/storybook)
+    host-app/                        # Squide host application (@apps/host-app)
+    unified-storybook/               # All stories across the repo (@apps/unified-storybook)
+    packages-storybook/              # Shared package stories (@apps/packages-storybook)
+    management-storybook/            # Management module Storybook (@apps/management-storybook)
+    watering-storybook/              # Watering module Storybook (@apps/watering-storybook)
+  modules/
+    management/                      # @modules/management (inventory + account subfolders)
+    watering/                        # @modules/watering (today + vacation-planner subfolders)
   packages/
-    components/                    # Shared UI components — shadcn/ui + Tailwind v4 (@packages/components)
-    core-module/                   # Cross-module infrastructure — session, auth, app shell (@packages/core-module)
-    core-plants/                   # Shared plant domain types, utilities, and components (@packages/core-plants)
-    storybook/                     # Packages-layer Storybook runner for shared package stories (@apps/packages-storybook)
-  scripts/                         # Build scripts (get-affected-storybooks.ts)
-  agent-docs/                      # Agent documentation (this folder)
-  .agents/skills/                  # Shared agent skills (git-commit, etc.)
-  .claude/skills/                  # Claude Code discovery layer — symlinks to .agents/skills/ plus project-specific skills
-  .github/workflows/               # CI, Chromatic, Claude, code-review
+    components/                      # Shared UI components — shadcn/ui + Tailwind v4 (@packages/components)
+    core-module/                     # Cross-module infrastructure — session, auth, app shell (@packages/core-module)
+    core-plants/                     # Shared plant types, utilities, and components (@packages/core-plants)
+  scripts/                           # Build scripts (get-affected-storybooks.ts)
+  agent-docs/                        # Agent documentation (this folder)
+  .agents/skills/                    # Shared agent skills (git-commit, etc.)
+  .claude/skills/                    # Claude Code discovery layer — symlinks to .agents/skills/ plus project-specific skills
+  .github/workflows/                 # CI, Chromatic, Claude, code-review
 ```
 
 ## Package naming conventions
 
-| Workspace path            | Package scope | Example                      |
-| ------------------------- | ------------- | ---------------------------- |
-| `apps/host`               | `@apps/*`     | `@apps/host`                 |
-| `apps/<domain>/storybook` | `@apps/*`     | `@apps/management-storybook` |
-| `apps/<domain>/<feature>` | `@modules/*`  | `@modules/management-plants` |
-| `packages/*`              | `@packages/*` | `@packages/core-plants`      |
+| Workspace path               | Package scope | Example                  |
+| ---------------------------- | ------------- | ------------------------ |
+| `apps/host-app`              | `@apps/*`     | `@apps/host-app`        |
+| `apps/<name>-storybook`      | `@apps/*`     | `@apps/management-storybook` |
+| `modules/*`                  | `@modules/*`  | `@modules/management`   |
+| `packages/*`                 | `@packages/*` | `@packages/core-plants`  |
 
-> **Exception:** `packages/storybook` uses `@apps/packages-storybook` (historical convention — Storybook runner apps always use `@apps/*`).
+> **Exception:** `apps/packages-storybook` uses `@apps/packages-storybook` (historical convention — Storybook runner apps always use `@apps/*`).
 
 ## Squide host/module topology
 
-- **Host** (`apps/host/`): Thin bootstrap layer. Creates `QueryClient`, calls `initializeFirefly` with `registerShell` (from `@packages/core-module/shell`) and active modules, seeds mock data, and renders `<App />`. Shell components (RootLayout, LoginPage, NotFoundPage, UserMenu, auth MSW handlers) live in `@packages/core-module/shell`, not in the host. Domain logic lives in modules.
-- **Modules**: Each feature area registers via `(runtime, queryClient) => Promise<void>`. The host wraps these in closures matching Squide's `ModuleRegisterFunction` signature. Modules are isolated — they never import from each other. When two modules need to share domain code: prefer duplication if the surface area is small; extract to a shared package under `packages/` (e.g., `@packages/core-module` for cross-module infrastructure, `@packages/core-plants` for plant domain logic) when it's large enough to justify the indirection.
-- **Module registry**: `apps/host/src/getActiveModules.tsx` maps module path keys to their register functions. The host loads only modules present in this map.
+- **Host** (`apps/host-app/`): Thin bootstrap layer. Creates `QueryClient`, calls `initializeFirefly` with `registerShell` (from `@packages/core-module/shell`) and active modules, seeds mock data, and renders `<App />`. Shell components (RootLayout, LoginPage, NotFoundPage, UserMenu, auth MSW handlers) live in `@packages/core-module/shell`, not in the host. Feature logic lives in modules.
+- **Modules**: Each module registers via `(runtime, queryClient) => Promise<void>`. The host wraps these in closures matching Squide's `ModuleRegisterFunction` signature. Modules are isolated — they never import from each other. When two modules need to share code: prefer duplication if the surface area is small; extract to a shared package under `packages/` (e.g., `@packages/core-module` for cross-module infrastructure, `@packages/core-plants` for plant logic) when it's large enough to justify the indirection.
+- **Module registry**: `apps/host-app/src/getActiveModules.tsx` maps module names to their register functions. The host loads only modules present in this map. Each module has ONE register function that handles all its routes.
+- **Module internal structure**: Modules are wide-scoped — each covers a broad set of related features organized into internal subfolders. `@modules/management` has `inventory/` and `account/` subfolders. `@modules/watering` has `today/` and `vacation-planner/` subfolders. These subfolders are NOT separate packages — they are internal organizational boundaries within a single package.
 - **Shared packages**: Three tiers live under `packages/`, each with a distinct scope:
-    - `@packages/core-module` — Cross-module **infrastructure** any Squide app needs: session context, auth headers, auth error handling, MSW auth helpers, `usersDb`, `getUserId`), and the app shell (`./shell` sub-path — RootLayout, LoginPage, NotFoundPage, UserMenu, registerShell). Not domain-specific.
-    - `@packages/core-plants` — Shared **plant-domain** code: types, DB schema, collection factories, plant-specific utilities and components. Subpath exports include `./collection`, `./db`, `./care-event` (care event types, schemas, insight utilities, and adjustment recommendation types/schemas/computation), `./vacation`, and `./test-utils`. Used by domain modules, not by generic packages like `components`.
-    - `@packages/components` — Domain-agnostic **UI** (shadcn/ui + Tailwind v4). Could theoretically be extracted as a standalone design system.
+    - `@packages/core-module` — Cross-module **infrastructure** any Squide app needs: session context, auth headers, auth error handling, MSW auth helpers, `usersDb`, `getUserId`, and the app shell (`./shell` sub-path — RootLayout, LoginPage, NotFoundPage, UserMenu, registerShell). Not feature-specific.
+    - `@packages/core-plants` — Shared **plant** code: types, DB schema, collection factories, plant-specific utilities and components. Subpath exports include `./collection`, `./db`, `./care-event` (care event types, schemas, insight utilities, and adjustment recommendation types/schemas/computation), `./vacation`, and `./test-utils`. Used by modules, not by generic packages like `components`.
+    - `@packages/components` — Feature-agnostic **UI** (shadcn/ui + Tailwind v4). Could theoretically be extracted as a standalone design system.
     - If a utility is generic enough to be needed by `@packages/components`, it belongs in a new `core` package (doesn't exist yet), not in `core-module` or `core-plants`.
 - **JIT packages**: Packages under `packages/` expose source directly via `exports` fields (e.g., `"./": "./src/index.ts"`). Consumers compile them at build time through their own bundler — no pre-build step is required. This means the Turborepo `dev` task has no `^dev` dependency; persistent watch builds in packages run in parallel, not as prerequisites. See [ODR-0004](odr/0004-jit-packages.md) for rationale.
 
 See [ADR-0001](adr/0001-squide-local-modules.md) for rationale.
 
-## Domain Storybooks
+## Storybooks
 
-Two domains, each with independent Storybooks and Chromatic tokens:
+Each module has its own Storybook at `apps/<name>-storybook/` with independent Chromatic tokens:
 
-- **management** — Admin and configuration (`apps/management/`)
-- **today** — Daily care dashboard (`apps/today/`)
+- **management-storybook** — Stories for the management module (`apps/management-storybook/`)
+- **watering-storybook** — Stories for the watering module (`apps/watering-storybook/`)
 
-A packages-layer Storybook (`packages/storybook/`, `@apps/packages-storybook`) is purely a runner for shared package stories — it contains no exported utilities. Storybook infrastructure (MSW via `msw-storybook-addon`, Squide runtime via a `firefly.tsx` in each domain storybook app, collection context) is configured per-domain in each module's `storybook.setup.tsx`. A unified Storybook (`apps/storybook/`) aggregates all stories across the entire repo and is the sole target for browser verification (`pnpm dev-storybook`). Domain storybooks are used for Chromatic visual regression, a11y tests, and developer workflow.
+A packages-layer Storybook (`apps/packages-storybook/`, `@apps/packages-storybook`) is purely a runner for shared package stories — it contains no exported utilities. Storybook infrastructure (MSW via `msw-storybook-addon`, Squide runtime via a `firefly.tsx` in each storybook app, collection context) is configured per-module in each module's `storybook.setup.tsx`. A unified Storybook (`apps/unified-storybook/`) aggregates all stories across the entire repo and is the sole target for browser verification (`pnpm dev-storybook`). Per-module storybooks are used for Chromatic visual regression, a11y tests, and developer workflow.
 
 See [ADR-0002](adr/0002-domain-scoped-storybooks.md) for rationale.
 
@@ -74,8 +72,8 @@ There is no backend server. MSW intercepts browser `fetch()` calls and serves fr
 Each module owns its full API surface (a "BFF-per-module" model):
 
 - **Collection** — Each module creates a TanStack DB collection during Squide registration via a factory from `@packages/core-plants/collection` and provides it to components via React Context. The host passes `QueryClient` to module registration functions. Components read data with `useLiveQuery` and write with `createOptimisticAction`.
-- **Handlers** — MSW request handlers live in the module's `mocks/` folder, scoped to `/api/<domain>/<entity>` URLs (e.g., `/api/management/plants`, `/api/today/plants`, `/api/management/user/profile`). Every module must own the MSW handlers for the endpoints it uses — never rely on the host or another module for handlers.
-- **Shared DB** — All modules read/write the same in-memory plant store, exposed via `@packages/core-plants/db`. Cross-module visibility works through the shared DB, not shared client-side collections. Modules may also own **module-local** in-memory DBs for entities that only one module consumes (e.g., `careEventsDb` in today-landing-page, `adjustmentsDb` in today-landing-page, `vacationDb` in today-vacation-planner). These are not shared — promote to a shared package only when a second module needs the same data.
+- **Handlers** — MSW request handlers live in the module's `mocks/` folder, scoped to `/api/<prefix>/<entity>` URLs (e.g., `/api/management/plants`, `/api/today/plants`, `/api/management/user/profile`). Every module must own the MSW handlers for the endpoints it uses — never rely on the host or another module for handlers.
+- **Shared DB** — All modules read/write the same in-memory plant store, exposed via `@packages/core-plants/db`. Cross-module visibility works through the shared DB, not shared client-side collections. Modules may also own **module-local** in-memory DBs for entities that only one module consumes (e.g., `careEventsDb` in the watering module's today subfolder, `adjustmentsDb` in the watering module's today subfolder, `vacationDb` in the watering module's vacation-planner subfolder). These are not shared — promote to a shared package only when a second module needs the same data.
 
 Modules never share handlers or collections. If two modules need the same entity, each defines its own handlers, collection, and URL namespace. This mirrors how real BFFs work: each frontend surface has its own backend-for-frontend that shapes data for its needs.
 
@@ -118,11 +116,11 @@ Scripts in root `package.json` follow a prefix convention: `dev-*` (local dev se
 Set `MODULES` to load only specific modules during development:
 
 ```bash
-cross-env MODULES=management/plants pnpm dev-host    # only management/plants
-cross-env MODULES=today/landing-page pnpm dev-host   # only today/landing-page
+cross-env MODULES=management pnpm dev-host    # only management
+cross-env MODULES=watering pnpm dev-host      # only watering
 ```
 
-Omit `MODULES` to load all modules. The value maps to the module's path under `apps/`.
+Omit `MODULES` to load all modules. The value maps to the module's directory name under `modules/`.
 
 ## Maintaining this doc
 

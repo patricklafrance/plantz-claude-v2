@@ -3,7 +3,7 @@
 1. Before changing a module API or architectural pattern, check `agent-docs/adr/index.md`.
 2. Before changing build tooling, CI, or dev workflows, check `agent-docs/odr/index.md`.
 3. Before reporting a task complete, run `git status --short`. If any changed file affects repo structure, build/CI config, module registration, package exports, or a topic in the Index below, open the matching doc and fix any line that no longer matches reality. Pure feature code within an existing module does not require a doc check. Stop after one pass.
-4. Never add dependencies to the root `package.json` unless they are global workspace tools (turbo, syncpack, oxlint, tsx, cross-env, etc.). Domain-specific deps belong in the `package.json` of the app or package that uses them.
+4. Never add dependencies to the root `package.json` unless they are global workspace tools (turbo, syncpack, oxlint, tsx, cross-env, etc.). Module-specific deps belong in the `package.json` of the app or package that uses them.
 
 ## Index
 
@@ -13,7 +13,7 @@
 
 ### References
 
-- [references/placement.md](agent-docs/references/placement.md) — code placement, domain/module/package responsibilities
+- [references/placement.md](agent-docs/references/placement.md) — code placement, module/package responsibilities
 - [references/msw-tanstack-query.md](agent-docs/references/msw-tanstack-query.md) — data layer patterns
 - [references/storybook.md](agent-docs/references/storybook.md) — Storybook conventions
 - [references/tailwind-postcss.md](agent-docs/references/tailwind-postcss.md) — Tailwind CSS v4
@@ -33,4 +33,4 @@
 ## Growth Conventions
 
 - New `agent-docs/` files get an index entry above; keep this file under ~60 lines.
-- Domain-specific patterns belong in a scoped CLAUDE.md near the code, not here. Duplicating domain rules causes drift.
+- Module-specific patterns belong in a scoped CLAUDE.md near the code, not here. Duplicating rules causes drift.
