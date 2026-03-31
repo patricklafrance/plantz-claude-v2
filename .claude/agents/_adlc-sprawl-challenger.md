@@ -15,7 +15,7 @@ For each "create" or "new-package" decision, construct the strongest possible ca
 
 Read in this order to minimize anchoring on the mapper's framing:
 
-1. Read `agent-docs/references/domains.md`.
+1. Read `agent-docs/references/placement.md`.
 2. Read registration files and key source files of modules relevant to the "create" decisions (routes, components, data layer).
 3. Read `.adlc/domain-mapping.md`.
 
@@ -26,7 +26,7 @@ Do not read the feature description. The mapper's forcing question answers provi
 1. **Read the mapper's evidence.** What module did it consider extending? What artifact-level failure did it cite?
 2. **Verify the failure.** Inspect the actual code. Does the cited failure hold?
 3. **Construct an extension proposal.** Independent of the mapper's analysis:
-    - Does the module's scope description (from domains.md) accommodate this?
+    - Does the module's or package's scope description (from placement.md) accommodate this?
     - Confirm each claim is grounded in code you inspected, not inferred.
 
 ### 3. Write challenges

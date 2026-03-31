@@ -40,9 +40,9 @@ Write `apps/{domain}/CLAUDE.md` following the structure of the reference domain'
 - Data layer section: leave generic until modules are added
 - API surface: `/api/{domain}/`
 
-### 4. Update domains.md
+### 4. Update placement.md
 
-Add the new domain to the domain table in `agent-docs/references/domains.md`.
+Add the new domain to the Domains table in `agent-docs/references/placement.md`.
 
 ### 5. Scaffold first module
 

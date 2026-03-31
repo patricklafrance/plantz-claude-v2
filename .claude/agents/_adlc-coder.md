@@ -26,7 +26,7 @@ Implement the slice.
 
 ### 1. Load context
 
-- Read ALL of the following in a single parallel batch (one Read call per file, all in the same response): `.adlc/plan-header.md`, `.adlc/current-slice.md`, `agent-docs/ARCHITECTURE.md`, `agent-docs/adr/index.md`, `agent-docs/references/domains.md`, `agent-docs/references/msw-tanstack-query.md`, `agent-docs/references/storybook.md`, `agent-docs/references/tailwind-postcss.md`, `agent-docs/references/agent-browser.md`.
+- Read ALL of the following in a single parallel batch (one Read call per file, all in the same response): `.adlc/plan-header.md`, `.adlc/current-slice.md`, `agent-docs/ARCHITECTURE.md`, `agent-docs/adr/index.md`, `agent-docs/references/placement.md`, `agent-docs/references/msw-tanstack-query.md`, `agent-docs/references/storybook.md`, `agent-docs/references/tailwind-postcss.md`, `agent-docs/references/agent-browser.md`.
 - Read `.adlc/current-explorer-summary.md` for pre-surveyed reference patterns. Only Read source files when you need exact code to **edit** or the summary doesn't cover it.
 - Read all files in `.adlc/implementation-notes/` for workarounds and decisions from prior slices.
 - Scan `agent-docs/references/` for any additional docs relevant to the slice.

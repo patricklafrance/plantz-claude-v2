@@ -112,7 +112,7 @@ flowchart TD
 | `_adlc-evidence-researcher` | Resolves mapper evidence gaps by inspecting code artifacts                              |
 | `_adlc-sprawl-challenger`   | Challenges create decisions with concrete extension proposals                           |
 | `_adlc-cohesion-challenger` | Checks extend decisions for god-module risk when new entities are introduced            |
-| `_adlc-domain-gate`         | Holistic quality gate — reviews the entire mapping for architectural coherence          |
+| `_adlc-placement-gate`      | Holistic quality gate — reviews the entire mapping for architectural coherence          |
 | `_adlc-planner`             | Drafts a multi-slice plan with acceptance criteria per slice                            |
 | `_adlc-plan-gate`           | Structural review gate — flags wrong boundaries, missing denormalization, weak criteria |
 | `_adlc-explorer`            | Surveys reference packages for a slice, returns patterns summary for the coder          |
@@ -158,8 +158,8 @@ Block a subagent's completion until its deliverables meet structural and quality
 | `_adlc-evidence-researcher` | evidence-findings    | `.adlc/evidence-findings.md` must exist                                             |
 | `_adlc-sprawl-challenger`   | sprawl-challenges    | `.adlc/current-sprawl-challenges.md` must exist                                     |
 | `_adlc-cohesion-challenger` | cohesion-challenges  | `.adlc/current-cohesion-challenges.md` must exist                                   |
-| `_adlc-domain-gate`         | no-plan-mutations    | Must not modify plan files (reads mapping, shouldn't create plans)                  |
-| `_adlc-domain-gate`         | revision-issues      | If revision exists, must contain `ISSUE` blocks                                     |
+| `_adlc-placement-gate`      | no-plan-mutations    | Must not modify plan files (reads mapping, shouldn't create plans)                  |
+| `_adlc-placement-gate`      | revision-issues      | If revision exists, must contain `ISSUE` blocks                                     |
 | `_adlc-reviewer`            | verification-results | `.adlc/verification-results.md` must exist                                          |
 | `_adlc-reviewer`            | criteria-coverage    | Results must cover every acceptance criterion from the slice                        |
 
@@ -219,7 +219,7 @@ agent-hooks/
       coder/                     # 8 checks + 1 autofix + 1 context refresh
       cohesion-challenger/       # 1 check
       document/                  # 1 autofix
-      domain-gate/               # 2 checks
+      placement-gate/            # 2 checks
       domain-mapper/             # 2 checks
       evidence-researcher/       # 1 check
       planner/                   # 4 checks

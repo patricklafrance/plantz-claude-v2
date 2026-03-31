@@ -13,7 +13,7 @@
 
 ### References
 
-- [references/domains.md](agent-docs/references/domains.md) — domain responsibilities, module granularity
+- [references/placement.md](agent-docs/references/placement.md) — code placement, domain/module/package responsibilities
 - [references/msw-tanstack-query.md](agent-docs/references/msw-tanstack-query.md) — data layer patterns
 - [references/storybook.md](agent-docs/references/storybook.md) — Storybook conventions
 - [references/tailwind-postcss.md](agent-docs/references/tailwind-postcss.md) — Tailwind CSS v4

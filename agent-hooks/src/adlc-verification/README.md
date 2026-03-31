@@ -48,7 +48,7 @@ Handled agent types:
 - `_adlc-cohesion-challenger`
 - `_adlc-document`
 - `_adlc-evidence-researcher`
-- `_adlc-domain-gate`
+- `_adlc-placement-gate`
 - `_adlc-domain-mapper`
 - `_adlc-sprawl-challenger`
 - `_adlc-planner`
@@ -129,12 +129,12 @@ What this improves:
 
 - extend decisions that introduce new entities are evaluated for god-module risk
 
-### `_adlc-domain-gate`
+### `_adlc-placement-gate`
 
 What the hook enforces:
 
 - plan files must not be mutated (reads mapping, shouldn't create plans)
-- if `.adlc/domain-gate-revision.md` exists, it must contain `### ISSUE-N` blocks
+- if `.adlc/placement-gate-revision.md` exists, it must contain `### ISSUE-N` blocks
 
 What this improves:
 

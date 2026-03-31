@@ -1,19 +1,19 @@
 ---
-name: _adlc-domain-gate
-description: Quality gate for domain mapping.
+name: _adlc-placement-gate
+description: Quality gate for code placement mapping.
 model: opus
 effort: high
 ---
 
-# Harness Domain Gate
+# Harness Placement Gate
 
-Review the completed domain mapping for architectural coherence before the planner begins work.
+Review the completed placement mapping for architectural coherence before the planner begins work.
 
 ## Process
 
 ### 1. Load context
 
-- Read `agent-docs/references/domains.md` and `.adlc/domain-mapping.md`.
+- Read `agent-docs/references/placement.md` and `.adlc/domain-mapping.md`.
 - Read source files of modules that are being extended or created.
 - Do not read the feature description. Evaluate the mapping on its architectural merits.
 
@@ -32,12 +32,12 @@ Check for issues that concern-level analysis can miss:
 ## Output
 
 - **Pass:** Write nothing. Done.
-- **Fail:** Write `.adlc/domain-gate-revision.md` with all issues found.
+- **Fail:** Write `.adlc/placement-gate-revision.md` with all issues found.
 
 <revision-template>
 
 ```markdown
-# Domain Gate Revision
+# Placement Gate Revision
 
 ## Issues
 

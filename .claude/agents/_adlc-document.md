@@ -17,14 +17,16 @@ Keep agent documentation in sync with what the code actually does.
 - Read `.adlc/domain-mapping.md`.
 - Read all files in `.adlc/implementation-notes/`.
 
-### 2. Update domain reference
+### 2. Update placement reference
 
-Read `agent-docs/references/domains.md`.
+Read `agent-docs/references/placement.md`.
 
 - Module scope expanded → update its Domains table description (one line each).
 - New module created → add to the Domains table.
+- Package scope expanded → update its Packages table description.
+- New shared package created → add to the Packages table.
 - Decision tree no longer routes correctly → fix it.
-- Two modules claim overlapping scope → resolve.
+- Two modules or packages claim overlapping scope → resolve.
 
 ### 3. Update architecture doc
 
@@ -50,7 +52,7 @@ Skim `agent-docs/references/` for any other docs affected by the implementation.
 
 ### 7. Verify consistency
 
-- Domains table in `domains.md` matches repo structure in `ARCHITECTURE.md`.
+- Domains and Packages tables in `placement.md` match repo structure in `ARCHITECTURE.md`.
 - ADR index references files that exist.
 - CLAUDE.md indexes reference files that exist.
 

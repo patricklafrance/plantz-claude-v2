@@ -44,9 +44,9 @@ Run the domain mapping pipeline. Max 2 gate attempts.
 
 #### 2d. Gate
 
-1. Delete `.adlc/domain-gate-revision.md` if it exists.
-2. Spawn the `_adlc-domain-gate` agent. If the agent fails, print the error and stop.
-3. No `.adlc/domain-gate-revision.md` → gate passed. Proceed to step 3.
+1. Delete `.adlc/placement-gate-revision.md` if it exists.
+2. Spawn the `_adlc-placement-gate` agent. If the agent fails, print the error and stop.
+3. No `.adlc/placement-gate-revision.md` → gate passed. Proceed to step 3.
 4. If first gate attempt: go back to 2a.
 5. If second gate attempt: print the gate issues and stop.
 

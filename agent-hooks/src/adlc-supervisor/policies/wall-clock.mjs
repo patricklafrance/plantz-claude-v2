@@ -22,7 +22,7 @@ const THRESHOLDS = {
     "_adlc-evidence-researcher": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES },
     "_adlc-sprawl-challenger": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES },
     "_adlc-cohesion-challenger": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES },
-    "_adlc-domain-gate": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES }
+    "_adlc-placement-gate": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES }
 };
 
 const DEFAULT_THRESHOLD = { nudge: 10 * MINUTES, hardStop: 15 * MINUTES };

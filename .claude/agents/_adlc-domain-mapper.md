@@ -20,7 +20,7 @@ Decide where a feature belongs before planning begins.
 
 ### `draft` (default)
 
-Run the full process below (steps 1-6). If `.adlc/domain-gate-revision.md` exists, read it and incorporate the gate issues as constraints.
+Run the full process below (steps 1-6). If `.adlc/placement-gate-revision.md` exists, read it and incorporate the gate issues as constraints.
 
 ### `evidence-revision`
 
@@ -43,7 +43,7 @@ Challengers have produced `.adlc/current-sprawl-challenges.md` and/or `.adlc/cur
 ### 1. Load context
 
 - Read the feature description.
-- Read `agent-docs/references/domains.md`.
+- Read `agent-docs/references/placement.md`.
 - Scan existing modules in affected domains: read actual code — components, routes, pages, API calls. Heuristics applied to PRD text alone produce wrong answers.
 
 ### 2. Apply the decision tree
