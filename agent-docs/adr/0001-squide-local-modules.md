@@ -6,12 +6,12 @@ accepted
 
 ## Context
 
-plantz-claude needs to support multiple feature areas (plant management, daily watering) with independent lifecycles. Each domain should be developed, tested, and deployed without tight coupling to the others.
+plantz-claude needs to support multiple feature areas (plant management, daily watering) with independent lifecycles. Each module should be developed, tested, and deployed without tight coupling to the others.
 
 ## Options Considered
 
 1. **Workleap Squide local modules** — A modular monolith using Squide's local module system. Modules register routes and navigation via `ModuleRegisterFunction`. Host is a thin shell (`FireflyRuntime` + `AppRouter`). Modules are imported at build time but architecturally isolated — no runtime federation overhead.
-2. **Monolithic React app** — Single app with folder-based code organization. Simpler initially, but domain boundaries are conventions only — no enforcement of isolation.
+2. **Monolithic React app** — Single app with folder-based code organization. Simpler initially, but module boundaries are conventions only — no enforcement of isolation.
 
 ## Decision
 
@@ -23,5 +23,6 @@ See [ARCHITECTURE.md](../ARCHITECTURE.md#squide-hostmodule-topology) for the res
 
 Additional implications:
 
-- Cross-module communication goes through Squide runtime APIs (event bus, shared data queries) — not direct imports. Modules never import from each other — no exceptions. When two modules need shared domain code, prefer duplication if the surface area is small; extract to a package under `packages/` when it's large enough to justify the indirection.
-- New feature areas require creating a new module package under `apps/<domain>/`.
+- Cross-module communication goes through Squide runtime APIs (event bus, shared data queries) — not direct imports. Modules never import from each other — no exceptions. When two modules need shared code, prefer duplication if the surface area is small; extract to a package under `packages/` when it's large enough to justify the indirection.
+- Each module is a single wider-scoped package under `modules/` with internal subfolders for feature areas (e.g., `modules/management/` contains `inventory/` and `account/` subfolders). Subfolders are NOT separate packages.
+- New feature areas require creating a new module package under `modules/`.
