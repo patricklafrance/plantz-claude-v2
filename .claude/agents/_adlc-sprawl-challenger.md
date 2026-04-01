@@ -23,12 +23,15 @@ Do not read the feature description. The mapper's forcing question answers provi
 
 ### 2. For each "create" or "new-package" decision
 
-1. **Read the mapper's evidence.** What existing module did it consider extending with a new subfolder? What artifact-level failure did it cite?
-2. **Verify the failure.** Inspect the actual code. Does the cited failure hold?
-3. **Construct an extension proposal.** Independent of the mapper's analysis:
-    - Does the module's scope description (from placement.md) accommodate this as a subfolder?
-    - Could the new functionality share routes, data, or UI with existing subfolders in that module?
-    - Confirm each claim is grounded in code you inspected, not inferred.
+1. **Read the mapper's evidence.** Note the Scaffold column (`module` or `package` — different challenge strategies). Read the Analysis section and any Heuristic Disagreements row for this concern. Heuristics that pointed toward extension are your leverage.
+2. **Verify the failure.** Inspect the actual code. Does the cited artifact-level failure hold?
+3. **Construct an extension proposal.** Independent of the mapper's analysis, apply the rules below. Ground every claim in code you inspected.
+
+<extension-proposal-rules>
+- Does the module's scope description (from placement.md) accommodate this as a subfolder?
+- Could the new functionality share routes, API namespace, data entities, or UI with existing subfolders? Find affinity signals the mapper missed or underweighted.
+- For `package` scaffold: is the concern truly cross-module, or could it live in a single module? Challenge with evidence the interface is volatile or module-specific (heuristic #5).
+</extension-proposal-rules>
 
 ### 3. Write challenges
 

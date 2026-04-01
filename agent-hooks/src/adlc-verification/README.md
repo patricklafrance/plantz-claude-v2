@@ -103,7 +103,7 @@ What this improves:
 
 What the hook enforces:
 
-- `.adlc/evidence-findings.md` must exist
+- `.adlc/current-evidence-findings.md` must exist
 
 What this improves:
 

@@ -156,7 +156,7 @@ Block a subagent's completion until its deliverables meet structural and quality
 | `_adlc-plan-gate`           | revision-slice-refs  | Revision must reference specific slices with evidence                               |
 | `_adlc-domain-mapper`       | mapping-file         | `.adlc/domain-mapping.md` must exist                                                |
 | `_adlc-domain-mapper`       | engagement-check     | After challenge-revision, every medium+ confidence challenge has a resolution entry |
-| `_adlc-evidence-researcher` | evidence-findings    | `.adlc/evidence-findings.md` must exist                                             |
+| `_adlc-evidence-researcher` | evidence-findings    | `.adlc/current-evidence-findings.md` must exist                                     |
 | `_adlc-sprawl-challenger`   | sprawl-challenges    | `.adlc/current-sprawl-challenges.md` must exist                                     |
 | `_adlc-cohesion-challenger` | cohesion-challenges  | `.adlc/current-cohesion-challenges.md` must exist                                   |
 | `_adlc-placement-gate`      | no-plan-mutations    | Must not modify plan files (reads mapping, shouldn't create plans)                  |

@@ -24,7 +24,7 @@ Run the full process below (steps 1-6). If `.adlc/placement-gate-revision.md` ex
 
 ### `evidence-revision`
 
-The Evidence Researcher has produced `.adlc/evidence-findings.md` with structured observations and inferences for your evidence gaps. Incorporate the findings and re-evaluate all rows in the mapping — not just the ones that were `insufficient_evidence`. Update `.adlc/domain-mapping.md` with revised decisions.
+The Evidence Researcher has produced `.adlc/current-evidence-findings.md` with structured observations and inferences for your evidence gaps. Incorporate the findings and re-evaluate all rows in the mapping — not just the ones that were `insufficient_evidence`. Update `.adlc/domain-mapping.md` with revised decisions.
 
 ### `challenge-revision`
 
@@ -119,6 +119,7 @@ Write `.adlc/domain-mapping.md` using the template below.
 | --------- | -------- | --------------------- | --------- | ------------------------------------------------- |
 | {concern} | {target} | extend                | —         | {brief rationale}                                 |
 | {concern} | {target} | extend+new-entity     | subfolder | {rationale + new entity named}                    |
+| {concern} | {target} | create                | module    | {which module considered, artifact-level failure} |
 | {concern} | {target} | create                | package   | {which module considered, artifact-level failure} |
 | {concern} | —        | insufficient_evidence | —         | {conflicting signals, what would resolve}         |
 

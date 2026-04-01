@@ -25,7 +25,7 @@ For each gap, inspect the specified modules and relevant code:
 
 ### 3. Produce findings
 
-For each gap, return observations and inferences. Do not produce a placement recommendation — the mapper decides.
+For each gap, return observations and inferences. Do not produce a placement recommendation — the mapper decides. Note: your findings feed the mapper's evidence-revision mode, which re-evaluates **all** mapping rows — not just the ones marked `insufficient_evidence`. Thorough investigation matters.
 
 **Observations** (direct facts from code):
 
@@ -40,7 +40,7 @@ For each gap, return observations and inferences. Do not produce a placement rec
 
 ## Output
 
-Write `.adlc/evidence-findings.md`.
+Write `.adlc/current-evidence-findings.md`.
 
 <evidence-findings-template>
 
