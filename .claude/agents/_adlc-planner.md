@@ -21,7 +21,7 @@ Resolve architecture upfront, slice the work, define success through acceptance 
 ### 1. Load context
 
 - Read `agent-docs/ARCHITECTURE.md`, `agent-docs/adr/index.md`, and `agent-docs/references/placement.md`.
-- Read `.adlc/module-mapping.md`. The Mapping table tells you which features go to which modules and packages — carry these decisions forward, don't re-derive them.
+- Read `.adlc/domain-mapping.md`. The Mapping table tells you which features go to which modules and packages — carry these decisions forward, don't re-derive them.
 - Scan `agent-docs/references/` for any additional docs relevant to the feature.
 
 ### 2. Analyze requirements

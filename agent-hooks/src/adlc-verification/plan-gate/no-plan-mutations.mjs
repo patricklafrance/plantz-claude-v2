@@ -2,7 +2,7 @@
  * Agents that run before or alongside planning must not modify plan files
  * (.adlc/plan-header.md or .adlc/slices/*.md).
  *
- * Shared by: architect, module-mapper.
+ * Shared by: architect, domain-mapper.
  */
 
 import { getChangedFiles } from "../utils.mjs";

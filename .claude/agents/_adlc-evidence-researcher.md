@@ -13,7 +13,7 @@ Resolve the module mapper's evidence gaps by inspecting code artifacts.
 
 ### 1. Read evidence gaps
 
-Read `.adlc/module-mapping.md` and parse the Evidence Gaps section: what signals conflict, what would resolve it, which modules to investigate.
+Read `.adlc/domain-mapping.md` and parse the Evidence Gaps section: what signals conflict, what would resolve it, which modules to investigate.
 
 ### 2. Investigate
 

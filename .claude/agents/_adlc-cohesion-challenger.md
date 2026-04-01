@@ -13,7 +13,7 @@ For each `extend+new-entity` decision that adds a subfolder to a module or exten
 
 ### 1. Load context
 
-- Read `agent-docs/references/placement.md` and `.adlc/module-mapping.md`.
+- Read `agent-docs/references/placement.md` and `.adlc/domain-mapping.md`.
 - Read source files of the target modules or packages being extended.
 - Do not read the feature description.
 

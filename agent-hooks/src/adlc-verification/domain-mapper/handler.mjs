@@ -1,8 +1,8 @@
 /**
- * _adlc-module-mapper handler
+ * _adlc-domain-mapper handler
  *
  * Checks:
- *   1. mapping-file     — .adlc/module-mapping.md exists
+ *   1. mapping-file     — .adlc/domain-mapping.md exists
  *   2. engagement-check  — after challenge-revision, verifies mapper engaged with challenges
  */
 

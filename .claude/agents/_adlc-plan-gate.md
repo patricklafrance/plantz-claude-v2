@@ -15,7 +15,7 @@ Never modify plan files.
 
 ### 1. Load context
 
-- Read `.adlc/plan-header.md`, all `.adlc/slices/*.md`, and `.adlc/module-mapping.md`.
+- Read `.adlc/plan-header.md`, all `.adlc/slices/*.md`, and `.adlc/domain-mapping.md`.
 - Read `agent-docs/ARCHITECTURE.md`, `agent-docs/references/placement.md`, and `agent-docs/adr/index.md`.
 
 ### 2. Evaluate structural soundness

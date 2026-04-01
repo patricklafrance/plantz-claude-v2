@@ -49,7 +49,7 @@ Handled agent types:
 - `_adlc-document`
 - `_adlc-evidence-researcher`
 - `_adlc-placement-gate`
-- `_adlc-module-mapper`
+- `_adlc-domain-mapper`
 - `_adlc-sprawl-challenger`
 - `_adlc-planner`
 - `_adlc-reviewer`
@@ -87,7 +87,7 @@ Handlers return:
 
 ## Per-agent harness value
 
-### `_adlc-module-mapper`
+### `_adlc-domain-mapper`
 
 What the hook enforces:
 

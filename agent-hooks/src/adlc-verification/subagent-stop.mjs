@@ -15,8 +15,8 @@ import { readFileSync } from "node:fs";
 import handleCoder from "./coder/handler.mjs";
 import handleCohesionChallenger from "./cohesion-challenger/handler.mjs";
 import handleDocument from "./document/handler.mjs";
+import handleModuleMapper from "./domain-mapper/handler.mjs";
 import handleEvidenceResearcher from "./evidence-researcher/handler.mjs";
-import handleModuleMapper from "./module-mapper/handler.mjs";
 import handlePlacementGate from "./placement-gate/handler.mjs";
 import handlePlanGate from "./plan-gate/handler.mjs";
 import handlePlanner from "./planner/handler.mjs";
@@ -45,7 +45,7 @@ const { agent_type: agentType, agent_transcript_path: transcriptPath, cwd } = in
 
 // _adlc-plan-gate — imported from ./plan-gate/handler.mjs
 // _adlc-document — imported from ./document/handler.mjs
-// _adlc-module-mapper — imported from ./module-mapper/handler.mjs
+// _adlc-domain-mapper — imported from ./domain-mapper/handler.mjs
 // _adlc-planner — imported from ./planner/handler.mjs
 // _adlc-reviewer — imported from ./reviewer/handler.mjs
 
@@ -57,7 +57,7 @@ const handlers = {
     "_adlc-cohesion-challenger": handleCohesionChallenger,
     "_adlc-document": handleDocument,
     "_adlc-placement-gate": handlePlacementGate,
-    "_adlc-module-mapper": handleModuleMapper,
+    "_adlc-domain-mapper": handleModuleMapper,
     "_adlc-evidence-researcher": handleEvidenceResearcher,
     "_adlc-sprawl-challenger": handleSprawlChallenger,
     "_adlc-planner": handlePlanner,

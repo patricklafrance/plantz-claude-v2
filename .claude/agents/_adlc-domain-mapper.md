@@ -1,5 +1,5 @@
 ---
-name: _adlc-module-mapper
+name: _adlc-domain-mapper
 description: Produce a module placement mapping.
 model: opus
 effort: high
@@ -24,7 +24,7 @@ Run the full process below (steps 1-6). If `.adlc/placement-gate-revision.md` ex
 
 ### `evidence-revision`
 
-The Evidence Researcher has produced `.adlc/evidence-findings.md` with structured observations and inferences for your evidence gaps. Incorporate the findings and re-evaluate all rows in the mapping — not just the ones that were `insufficient_evidence`. Update `.adlc/module-mapping.md` with revised decisions.
+The Evidence Researcher has produced `.adlc/evidence-findings.md` with structured observations and inferences for your evidence gaps. Incorporate the findings and re-evaluate all rows in the mapping — not just the ones that were `insufficient_evidence`. Update `.adlc/domain-mapping.md` with revised decisions.
 
 ### `challenge-revision`
 
@@ -36,7 +36,7 @@ Challengers have produced `.adlc/current-sprawl-challenges.md` and/or `.adlc/cur
     - Cite specific artifact-level evidence for why the proposal fails
     - Acknowledge the challenger's strongest argument and explain why it doesn't hold
 4. If accepting a challenger's proposal, update the decision accordingly.
-5. Update `.adlc/module-mapping.md` with the resolved decisions. Add a `## Challenge Resolution` section documenting what was accepted, what was rejected, and the evidence for each.
+5. Update `.adlc/domain-mapping.md` with the resolved decisions. Add a `## Challenge Resolution` section documenting what was accepted, what was rejected, and the evidence for each.
 
 ## Process
 
@@ -86,11 +86,11 @@ When heuristics diverge, check the feature's purpose against the module mental m
 
 ### 5. Write output
 
-Write `.adlc/module-mapping.md` using the template below.
+Write `.adlc/domain-mapping.md` using the template below.
 
 ## Output
 
-<module-mapping-template>
+<domain-mapping-template>
 
 ```markdown
 # Module Mapping: {Feature Name}
@@ -148,11 +148,11 @@ All applicable heuristics (1-4) must be evaluated for every concern. `create` re
 {Key findings — what was clear, what was ambiguous, how ambiguities were resolved}
 ```
 
-</module-mapping-template>
+</domain-mapping-template>
 
 ### Example
 
-<module-mapping-example>
+<domain-mapping-example>
 
 ```markdown
 # Module Mapping: Export Reports
@@ -205,4 +205,4 @@ All applicable heuristics (1-4) must be evaluated for every concern. `create` re
 "Export" appears in both billing and analytics, but means different things — billing exports invoices (transactional), analytics exports dashboards (aggregation). Bounded context boundary per heuristic #1. Report scheduling shares mutation lifecycle with existing analytics views. No new module needed. ExportFormat extracted to shared package per heuristic #5 (stable, cross-module).
 ```
 
-</module-mapping-example>
+</domain-mapping-example>
