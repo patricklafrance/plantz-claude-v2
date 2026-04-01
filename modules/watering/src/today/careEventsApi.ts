@@ -2,6 +2,21 @@ import { getAuthHeaders } from "@packages/core-module";
 import { careEventSchema } from "@packages/core-plants/care-event";
 import type { CareEvent, CareEventType } from "@packages/core-plants/care-event";
 
+export interface DuplicateWateringConflict {
+    actorName: string;
+    wateredAt: Date;
+}
+
+export class DuplicateWateringError extends Error {
+    readonly conflict: DuplicateWateringConflict;
+
+    constructor(conflict: DuplicateWateringConflict) {
+        super(`Plant was already watered by ${conflict.actorName}`);
+        this.name = "DuplicateWateringError";
+        this.conflict = conflict;
+    }
+}
+
 export async function fetchCareEvents(plantId: string): Promise<CareEvent[]> {
     const response = await fetch(`/api/today/care-events?plantId=${encodeURIComponent(plantId)}`, {
         headers: getAuthHeaders()
@@ -16,15 +31,25 @@ export async function fetchCareEvents(plantId: string): Promise<CareEvent[]> {
     return data.map(item => careEventSchema.parse(item));
 }
 
-export async function createCareEvent(plantId: string, eventType: CareEventType, notes?: string): Promise<CareEvent> {
+export async function createCareEvent(plantId: string, eventType: CareEventType, notes?: string, force?: boolean): Promise<CareEvent> {
     const response = await fetch("/api/today/care-events", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            ...getAuthHeaders()
+            ...getAuthHeaders(),
+            ...(force ? { "X-Force-Duplicate": "true" } : {})
         },
         body: JSON.stringify({ plantId, eventType, notes })
     });
+
+    if (response.status === 409) {
+        const data = await response.json();
+
+        throw new DuplicateWateringError({
+            actorName: data.lastEvent?.actorName ?? "Someone",
+            wateredAt: new Date(data.lastEvent?.eventDate)
+        });
+    }
 
     if (!response.ok) {
         throw new Error(`Failed to create care event: ${response.status}`);

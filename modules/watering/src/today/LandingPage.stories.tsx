@@ -5,7 +5,7 @@ import { makePlant, FAR_PAST, FAR_FUTURE, makeHousehold, makeHouseholdMember } f
 
 import type { VacationPlan } from "../vacation-planner/vacationTypes.ts";
 import { LandingPage } from "./LandingPage.tsx";
-import { createTodayPlantHandlers, createTodayHouseholdHandler, createAssignmentHandlers } from "./mocks/index.ts";
+import { createTodayPlantHandlers, createTodayHouseholdHandler, createAssignmentHandlers, createCareEventHandlers } from "./mocks/index.ts";
 import type { ResponsibilityAssignment } from "./responsibilityTypes.ts";
 import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
 
@@ -327,5 +327,207 @@ export const AssignSavingState: Story = {
 
         // Should show loading state
         await screen.findByText("Saving...");
+    }
+};
+
+// --- Activity visibility and duplicate prevention stories ---
+
+import { makeCareEvent } from "@packages/core-plants/test-utils";
+
+const recentActivityPlants = [
+    makePlant({ id: "shared-1", name: "Shared Fern", nextWateringDate: FAR_PAST, householdId: "household-1" }),
+    makePlant({ id: "shared-2", name: "Shared Orchid", nextWateringDate: FAR_PAST, householdId: "household-1" }),
+    makePlant({ id: "private-1", name: "My Aloe", nextWateringDate: FAR_PAST })
+];
+
+const recentCareEvents = [
+    makeCareEvent({
+        id: "recent-1",
+        plantId: "shared-1",
+        eventDate: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        eventType: "watered",
+        actorId: "user-bob",
+        actorName: "Alex"
+    }),
+    makeCareEvent({
+        id: "recent-2",
+        plantId: "shared-2",
+        eventDate: new Date(Date.now() - 5 * 60 * 60 * 1000),
+        eventType: "watered",
+        actorId: "user-carol",
+        actorName: "Carol"
+    })
+];
+
+// [visual] Shared plants in the today view with recent care events from other household members.
+// The activity summary ("Watered by Alex 2 hours ago") displays inside the PlantDetailDialog's
+// PlantCareSection when a shared plant is opened. See PlantCareSection.stories > WithRecentActivityByOther
+// for the isolated component story proving the summary renders.
+export const WithRecentActivitySummary: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                createTodayHouseholdHandler(household),
+                ...createTodayPlantHandlers(recentActivityPlants),
+                ...createAssignmentHandlers({
+                    assignments: [
+                        { id: "a-1", plantId: "shared-1", strategy: "fixed", assignedUserId: "user-alice", assignedUserName: "Alice" },
+                        { id: "a-2", plantId: "shared-2", strategy: "fixed", assignedUserId: "user-carol", assignedUserName: "Carol" }
+                    ]
+                }),
+                ...createCareEventHandlers(recentCareEvents)
+            ]
+        }
+    }
+};
+
+// [interactive] Duplicate watering -- clicking Mark as Watered on a recently watered shared plant shows warning
+export const DuplicateWateringWarning: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                createTodayHouseholdHandler(household),
+                ...createTodayPlantHandlers([
+                    makePlant({ id: "shared-1", name: "Shared Fern", nextWateringDate: FAR_PAST, householdId: "household-1" })
+                ]),
+                ...createAssignmentHandlers({ assignments: [] }),
+                ...createCareEventHandlers(recentCareEvents, {
+                    postMode: "conflict",
+                    conflict: { actorName: "Alex", eventDate: new Date(Date.now() - 2 * 60 * 60 * 1000) }
+                })
+            ]
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Click on the shared plant to open detail dialog
+        const plantButton = await canvas.findByRole("button", { name: /view shared fern/i });
+        await userEvent.click(plantButton);
+
+        // Wait for the detail dialog (portal)
+        const dialog = await screen.findByRole("dialog");
+        const dialogScope = within(dialog);
+
+        // Click Mark as Watered
+        const waterButton = dialogScope.getByRole("button", { name: /mark as watered/i });
+        await userEvent.click(waterButton);
+
+        // Wait for the duplicate warning AlertDialog to appear (portal)
+        await screen.findByRole("alertdialog");
+    }
+};
+
+// [interactive] Duplicate watering loading state -- Mark as Watered shows loading spinner while checking
+export const DuplicateWateringLoading: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                createTodayHouseholdHandler(household),
+                ...createTodayPlantHandlers([
+                    makePlant({ id: "shared-1", name: "Shared Fern", nextWateringDate: FAR_PAST, householdId: "household-1" })
+                ]),
+                ...createAssignmentHandlers({ assignments: [] }),
+                ...createCareEventHandlers([], { postMode: "loading" })
+            ]
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Click on the shared plant to open detail dialog
+        const plantButton = await canvas.findByRole("button", { name: /view shared fern/i });
+        await userEvent.click(plantButton);
+
+        // Wait for the detail dialog (portal)
+        const dialog = await screen.findByRole("dialog");
+        const dialogScope = within(dialog);
+
+        // Click Mark as Watered to trigger loading state
+        const waterButton = dialogScope.getByRole("button", { name: /mark as watered/i });
+        await userEvent.click(waterButton);
+
+        // Wait for loading state
+        await screen.findByText("Marking...");
+    }
+};
+
+// [interactive] Confirming force-watering after duplicate warning
+export const DuplicateWateringConfirmed: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                createTodayHouseholdHandler(household),
+                ...createTodayPlantHandlers([
+                    makePlant({ id: "shared-1", name: "Shared Fern", nextWateringDate: FAR_PAST, householdId: "household-1" })
+                ]),
+                ...createAssignmentHandlers({ assignments: [] }),
+                ...createCareEventHandlers(recentCareEvents, {
+                    postMode: "conflict",
+                    conflict: { actorName: "Alex", eventDate: new Date(Date.now() - 2 * 60 * 60 * 1000) }
+                })
+            ]
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Open the detail dialog
+        const plantButton = await canvas.findByRole("button", { name: /view shared fern/i });
+        await userEvent.click(plantButton);
+
+        const dialog = await screen.findByRole("dialog");
+        const dialogScope = within(dialog);
+
+        // Click Mark as Watered to trigger conflict
+        const waterButton = dialogScope.getByRole("button", { name: /mark as watered/i });
+        await userEvent.click(waterButton);
+
+        // Wait for the duplicate warning AlertDialog (portal)
+        await screen.findByRole("alertdialog");
+
+        // Click "Water anyway" to force-water
+        const forceButton = await screen.findByRole("button", { name: /water anyway/i });
+        await userEvent.click(forceButton);
+    }
+};
+
+// [interactive] Dismissing the duplicate warning cancels the action
+export const DuplicateWateringDismissed: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                createTodayHouseholdHandler(household),
+                ...createTodayPlantHandlers([
+                    makePlant({ id: "shared-1", name: "Shared Fern", nextWateringDate: FAR_PAST, householdId: "household-1" })
+                ]),
+                ...createAssignmentHandlers({ assignments: [] }),
+                ...createCareEventHandlers(recentCareEvents, {
+                    postMode: "conflict",
+                    conflict: { actorName: "Alex", eventDate: new Date(Date.now() - 2 * 60 * 60 * 1000) }
+                })
+            ]
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+
+        // Open the detail dialog
+        const plantButton = await canvas.findByRole("button", { name: /view shared fern/i });
+        await userEvent.click(plantButton);
+
+        const dialog = await screen.findByRole("dialog");
+        const dialogScope = within(dialog);
+
+        // Click Mark as Watered to trigger conflict
+        const waterButton = dialogScope.getByRole("button", { name: /mark as watered/i });
+        await userEvent.click(waterButton);
+
+        // Wait for the duplicate warning AlertDialog (portal)
+        await screen.findByRole("alertdialog");
+
+        // Click Cancel to dismiss
+        const cancelButton = await screen.findByRole("button", { name: /cancel/i });
+        await userEvent.click(cancelButton);
     }
 };

@@ -8,7 +8,9 @@ import { applyPlantFilters, FilterBar, isDueForWatering, PlantListHeader, PlantL
 import type { Plant } from "@packages/core-plants";
 
 import { AssignResponsibilityDialog } from "./AssignResponsibilityDialog.tsx";
-import { createBulkCareEvents, createCareEvent } from "./careEventsApi.ts";
+import { createBulkCareEvents, createCareEvent, DuplicateWateringError } from "./careEventsApi.ts";
+import type { DuplicateWateringConflict } from "./careEventsApi.ts";
+import { DuplicateWateringDialog } from "./DuplicateWateringDialog.tsx";
 import { PlantCareSection } from "./PlantCareSection.tsx";
 import { PlantDetailDialog } from "./PlantDetailDialog.tsx";
 import type { ResponsibilityAssignment, ResponsibilityStrategy } from "./responsibilityTypes.ts";
@@ -95,6 +97,7 @@ export function LandingPage() {
     const [isMarkingWatered, setIsMarkingWatered] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [assignPlant, setAssignPlant] = useState<Plant | null>(null);
+    const [duplicateConflict, setDuplicateConflict] = useState<DuplicateWateringConflict | null>(null);
     const queryClient = useQueryClient();
 
     const collection = useTodayPlantsCollection();
@@ -172,23 +175,42 @@ export function LandingPage() {
         await collection.utils.refetch();
     }, [collection]);
 
-    const handleMarkWatered = useCallback(async () => {
-        if (!detailPlant) {
-            return;
-        }
+    const handleMarkWatered = useCallback(
+        async (force?: boolean) => {
+            if (!detailPlant) {
+                return;
+            }
 
-        setIsMarkingWatered(true);
+            setIsMarkingWatered(true);
 
-        try {
-            await createCareEvent(detailPlant.id, "watered");
-            await Promise.all([queryClient.invalidateQueries({ queryKey: ["today", "care-events", detailPlant.id] }), collection.utils.refetch()]);
-            setDetailPlant(null);
-        } catch {
-            // Silently handle — the user can retry.
-        } finally {
-            setIsMarkingWatered(false);
-        }
-    }, [detailPlant, queryClient, collection]);
+            try {
+                await createCareEvent(detailPlant.id, "watered", undefined, force);
+                await Promise.all([
+                    queryClient.invalidateQueries({ queryKey: ["today", "care-events", detailPlant.id] }),
+                    collection.utils.refetch()
+                ]);
+                setDuplicateConflict(null);
+                setDetailPlant(null);
+            } catch (error) {
+                if (error instanceof DuplicateWateringError) {
+                    setDuplicateConflict(error.conflict);
+                }
+                // Other errors silently handled — the user can retry.
+            } finally {
+                setIsMarkingWatered(false);
+            }
+        },
+        [detailPlant, queryClient, collection]
+    );
+
+    const handleDuplicateConfirm = useCallback(() => {
+        setDuplicateConflict(null);
+        handleMarkWatered(true);
+    }, [handleMarkWatered]);
+
+    const handleDuplicateDismiss = useCallback(() => {
+        setDuplicateConflict(null);
+    }, []);
 
     const handleBulkMarkWatered = useCallback(async () => {
         const ids = plants.filter(p => selectedIds.has(p.id)).map(p => p.id);
@@ -329,11 +351,23 @@ export function LandingPage() {
                             plantId={detailPlant.id}
                             wateringFrequency={detailPlant.wateringFrequency}
                             onAdjustmentAccepted={handleAdjustmentAccepted}
+                            isShared={!!detailPlant.householdId}
+                            currentUserId={currentUserId}
                         />
                     ) : undefined
                 }
-                onMarkWatered={handleMarkWatered}
+                onMarkWatered={() => handleMarkWatered()}
             />
+
+            {duplicateConflict && (
+                <DuplicateWateringDialog
+                    open={duplicateConflict !== null}
+                    actorName={duplicateConflict.actorName}
+                    wateredAt={duplicateConflict.wateredAt}
+                    onConfirm={handleDuplicateConfirm}
+                    onCancel={handleDuplicateDismiss}
+                />
+            )}
 
             {assignPlant && (
                 <AssignResponsibilityDialog

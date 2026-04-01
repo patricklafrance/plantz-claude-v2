@@ -33,6 +33,32 @@ export const todayCareEventHandlers = [
         }
 
         const body = (await request.json()) as { plantId: string; eventType: CareEventType; notes?: string };
+        const forceDuplicate = request.headers.get("X-Force-Duplicate") === "true";
+
+        // Duplicate watering check for shared plants
+        if (body.eventType === "watered" && !forceDuplicate) {
+            const plant = plantsDb.get(body.plantId);
+            if (plant?.householdId) {
+                const existingEvents = careEventsDb.getAllByPlant(body.plantId);
+                const lastWatered = existingEvents.find(e => e.eventType === "watered");
+
+                if (lastWatered && lastWatered.actorId && lastWatered.actorId !== userId) {
+                    const days = getFrequencyDays(plant.wateringFrequency);
+                    const windowMs = days * 24 * 60 * 60 * 1000;
+                    const timeSinceLastWatering = Date.now() - new Date(lastWatered.eventDate).getTime();
+
+                    if (timeSinceLastWatering < windowMs) {
+                        return HttpResponse.json(
+                            {
+                                message: `${lastWatered.actorName} already watered this plant recently`,
+                                lastEvent: lastWatered
+                            },
+                            { status: 409 }
+                        );
+                    }
+                }
+            }
+        }
 
         const user = usersDb.getById(userId);
 

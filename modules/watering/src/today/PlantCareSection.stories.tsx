@@ -148,6 +148,69 @@ export const WithAdjustmentSuggestion: Story = {
     }
 };
 
+// Shared plant with a recent watering event by another user
+const recentActivityEvents: CareEvent[] = [
+    makeCareEvent({
+        id: "e-recent",
+        eventDate: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+        eventType: "watered",
+        actorId: "user-bob",
+        actorName: "Alex"
+    }),
+    makeCareEvent({ id: "e1", eventDate: new Date(2024, 6, 15), eventType: "watered", actorId: "user-alice", actorName: "Alice" }),
+    makeCareEvent({ id: "e2", eventDate: new Date(2024, 6, 10), eventType: "watered", actorId: "user-bob", actorName: "Alex" }),
+    makeCareEvent({ id: "e3", eventDate: new Date(2024, 6, 5), eventType: "watered", actorId: "user-alice", actorName: "Alice" })
+];
+
+export const WithRecentActivityByOther: Story = {
+    args: {
+        isShared: true,
+        currentUserId: "user-alice"
+    },
+    parameters: {
+        msw: {
+            handlers: [...createCareEventHandlers(recentActivityEvents), ...noAdjustmentHandlers]
+        }
+    }
+};
+
+// Shared plant with no recent activity by others (all events are from current user)
+const ownActivityEvents: CareEvent[] = [
+    makeCareEvent({
+        id: "e1",
+        eventDate: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        eventType: "watered",
+        actorId: "user-alice",
+        actorName: "Alice"
+    }),
+    makeCareEvent({ id: "e2", eventDate: new Date(2024, 6, 10), eventType: "watered", actorId: "user-alice", actorName: "Alice" })
+];
+
+export const SharedNoActivityByOthers: Story = {
+    args: {
+        isShared: true,
+        currentUserId: "user-alice"
+    },
+    parameters: {
+        msw: {
+            handlers: [...createCareEventHandlers(ownActivityEvents), ...noAdjustmentHandlers]
+        }
+    }
+};
+
+// Non-shared plant -- no activity summary even with actor events
+export const PrivatePlantNoActivitySummary: Story = {
+    args: {
+        isShared: false,
+        currentUserId: "user-alice"
+    },
+    parameters: {
+        msw: {
+            handlers: [...createCareEventHandlers(recentActivityEvents), ...noAdjustmentHandlers]
+        }
+    }
+};
+
 export const WithAdjustmentHistory: Story = {
     parameters: {
         msw: {
