@@ -64,7 +64,7 @@ flowchart TD
     subgraph Coord["_adlc coordinator"]
         direction TB
 
-        subgraph Domain["Domain Mapping"]
+        subgraph ModuleMap["Module Mapping"]
             direction TB
             Mapper --> Challengers --> Gate
             Mapper -. "evidence gaps" .-> Evidence["Evidence\nResearcher"] -. findings .-> Mapper
@@ -108,7 +108,7 @@ flowchart TD
 
 | Agent                       | What it does                                                                            |
 | --------------------------- | --------------------------------------------------------------------------------------- |
-| `_adlc-domain-mapper`       | Analyzes feature terms against existing modules, writes placement decisions             |
+| `_adlc-module-mapper`       | Analyzes feature terms against existing modules, writes placement decisions             |
 | `_adlc-evidence-researcher` | Resolves mapper evidence gaps by inspecting code artifacts                              |
 | `_adlc-sprawl-challenger`   | Challenges create decisions with concrete extension proposals                           |
 | `_adlc-cohesion-challenger` | Checks extend decisions for god-module risk when new entities are introduced            |
@@ -123,7 +123,7 @@ flowchart TD
 | `_adlc-pr`                  | Pushes branch, opens PR with summary and technical changes                              |
 | `_adlc-monitor`             | Polls CI workflows, auto-fixes failures (lint, Chromatic, Lighthouse)                   |
 
-All inter-step coordination goes through files in `.adlc/` — plan-header, slices, verification-results, implementation-notes, domain-mapping. This makes handoffs explicit and debuggable.
+All inter-step coordination goes through files in `.adlc/` — plan-header, slices, verification-results, implementation-notes, module-mapping. This makes handoffs explicit and debuggable.
 
 **Files:** [`.claude/skills/_adlc/`](.claude/skills/_adlc/), [`.claude/agents/`](.claude/agents/)
 
@@ -153,8 +153,8 @@ Block a subagent's completion until its deliverables meet structural and quality
 | `_adlc-planner`             | slice-ref-packages   | Every slice must have a Reference Packages section                                  |
 | `_adlc-plan-gate`           | no-plan-mutations    | Must not modify plan files (read-only review)                                       |
 | `_adlc-plan-gate`           | revision-slice-refs  | Revision must reference specific slices with evidence                               |
-| `_adlc-domain-mapper`       | mapping-file         | `.adlc/domain-mapping.md` must exist                                                |
-| `_adlc-domain-mapper`       | engagement-check     | After challenge-revision, every medium+ confidence challenge has a resolution entry |
+| `_adlc-module-mapper`       | mapping-file         | `.adlc/module-mapping.md` must exist                                                |
+| `_adlc-module-mapper`       | engagement-check     | After challenge-revision, every medium+ confidence challenge has a resolution entry |
 | `_adlc-evidence-researcher` | evidence-findings    | `.adlc/evidence-findings.md` must exist                                             |
 | `_adlc-sprawl-challenger`   | sprawl-challenges    | `.adlc/current-sprawl-challenges.md` must exist                                     |
 | `_adlc-cohesion-challenger` | cohesion-challenges  | `.adlc/current-cohesion-challenges.md` must exist                                   |
@@ -220,7 +220,7 @@ agent-hooks/
       cohesion-challenger/       # 1 check
       document/                  # 1 autofix
       placement-gate/            # 2 checks
-      domain-mapper/             # 2 checks
+      module-mapper/             # 2 checks
       evidence-researcher/       # 1 check
       planner/                   # 4 checks
       reviewer/                  # 2 checks
@@ -240,7 +240,7 @@ agent-hooks/
       plan-gate/                 # 3 test files
       coder/                     # 6 test files
       document/                  # 1 test file
-      domain-mapper/             # 2 test files
+      module-mapper/             # 2 test files
       planner/                   # 5 test files
       reviewer/                  # 3 test files
       shared/                    # 6 test files

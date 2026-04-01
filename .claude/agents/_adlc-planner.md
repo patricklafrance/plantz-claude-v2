@@ -21,7 +21,7 @@ Resolve architecture upfront, slice the work, define success through acceptance 
 ### 1. Load context
 
 - Read `agent-docs/ARCHITECTURE.md`, `agent-docs/adr/index.md`, and `agent-docs/references/placement.md`.
-- Read `.adlc/domain-mapping.md`. The Mapping table tells you which features go to which modules and packages — carry these decisions forward, don't re-derive them.
+- Read `.adlc/module-mapping.md`. The Mapping table tells you which features go to which modules and packages — carry these decisions forward, don't re-derive them.
 - Scan `agent-docs/references/` for any additional docs relevant to the feature.
 
 ### 2. Analyze requirements
@@ -32,7 +32,7 @@ Resolve architecture upfront, slice the work, define success through acceptance 
 
 ### 3. Resolve durable decisions
 
-Resolve before slicing. Placement comes from the domain mapping — carry it forward, don't re-derive. API namespaces and routes follow from placement conventions.
+Resolve before slicing. Placement comes from the module mapping — carry it forward, don't re-derive. API namespaces and routes follow from placement conventions.
 
 - **Data model** — entity definitions, field names and types
 - **Collection strategy** — TanStack DB collection vs fetch+useState

@@ -1,4 +1,4 @@
-# Domain Mapping: Plant Tracker
+# Module Mapping: Plant Tracker
 
 ## Analysis Summary
 
@@ -11,4 +11,4 @@
 | Plant CRUD       | plants/plant-list    | Language + routes — core entity management                     |
 | Watering actions | plants/watering      | Change coupling — watering mutations are independent of CRUD   |
 | Health tracking  | plants/health        | Lifecycle cohesion — observation data has its own update cycle |
-| Plant images     | @packages/core-media | Stability boundary — shared image handling across domains      |
+| Plant images     | @packages/core-media | Stability boundary — shared image handling across modules      |

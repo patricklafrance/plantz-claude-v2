@@ -7,13 +7,13 @@ effort: medium
 
 # Harness Evidence Researcher
 
-Resolve the domain mapper's evidence gaps by inspecting code artifacts.
+Resolve the module mapper's evidence gaps by inspecting code artifacts.
 
 ## Process
 
 ### 1. Read evidence gaps
 
-Read `.adlc/domain-mapping.md` and parse the Evidence Gaps section: what signals conflict, what would resolve it, which modules to investigate.
+Read `.adlc/module-mapping.md` and parse the Evidence Gaps section: what signals conflict, what would resolve it, which modules to investigate.
 
 ### 2. Investigate
 

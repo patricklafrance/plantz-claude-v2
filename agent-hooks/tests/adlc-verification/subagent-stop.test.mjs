@@ -40,9 +40,9 @@ describe("subagent-stop entry point", () => {
         expect(result.stdout.trim()).toBe("");
     });
 
-    it("should block _adlc-domain-mapper when domain-mapping.md missing", () => {
-        const result = pipeToHook({ agent_type: "_adlc-domain-mapper", cwd: REPO_ROOT });
-        if (existsSync(resolve(REPO_ROOT, ".adlc", "domain-mapping.md"))) {
+    it("should block _adlc-module-mapper when module-mapping.md missing", () => {
+        const result = pipeToHook({ agent_type: "_adlc-module-mapper", cwd: REPO_ROOT });
+        if (existsSync(resolve(REPO_ROOT, ".adlc", "module-mapping.md"))) {
             expect(result.exitCode).toBe(0);
         } else {
             expect(result.exitCode).toBe(0);

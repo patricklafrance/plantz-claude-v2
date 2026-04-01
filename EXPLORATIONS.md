@@ -141,7 +141,7 @@ The git worktree exploration (above) identified that Claude Code's hard restrict
 ```
 External Node.js Orchestrator (parallel-slices.mjs)
   │
-  ├── Phase 1-4: serial planning (domain-mapper → planner → architect → branch)
+  ├── Phase 1-4: serial planning (module-mapper → planner → architect → branch)
   │
   ├── Phase 5: parallel slice execution
   │   ├── query({ cwd: worktree-1, agents: {explorer, coder, reviewer} })

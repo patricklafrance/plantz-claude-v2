@@ -49,7 +49,7 @@ Handled agent types:
 - `_adlc-document`
 - `_adlc-evidence-researcher`
 - `_adlc-placement-gate`
-- `_adlc-domain-mapper`
+- `_adlc-module-mapper`
 - `_adlc-sprawl-challenger`
 - `_adlc-planner`
 - `_adlc-reviewer`
@@ -87,7 +87,7 @@ Handlers return:
 
 ## Per-agent harness value
 
-### `_adlc-domain-mapper`
+### `_adlc-module-mapper`
 
 What the hook enforces:
 
@@ -96,7 +96,7 @@ What the hook enforces:
 
 What this improves:
 
-- domain placement becomes explicit before planning starts
+- module placement becomes explicit before planning starts
 - challenger proposals cannot be dismissed without structural engagement
 
 ### `_adlc-evidence-researcher`

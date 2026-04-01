@@ -4,7 +4,7 @@
  * without evidence.
  *
  * For each challenge with confidence >= medium:
- *   1. The Challenge Resolution section must exist in domain-mapping.md.
+ *   1. The Challenge Resolution section must exist in module-mapping.md.
  *   2. If the mapper rejected the challenge: at least one artifact citation,
  *      plus acknowledgment of the challenger's argument.
  *   3. If the mapper accepted: the decision must be updated.
@@ -31,16 +31,16 @@ export function engagementCheck(cwd) {
     // Read the mapping to check for Challenge Resolution section
     let mapping;
     try {
-        mapping = readFileSync(resolve(adlc, "domain-mapping.md"), "utf8");
+        mapping = readFileSync(resolve(adlc, "module-mapping.md"), "utf8");
     } catch {
-        return ["Engagement check: cannot read .adlc/domain-mapping.md"];
+        return ["Engagement check: cannot read .adlc/module-mapping.md"];
     }
 
     const resolutionSection = extractSection(mapping, "Challenge Resolution");
     if (!resolutionSection) {
         return [
             `Engagement check failed: ${actionable.length} challenge(s) with medium+ confidence exist, ` +
-                "but .adlc/domain-mapping.md has no ## Challenge Resolution section. " +
+                "but .adlc/module-mapping.md has no ## Challenge Resolution section. " +
                 "The mapper must address each challenge with artifact-level evidence."
         ];
     }

@@ -17,7 +17,7 @@ Read in this order to minimize anchoring on the mapper's framing:
 
 1. Read `agent-docs/references/placement.md`.
 2. Read registration files and key source files of modules relevant to the "create" decisions (routes, components, data layer).
-3. Read `.adlc/domain-mapping.md`.
+3. Read `.adlc/module-mapping.md`.
 
 Do not read the feature description. The mapper's forcing question answers provide the feature context you need.
 

@@ -15,7 +15,7 @@ Never modify plan files.
 
 ### 1. Load context
 
-- Read `.adlc/plan-header.md`, all `.adlc/slices/*.md`, and `.adlc/domain-mapping.md`.
+- Read `.adlc/plan-header.md`, all `.adlc/slices/*.md`, and `.adlc/module-mapping.md`.
 - Read `agent-docs/ARCHITECTURE.md`, `agent-docs/references/placement.md`, and `agent-docs/adr/index.md`.
 
 ### 2. Evaluate structural soundness
@@ -24,7 +24,7 @@ Never modify plan files.
 | ---------------------------- | --------------------------------------------------------------------------- |
 | Wrong domain placement       | Feature assigned to a domain whose mental model doesn't match               |
 | Wrong module boundary        | Extends a module when a new one is warranted (or vice versa)                |
-| Domain mapping contradiction | Plan assigns a concern to a different module than the domain mapper decided |
+| Module mapping contradiction | Plan assigns a concern to a different module than the module mapper decided |
 | Missing denormalization      | Two modules need the same data via cross-module import                      |
 | Wrong entity placement       | Entity is module-local but multiple modules need it                         |
 | Route conflict               | Routes collide or violate domain path hierarchy                             |

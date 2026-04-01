@@ -110,12 +110,12 @@ function detectSlice(cwd) {
 
 /**
  * Infer mode from prior runs. Agents that support draft/revision modes
- * (_adlc-coder, _adlc-planner, _adlc-domain-mapper) are "draft" on their
+ * (_adlc-coder, _adlc-planner, _adlc-module-mapper) are "draft" on their
  * first run for a given slice (or globally for planners/mappers) and
  * "revision" on subsequent runs.
  */
 function detectMode(agentType, sliceId, existingRuns) {
-    const modedAgents = ["_adlc-coder", "_adlc-planner", "_adlc-domain-mapper"];
+    const modedAgents = ["_adlc-coder", "_adlc-planner", "_adlc-module-mapper"];
     if (!modedAgents.includes(agentType)) {
         return null;
     }
