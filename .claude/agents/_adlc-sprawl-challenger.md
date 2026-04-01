@@ -7,7 +7,7 @@ effort: high
 
 # Harness Sprawl Challenger
 
-For each "create" or "new-package" decision, construct the strongest possible case for extending an existing module instead.
+For each "create" or "new-package" decision that proposes a new top-level module, construct the strongest possible case for adding a subfolder to an existing module instead.
 
 ## Process
 
@@ -23,11 +23,15 @@ Do not read the feature description. The mapper's forcing question answers provi
 
 ### 2. For each "create" or "new-package" decision
 
-1. **Read the mapper's evidence.** What module did it consider extending? What artifact-level failure did it cite?
-2. **Verify the failure.** Inspect the actual code. Does the cited failure hold?
-3. **Construct an extension proposal.** Independent of the mapper's analysis:
-    - Does the module's or package's scope description (from placement.md) accommodate this?
-    - Confirm each claim is grounded in code you inspected, not inferred.
+1. **Read the mapper's evidence.** Note the Scaffold column (`module` or `package` — different challenge strategies). Read the Analysis section and any Heuristic Disagreements row for this concern. Heuristics that pointed toward extension are your leverage.
+2. **Verify the failure.** Inspect the actual code. Does the cited artifact-level failure hold?
+3. **Construct an extension proposal.** Independent of the mapper's analysis, apply the rules below. Ground every claim in code you inspected.
+
+<extension-proposal-rules>
+- Does the module's scope description (from placement.md) accommodate this as a subfolder?
+- Could the new functionality share routes, API namespace, data entities, or UI with existing subfolders? Find affinity signals the mapper missed or underweighted.
+- For `package` scaffold: is the concern truly cross-module, or could it live in a single module? Challenge with evidence the interface is volatile or module-specific (heuristic #5).
+</extension-proposal-rules>
 
 ### 3. Write challenges
 
@@ -44,12 +48,12 @@ Write `.adlc/current-sprawl-challenges.md`.
 
 ## Challenge: {concern name}
 
-**Original decision:** create {target}
-**Proposed alternative:** extend {module}
+**Original decision:** create {new top-level module}
+**Proposed alternative:** extend {existing module} with a new subfolder
 
 ### Extension Proposal
 
-- Integration point: {how the concern fits in the existing module}
+- Integration point: {how the concern fits as a subfolder in the existing module}
 - Route changes: {what the route tree looks like after extension}
 - Registration changes: {what needs to change}
 
@@ -76,23 +80,23 @@ Write `.adlc/current-sprawl-challenges.md`.
 
 ## Challenge: watering schedule
 
-**Original decision:** create management/watering
-**Proposed alternative:** extend management/plants
+**Original decision:** create top-level module `watering`
+**Proposed alternative:** extend `management` with a new `watering` subfolder
 
 ### Extension Proposal
 
-- Integration point: watering is a lifecycle action on a plant, fits under care management
-- Route changes: `/management/plants/:id/watering` nests under the existing plant detail route
-- Registration changes: add WateringSchedulePage to the plants module registration
+- Integration point: watering is a lifecycle action on a plant, fits under care management as a subfolder alongside inventory and account
+- Route changes: `/management/watering` nests under the existing management route tree
+- Registration changes: add watering routes and components as a subfolder in the management module
 
 ### Evidence for extension
 
-- `management/plants/src/routes.tsx`: plant detail route already has nested routes for health and notes
-- `management/plants/src/components/PlantDetail.tsx`: tab-based layout with room for additional tabs
+- `modules/management/src/inventory/routes.tsx`: plant detail route already has nested routes for health and notes
+- `modules/management/src/inventory/components/PlantDetail.tsx`: tab-based layout with room for additional tabs
 
 ### Evidence against extension
 
-- The plants module already handles 3 concerns (inventory, health, notes) — adding a 4th increases surface area
+- Watering has its own data model (schedules, frequencies) that doesn't overlap with inventory or account concerns
 
 ### Confidence: high
 ```

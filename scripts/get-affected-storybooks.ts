@@ -2,9 +2,9 @@ import { execSync } from "node:child_process";
 import { appendFileSync } from "node:fs";
 
 const StorybookDependencies = {
-    "@apps/packages-storybook": ["@packages/components", "@packages/core-plants"],
-    "@apps/management-storybook": ["@modules/management-plants", "@modules/management-user"],
-    "@apps/today-storybook": ["@modules/today-landing-page", "@modules/today-vacation-planner"]
+    "@apps/storybook-packages": ["@packages/components", "@packages/core-plants"],
+    "@apps/storybook-management": ["@modules/management"],
+    "@apps/storybook-watering": ["@modules/watering"]
 } as const;
 
 interface TurborepoAffectedItem {
@@ -105,7 +105,7 @@ if (!gitHubOutputPath) {
     throw new Error('[getAffectedStorybooks] The "GITHUB_OUTPUT" environment variable is not set.');
 }
 
-// Values will be available in the GitHub action using syntax like: "steps.affected.outputs['@apps/packages-storybook']"".
+// Values will be available in the GitHub action using syntax like: "steps.affected.outputs['@apps/storybook-packages']"".
 for (const [key, value] of Object.entries(affectedStorybooks)) {
     appendFileSync(gitHubOutputPath, `${key}=${value}\n`);
 }

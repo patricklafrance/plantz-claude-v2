@@ -144,7 +144,7 @@ Same suppression policy as static analysis — fix the code first, suppress only
 
 ## Storybook Roles
 
-| Storybook                                                      | Purpose                                                                                                                       |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Domain (`@apps/management-storybook`, `@apps/today-storybook`) | Chromatic visual regression (own token, selective runs), a11y tests (`pnpm test` via vitest + addon-a11y), developer workflow |
-| Packages (`@apps/packages-storybook`)                          | Chromatic for shared components, developer workflow                                                                           |
+| Storybook                                                         | Purpose                                                                                                                       |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Domain (`@apps/storybook-management`, `@apps/storybook-watering`) | Chromatic visual regression (own token, selective runs), a11y tests (`pnpm test` via vitest + addon-a11y), developer workflow |
+| Packages (`@apps/storybook-packages`)                             | Chromatic for shared components, developer workflow                                                                           |

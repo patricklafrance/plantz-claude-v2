@@ -9,6 +9,6 @@
 import { engagementCheck } from "./engagement-check.mjs";
 import { mappingFile } from "./mapping-file.mjs";
 
-export default function handleDomainMapper(cwd) {
+export default function handleModuleMapper(cwd) {
     return [...mappingFile(cwd), ...engagementCheck(cwd)];
 }

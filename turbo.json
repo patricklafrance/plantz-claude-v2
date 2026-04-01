@@ -54,7 +54,7 @@
             "outputs": ["node_modules/.cache/tsbuildinfo.json"]
         },
         "//#syncpack": {
-            "inputs": [".syncpackrc.js", "package.json", "packages/**/package.json", "apps/**/package.json"]
+            "inputs": [".syncpackrc.js", "package.json", "packages/**/package.json", "apps/**/package.json", "modules/**/package.json"]
         },
         "//#install-playwright": {
             "outputs": []

@@ -1,20 +1,16 @@
 import type { ModuleRegisterFunction, FireflyRuntime } from "@squide/firefly";
 import type { QueryClient } from "@tanstack/react-query";
 
-import { registerManagementPlants } from "@modules/management-plants";
-import { registerManagementUser } from "@modules/management-user";
-import { registerTodayLandingPage } from "@modules/today-landing-page";
-import { registerTodayVacationPlanner } from "@modules/today-vacation-planner";
+import { registerManagement } from "@modules/management";
+import { registerWatering } from "@modules/watering";
 
 interface ModuleEntry {
     register: (runtime: FireflyRuntime, queryClient: QueryClient) => Promise<void>;
 }
 
 const ModuleRegistry: Record<string, ModuleEntry> = {
-    "management/plants": { register: registerManagementPlants },
-    "management/user": { register: registerManagementUser },
-    "today/landing-page": { register: registerTodayLandingPage },
-    "today/vacation-planner": { register: registerTodayVacationPlanner }
+    management: { register: registerManagement },
+    watering: { register: registerWatering }
 };
 
 export function getActiveModules(filter: string | undefined, queryClient: QueryClient): ModuleRegisterFunction<FireflyRuntime>[] {

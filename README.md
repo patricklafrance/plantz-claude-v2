@@ -14,24 +14,25 @@ A pnpm monorepo with Turborepo orchestration and [Squide](https://github.com/gso
 
 ```
 apps/
-  host/                        # Thin shell — bootstraps Squide, no domain logic
-  management/
-    plants/                    # Management domain module
-    user/                      # User profile module
-    storybook/                 # Management domain Storybook + Chromatic
-  today/
-    landing-page/              # Today domain module
-    vacation-planner/          # Vacation planner module
-    storybook/                 # Today domain Storybook + Chromatic
+  host/                        # Thin shell — bootstraps Squide, no feature logic
+  storybook-management/        # Management module Storybook
+  storybook-watering/          # Watering module Storybook
   storybook/                   # Unified Storybook — all stories
+  storybook-packages/          # Shared package stories
+modules/
+  management/                  # Plant inventory + user account (@modules/management)
+    src/inventory/             # Plant CRUD, plant list views
+    src/account/               # User profile, preferences
+  watering/                    # Daily care + vacation planning (@modules/watering)
+    src/today/                 # Daily care dashboard, watering actions
+    src/vacation-planner/      # Vacation scheduling, absence care plans
 packages/
   components/                  # Shared UI — shadcn/ui (Base UI) + Tailwind v4
   core-module/                 # Cross-module infrastructure — session, auth, app shell
   core-plants/                 # Shared plants data layer (MSW handlers, TanStack DB, seed data)
-  storybook/                   # Packages-layer Storybook
 ```
 
-Each domain is fully isolated — modules never import from each other. Each has its own Storybook and Chromatic token for independent visual regression testing.
+Each module is fully isolated — modules never import from each other. Each has its own Storybook and Chromatic token for independent visual regression testing.
 
 ### Tech stack
 
@@ -64,10 +65,10 @@ flowchart TD
     subgraph Coord["_adlc coordinator"]
         direction TB
 
-        subgraph Domain["Domain Mapping"]
+        subgraph ModuleMap["Module Mapping"]
             direction TB
             Mapper --> Challengers --> Gate
-            Mapper -. "evidence gaps" .-> Evidence["Evidence\nResearcher"] -. findings .-> Mapper
+            Mapper -. "evidence gaps" .-> Evidence["Evidence Researcher"] -. findings .-> Mapper
             Gate -. "fail" .-> Mapper
         end
 
@@ -119,7 +120,7 @@ flowchart TD
 | `_adlc-coder`               | Implements a single slice — code, MSW handlers, Storybook stories                       |
 | `_adlc-reviewer`            | Verifies acceptance criteria via browser screenshots and interactions                   |
 | `_adlc-simplify`            | Reviews changed code for reuse, quality, and efficiency, then fixes issues              |
-| `_adlc-document`            | Updates domain docs and architecture references to reflect what was built               |
+| `_adlc-document`            | Updates module docs and architecture references to reflect what was built               |
 | `_adlc-pr`                  | Pushes branch, opens PR with summary and technical changes                              |
 | `_adlc-monitor`             | Polls CI workflows, auto-fixes failures (lint, Chromatic, Lighthouse)                   |
 
@@ -155,7 +156,7 @@ Block a subagent's completion until its deliverables meet structural and quality
 | `_adlc-plan-gate`           | revision-slice-refs  | Revision must reference specific slices with evidence                               |
 | `_adlc-domain-mapper`       | mapping-file         | `.adlc/domain-mapping.md` must exist                                                |
 | `_adlc-domain-mapper`       | engagement-check     | After challenge-revision, every medium+ confidence challenge has a resolution entry |
-| `_adlc-evidence-researcher` | evidence-findings    | `.adlc/evidence-findings.md` must exist                                             |
+| `_adlc-evidence-researcher` | evidence-findings    | `.adlc/current-evidence-findings.md` must exist                                     |
 | `_adlc-sprawl-challenger`   | sprawl-challenges    | `.adlc/current-sprawl-challenges.md` must exist                                     |
 | `_adlc-cohesion-challenger` | cohesion-challenges  | `.adlc/current-cohesion-challenges.md` must exist                                   |
 | `_adlc-placement-gate`      | no-plan-mutations    | Must not modify plan files (reads mapping, shouldn't create plans)                  |
@@ -273,14 +274,13 @@ The full design is documented in [`agent-hooks/src/adlc-supervisor/README.md`](a
 
 Non-ADLC skills that agents load at runtime for scaffolding and validation.
 
-| Skill                        | What it does                                                                         |
-| ---------------------------- | ------------------------------------------------------------------------------------ |
-| `_scaffold-domain`           | Creates a new domain directory with its first module and domain Storybook            |
-| `_scaffold-domain-module`    | Scaffolds a new Squide module — files, host registration, Storybook wiring           |
-| `_scaffold-domain-storybook` | Scaffolds a domain-scoped Storybook with Chromatic CI integration                    |
-| `_validate-modules`          | Validates module structure and wiring (files, exports, host registration, Storybook) |
+| Skill                 | What it does                                                                            |
+| --------------------- | --------------------------------------------------------------------------------------- |
+| `_scaffold-module`    | Scaffolds a new Squide module or subfolder — files, host registration, Storybook wiring |
+| `_scaffold-storybook` | Scaffolds a module-scoped Storybook with Chromatic CI integration                       |
+| `_validate-modules`   | Validates module structure and wiring (files, exports, host registration, Storybook)    |
 
-Scaffolding skills use a **reference module pattern** — instead of hardcoding versions or configs, they read a canonical module (`apps/management/plants/`) at runtime and clone from it.
+Scaffolding skills use a **reference module pattern** — instead of hardcoding versions or configs, they read a canonical module (`modules/management/`) at runtime and clone from it.
 
 **Files:** [`.claude/skills/`](.claude/skills/)
 
@@ -308,25 +308,23 @@ Plant data lives in an MSW in-memory database. Data resets on every reload — n
 
 ```bash
 pnpm dev-host                      # Full app — all modules (http://localhost:8080)
-pnpm dev-management-plants         # Just the plants module
-pnpm dev-management-user           # Just the user profile module
-pnpm dev-today-landing-page        # Just the today landing page module
-pnpm dev-today-vacation-planner    # Just the vacation planner module
+pnpm dev-management                # Just the management module
+pnpm dev-watering                  # Just the watering module
 ```
 
 To load specific modules manually:
 
 ```bash
-cross-env MODULES=management/plants pnpm dev-host
+cross-env MODULES=management pnpm dev-host
 ```
 
 ### Run Storybooks
 
 ```bash
 pnpm dev-storybook               # Unified Storybook — all stories (http://localhost:6006)
-pnpm dev-packages-storybook      # Shared components
-pnpm dev-management-storybook    # Management domain
-pnpm dev-today-storybook         # Today domain
+pnpm dev-storybook-packages      # Shared components
+pnpm dev-storybook-management    # Management module
+pnpm dev-storybook-watering      # Watering module
 ```
 
 ### Run checks

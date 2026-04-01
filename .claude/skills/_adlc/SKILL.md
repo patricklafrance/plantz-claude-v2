@@ -18,9 +18,9 @@ Orchestrate end-to-end feature development. Never edit application or library so
 2. Delete `.adlc/` if it exists.
 3. Create `.adlc/` with `slices/`, `implementation-notes/`, `verification-results/`, `challenges/`, and `screenshots/`.
 
-### 2. Domain mapping
+### 2. Module mapping
 
-Run the domain mapping pipeline. Max 2 gate attempts.
+Run the module mapping pipeline. Max 2 gate attempts.
 
 #### 2a. Mapper
 

@@ -14,11 +14,11 @@ const storybookConfig: StorybookConfig = {
         "../../../packages/core-module/src/**/*.stories.tsx",
         "../../../packages/core-plants/src/**/*.stories.tsx",
         // Management
-        "../../management/plants/src/**/*.stories.tsx",
-        "../../management/user/src/**/*.stories.tsx",
-        // Today
-        "../../today/landing-page/src/**/*.stories.tsx",
-        "../../today/vacation-planner/src/**/*.stories.tsx"
+        "../../../modules/management/src/inventory/**/*.stories.tsx",
+        "../../../modules/management/src/account/**/*.stories.tsx",
+        // Watering
+        "../../../modules/watering/src/today/**/*.stories.tsx",
+        "../../../modules/watering/src/vacation-planner/**/*.stories.tsx"
     ],
     staticDirs: ["./public"]
 };

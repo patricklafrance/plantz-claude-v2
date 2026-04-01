@@ -96,14 +96,14 @@ What the hook enforces:
 
 What this improves:
 
-- domain placement becomes explicit before planning starts
+- module placement becomes explicit before planning starts
 - challenger proposals cannot be dismissed without structural engagement
 
 ### `_adlc-evidence-researcher`
 
 What the hook enforces:
 
-- `.adlc/evidence-findings.md` must exist
+- `.adlc/current-evidence-findings.md` must exist
 
 What this improves:
 

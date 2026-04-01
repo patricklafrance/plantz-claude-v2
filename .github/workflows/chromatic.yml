@@ -107,23 +107,23 @@ jobs:
               uses: chromaui/action@latest
               with:
                   projectToken: ${{ secrets.MANAGEMENT_CHROMATIC_PROJECT_TOKEN }}
-                  workingDir: apps/management/storybook
+                  workingDir: apps/storybook-management
                   onlyChanged: true
                   exitOnceUploaded: true
                   autoAcceptChanges: main
-                  skip: ${{ steps.affected-storybooks.outputs['@apps/management-storybook'] == 'false' }}
+                  skip: ${{ steps.affected-storybooks.outputs['@apps/storybook-management'] == 'false' }}
                   debug: true
 
-            - name: Chromatic - Today
-              id: chromatic-today
+            - name: Chromatic - Watering
+              id: chromatic-watering
               uses: chromaui/action@latest
               with:
-                  projectToken: ${{ secrets.TODAY_CHROMATIC_PROJECT_TOKEN }}
-                  workingDir: apps/today/storybook
+                  projectToken: ${{ secrets.WATERING_CHROMATIC_PROJECT_TOKEN }}
+                  workingDir: apps/storybook-watering
                   onlyChanged: true
                   exitOnceUploaded: true
                   autoAcceptChanges: main
-                  skip: ${{ steps.affected-storybooks.outputs['@apps/today-storybook'] == 'false' }}
+                  skip: ${{ steps.affected-storybooks.outputs['@apps/storybook-watering'] == 'false' }}
                   debug: true
 
             - name: Chromatic - Packages
@@ -131,11 +131,11 @@ jobs:
               uses: chromaui/action@latest
               with:
                   projectToken: ${{ secrets.PACKAGES_CHROMATIC_PROJECT_TOKEN }}
-                  workingDir: packages/storybook
+                  workingDir: apps/storybook-packages
                   onlyChanged: true
                   exitOnceUploaded: true
                   autoAcceptChanges: main
-                  skip: ${{ steps.affected-storybooks.outputs['@apps/packages-storybook'] == 'false' }}
+                  skip: ${{ steps.affected-storybooks.outputs['@apps/storybook-packages'] == 'false' }}
                   debug: true
 
             - name: Remove "run chromatic" label after Chromatic completion

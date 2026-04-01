@@ -33,13 +33,12 @@ Implement the slice.
 
 ### 2. Scaffold
 
-When the slice requires a new domain, module, or storybook, you MUST use the corresponding scaffold skill. Do NOT manually create module files.
+When the slice requires a new module or storybook, you MUST use the corresponding scaffold skill. Do NOT manually create module files.
 
-| Trigger                       | Skill                        |
-| ----------------------------- | ---------------------------- |
-| New domain                    | `_scaffold-domain`           |
-| New module in existing domain | `_scaffold-domain-module`    |
-| New domain storybook          | `_scaffold-domain-storybook` |
+| Trigger                 | Skill                 |
+| ----------------------- | --------------------- |
+| New module or subfolder | `_scaffold-module`    |
+| New module storybook    | `_scaffold-storybook` |
 
 ### 3. Implement
 
