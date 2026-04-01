@@ -118,7 +118,7 @@ jobs:
               id: chromatic-watering
               uses: chromaui/action@latest
               with:
-                  projectToken: ${{ secrets.WATERING_CHROMATIC_PROJECT_TOKEN }}
+                  projectToken: ${{ secrets.TODAY_CHROMATIC_PROJECT_TOKEN }}
                   workingDir: apps/storybook-watering
                   onlyChanged: true
                   exitOnceUploaded: true
