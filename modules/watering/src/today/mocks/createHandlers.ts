@@ -1,13 +1,19 @@
 import { delay, http, HttpResponse } from "msw";
 
 import type { Plant } from "@packages/core-plants";
+import type { Household } from "@packages/core-plants/household";
 
 import type { VacationPlan } from "../../vacation-planner/vacationTypes.ts";
 
 type PlantsData = Plant[] | "loading" | "error";
 
+export function createTodayHouseholdHandler(household: Household | null = null) {
+    return http.get("/api/today/household", () => HttpResponse.json(household));
+}
+
 export function createTodayPlantHandlers(data: PlantsData, activePlan?: VacationPlan | null) {
     return [
+        createTodayHouseholdHandler(),
         http.get("/api/today/plants", async () => {
             if (data === "loading") {
                 await delay("infinite");

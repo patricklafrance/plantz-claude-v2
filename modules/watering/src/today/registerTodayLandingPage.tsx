@@ -47,12 +47,17 @@ export async function registerTodayLandingPage(runtime: FireflyRuntime, queryCli
             careEventsDb,
             todayAdjustmentHandlers,
             adjustmentsDb,
-            defaultSeedAdjustments
+            defaultSeedAdjustments,
+            todayAssignmentHandlers,
+            assignmentsDb: assignmentsDbInstance,
+            defaultSeedAssignments
         } = await import("./mocks/index.ts");
         careEventsDb.reset(defaultSeedCareEvents);
         adjustmentsDb.reset(defaultSeedAdjustments);
+        assignmentsDbInstance.reset(defaultSeedAssignments);
         runtime.registerRequestHandlers(todayPlantHandlers);
         runtime.registerRequestHandlers(todayCareEventHandlers);
         runtime.registerRequestHandlers(todayAdjustmentHandlers);
+        runtime.registerRequestHandlers(todayAssignmentHandlers);
     }
 }

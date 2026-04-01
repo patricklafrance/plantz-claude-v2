@@ -3,7 +3,20 @@ import { http, HttpResponse } from "msw";
 import { getUserId } from "@packages/core-module/db";
 import { plantsDb, householdDb } from "@packages/core-plants/db";
 
+const todayHouseholdHandler = http.get("/api/today/household", ({ request }) => {
+    const userId = getUserId(request);
+
+    if (!userId) {
+        return new HttpResponse(null, { status: 401 });
+    }
+
+    const household = householdDb.getByMemberId(userId);
+
+    return HttpResponse.json(household ?? null);
+});
+
 export const todayPlantHandlers = [
+    todayHouseholdHandler,
     http.get("/api/today/plants", ({ request }) => {
         const userId = getUserId(request);
 

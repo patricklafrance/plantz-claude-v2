@@ -1,5 +1,5 @@
 export { todayPlantHandlers } from "./handlers.ts";
-export { createTodayPlantHandlers } from "./createHandlers.ts";
+export { createTodayPlantHandlers, createTodayHouseholdHandler } from "./createHandlers.ts";
 export { todayCareEventHandlers } from "./careEventHandlers.ts";
 export { createCareEventHandlers } from "./createCareEventHandlers.ts";
 export { defaultSeedCareEvents } from "./seedCareEvents.ts";
@@ -8,3 +8,7 @@ export { todayAdjustmentHandlers } from "./adjustmentHandlers.ts";
 export { createAdjustmentHandlers } from "./createAdjustmentHandlers.ts";
 export { adjustmentsDb } from "./adjustmentsDb.ts";
 export { defaultSeedAdjustments } from "./seedAdjustments.ts";
+export { todayAssignmentHandlers } from "./assignmentHandlers.ts";
+export { createAssignmentHandlers } from "./createAssignmentHandlers.ts";
+export { assignmentsDb } from "./assignmentsDb.ts";
+export { defaultSeedAssignments } from "./seedAssignments.ts";

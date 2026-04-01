@@ -15,7 +15,6 @@
         "@packages/core-module": "workspace:*",
         "@packages/core-plants": "workspace:*",
         "@tanstack/react-db": "^0.1.76",
-        "@tanstack/react-virtual": "^3.13.21",
         "date-fns": "^4.1.0",
         "lucide-react": "^0.577.0",
         "zod": "^4.3.6"
@@ -27,6 +26,7 @@
         "@typescript/native-preview": "7.0.0-dev.20260303.1",
         "@workleap/typescript-configs": "3.0.7",
         "msw": "2.12.10",
+        "storybook": "10.2.15",
         "typescript": "5.9.3"
     },
     "peerDependencies": {

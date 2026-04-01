@@ -1,28 +1,108 @@
 import { useLiveQuery } from "@tanstack/react-db";
 import { useQueryClient } from "@tanstack/react-query";
-import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 
-import { Button } from "@packages/components";
+import { Badge, Button } from "@packages/components";
+import { getAuthHeaders, getCurrentUserId } from "@packages/core-module";
 import { applyPlantFilters, FilterBar, isDueForWatering, PlantListHeader, PlantListItem, usePlantFilters } from "@packages/core-plants";
 import type { Plant } from "@packages/core-plants";
 
+import { AssignResponsibilityDialog } from "./AssignResponsibilityDialog.tsx";
 import { createBulkCareEvents, createCareEvent } from "./careEventsApi.ts";
 import { PlantCareSection } from "./PlantCareSection.tsx";
 import { PlantDetailDialog } from "./PlantDetailDialog.tsx";
+import type { ResponsibilityAssignment, ResponsibilityStrategy } from "./responsibilityTypes.ts";
 import { useTodayPlantsCollection } from "./TodayPlantsContext.tsx";
+import { useAssignments } from "./useAssignments.ts";
+import { useHouseholdInfo } from "./useHouseholdInfo.ts";
 import { VacationPlanBanner } from "./VacationPlanBanner.tsx";
+
+function getResponsibilityLabel(assignment: ResponsibilityAssignment | undefined): string | null {
+    if (!assignment) {
+        return null;
+    }
+
+    switch (assignment.strategy) {
+        case "fixed":
+            return assignment.assignedUserName ? `Assigned to ${assignment.assignedUserName}` : "Assigned";
+        case "rotating":
+            return "Rotating";
+        case "unassigned":
+            return "Unassigned";
+    }
+}
+
+interface PlantGroup {
+    label: string;
+    plants: Plant[];
+}
+
+function groupPlantsByResponsibility(plants: Plant[], assignments: ResponsibilityAssignment[], currentUserId: string | null): PlantGroup[] {
+    const assignmentsByPlant = new Map<string, ResponsibilityAssignment>();
+    for (const a of assignments) {
+        assignmentsByPlant.set(a.plantId, a);
+    }
+
+    const privatePlants: Plant[] = [];
+    const myTasks: Plant[] = [];
+    const othersTasks: Plant[] = [];
+    const unassignedTasks: Plant[] = [];
+
+    for (const plant of plants) {
+        if (!plant.householdId) {
+            privatePlants.push(plant);
+            continue;
+        }
+
+        const assignment = assignmentsByPlant.get(plant.id);
+
+        if (!assignment || assignment.strategy === "unassigned") {
+            unassignedTasks.push(plant);
+        } else if (assignment.strategy === "fixed" && assignment.assignedUserId === currentUserId) {
+            myTasks.push(plant);
+        } else if (assignment.strategy === "fixed") {
+            othersTasks.push(plant);
+        } else if (assignment.strategy === "rotating") {
+            // Rotating tasks go to "My Tasks" for simplicity -- everyone shares
+            myTasks.push(plant);
+        }
+    }
+
+    const groups: PlantGroup[] = [];
+
+    if (privatePlants.length > 0) {
+        groups.push({ label: "Personal Plants", plants: privatePlants });
+    }
+
+    if (myTasks.length > 0) {
+        groups.push({ label: "My Tasks", plants: myTasks });
+    }
+
+    if (othersTasks.length > 0) {
+        groups.push({ label: "Others' Tasks", plants: othersTasks });
+    }
+
+    if (unassignedTasks.length > 0) {
+        groups.push({ label: "Unassigned", plants: unassignedTasks });
+    }
+
+    return groups;
+}
 
 export function LandingPage() {
     const { filters, updateFilter, clearFilters, hasActiveFilters } = usePlantFilters();
     const [detailPlant, setDetailPlant] = useState<Plant | null>(null);
     const [isMarkingWatered, setIsMarkingWatered] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-    const listRef = useRef<HTMLDivElement>(null);
+    const [assignPlant, setAssignPlant] = useState<Plant | null>(null);
     const queryClient = useQueryClient();
 
     const collection = useTodayPlantsCollection();
     const { data: allPlants, isReady } = useLiveQuery(q => q.from({ plant: collection }));
+    const { assignments, refetch: refetchAssignments } = useAssignments();
+    const { household } = useHouseholdInfo();
+
+    const currentUserId = useMemo(() => getCurrentUserId(), []);
 
     const plants = useMemo(() => {
         if (!allPlants) {
@@ -36,12 +116,24 @@ export function LandingPage() {
         return applyPlantFilters(duePlants, filters);
     }, [allPlants, filters]);
 
-    const virtualizer = useWindowVirtualizer({
-        count: plants.length,
-        estimateSize: () => 49,
-        overscan: 10,
-        scrollMargin: (listRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY
-    });
+    const assignmentsByPlant = useMemo(() => {
+        const map = new Map<string, ResponsibilityAssignment>();
+        for (const a of assignments) {
+            map.set(a.plantId, a);
+        }
+
+        return map;
+    }, [assignments]);
+
+    const hasSharedPlants = useMemo(() => plants.some(p => p.householdId), [plants]);
+
+    const groups = useMemo(() => {
+        if (!hasSharedPlants) {
+            return null;
+        }
+
+        return groupPlantsByResponsibility(plants, assignments, currentUserId);
+    }, [plants, assignments, currentUserId, hasSharedPlants]);
 
     const allSelected = plants.length > 0 && plants.every(p => selectedIds.has(p.id));
 
@@ -53,6 +145,7 @@ export function LandingPage() {
             } else {
                 next.add(id);
             }
+
             return next;
         });
     }, []);
@@ -112,17 +205,38 @@ export function LandingPage() {
         }
     }, [plants, selectedIds, collection]);
 
-    const selectedCount = plants.filter(p => selectedIds.has(p.id)).length;
+    const handleAssignClick = useCallback((plant: Plant) => {
+        setAssignPlant(plant);
+    }, []);
 
-    const totalSize = virtualizer.getTotalSize();
-    const virtualizerContainerStyle = useMemo(
-        () => ({
-            height: `${totalSize}px`,
-            width: "100%",
-            position: "relative" as const
-        }),
-        [totalSize]
+    const handleAssignSave = useCallback(
+        async (strategy: ResponsibilityStrategy, assignedUserId?: string) => {
+            if (!assignPlant) {
+                return;
+            }
+
+            const existingAssignment = assignmentsByPlant.get(assignPlant.id);
+
+            if (existingAssignment) {
+                await fetch(`/api/today/assignments/${existingAssignment.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+                    body: JSON.stringify({ strategy, assignedUserId })
+                });
+            } else {
+                await fetch("/api/today/assignments", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+                    body: JSON.stringify({ plantId: assignPlant.id, strategy, assignedUserId })
+                });
+            }
+
+            await refetchAssignments();
+        },
+        [assignPlant, assignmentsByPlant, refetchAssignments]
     );
+
+    const selectedCount = plants.filter(p => selectedIds.has(p.id)).length;
 
     if (!isReady) {
         return (
@@ -131,6 +245,29 @@ export function LandingPage() {
             </div>
         );
     }
+
+    const renderPlantItem = (plant: Plant) => {
+        const assignment = assignmentsByPlant.get(plant.id);
+        const responsibilityLabel = getResponsibilityLabel(assignment);
+
+        return (
+            <div key={plant.id} role="listitem" className="relative">
+                <PlantListItem plant={plant} selected={selectedIds.has(plant.id)} onToggleSelect={toggleSelect} onClick={handleViewDetail} />
+                {plant.householdId && (
+                    <div className="border-border -mt-0.5 flex items-center gap-2 border-b px-4 pb-2">
+                        {responsibilityLabel && (
+                            <Badge variant="outline" className="text-xs">
+                                {responsibilityLabel}
+                            </Badge>
+                        )}
+                        <Button variant="ghost" size="xs" className="text-xs" onClick={() => handleAssignClick(plant)}>
+                            Assign
+                        </Button>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className="flex flex-col gap-4 p-6">
@@ -163,30 +300,22 @@ export function LandingPage() {
 
             <div className="border-border rounded-lg border">
                 <PlantListHeader selectAllChecked={allSelected} onToggleSelectAll={toggleAll} />
-                <div ref={listRef} role="list" aria-label="Plants due for watering" style={virtualizerContainerStyle}>
-                    {virtualizer.getVirtualItems().map(virtualRow => {
-                        const plant = plants[virtualRow.index]!;
-                        // oxlint-disable-next-line react-perf/jsx-no-new-object-as-prop -- Virtual row positioning requires per-item inline styles
-                        const rowStyle = {
-                            position: "absolute" as const,
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: `${virtualRow.size}px`,
-                            transform: `translateY(${virtualRow.start - virtualizer.options.scrollMargin}px)`
-                        };
-                        return (
-                            <div key={plant.id} role="listitem" style={rowStyle}>
-                                <PlantListItem
-                                    plant={plant}
-                                    selected={selectedIds.has(plant.id)}
-                                    onToggleSelect={toggleSelect}
-                                    onClick={handleViewDetail}
-                                />
+                {groups ? (
+                    <div role="list" aria-label="Plants due for watering">
+                        {groups.map(group => (
+                            <div key={group.label}>
+                                <div className="bg-muted/50 border-border border-b px-4 py-1.5">
+                                    <h2 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">{group.label}</h2>
+                                </div>
+                                {group.plants.map(renderPlantItem)}
                             </div>
-                        );
-                    })}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div role="list" aria-label="Plants due for watering">
+                        {plants.map(renderPlantItem)}
+                    </div>
+                )}
             </div>
 
             <PlantDetailDialog
@@ -205,6 +334,21 @@ export function LandingPage() {
                 }
                 onMarkWatered={handleMarkWatered}
             />
+
+            {assignPlant && (
+                <AssignResponsibilityDialog
+                    plantName={assignPlant.name}
+                    open={assignPlant !== null}
+                    onOpenChange={open => {
+                        if (!open) {
+                            setAssignPlant(null);
+                        }
+                    }}
+                    members={household?.members ?? []}
+                    currentAssignment={assignmentsByPlant.get(assignPlant.id)}
+                    onSave={handleAssignSave}
+                />
+            )}
         </div>
     );
 }
