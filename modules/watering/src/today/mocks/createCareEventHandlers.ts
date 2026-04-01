@@ -28,7 +28,9 @@ export function createCareEventHandlers(data: CareEventsData) {
                     plantId: body.plantId,
                     eventType: body.eventType,
                     eventDate: new Date(2024, 6, 20).toISOString(),
-                    notes: body.notes
+                    notes: body.notes,
+                    actorId: "user-alice",
+                    actorName: "Alice"
                 },
                 { status: 201 }
             );

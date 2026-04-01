@@ -67,6 +67,35 @@ export const MultipleEventsPerDay: Story = {
     }
 };
 
+export const WithActorAttribution: Story = {
+    args: {
+        events: [
+            makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "watered", actorName: "Alex", actorId: "user-alex" }),
+            makeCareEvent({
+                eventDate: new Date(2024, 6, 15),
+                eventType: "skipped",
+                actorName: "Jordan",
+                actorId: "user-jordan",
+                notes: "Soil still moist"
+            }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 10), eventType: "watered", actorName: "Alex", actorId: "user-alex", notes: "Soil was dry" }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 5), eventType: "delegated", actorName: "Sam", actorId: "user-sam", notes: "On vacation" }),
+            makeCareEvent({ eventDate: new Date(2024, 5, 28), eventType: "watered" })
+        ]
+    }
+};
+
+export const WithMixedAttribution: Story = {
+    args: {
+        events: [
+            makeCareEvent({ eventDate: new Date(2024, 6, 15), eventType: "watered", actorName: "Alex", actorId: "user-alex" }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 10), eventType: "watered" }),
+            makeCareEvent({ eventDate: new Date(2024, 6, 5), eventType: "skipped", actorName: "Jordan", actorId: "user-jordan" }),
+            makeCareEvent({ eventDate: new Date(2024, 5, 28), eventType: "watered" })
+        ]
+    }
+};
+
 export const LongHistory: Story = {
     args: {
         events: Array.from({ length: 30 }, (_, i) => {

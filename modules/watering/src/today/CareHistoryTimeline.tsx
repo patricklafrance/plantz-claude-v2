@@ -43,9 +43,17 @@ export function CareHistoryTimeline({ events }: CareHistoryTimelineProps) {
                 <div key={dayLabel} className="flex flex-col gap-1.5">
                     <span className="text-muted-foreground text-xs font-medium">{dayLabel}</span>
                     {dayEvents.map(event => (
-                        <div key={event.id} className="flex items-center gap-2">
-                            <CareEventBadge eventType={event.eventType} />
-                            {event.notes && <span className="text-muted-foreground truncate text-xs">{event.notes}</span>}
+                        <div key={event.id} className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-2">
+                                <CareEventBadge eventType={event.eventType} />
+                                {event.notes && <span className="text-muted-foreground truncate text-xs">{event.notes}</span>}
+                            </div>
+                            {event.actorName && (
+                                <span className="text-muted-foreground ml-1 text-xs">
+                                    {event.eventType === "watered" ? "Watered" : event.eventType === "skipped" ? "Skipped" : "Delegated"} by{" "}
+                                    {event.actorName}
+                                </span>
+                            )}
                         </div>
                     ))}
                 </div>

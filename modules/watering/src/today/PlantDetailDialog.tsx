@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Droplets } from "lucide-react";
+import { Droplets, Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Separator } from "@packages/components";
@@ -12,9 +12,10 @@ interface PlantDetailDialogProps {
     onOpenChange: (open: boolean) => void;
     careSection?: ReactNode;
     onMarkWatered?: () => void;
+    isMarkingWatered?: boolean;
 }
 
-export function PlantDetailDialog({ plant, open, onOpenChange, careSection, onMarkWatered }: PlantDetailDialogProps) {
+export function PlantDetailDialog({ plant, open, onOpenChange, careSection, onMarkWatered, isMarkingWatered }: PlantDetailDialogProps) {
     if (!plant) {
         return null;
     }
@@ -88,9 +89,13 @@ export function PlantDetailDialog({ plant, open, onOpenChange, careSection, onMa
                 </div>
                 <DialogFooter showCloseButton>
                     {onMarkWatered && (
-                        <Button variant="default" className="sm:mr-auto" onClick={onMarkWatered}>
-                            <Droplets data-icon="inline-start" aria-hidden="true" />
-                            Mark as Watered
+                        <Button variant="default" className="sm:mr-auto" onClick={onMarkWatered} disabled={isMarkingWatered}>
+                            {isMarkingWatered ? (
+                                <Loader2 data-icon="inline-start" aria-hidden="true" className="animate-spin" />
+                            ) : (
+                                <Droplets data-icon="inline-start" aria-hidden="true" />
+                            )}
+                            {isMarkingWatered ? "Marking..." : "Mark as Watered"}
                         </Button>
                     )}
                 </DialogFooter>

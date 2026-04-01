@@ -111,3 +111,11 @@ export const WithMarkWatered: Story = {
         onMarkWatered: () => {}
     }
 };
+
+export const MarkWateredLoading: Story = {
+    args: {
+        plant: makePlant(),
+        onMarkWatered: () => {},
+        isMarkingWatered: true
+    }
+};

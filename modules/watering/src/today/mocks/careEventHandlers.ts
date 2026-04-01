@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 
-import { getUserId } from "@packages/core-module/db";
+import { getUserId, usersDb } from "@packages/core-module/db";
 import { getFrequencyDays } from "@packages/core-plants";
 import type { CareEventType } from "@packages/core-plants/care-event";
 import { careEventsDb, plantsDb } from "@packages/core-plants/db";
@@ -34,12 +34,16 @@ export const todayCareEventHandlers = [
 
         const body = (await request.json()) as { plantId: string; eventType: CareEventType; notes?: string };
 
+        const user = usersDb.getById(userId);
+
         const event = {
             id: crypto.randomUUID(),
             plantId: body.plantId,
             eventType: body.eventType,
             eventDate: new Date(),
-            notes: body.notes
+            notes: body.notes,
+            actorId: userId,
+            actorName: user?.name
         };
 
         careEventsDb.insert(event);
@@ -66,6 +70,7 @@ export const todayCareEventHandlers = [
         }
 
         const body = (await request.json()) as { plantIds: string[]; eventType: CareEventType; notes?: string };
+        const user = usersDb.getById(userId);
         const events = [];
 
         for (const plantId of body.plantIds) {
@@ -74,7 +79,9 @@ export const todayCareEventHandlers = [
                 plantId,
                 eventType: body.eventType,
                 eventDate: new Date(),
-                notes: body.notes
+                notes: body.notes,
+                actorId: userId,
+                actorName: user?.name
             };
 
             careEventsDb.insert(event);

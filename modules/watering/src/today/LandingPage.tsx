@@ -16,6 +16,7 @@ import { VacationPlanBanner } from "./VacationPlanBanner.tsx";
 export function LandingPage() {
     const { filters, updateFilter, clearFilters, hasActiveFilters } = usePlantFilters();
     const [detailPlant, setDetailPlant] = useState<Plant | null>(null);
+    const [isMarkingWatered, setIsMarkingWatered] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const listRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
@@ -83,12 +84,16 @@ export function LandingPage() {
             return;
         }
 
+        setIsMarkingWatered(true);
+
         try {
             await createCareEvent(detailPlant.id, "watered");
             await Promise.all([queryClient.invalidateQueries({ queryKey: ["today", "care-events", detailPlant.id] }), collection.utils.refetch()]);
             setDetailPlant(null);
         } catch {
             // Silently handle — the user can retry.
+        } finally {
+            setIsMarkingWatered(false);
         }
     }, [detailPlant, queryClient, collection]);
 
@@ -188,6 +193,7 @@ export function LandingPage() {
                 plant={detailPlant}
                 open={detailPlant !== null}
                 onOpenChange={handleDetailOpenChange}
+                isMarkingWatered={isMarkingWatered}
                 careSection={
                     detailPlant ? (
                         <PlantCareSection

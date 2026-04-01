@@ -68,6 +68,29 @@ const sampleEvents: CareEvent[] = [
     makeCareEvent({ id: "e6", eventDate: new Date(2024, 5, 14), eventType: "watered" })
 ];
 
+const actorAttributedEvents: CareEvent[] = [
+    makeCareEvent({
+        id: "e1",
+        eventDate: new Date(2024, 6, 15),
+        eventType: "watered",
+        actorId: "user-alice",
+        actorName: "Alice",
+        notes: "Soil was dry"
+    }),
+    makeCareEvent({ id: "e2", eventDate: new Date(2024, 6, 10), eventType: "skipped", actorId: "user-bob", actorName: "Bob" }),
+    makeCareEvent({ id: "e3", eventDate: new Date(2024, 6, 5), eventType: "watered", actorId: "user-alice", actorName: "Alice" }),
+    makeCareEvent({
+        id: "e4",
+        eventDate: new Date(2024, 5, 28),
+        eventType: "delegated",
+        actorId: "user-carol",
+        actorName: "Carol",
+        notes: "On vacation"
+    }),
+    makeCareEvent({ id: "e5", eventDate: new Date(2024, 5, 21), eventType: "watered" }),
+    makeCareEvent({ id: "e6", eventDate: new Date(2024, 5, 14), eventType: "watered", actorId: "user-bob", actorName: "Bob" })
+];
+
 export const WithHistory: Story = {
     parameters: {
         msw: {
@@ -91,6 +114,14 @@ export const SingleWatering: Story = {
                 ...createCareEventHandlers([makeCareEvent({ id: "e1", eventDate: new Date(2024, 6, 15), eventType: "watered" })]),
                 ...noAdjustmentHandlers
             ]
+        }
+    }
+};
+
+export const WithActorAttribution: Story = {
+    parameters: {
+        msw: {
+            handlers: [...createCareEventHandlers(actorAttributedEvents), ...noAdjustmentHandlers]
         }
     }
 };
