@@ -18,12 +18,12 @@
                         "type": "command",
                         "command": "node agent-hooks/src/adlc-supervisor/pre-tool-use.mjs",
                         "timeout": 5000
+                    },
+                    {
+                        "type": "command",
+                        "command": "node agent-hooks/src/pre-commit/pre-tool-use-bash.mjs",
+                        "timeout": 180000
                     }
-                    // {
-                    //     "type": "command",
-                    //     "command": "node agent-hooks/src/pre-commit/pre-tool-use-bash.mjs",
-                    //     "timeout": 180000,
-                    // }
                 ]
             },
             {
