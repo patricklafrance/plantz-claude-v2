@@ -1,0 +1,82 @@
+import { useLiveQuery } from "@tanstack/react-db";
+import { Plus, Home, Users } from "lucide-react";
+import { useState, useCallback } from "react";
+
+import { Button, Badge } from "@packages/components";
+
+import { CreateHouseholdDialog } from "./CreateHouseholdDialog.tsx";
+import { useManagementHouseholdCollection } from "./ManagementHouseholdContext.tsx";
+
+export function HouseholdPage() {
+    const [createOpen, setCreateOpen] = useState(false);
+
+    const collection = useManagementHouseholdCollection();
+    const { data: households, isReady } = useLiveQuery(q => q.from({ household: collection }));
+
+    const handleOpenCreate = useCallback(() => setCreateOpen(true), []);
+
+    if (!isReady) {
+        return (
+            <div className="flex items-center justify-center p-6">
+                <p className="text-muted-foreground text-sm">Loading household...</p>
+            </div>
+        );
+    }
+
+    const household = households?.[0];
+
+    return (
+        <div className="flex flex-col gap-4 p-6">
+            <div className="flex items-center justify-between">
+                <h1 className="text-xl font-semibold">Household</h1>
+            </div>
+
+            {!household ? (
+                <div className="border-border flex flex-col items-center gap-4 rounded-lg border border-dashed p-12">
+                    <div className="bg-muted flex size-12 items-center justify-center rounded-full">
+                        <Home className="text-muted-foreground size-6" aria-hidden="true" />
+                    </div>
+                    <div className="text-center">
+                        <p className="text-sm font-medium">No household yet</p>
+                        <p className="text-muted-foreground text-sm">Create a household to share plants and coordinate care with others.</p>
+                    </div>
+                    <Button size="sm" onClick={handleOpenCreate}>
+                        <Plus data-icon="inline-start" />
+                        Create Household
+                    </Button>
+                </div>
+            ) : (
+                <div className="border-border rounded-lg border">
+                    <div className="border-border flex items-center gap-3 border-b p-4">
+                        <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+                            <Home className="text-primary size-5" aria-hidden="true" />
+                        </div>
+                        <div>
+                            <h2 className="font-medium">{household.name}</h2>
+                            <p className="text-muted-foreground text-xs">Created {household.createdAt.toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    <div className="p-4">
+                        <div className="mb-3 flex items-center gap-2">
+                            <Users className="text-muted-foreground size-4" aria-hidden="true" />
+                            <h3 className="text-sm font-medium">Members</h3>
+                        </div>
+                        <ul className="flex flex-col gap-2" aria-label="Household members">
+                            {household.members.map(member => (
+                                <li key={member.userId} className="flex items-center justify-between rounded-md px-3 py-2 text-sm">
+                                    <div className="flex items-center gap-2">
+                                        <span>{member.userName}</span>
+                                        <span className="text-muted-foreground text-xs">{member.email}</span>
+                                    </div>
+                                    <Badge variant={member.role === "owner" ? "default" : "secondary"}>{member.role}</Badge>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            )}
+
+            <CreateHouseholdDialog open={createOpen} onOpenChange={setCreateOpen} />
+        </div>
+    );
+}

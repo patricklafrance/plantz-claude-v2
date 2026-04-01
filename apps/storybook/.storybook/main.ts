@@ -16,6 +16,7 @@ const storybookConfig: StorybookConfig = {
         // Management
         "../../../modules/management/src/inventory/**/*.stories.tsx",
         "../../../modules/management/src/account/**/*.stories.tsx",
+        "../../../modules/management/src/household/**/*.stories.tsx",
         // Watering
         "../../../modules/watering/src/today/**/*.stories.tsx",
         "../../../modules/watering/src/vacation-planner/**/*.stories.tsx"

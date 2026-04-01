@@ -1,6 +1,6 @@
 # Management Module
 
-Plant management features: inventory (plants CRUD) and account (user profile).
+Plant management features: inventory (plants CRUD), account (user profile), and household (household CRUD, member management).
 
 ## Stories
 
@@ -12,6 +12,7 @@ Every page and component must have a co-located `.stories.tsx` file. A feature w
 
 - Title prefix: `Management/Inventory/` for inventory subfolder (e.g., `Management/Inventory/Pages/PlantsPage`, `Management/Inventory/Components/FilterBar`).
 - Title prefix: `Management/Account/` for account subfolder (e.g., `Management/Account/Pages/UserPage`).
+- Title prefix: `Management/Household/` for household subfolder (e.g., `Management/Household/Pages/HouseholdPage`).
 - Reference: `modules/management/src/inventory/FilterBar.stories.tsx` (presentational component), `modules/management/src/inventory/PlantsPage.stories.tsx` (page with collection + firefly decorators).
 - Storybook dev command: `pnpm dev-storybook-management`.
 

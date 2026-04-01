@@ -11,7 +11,8 @@
         "./collection": "./src/collection/index.ts",
         "./db": "./src/msw/index.ts",
         "./test-utils": "./src/test-utils/index.ts",
-        "./care-event": "./src/care-event/index.ts"
+        "./care-event": "./src/care-event/index.ts",
+        "./household": "./src/household/index.ts"
     },
     "scripts": {
         "typecheck": "tsgo"

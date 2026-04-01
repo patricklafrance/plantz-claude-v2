@@ -6,16 +6,15 @@
 2. **Plant inventory, plant configuration, or user account?** → `@modules/management`
 3. **Daily watering tasks or vacation planning?** → `@modules/watering`
 4. **Cross-module infrastructure?** → `@packages/core-module`
-5. **Shared plant types, DB, collection factories?** → `@packages/core-plants`
-6. **Shared household types, membership, responsibility?** → `@packages/core-household`
-7. **Reusable UI with no feature logic?** → `@packages/components`
+5. **Shared plant types, DB, collection factories, household types?** → `@packages/core-plants`
+6. **Reusable UI with no feature logic?** → `@packages/components`
 
 ## Modules
 
-| Module                | Scope                                                                                                       | Subfolders                    |
-| --------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| `@modules/management` | Plant identity, ownership, configuration, and user account/preferences.                                     | `inventory/`, `account/`      |
-| `@modules/watering`   | Daily care execution (what needs the user's attention now) and absence-aware care planning (vacation mode). | `today/`, `vacation-planner/` |
+| Module                | Scope                                                                                                       | Subfolders                             |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `@modules/management` | Plant identity, ownership, configuration, user account/preferences, and household management.               | `inventory/`, `account/`, `household/` |
+| `@modules/watering`   | Daily care execution (what needs the user's attention now) and absence-aware care planning (vacation mode). | `today/`, `vacation-planner/`          |
 
 The **host** (`apps/host/`) is not a module — it's a thin bootstrap wiring `registerShell` with modules.
 
@@ -25,6 +24,7 @@ Within a module, pick the subfolder by asking: _Which area of concern does this 
 
 - **management/inventory/** — Plant CRUD, plant details, plant list views
 - **management/account/** — User profile, preferences, settings
+- **management/household/** — Household CRUD, member management, household association
 - **watering/today/** — Daily care dashboard, care events, watering actions
 - **watering/vacation-planner/** — Vacation scheduling, delegation, absence care plans
 
@@ -32,11 +32,11 @@ Subfolders are internal organizational boundaries — they share the same packag
 
 ## Packages
 
-| Package                 | Responsibility                                                                                    | Anti-scope                                                                                                         |
-| ----------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `@packages/core-module` | Authentication, session management, user identity, shell UI (layout, navigation, login)           | No feature-specific business logic. No plant or household data.                                                    |
-| `@packages/core-plants` | Cross-module plant types, schemas, DB singletons, collection factories, shared UI, test utilities | No module-specific domain logic (vacation, adjustments, care insights computation). No routing. No authentication. |
-| `@packages/components`  | Reusable design-system primitives (shadcn/ui) with zero feature logic                             | No data fetching. No feature types. No business logic.                                                             |
+| Package                 | Responsibility                                                                                                                | Anti-scope                                                                                                         |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `@packages/core-module` | Authentication, session management, user identity, shell UI (layout, navigation, login)                                       | No feature-specific business logic. No plant or household data.                                                    |
+| `@packages/core-plants` | Cross-module plant types, schemas, DB singletons, collection factories, household types/schemas/DB, shared UI, test utilities | No module-specific domain logic (vacation, adjustments, care insights computation). No routing. No authentication. |
+| `@packages/components`  | Reusable design-system primitives (shadcn/ui) with zero feature logic                                                         | No data fetching. No feature types. No business logic.                                                             |
 
 ## Module Isolation
 
