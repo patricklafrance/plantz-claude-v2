@@ -35,10 +35,10 @@ Implement the slice.
 
 When the slice requires a new module or storybook, you MUST use the corresponding scaffold skill. Do NOT manually create module files.
 
-| Trigger       | Skill                 |
-| ------------- | --------------------- |
-| New module    | `_scaffold-module`    |
-| New storybook | `_scaffold-storybook` |
+| Trigger                 | Skill                 |
+| ----------------------- | --------------------- |
+| New module or subfolder | `_scaffold-module`    |
+| New module storybook    | `_scaffold-storybook` |
 
 ### 3. Implement
 

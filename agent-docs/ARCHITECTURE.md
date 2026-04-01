@@ -30,12 +30,12 @@ plantz-claude/
 
 ## Package naming conventions
 
-| Workspace path               | Package scope | Example                  |
-| ---------------------------- | ------------- | ------------------------ |
-| `apps/host-app`              | `@apps/*`     | `@apps/host-app`        |
-| `apps/<name>-storybook`      | `@apps/*`     | `@apps/management-storybook` |
-| `modules/*`                  | `@modules/*`  | `@modules/management`   |
-| `packages/*`                 | `@packages/*` | `@packages/core-plants`  |
+| Workspace path          | Package scope | Example                      |
+| ----------------------- | ------------- | ---------------------------- |
+| `apps/host-app`         | `@apps/*`     | `@apps/host-app`             |
+| `apps/<name>-storybook` | `@apps/*`     | `@apps/management-storybook` |
+| `modules/*`             | `@modules/*`  | `@modules/management`        |
+| `packages/*`            | `@packages/*` | `@packages/core-plants`      |
 
 > **Exception:** `apps/packages-storybook` uses `@apps/packages-storybook` (historical convention — Storybook runner apps always use `@apps/*`).
 
