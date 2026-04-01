@@ -11,15 +11,41 @@
 
 ## Collection Factory
 
-`@packages/core-plants/collection` exports the shared factory:
+`@packages/core-plants/collection` exports shared factories:
 
 ```typescript
-const collection = createPlantsCollection({
+// Plants collection (used by management and watering modules)
+const plantsCollection = createPlantsCollection({
     queryKey: ["management", "plants", "list"],
     queryFn: fetchPlants,
     queryClient
 });
+
+// Household collection (used by management module)
+const householdCollection = createHouseholdCollection({
+    queryKey: ["management", "household", "list"],
+    queryFn: fetchHouseholds,
+    queryClient
+});
 ```
+
+## Read-Only Data (fetch + useState)
+
+Not all cross-module data needs a TanStack DB collection. For read-only data that does not require optimistic mutations, use plain `fetch` + `useState` in a custom hook:
+
+```typescript
+// Example: watering module reads household info (read-only, no mutations)
+export function useHouseholdInfo() {
+    const [household, setHousehold] = useState<Household | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    useEffect(() => {
+        /* fetch /api/today/household */
+    }, []);
+    return { household, isLoading };
+}
+```
+
+Use this pattern when the module only reads data owned by another module's API surface. The watering module uses this for household membership info (`useHouseholdInfo`) and responsibility assignments (`useAssignments`).
 
 ## Optimistic Mutations
 

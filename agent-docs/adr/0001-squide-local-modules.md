@@ -24,5 +24,5 @@ See [ARCHITECTURE.md](../ARCHITECTURE.md#squide-hostmodule-topology) for the res
 Additional implications:
 
 - Cross-module communication goes through Squide runtime APIs (event bus, shared data queries) — not direct imports. Modules never import from each other — no exceptions. When two modules need shared code, prefer duplication if the surface area is small; extract to a package under `packages/` when it's large enough to justify the indirection.
-- Each module is a single wider-scoped package under `modules/` with internal subfolders for feature areas (e.g., `modules/management/` contains `inventory/` and `account/` subfolders). Subfolders are NOT separate packages.
+- Each module is a single wider-scoped package under `modules/` with internal subfolders for feature areas (e.g., `modules/management/` contains `inventory/`, `account/`, and `household/` subfolders). Subfolders are NOT separate packages.
 - New feature areas require creating a new module package under `modules/`.
