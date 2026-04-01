@@ -2,9 +2,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 import { Separator } from "@packages/components";
-import { AdjustmentHistoryList, AdjustmentSuggestionCard } from "@packages/core-plants";
 
+import { AdjustmentHistoryList } from "./AdjustmentHistoryList.tsx";
 import { acceptAdjustment, dismissRecommendation } from "./adjustmentsApi.ts";
+import { AdjustmentSuggestionCard } from "./AdjustmentSuggestionCard.tsx";
 import { useAdjustmentHistory } from "./useAdjustmentHistory.ts";
 import { useAdjustmentRecommendation } from "./useAdjustmentRecommendation.ts";
 

@@ -1,4 +1,4 @@
-import type { VacationPlan } from "@packages/core-plants/vacation";
+import type { VacationPlan } from "../vacationTypes.ts";
 
 const plans = new Map<string, VacationPlan>();
 

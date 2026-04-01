@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/core-plants/test-utils";
-import type { VacationPlan } from "@packages/core-plants/vacation";
 
+import type { VacationPlan } from "../vacation-planner/vacationTypes.ts";
 import { LandingPage } from "./LandingPage.tsx";
 import { createTodayPlantHandlers } from "./mocks/index.ts";
 import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";

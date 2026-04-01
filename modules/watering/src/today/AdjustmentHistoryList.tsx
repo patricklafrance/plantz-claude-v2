@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 
-import type { AdjustmentEvent } from "./care-event/adjustmentTypes.ts";
-import { formatIntervalLabel } from "./care-event/adjustmentUtils.ts";
+import type { AdjustmentEvent } from "./adjustmentTypes.ts";
+import { formatIntervalLabel } from "./adjustmentUtils.ts";
 
 interface AdjustmentHistoryListProps {
     events: AdjustmentEvent[];

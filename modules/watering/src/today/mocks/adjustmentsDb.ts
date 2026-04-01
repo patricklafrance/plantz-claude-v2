@@ -1,4 +1,4 @@
-import type { AdjustmentEvent } from "@packages/core-plants/care-event";
+import type { AdjustmentEvent } from "../adjustmentTypes.ts";
 
 interface DismissedRecord {
     plantId: string;

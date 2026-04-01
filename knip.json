@@ -20,7 +20,7 @@
             "entry": ["src/index.tsx", "rsbuild.build.ts", "rsbuild.dev.ts"],
             "ignoreDependencies": ["@tailwindcss/postcss", "@workleap/browserslist-config", "tailwindcss"]
         },
-        "apps/unified-storybook": {
+        "apps/storybook": {
             "ignoreDependencies": [
                 "@packages/components",
                 "@packages/core-plants",
@@ -34,10 +34,10 @@
                 "playwright"
             ]
         },
-        "apps/management-storybook": {
+        "apps/storybook-management": {
             "ignoreDependencies": ["@packages/components", "@packages/core-plants", "launchdarkly-js-client-sdk"]
         },
-        "apps/watering-storybook": {
+        "apps/storybook-watering": {
             "ignoreDependencies": ["@packages/components", "@packages/core-plants", "launchdarkly-js-client-sdk"]
         },
         "modules/management": {
@@ -50,7 +50,7 @@
             "entry": ["rslib.build.ts", "rslib.dev.ts", "postcss.config.mjs"],
             "ignoreDependencies": ["@tailwindcss/postcss"]
         },
-        "apps/packages-storybook": {
+        "apps/storybook-packages": {
             "ignoreDependencies": ["@packages/components", "@packages/core-module", "@packages/core-plants", "launchdarkly-js-client-sdk"]
         }
     }

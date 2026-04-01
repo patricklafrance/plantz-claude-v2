@@ -48,7 +48,7 @@ Challengers have produced `.adlc/current-sprawl-challenges.md` and/or `.adlc/cur
 
 ### 2. Apply the decision tree
 
-The placement reference doc's decision tree is a guard clause — apply it first. If it resolves a concern definitively, record the placement and skip the heuristics.
+The placement reference doc's decision tree sets the initial hypothesis — apply it first. Record which rule matched and the candidate target. Then proceed to heuristics, which validate, refine, or override the hypothesis.
 
 ### 3. Extract feature terms and actions
 
@@ -56,19 +56,21 @@ Pull entities, actions, and views from the feature description.
 
 ### 3b. Answer forcing questions
 
-Before applying heuristics, answer these three questions. Separate observations (what you see in the code) from inferences (what you conclude from observations).
+Before applying heuristics, answer these three questions.
 
-**ENTITY_DECOMPOSITION:** What are the distinct entities in this feature? For each entity: is it new, or does it extend an existing entity already owned by a module? List the entity name, whether it is new or existing, and if existing, which module and subfolder owns it.
+**ENTITY_DECOMPOSITION:** What are the distinct entities in this feature? For each entity: is it new, or does it extend an existing entity? If existing, which module and subfolder currently owns it? If new, which existing subfolder's entities are most closely related (shared lifecycle, shared UI, shared data model)? List the entity name, status (new/existing), current or proposed owner (module/subfolder), and the relationship basis.
 
 **CROSS_MODULE_DEPENDENCIES:** Which entities in this feature need to be accessed by more than one module? Does any dependency violate the module isolation rule (modules never import from each other)? If cross-module access is needed, identify the shared package candidate.
 
-**MUTATION_LIFECYCLE_SPLIT:** For each concern: where does the mutation (create/update/delete) happen vs. where does the read/display happen? Are they in the same module? If mutation and display are in different modules, the concern likely spans a module boundary.
+**SUBFOLDER_AFFINITY:** For each concern mapped to an existing module: which existing subfolder shares routes, API namespace, data entities, or UI components with this concern? If no existing subfolder shows strong affinity on at least two of these signals, what specific artifact-level conflict (route collision, entity lifecycle incompatibility, API namespace mismatch) prevents extending the closest subfolder?
 
 ### 4. Run heuristics against existing modules
 
 **Default position: extend an existing module.** Creation requires all applicable heuristics (1-4) to independently support it. If any heuristic supports extension, the burden is on creation to cite a specific artifact-level failure — not "reduces cohesion" or "introduces new concepts" but a concrete conflict (route tree collision, lifecycle incompatibility, isolation violation).
 
-For each unresolved concern, apply heuristics 1-4. Use 5 only for the module-vs-shared-package decision.
+Evaluate all applicable heuristics (1-4) for every concern. A "create" verdict requires unanimous agreement across all heuristics. If any heuristic supports extension, the decision must be "extend" unless the mapper cites a specific artifact-level failure. In the output, only include the Heuristic Disagreements table when two or more heuristics point to different targets for a concern. Unanimous concerns are fully captured in the Mapping table rationale.
+
+Use heuristic 5 only for the module-vs-shared-package decision.
 
 <heuristics>
 
@@ -95,47 +97,34 @@ Write `.adlc/domain-mapping.md` using the template below.
 ```markdown
 # Module Mapping: {Feature Name}
 
-## Forcing Question Answers
+## Analysis
 
-### Entity Decomposition
+**Entity Decomposition:** {entity list with new/existing status, owner (module/subfolder), and relationship basis — inline narrative}
 
-{entity list with new/existing status and owning module}
+**Cross-Module Dependencies:** {entities needing cross-module access, shared package candidates — inline narrative}
 
-- Observations: {what was found in the code}
-- Inferences: {what was concluded}
+**Subfolder Affinity:** {per-concern affinity analysis — which subfolder, which signals matched, artifact-level conflicts if proposing new subfolder}
 
-### Cross-Module Dependencies
+## Heuristic Disagreements
 
-{entities needing cross-module access, shared package candidates}
+> Only present when at least one concern has heuristic divergence (2+ heuristics point to different targets). Omit this section entirely if all concerns are unanimous.
 
-- Observations: ...
-- Inferences: ...
-
-### Mutation/Lifecycle Split
-
-{per-concern mutation vs display locations}
-
-- Observations: ...
-- Inferences: ...
-
-## Convergence Table
-
-All applicable heuristics (1-4) must be evaluated for every concern. `create` requires unanimous agreement — if any heuristic supports extension, the decision must be `extend` unless the mapper cites a specific artifact-level failure (route tree collision, lifecycle incompatibility, isolation violation). "Introduces new concepts" and "reduces cohesion" without naming conflicting artifacts are not valid failures. Use `extend+new-entity` when placing new entities into an existing module — this triggers the cohesion challenger. Use `insufficient_evidence` when heuristics genuinely conflict and you lack information to resolve it.
-
-| Concern   | Language    | Change Coupling | Routes      | Lifecycle   | Decision                                                    |
-| --------- | ----------- | --------------- | ----------- | ----------- | ----------------------------------------------------------- |
-| {concern} | -> {module} | -> {module}     | -> {module} | -> {module} | extend / extend+new-entity / create / insufficient_evidence |
+| Concern                   | Language    | Change Coupling | Routes      | Lifecycle   | Resolution                    |
+| ------------------------- | ----------- | --------------- | ----------- | ----------- | ----------------------------- |
+| {only divergent concerns} | -> {module} | -> {module}     | -> {module} | -> {module} | {which heuristic won and why} |
 
 ## Mapping
 
-| Concern   | Target   | Decision              | Rationale                                         |
-| --------- | -------- | --------------------- | ------------------------------------------------- |
-| {concern} | {target} | extend                | {heuristics + evidence}                           |
-| {concern} | {target} | extend+new-entity     | {heuristics + evidence, new entity named}         |
-| {concern} | {target} | create                | {which module considered, artifact-level failure} |
-| {concern} | --       | insufficient_evidence | {conflicting signals, what would resolve}         |
+| Concern   | Target   | Decision              | Scaffold  | Rationale                                         |
+| --------- | -------- | --------------------- | --------- | ------------------------------------------------- |
+| {concern} | {target} | extend                | —         | {brief rationale}                                 |
+| {concern} | {target} | extend+new-entity     | subfolder | {rationale + new entity named}                    |
+| {concern} | {target} | create                | package   | {which module considered, artifact-level failure} |
+| {concern} | —        | insufficient_evidence | —         | {conflicting signals, what would resolve}         |
 
-## Evidence Gaps (if any insufficient_evidence rows)
+## Evidence Gaps
+
+> Only present when the Mapping table contains `insufficient_evidence` rows.
 
 ### GAP-{n}: {title}
 
@@ -143,9 +132,14 @@ All applicable heuristics (1-4) must be evaluated for every concern. `create` re
 - **What would resolve it:** {specific factual question}
 - **Modules to investigate:** {which modules to inspect}
 
-## Analysis Summary
+## Challenge Resolution
 
-{Key findings — what was clear, what was ambiguous, how ambiguities were resolved}
+> Only present after challenge-revision mode.
+
+| Challenge | Outcome  | Evidence                                                             |
+| --------- | -------- | -------------------------------------------------------------------- |
+| {concern} | accepted | {why the challenger's proposal was stronger}                         |
+| {concern} | rejected | {artifact evidence + acknowledgment of challenger's strongest point} |
 ```
 
 </domain-mapping-template>
@@ -154,55 +148,48 @@ All applicable heuristics (1-4) must be evaluated for every concern. `create` re
 
 <domain-mapping-example>
 
+**Assumed architecture:**
+
+- `modules/catalog` (subfolders: `products/`, `categories/`)
+- `modules/orders` (subfolders: `checkout/`, `history/`)
+- `packages/core-app` (session, auth, shell)
+- `packages/core-types` (shared domain types)
+- `packages/components` (design system)
+
 ```markdown
-# Module Mapping: Export Reports
+# Module Mapping: Customer Notifications
 
-## Forcing Question Answers
+## Analysis
 
-### Entity Decomposition
+**Entity Decomposition:** Five entities identified. OrderStatusAlert — existing, extends Order entity in `orders/history` (shared lifecycle: alerts display on order detail page). RestockNotification — existing vocabulary overlap with Product in `catalog/products`, but triggered by purchase events in orders. NotificationPreference — new entity, closest relative is user settings but no existing subfolder manages per-feature preferences; proposed owner `orders/notifications`. NotificationService — new infrastructure entity, shared by both catalog and orders. NotificationBadge — extends shell navigation in `core-app`.
 
-- **Invoice**: existing entity, owned by `billing/invoices`
-- **Dashboard**: existing entity, owned by `analytics/reports`
-- **ExportFormat**: new entity, no current owner
-- **Schedule**: new entity, but extends existing scheduling in `analytics/reports`
-- Observations: `billing/invoices` has InvoiceType, InvoiceListItem. `analytics/reports` has Dashboard, DashboardWidget, ReportSchedule.
-- Inferences: ExportFormat is cross-cutting (used by both modules). Schedule extends existing ReportSchedule concept.
+**Cross-Module Dependencies:** NotificationService is needed by both `catalog` (restock dispatch) and `orders` (status dispatch). Module isolation rule prevents direct import. Candidate: `packages/core-notifications` shared package. NotificationBadge aggregates counts across modules — depends on the shared service.
 
-### Cross-Module Dependencies
+**Subfolder Affinity:** Order status alerts — strong affinity with `orders/history` (shared routes under `/orders/:id`, shared OrderStatus entity, shared UI components). Restock notifications — affinity signals split: language aligns with `catalog/products` (restock is product vocabulary), but trigger mechanism couples to `orders/checkout`. Notification preferences — no existing subfolder shares routes (`/notifications/preferences` is new), no shared entities; closest is `orders/history` but no UI or data model overlap on two signals — new subfolder warranted. Notification badge — shell-level UI in `core-app`, not a module subfolder.
 
-- ExportFormat needed by both billing and analytics -> shared package candidate
-- Observations: No existing shared type for export formats. Each module has its own download logic.
-- Inferences: Extract ExportFormat to @packages/core-utils to avoid duplication.
+## Heuristic Disagreements
 
-### Mutation/Lifecycle Split
-
-- Invoice export: mutation (trigger export) and display (download) both in billing
-- Dashboard export: mutation and display both in analytics
-- Report scheduling: mutation (create schedule) in analytics, no cross-module display
-- Observations: All mutation/display pairs are co-located within their respective modules.
-- Inferences: No lifecycle split — supports extending existing modules.
-
-## Convergence Table
-
-| Concern              | Language                | Change Coupling         | Routes               | Lifecycle            | Decision          |
-| -------------------- | ----------------------- | ----------------------- | -------------------- | -------------------- | ----------------- |
-| Invoice export       | -> billing/invoices     | -> billing/invoices     | -> billing/invoices  | -> billing/invoices  | extend            |
-| Dashboard export     | -> analytics/reports    | -> analytics/reports    | -> analytics/reports | -> analytics/reports | extend            |
-| Report scheduling    | -> analytics/reports    | -> analytics/reports    | -> analytics/reports | -> analytics/reports | extend+new-entity |
-| Export format config | -> @packages/core-utils | -> @packages/core-utils | N/A                  | N/A                  | extend            |
+| Concern               | Language                                  | Change Coupling                             | Routes                               | Lifecycle                                                      | Resolution                                                                                                                                              |
+| --------------------- | ----------------------------------------- | ------------------------------------------- | ------------------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Restock notifications | -> catalog (restock = product vocabulary) | -> orders (purchase triggers restock check) | -> catalog (`/catalog/products/:id`) | -> catalog (display on product detail, extends Product entity) | Lifecycle tiebreaker -> catalog: display lives in product detail page, data model extends Product entity. Purchase trigger is an event, not a coupling. |
 
 ## Mapping
 
-| Concern              | Target               | Decision          | Rationale                                                                               |
-| -------------------- | -------------------- | ----------------- | --------------------------------------------------------------------------------------- |
-| Invoice export       | billing/invoices     | extend            | Language + change coupling — extends existing invoice module                            |
-| Dashboard export     | analytics/reports    | extend            | Language + routes — extends existing reports route tree                                 |
-| Report scheduling    | analytics/reports    | extend+new-entity | Lifecycle cohesion — shares mutation flow with dashboards, but Schedule is a new entity |
-| Export format config | @packages/core-utils | extend            | Decision tree — cross-module infrastructure, stable + shared                            |
+| Concern                       | Target                      | Decision              | Scaffold  | Rationale                                                                                                                                                      |
+| ----------------------------- | --------------------------- | --------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Order status alerts           | orders/history              | extend                | —         | All heuristics unanimous — extends existing order detail page with alert display                                                                               |
+| Restock notifications         | catalog/products            | extend                | —         | Heuristic divergence resolved via lifecycle — product-scoped display and entity model                                                                          |
+| Notification preferences      | orders/notifications        | extend+new-entity     | subfolder | New NotificationPreference entity; no existing subfolder shares routes or UI on 2+ signals                                                                     |
+| Notification delivery service | packages/core-notifications | create                | package   | Cross-module infrastructure — both catalog and orders dispatch notifications; stable interface shared by multiple modules (heuristic #5)                       |
+| Notification badge in nav     | —                           | insufficient_evidence | —         | Language -> core-app (shell element), change coupling -> unclear (badge count depends on all modules); need to determine if a shared notification store exists |
 
-## Analysis Summary
+## Evidence Gaps
 
-"Export" appears in both billing and analytics, but means different things — billing exports invoices (transactional), analytics exports dashboards (aggregation). Bounded context boundary per heuristic #1. Report scheduling shares mutation lifecycle with existing analytics views. No new module needed. ExportFormat extracted to shared package per heuristic #5 (stable, cross-module).
+### GAP-1: Notification badge ownership
+
+- **Conflicting signals:** Language points to core-app (nav element). Change coupling unclear — badge count aggregates across all modules.
+- **What would resolve it:** Does a shared notification store exist, or would each module push counts independently? Who owns the aggregate unread count?
+- **Modules to investigate:** packages/core-app, packages/core-notifications (if created)
 ```
 
 </domain-mapping-example>

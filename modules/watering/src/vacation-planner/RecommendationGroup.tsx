@@ -1,8 +1,8 @@
 import { Badge } from "@packages/components";
-import type { PlantRecommendation, RecommendationType } from "@packages/core-plants/vacation";
 
 import { RecommendationCard } from "./RecommendationCard.tsx";
 import { recommendationLabels } from "./recommendationLabels.ts";
+import type { PlantRecommendation, RecommendationType } from "./vacationTypes.ts";
 
 interface RecommendationGroupProps {
     type: RecommendationType;

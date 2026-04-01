@@ -15,10 +15,10 @@ A pnpm monorepo with Turborepo orchestration and [Squide](https://github.com/gso
 ```
 apps/
   host/                        # Thin shell — bootstraps Squide, no feature logic
-  management-storybook/        # Management module Storybook
-  watering-storybook/          # Watering module Storybook
-  unified-storybook/           # Unified Storybook — all stories
-  packages-storybook/          # Shared package stories
+  storybook-management/        # Management module Storybook
+  storybook-watering/          # Watering module Storybook
+  storybook/                   # Unified Storybook — all stories
+  storybook-packages/          # Shared package stories
 modules/
   management/                  # Plant inventory + user account (@modules/management)
     src/inventory/             # Plant CRUD, plant list views
@@ -322,9 +322,9 @@ cross-env MODULES=management pnpm dev-host
 
 ```bash
 pnpm dev-storybook               # Unified Storybook — all stories (http://localhost:6006)
-pnpm dev-packages-storybook      # Shared components
-pnpm dev-management-storybook    # Management module
-pnpm dev-watering-storybook      # Watering module
+pnpm dev-storybook-packages      # Shared components
+pnpm dev-storybook-management    # Management module
+pnpm dev-storybook-watering      # Watering module
 ```
 
 ### Run checks

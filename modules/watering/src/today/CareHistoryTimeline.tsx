@@ -1,7 +1,8 @@
 import { format } from "date-fns";
 
-import { CareEventBadge } from "@packages/core-plants";
 import type { CareEvent } from "@packages/core-plants/care-event";
+
+import { CareEventBadge } from "./CareEventBadge.tsx";
 
 interface CareHistoryTimelineProps {
     events: CareEvent[];

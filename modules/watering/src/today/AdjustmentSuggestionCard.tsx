@@ -2,8 +2,8 @@ import { Check, X } from "lucide-react";
 
 import { Badge, Button, cn } from "@packages/components";
 
-import type { AdjustmentRecommendation, Confidence } from "./care-event/adjustmentTypes.ts";
-import { formatIntervalLabel } from "./care-event/adjustmentUtils.ts";
+import type { AdjustmentRecommendation, Confidence } from "./adjustmentTypes.ts";
+import { formatIntervalLabel } from "./adjustmentUtils.ts";
 
 const confidenceConfig: Record<Confidence, { label: string; className: string }> = {
     low: {

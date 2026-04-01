@@ -3,8 +3,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useMemo, type ReactNode } from "react";
 
 import type { CareEvent } from "@packages/core-plants/care-event";
-import { makeAdjustmentRecommendation, makeCareEvent } from "@packages/core-plants/test-utils";
+import { makeCareEvent } from "@packages/core-plants/test-utils";
 
+import { makeAdjustmentRecommendation } from "./makeAdjustment.ts";
 import { createAdjustmentHandlers, createCareEventHandlers } from "./mocks/index.ts";
 import { PlantCareSection } from "./PlantCareSection.tsx";
 import { fireflyDecorator } from "./storybook.setup.tsx";

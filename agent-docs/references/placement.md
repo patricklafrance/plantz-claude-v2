@@ -32,11 +32,11 @@ Subfolders are internal organizational boundaries — they share the same packag
 
 ## Packages
 
-| Package                 | Responsibility                                                                          | Anti-scope                                                      |
-| ----------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `@packages/core-module` | Authentication, session management, user identity, shell UI (layout, navigation, login) | No feature-specific business logic. No plant or household data. |
-| `@packages/core-plants` | Shared plant types, schemas, UI components, collection factories, care event display    | No app-specific routing or page components. No authentication.  |
-| `@packages/components`  | Reusable design-system primitives (shadcn/ui) with zero feature logic                   | No data fetching. No feature types. No business logic.          |
+| Package                 | Responsibility                                                                                    | Anti-scope                                                                                                         |
+| ----------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `@packages/core-module` | Authentication, session management, user identity, shell UI (layout, navigation, login)           | No feature-specific business logic. No plant or household data.                                                    |
+| `@packages/core-plants` | Cross-module plant types, schemas, DB singletons, collection factories, shared UI, test utilities | No module-specific domain logic (vacation, adjustments, care insights computation). No routing. No authentication. |
+| `@packages/components`  | Reusable design-system primitives (shadcn/ui) with zero feature logic                             | No data fetching. No feature types. No business logic.                                                             |
 
 ## Module Isolation
 

@@ -1,4 +1,4 @@
-import type { AdjustmentEvent, AdjustmentRecommendation } from "../care-event/adjustmentTypes.ts";
+import type { AdjustmentEvent, AdjustmentRecommendation } from "./adjustmentTypes.ts";
 
 let counter = 0;
 

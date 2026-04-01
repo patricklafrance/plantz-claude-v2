@@ -50,8 +50,8 @@ Derived from the module path. **PascalCase** means split on `-`, capitalize each
 - **Register function $id** — If `src/{registerFunction}.tsx` calls `registerNavigationItem`, the `$id` value matches the derived `$id`. Skip if no nav item is registered.
 - **Host registration** — `apps/host/src/getActiveModules.tsx` imports the register function and has the registry key in `ModuleRegistry`. `apps/host/package.json` lists the package in dependencies.
 - **Host CSS** — `apps/host/src/styles/globals.css` has a `@source` directive for the module.
-- **Module storybook** — `apps/{module}-storybook/.storybook/main.ts` has a story glob and `storybook.css` has a `@source` directive. Skip if module storybook doesn't exist.
-- **Unified storybook** — `apps/unified-storybook/.storybook/main.ts` has a story glob and `storybook.css` has a `@source` directive.
+- **Module storybook** — `apps/storybook-{module}/.storybook/main.ts` has a story glob and `storybook.css` has a `@source` directive. Skip if module storybook doesn't exist.
+- **Unified storybook** — `apps/storybook/.storybook/main.ts` has a story glob and `storybook.css` has a `@source` directive.
 - **Affected detection** — `scripts/get-affected-storybooks.ts` includes the package name in the module's `StorybookDependencies` entry.
 - **Dev script** — Root `package.json` has the derived dev script name.
 - **Tsconfig** — Extends `"@workleap/typescript-configs/library.json"`.

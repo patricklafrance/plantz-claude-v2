@@ -2,9 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useMemo, type ReactNode } from "react";
 
-import { makeAdjustmentEvent, makeAdjustmentRecommendation } from "@packages/core-plants/test-utils";
-
 import { AdjustmentSection } from "./AdjustmentSection.tsx";
+import { makeAdjustmentEvent, makeAdjustmentRecommendation } from "./makeAdjustment.ts";
 import { createAdjustmentHandlers } from "./mocks/index.ts";
 import { fireflyDecorator } from "./storybook.setup.tsx";
 

@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import type { PlantRecommendation } from "@packages/core-plants/vacation";
-
 import { RecommendationGroup } from "./RecommendationGroup.tsx";
+import type { PlantRecommendation } from "./vacationTypes.ts";
 
 function makeRecommendation(overrides: Partial<PlantRecommendation> & { plantId: string; plantName: string }): PlantRecommendation {
     return {

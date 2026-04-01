@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { AdjustmentSuggestionCard } from "./AdjustmentSuggestionCard.tsx";
-import { makeAdjustmentRecommendation } from "./test-utils/makeAdjustment.ts";
+import { makeAdjustmentRecommendation } from "./makeAdjustment.ts";
 
 const meta = {
-    title: "Packages/CorePlants/Components/AdjustmentSuggestionCard",
+    title: "Watering/Today/Components/AdjustmentSuggestionCard",
     component: AdjustmentSuggestionCard,
     parameters: {
         chromatic: {

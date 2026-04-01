@@ -2,14 +2,9 @@ import { useReducer, useCallback } from "react";
 
 import { getAuthHeaders } from "@packages/core-module";
 import type { Plant } from "@packages/core-plants";
-import {
-    generateForecast,
-    type PlanningStrategy,
-    type PlantRecommendation,
-    type RecommendationType,
-    type DelegationInfo,
-    type VacationPlan
-} from "@packages/core-plants/vacation";
+
+import { generateForecast } from "./vacationForecast.ts";
+import type { PlanningStrategy, PlantRecommendation, RecommendationType, DelegationInfo, VacationPlan } from "./vacationTypes.ts";
 
 interface VacationPlanState {
     plan: VacationPlan | null;

@@ -1,11 +1,12 @@
+import type { CareEvent, CareInsight } from "@packages/core-plants/care-event";
+
 import { MS_PER_DAY, getWateredEventsByDateAsc } from "./careEventHelpers.ts";
-import type { CareEvent, CareInsight } from "./careEventTypes.ts";
 
 function sortByDateDesc(events: CareEvent[]): CareEvent[] {
     return events.toSorted((a, b) => b.eventDate.getTime() - a.eventDate.getTime());
 }
 
-export function getLastWateredDate(events: CareEvent[]): Date | null {
+function getLastWateredDate(events: CareEvent[]): Date | null {
     const watered = events.filter(e => e.eventType === "watered");
     if (watered.length === 0) {
         return null;
@@ -16,7 +17,7 @@ export function getLastWateredDate(events: CareEvent[]): Date | null {
     return sorted[0]!.eventDate;
 }
 
-export function computeAverageInterval(events: CareEvent[]): number | null {
+function computeAverageInterval(events: CareEvent[]): number | null {
     const watered = getWateredEventsByDateAsc(events);
 
     return computeAverageIntervalFromWatered(watered);
@@ -37,7 +38,7 @@ function computeAverageIntervalFromWatered(watered: CareEvent[]): number | null 
     return Math.round((totalDays / (watered.length - 1)) * 10) / 10;
 }
 
-export function computeWateringStreak(events: CareEvent[]): number {
+function computeWateringStreak(events: CareEvent[]): number {
     const sorted = sortByDateDesc(events);
     let streak = 0;
 
@@ -52,7 +53,7 @@ export function computeWateringStreak(events: CareEvent[]): number {
     return streak;
 }
 
-export function countMissedWaterings(events: CareEvent[], expectedFrequencyDays: number): number {
+function countMissedWaterings(events: CareEvent[], expectedFrequencyDays: number): number {
     const watered = getWateredEventsByDateAsc(events);
 
     return countMissedFromWatered(watered, expectedFrequencyDays);

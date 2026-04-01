@@ -1,6 +1,7 @@
 import { getAuthHeaders } from "@packages/core-module";
-import type { AdjustmentEvent, AdjustmentRecommendation } from "@packages/core-plants/care-event";
-import { adjustmentEventSchema, adjustmentRecommendationSchema } from "@packages/core-plants/care-event";
+
+import { adjustmentEventSchema, adjustmentRecommendationSchema } from "./adjustmentSchema.ts";
+import type { AdjustmentEvent, AdjustmentRecommendation } from "./adjustmentTypes.ts";
 
 export async function fetchAdjustmentRecommendation(plantId: string, currentIntervalDays: number): Promise<AdjustmentRecommendation | null> {
     const params = new URLSearchParams({

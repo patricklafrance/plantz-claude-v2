@@ -1,5 +1,5 @@
 {
-    "name": "@apps/watering-storybook",
+    "name": "@apps/storybook-watering",
     "version": "0.0.0",
     "private": true,
     "description": "Storybook application for the watering domain.",

@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import type { PlantRecommendation } from "@packages/core-plants/vacation";
-
 import { RecommendationCard } from "./RecommendationCard.tsx";
+import type { PlantRecommendation } from "./vacationTypes.ts";
 
 const FAR_FUTURE = new Date(2099, 0, 1);
 

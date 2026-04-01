@@ -10,10 +10,10 @@ A plants watering application and proof-of-concept for Claude Code agent workflo
 plantz-claude/
   apps/
     host/                        # Squide host application (@apps/host)
-    unified-storybook/               # All stories across the repo (@apps/unified-storybook)
-    packages-storybook/              # Shared package stories (@apps/packages-storybook)
-    management-storybook/            # Management module Storybook (@apps/management-storybook)
-    watering-storybook/              # Watering module Storybook (@apps/watering-storybook)
+    storybook/                       # All stories across the repo (@apps/storybook)
+    storybook-packages/              # Shared package stories (@apps/storybook-packages)
+    storybook-management/            # Management module Storybook (@apps/storybook-management)
+    storybook-watering/              # Watering module Storybook (@apps/storybook-watering)
   modules/
     management/                      # @modules/management (inventory + account subfolders)
     watering/                        # @modules/watering (today + vacation-planner subfolders)
@@ -33,11 +33,11 @@ plantz-claude/
 | Workspace path          | Package scope | Example                      |
 | ----------------------- | ------------- | ---------------------------- |
 | `apps/host`             | `@apps/*`     | `@apps/host`                 |
-| `apps/<name>-storybook` | `@apps/*`     | `@apps/management-storybook` |
+| `apps/storybook-<name>` | `@apps/*`     | `@apps/storybook-management` |
 | `modules/*`             | `@modules/*`  | `@modules/management`        |
 | `packages/*`            | `@packages/*` | `@packages/core-plants`      |
 
-> **Exception:** `apps/packages-storybook` uses `@apps/packages-storybook` (historical convention — Storybook runner apps always use `@apps/*`).
+> **Exception:** `apps/storybook-packages` uses `@apps/storybook-packages` (historical convention — Storybook runner apps always use `@apps/*`).
 
 ## Squide host/module topology
 
@@ -47,7 +47,7 @@ plantz-claude/
 - **Module internal structure**: Modules are wide-scoped — each covers a broad set of related features organized into internal subfolders. `@modules/management` has `inventory/` and `account/` subfolders. `@modules/watering` has `today/` and `vacation-planner/` subfolders. These subfolders are NOT separate packages — they are internal organizational boundaries within a single package.
 - **Shared packages**: Three tiers live under `packages/`, each with a distinct scope:
     - `@packages/core-module` — Cross-module **infrastructure** any Squide app needs: session context, auth headers, auth error handling, MSW auth helpers, `usersDb`, `getUserId`, and the app shell (`./shell` sub-path — RootLayout, LoginPage, NotFoundPage, UserMenu, registerShell). Not feature-specific.
-    - `@packages/core-plants` — Shared **plant** code: types, DB schema, collection factories, plant-specific utilities and components. Subpath exports include `./collection`, `./db`, `./care-event` (care event types, schemas, insight utilities, and adjustment recommendation types/schemas/computation), `./vacation`, and `./test-utils`. Used by modules, not by generic packages like `components`.
+    - `@packages/core-plants` — Cross-module **plant** code: types, schemas, DB singletons, collection factories, shared UI components, and test utilities. Subpath exports: `./collection`, `./db`, `./care-event` (care event types and schema only), `./test-utils`. Module-specific logic (vacation planning, adjustment recommendations, care insights computation) lives in the consuming module (`@modules/watering`).
     - `@packages/components` — Feature-agnostic **UI** (shadcn/ui + Tailwind v4). Could theoretically be extracted as a standalone design system.
     - If a utility is generic enough to be needed by `@packages/components`, it belongs in a new `core` package (doesn't exist yet), not in `core-module` or `core-plants`.
 - **JIT packages**: Packages under `packages/` expose source directly via `exports` fields (e.g., `"./": "./src/index.ts"`). Consumers compile them at build time through their own bundler — no pre-build step is required. This means the Turborepo `dev` task has no `^dev` dependency; persistent watch builds in packages run in parallel, not as prerequisites. See [ODR-0004](odr/0004-jit-packages.md) for rationale.
@@ -56,12 +56,12 @@ See [ADR-0001](adr/0001-squide-local-modules.md) for rationale.
 
 ## Storybooks
 
-Each module has its own Storybook at `apps/<name>-storybook/` with independent Chromatic tokens:
+Each module has its own Storybook at `apps/storybook-<name>/` with independent Chromatic tokens:
 
-- **management-storybook** — Stories for the management module (`apps/management-storybook/`)
-- **watering-storybook** — Stories for the watering module (`apps/watering-storybook/`)
+- **storybook-management** — Stories for the management module (`apps/storybook-management/`)
+- **storybook-watering** — Stories for the watering module (`apps/storybook-watering/`)
 
-A packages-layer Storybook (`apps/packages-storybook/`, `@apps/packages-storybook`) is purely a runner for shared package stories — it contains no exported utilities. Storybook infrastructure (MSW via `msw-storybook-addon`, Squide runtime via a `firefly.tsx` in each storybook app, collection context) is configured per-module in each module's `storybook.setup.tsx`. A unified Storybook (`apps/unified-storybook/`) aggregates all stories across the entire repo and is the sole target for browser verification (`pnpm dev-storybook`). Per-module storybooks are used for Chromatic visual regression, a11y tests, and developer workflow.
+A packages-layer Storybook (`apps/storybook-packages/`, `@apps/storybook-packages`) is purely a runner for shared package stories — it contains no exported utilities. Storybook infrastructure (MSW via `msw-storybook-addon`, Squide runtime via a `firefly.tsx` in each storybook app, collection context) is configured per-module in each module's `storybook.setup.tsx`. A unified Storybook (`apps/storybook/`) aggregates all stories across the entire repo and is the sole target for browser verification (`pnpm dev-storybook`). Per-module storybooks are used for Chromatic visual regression, a11y tests, and developer workflow.
 
 See [ADR-0002](adr/0002-domain-scoped-storybooks.md) for rationale.
 

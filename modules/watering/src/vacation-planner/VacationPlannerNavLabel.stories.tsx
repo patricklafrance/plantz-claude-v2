@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { http, HttpResponse } from "msw";
 
-import type { VacationPlan } from "@packages/core-plants/vacation";
-
 import { VacationPlannerNavLabel } from "./VacationPlannerNavLabel.tsx";
+import type { VacationPlan } from "./vacationTypes.ts";
 
 const activePlan: VacationPlan = {
     id: "plan-1",

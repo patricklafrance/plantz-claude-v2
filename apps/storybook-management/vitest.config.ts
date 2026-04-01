@@ -20,7 +20,7 @@ export default defineConfig({
         })
     ],
     test: {
-        name: "management-storybook",
+        name: "storybook-management",
         globalSetup: ["./vitest.globalSetup.ts"],
         browser: {
             enabled: true,

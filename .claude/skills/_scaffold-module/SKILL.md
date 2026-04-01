@@ -124,7 +124,7 @@ If the module storybook doesn’t exist yet, skip and warn.
 
 ### 5. Update unified storybook
 
-In `apps/unified-storybook/.storybook/`:
+In `apps/storybook/.storybook/`:
 
 1. `main.ts` — add story glob under the `// {ModuleTitle}` comment section.
 2. `storybook.css` — add `@source` directive for the module source files.

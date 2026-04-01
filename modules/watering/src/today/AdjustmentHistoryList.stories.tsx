@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { AdjustmentHistoryList } from "./AdjustmentHistoryList.tsx";
-import { makeAdjustmentEvent } from "./test-utils/makeAdjustment.ts";
+import { makeAdjustmentEvent } from "./makeAdjustment.ts";
 
 const meta = {
-    title: "Packages/CorePlants/Components/AdjustmentHistoryList",
+    title: "Watering/Today/Components/AdjustmentHistoryList",
     component: AdjustmentHistoryList,
     parameters: {
         chromatic: {

@@ -15,7 +15,7 @@ Multiple modules (management, watering) and a shared packages layer each need vi
 
 ## Decision
 
-Use per-module Storybooks (Option 1). Each module has a Storybook at `apps/<name>-storybook/` (e.g., `apps/management-storybook/`, `apps/watering-storybook/`), and shared packages have one at `apps/packages-storybook/`. This allows independent Chromatic runs that skip unaffected modules. A unified Storybook at `apps/unified-storybook/` aggregates all stories for local development convenience but is not used by Chromatic.
+Use per-module Storybooks (Option 1). Each module has a Storybook at `apps/storybook-<name>/` (e.g., `apps/storybook-management/`, `apps/storybook-watering/`), and shared packages have one at `apps/storybook-packages/`. This allows independent Chromatic runs that skip unaffected modules. A unified Storybook at `apps/storybook/` aggregates all stories for local development convenience but is not used by Chromatic.
 
 ## Consequences
 
@@ -24,4 +24,4 @@ See [ARCHITECTURE.md](../ARCHITECTURE.md#domain-storybooks) for the resulting St
 Additional implications:
 
 - Separate Chromatic project tokens per module (`MANAGEMENT_CHROMATIC_PROJECT_TOKEN`, `WATERING_CHROMATIC_PROJECT_TOKEN`, `PACKAGES_CHROMATIC_PROJECT_TOKEN`).
-- Adding a new module requires a new Storybook app at `apps/<name>-storybook/`, a Chromatic token, and an update to `StorybookDependencies` in `scripts/get-affected-storybooks.ts`.
+- Adding a new module requires a new Storybook app at `apps/storybook-<name>/`, a Chromatic token, and an update to `StorybookDependencies` in `scripts/get-affected-storybooks.ts`.

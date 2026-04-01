@@ -1,6 +1,7 @@
+import type { CareEvent } from "@packages/core-plants/care-event";
+
 import type { AdjustmentRecommendation, Confidence } from "./adjustmentTypes.ts";
 import { MS_PER_DAY, getWateredEventsByDateAsc } from "./careEventHelpers.ts";
-import type { CareEvent } from "./careEventTypes.ts";
 
 const MIN_INTERVAL = 2;
 const MAX_INTERVAL = 21;
@@ -33,7 +34,7 @@ function computeVariance(intervals: number[], mean: number): number {
     return sumSqDiff / intervals.length;
 }
 
-export function computeConfidence(eventCount: number, variance: number): Confidence {
+function computeConfidence(eventCount: number, variance: number): Confidence {
     if (eventCount < 5 || variance > 16) {
         return "low";
     }

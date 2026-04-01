@@ -1,5 +1,5 @@
-import type { WateringFrequencyId } from "../constants.ts";
-import type { Plant } from "../plantSchema.ts";
+import type { Plant, WateringFrequencyId } from "@packages/core-plants";
+
 import type { PlantRecommendation, PlanningStrategy, RecommendationType, RiskLevel } from "./vacationTypes.ts";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;

@@ -21,8 +21,8 @@ Combine custom affected-detection with label gating and Chromatic's `onlyChanged
 ## Consequences
 
 - PRs require the `run chromatic` label to trigger visual regression testing.
-- `scripts/get-affected-storybooks.ts` determines which Storybooks are affected using Turborepo's dependency graph. The `StorybookDependencies` mapping links module packages (`@modules/management`, `@modules/watering`) to their corresponding Storybook apps (`@apps/management-storybook`, `@apps/watering-storybook`). Unaffected Storybooks are skipped entirely.
-- Storybook paths: `apps/management-storybook/`, `apps/watering-storybook/`, `apps/packages-storybook/`.
+- `scripts/get-affected-storybooks.ts` determines which Storybooks are affected using Turborepo's dependency graph. The `StorybookDependencies` mapping links module packages (`@modules/management`, `@modules/watering`) to their corresponding Storybook apps (`@apps/storybook-management`, `@apps/storybook-watering`). Unaffected Storybooks are skipped entirely.
+- Storybook paths: `apps/storybook-management/`, `apps/storybook-watering/`, `apps/storybook-packages/`.
 - Chromatic tokens: `MANAGEMENT_CHROMATIC_PROJECT_TOKEN`, `WATERING_CHROMATIC_PROJECT_TOKEN`, `PACKAGES_CHROMATIC_PROJECT_TOKEN`.
 - On push to `main`, changes are auto-accepted as the new Chromatic baseline.
 - If the affected-detection script fails, all Storybooks run as a fallback — safety over speed.

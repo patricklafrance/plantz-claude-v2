@@ -1,4 +1,4 @@
-import type { CareEvent } from "./careEventTypes.ts";
+import type { CareEvent } from "@packages/core-plants/care-event";
 
 export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 

@@ -2,7 +2,7 @@
     "name": "@packages/core-plants",
     "version": "0.0.0",
     "private": true,
-    "description": "Plant-domain shared code — types, DB schema, collection factories, utilities, and components used by domain modules.",
+    "description": "Cross-module plant code — types, schemas, DB singletons, collection factories, shared UI components, and test utilities.",
     "license": "Apache-2.0",
     "author": "Patrick Lafrance",
     "type": "module",
@@ -11,8 +11,7 @@
         "./collection": "./src/collection/index.ts",
         "./db": "./src/msw/index.ts",
         "./test-utils": "./src/test-utils/index.ts",
-        "./care-event": "./src/care-event/index.ts",
-        "./vacation": "./src/vacation/index.ts"
+        "./care-event": "./src/care-event/index.ts"
     },
     "scripts": {
         "typecheck": "tsgo"
@@ -21,7 +20,6 @@
         "@packages/components": "workspace:*",
         "@tanstack/db": "^0.5.32",
         "@tanstack/query-db-collection": "^1.0.29",
-        "date-fns": "^4.1.0",
         "lucide-react": "^0.577.0",
         "zod": "^4.3.6"
     },

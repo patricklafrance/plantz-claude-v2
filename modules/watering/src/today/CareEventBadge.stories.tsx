@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { CareEventBadge } from "./CareEventBadge.tsx";
 
 const meta = {
-    title: "Packages/CorePlants/Components/CareEventBadge",
+    title: "Watering/Today/Components/CareEventBadge",
     component: CareEventBadge,
     parameters: {
         chromatic: {

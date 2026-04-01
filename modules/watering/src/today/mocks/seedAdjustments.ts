@@ -1,5 +1,6 @@
-import type { AdjustmentEvent } from "@packages/core-plants/care-event";
 import { defaultSeedPlants } from "@packages/core-plants/db";
+
+import type { AdjustmentEvent } from "../adjustmentTypes.ts";
 
 // Generate a few deterministic adjustment events for the first 3 plants that have care event history.
 // Uses fixed absolute dates for Chromatic determinism.

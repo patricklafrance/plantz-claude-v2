@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { http, HttpResponse } from "msw";
 
-import type { VacationPlan } from "@packages/core-plants/vacation";
-
+import type { VacationPlan } from "../vacation-planner/vacationTypes.ts";
 import { fireflyDecorator } from "./storybook.setup.tsx";
 import { VacationPlanBanner } from "./VacationPlanBanner.tsx";
 

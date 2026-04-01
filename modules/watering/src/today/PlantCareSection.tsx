@@ -1,8 +1,9 @@
-import { CareInsightsSummary, getFrequencyDays } from "@packages/core-plants";
-import { computeCareInsights } from "@packages/core-plants/care-event";
+import { getFrequencyDays } from "@packages/core-plants";
 
 import { AdjustmentSection } from "./AdjustmentSection.tsx";
+import { computeCareInsights } from "./careEventUtils.ts";
 import { CareHistoryTimeline } from "./CareHistoryTimeline.tsx";
+import { CareInsightsSummary } from "./CareInsightsSummary.tsx";
 import { useCareEvents } from "./useCareEvents.ts";
 
 interface PlantCareSectionProps {

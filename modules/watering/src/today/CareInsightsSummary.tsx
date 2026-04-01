@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 
-import type { CareInsight } from "./care-event/careEventTypes.ts";
+import type { CareInsight } from "@packages/core-plants/care-event";
 
 interface CareInsightsSummaryProps {
     insights: CareInsight | null;

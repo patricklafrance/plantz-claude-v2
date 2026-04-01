@@ -1,6 +1,6 @@
 import { delay, http, HttpResponse } from "msw";
 
-import type { AdjustmentEvent, AdjustmentRecommendation } from "@packages/core-plants/care-event";
+import type { AdjustmentEvent, AdjustmentRecommendation } from "../adjustmentTypes.ts";
 
 type AdjustmentHandlersData =
     | {

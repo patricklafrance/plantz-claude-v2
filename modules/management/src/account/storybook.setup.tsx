@@ -4,7 +4,7 @@ import { NoopLogger } from "@workleap/logging";
 
 import { SessionProvider } from "@packages/core-module";
 
-import { initializeFireflyForStorybook, withFireflyDecorator } from "../../../../apps/management-storybook/firefly.tsx";
+import { initializeFireflyForStorybook, withFireflyDecorator } from "../../../../apps/storybook-management/firefly.tsx";
 
 const runtime = await initializeFireflyForStorybook({
     loggers: [new NoopLogger()]

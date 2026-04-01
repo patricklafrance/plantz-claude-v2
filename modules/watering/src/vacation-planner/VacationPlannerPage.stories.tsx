@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/core-plants/test-utils";
-import type { VacationPlan } from "@packages/core-plants/vacation";
 
 import { createTodayVacationPlannerHandlers } from "./mocks/index.ts";
 import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
 import { VacationPlannerPage } from "./VacationPlannerPage.tsx";
+import type { VacationPlan } from "./vacationTypes.ts";
 
 // Trip dates far in the future so stories are deterministic
 const TRIP_START = new Date(2099, 5, 1); // June 1, 2099

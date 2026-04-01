@@ -20,7 +20,7 @@ export default defineConfig({
         })
     ],
     test: {
-        name: "watering-storybook",
+        name: "storybook-watering",
         globalSetup: ["./vitest.globalSetup.ts"],
         browser: {
             enabled: true,

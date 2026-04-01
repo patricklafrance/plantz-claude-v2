@@ -3,9 +3,9 @@ import { http, HttpResponse } from "msw";
 import { getUserId } from "@packages/core-module/db";
 import { getFrequencyDays } from "@packages/core-plants";
 import type { WateringFrequencyId } from "@packages/core-plants";
-import { computeAdjustmentRecommendation } from "@packages/core-plants/care-event";
 import { careEventsDb, plantsDb } from "@packages/core-plants/db";
 
+import { computeAdjustmentRecommendation } from "../adjustmentUtils.ts";
 import { adjustmentsDb } from "./adjustmentsDb.ts";
 
 const FREQUENCY_IDS: WateringFrequencyId[] = ["0.5-week", "1-week", "1.5-weeks", "2-weeks", "2.5-weeks"];

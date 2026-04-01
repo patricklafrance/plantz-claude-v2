@@ -20,7 +20,7 @@ export default defineConfig({
         })
     ],
     test: {
-        name: "packages-storybook",
+        name: "storybook-packages",
         globalSetup: ["./vitest.globalSetup.ts"],
         browser: {
             enabled: true,

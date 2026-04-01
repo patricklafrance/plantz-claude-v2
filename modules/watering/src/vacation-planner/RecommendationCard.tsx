@@ -1,9 +1,9 @@
 import { format } from "date-fns";
 
 import { Badge, Button } from "@packages/components";
-import type { PlantRecommendation, RecommendationType } from "@packages/core-plants/vacation";
 
 import { recommendationLabels } from "./recommendationLabels.ts";
+import type { PlantRecommendation, RecommendationType } from "./vacationTypes.ts";
 
 const typeBadgeVariants: Record<RecommendationType, "default" | "secondary" | "destructive" | "outline"> = {
     "water-before-trip": "default",

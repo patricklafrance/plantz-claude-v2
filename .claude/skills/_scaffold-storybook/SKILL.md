@@ -36,7 +36,7 @@ Module-level values are discovered at runtime:
 
 ## Reference storybook
 
-`apps/management-storybook/` is the canonical reference. Before creating any file, read all 9 files:
+`apps/storybook-management/` is the canonical reference. Before creating any file, read all 9 files:
 
 1. `package.json`
 2. `.storybook/main.ts`
@@ -55,13 +55,13 @@ Copy dependency versions and config values exactly — never hardcode from memor
 ### 1. Validate
 
 - Confirm `modules/{module}/` exists. If not, ask the user.
-- Confirm `apps/{module}-storybook/` does NOT exist. If it does, stop.
+- Confirm `apps/storybook-{module}/` does NOT exist. If it does, stop.
 - Scan `modules/{module}/` for subfolders.
 - Read `modules/{module}/package.json` to get its package name.
 
 ### 2. Create storybook files
 
-Create 9 files under `apps/{module}-storybook/`. Clone each from the reference.
+Create 9 files under `apps/storybook-{module}/`. Clone each from the reference.
 
 **Files with substitutions:**
 
@@ -70,8 +70,8 @@ Create 9 files under `apps/{module}-storybook/`. Clone each from the reference.
 | `package.json`             | `name` and `description` only. Copy everything else verbatim.                                                                       |
 | `.storybook/main.ts`       | Replace `stories` array with globs covering the module’s subfolders.                                                                |
 | `.storybook/storybook.css` | Replace module-specific `@source` lines with ones covering the module’s source. Keep the `@import` and `@packages/components` source as-is. |
-| `chromatic.config.json`    | `storybookBaseDir` → `apps/{module}-storybook`. Remove `projectId` — the user sets it after creating the Chromatic project.         |
-| `vitest.config.ts`         | `test.name` → `{module}-storybook`.                                                                                                |
+| `chromatic.config.json`    | `storybookBaseDir` → `apps/storybook-{module}`. Remove `projectId` — the user sets it after creating the Chromatic project.         |
+| `vitest.config.ts`         | `test.name` → `storybook-{module}`.                                                                                                |
 
 **Files cloned without changes:** `preview.tsx`, `vitest.setup.ts`, `tsconfig.json`, `vite.config.ts`.
 
@@ -80,12 +80,12 @@ Create 9 files under `apps/{module}-storybook/`. Clone each from the reference.
 In root `package.json`, add:
 
 ```
-"dev-{module}-storybook": "turbo run dev --filter=@apps/{module}-storybook"
+"dev-storybook-{module}": "turbo run dev --filter=@apps/storybook-{module}"
 ```
 
 ### 4. Update unified storybook
 
-In `apps/unified-storybook/.storybook/`:
+In `apps/storybook/.storybook/`:
 
 1. `main.ts` — add story globs under a `// {ModuleTitle}` comment section.
 2. `storybook.css` — add `@source` directives for the module’s source files.

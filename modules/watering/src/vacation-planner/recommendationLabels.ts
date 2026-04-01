@@ -1,4 +1,4 @@
-import type { RecommendationType } from "@packages/core-plants/vacation";
+import type { RecommendationType } from "./vacationTypes.ts";
 
 export const recommendationLabels: Record<RecommendationType, string> = {
     "water-before-trip": "Water Before Trip",

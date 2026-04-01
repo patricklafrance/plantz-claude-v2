@@ -2,7 +2,8 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { Button, DatePicker, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea } from "@packages/components";
-import type { DelegationInfo } from "@packages/core-plants/vacation";
+
+import type { DelegationInfo } from "./vacationTypes.ts";
 
 const delegationSchema = z.object({
     helperName: z.string().min(1, "Helper name is required"),

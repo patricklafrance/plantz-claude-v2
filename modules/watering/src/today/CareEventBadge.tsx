@@ -1,6 +1,5 @@
 import { Badge, cn } from "@packages/components";
-
-import type { CareEventType } from "./care-event/careEventTypes.ts";
+import type { CareEventType } from "@packages/core-plants/care-event";
 
 const eventTypeConfig: Record<CareEventType, { label: string; className: string }> = {
     watered: {

@@ -1,7 +1,8 @@
 import { delay, http, HttpResponse } from "msw";
 
 import type { Plant } from "@packages/core-plants";
-import type { VacationPlan } from "@packages/core-plants/vacation";
+
+import type { VacationPlan } from "../../vacation-planner/vacationTypes.ts";
 
 type PlantsData = Plant[] | "loading" | "error";
 

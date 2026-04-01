@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import type { CareInsight } from "./care-event/careEventTypes.ts";
+import type { CareInsight } from "@packages/core-plants/care-event";
+
 import { CareInsightsSummary } from "./CareInsightsSummary.tsx";
 
 function makeInsight(overrides: Partial<CareInsight> = {}): CareInsight {
@@ -15,7 +16,7 @@ function makeInsight(overrides: Partial<CareInsight> = {}): CareInsight {
 }
 
 const meta = {
-    title: "Packages/CorePlants/Components/CareInsightsSummary",
+    title: "Watering/Today/Components/CareInsightsSummary",
     component: CareInsightsSummary,
     parameters: {
         chromatic: {

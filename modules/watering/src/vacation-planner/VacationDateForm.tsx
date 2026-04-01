@@ -1,7 +1,8 @@
 import { useState } from "react";
 
 import { Button, DatePicker, Label, Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@packages/components";
-import type { PlanningStrategy } from "@packages/core-plants/vacation";
+
+import type { PlanningStrategy } from "./vacationTypes.ts";
 
 interface VacationDateFormProps {
     onGenerate: (startDate: Date, endDate: Date, strategy: PlanningStrategy) => void;

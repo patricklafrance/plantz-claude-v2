@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
 import { getAuthHeaders } from "@packages/core-module";
-import type { VacationPlan } from "@packages/core-plants/vacation";
+
+import type { VacationPlan } from "../vacation-planner/vacationTypes.ts";
 
 export function VacationPlanBanner() {
     const [plan, setPlan] = useState<VacationPlan | null>(null);

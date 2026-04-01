@@ -3,13 +3,13 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 
 import { Badge, Button } from "@packages/components";
 import { getAuthHeaders } from "@packages/core-module";
-import type { PlanningStrategy, RecommendationType, DelegationInfo } from "@packages/core-plants/vacation";
 
 import { DelegationDialog } from "./DelegationDialog.tsx";
 import { RecommendationGroup } from "./RecommendationGroup.tsx";
 import { useTodayVacationPlantsCollection } from "./TodayVacationPlantsContext.tsx";
 import { useVacationPlan } from "./useVacationPlan.ts";
 import { VacationDateForm } from "./VacationDateForm.tsx";
+import type { PlanningStrategy, RecommendationType, DelegationInfo } from "./vacationTypes.ts";
 
 const RECOMMENDATION_ORDER: RecommendationType[] = ["already-overdue", "water-before-trip", "delegate-watering", "safe-until-return"];
 

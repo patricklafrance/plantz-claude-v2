@@ -1,5 +1,5 @@
 {
-    "name": "@apps/packages-storybook",
+    "name": "@apps/storybook-packages",
     "version": "0.0.0",
     "private": true,
     "description": "Packages-layer Storybook for shared component stories.",
