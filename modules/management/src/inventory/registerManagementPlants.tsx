@@ -1,10 +1,18 @@
 import type { FireflyRuntime } from "@squide/firefly";
 import type { QueryClient } from "@tanstack/react-query";
 
+import type { HouseholdCollection } from "@packages/core-plants/collection";
+
+import { createManagementHouseholdCollection } from "../household/householdCollection.ts";
+import { ManagementHouseholdCollectionProvider } from "../household/ManagementHouseholdContext.tsx";
 import { ManagementPlantsCollectionProvider } from "./ManagementPlantsContext.tsx";
 import { createManagementPlantsCollection } from "./plantsCollection.ts";
 
-function registerRoutes(runtime: FireflyRuntime, collection: ReturnType<typeof createManagementPlantsCollection>) {
+function registerRoutes(
+    runtime: FireflyRuntime,
+    plantsCollection: ReturnType<typeof createManagementPlantsCollection>,
+    householdCollection: HouseholdCollection
+) {
     runtime.registerRoute({
         path: "/management/plants",
         lazy: async () => {
@@ -12,9 +20,11 @@ function registerRoutes(runtime: FireflyRuntime, collection: ReturnType<typeof c
 
             return {
                 element: (
-                    <ManagementPlantsCollectionProvider collection={collection}>
-                        <PlantsPage />
-                    </ManagementPlantsCollectionProvider>
+                    <ManagementHouseholdCollectionProvider collection={householdCollection}>
+                        <ManagementPlantsCollectionProvider collection={plantsCollection}>
+                            <PlantsPage />
+                        </ManagementPlantsCollectionProvider>
+                    </ManagementHouseholdCollectionProvider>
                 )
             };
         }
@@ -29,8 +39,9 @@ function registerRoutes(runtime: FireflyRuntime, collection: ReturnType<typeof c
 }
 
 export async function registerManagementPlants(runtime: FireflyRuntime, queryClient: QueryClient) {
-    const collection = createManagementPlantsCollection(queryClient);
-    registerRoutes(runtime, collection);
+    const plantsCollection = createManagementPlantsCollection(queryClient);
+    const householdCollection = createManagementHouseholdCollection(queryClient);
+    registerRoutes(runtime, plantsCollection, householdCollection);
 
     if (runtime.isMswEnabled) {
         const { managementPlantHandlers, managementCareEventHandlers } = await import("./mocks/index.ts");

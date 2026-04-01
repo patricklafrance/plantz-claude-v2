@@ -167,6 +167,18 @@ export const NotDueWithMarkWatered: Story = {
     }
 };
 
+export const SharedWithHousehold: Story = {
+    args: {
+        plant: makePlant({ householdId: "household-1" })
+    }
+};
+
+export const SharedAndDueForWatering: Story = {
+    args: {
+        plant: makePlant({ householdId: "household-1", nextWateringDate: FAR_PAST })
+    }
+};
+
 export const MistLeavesFalse: Story = {
     args: {
         plant: makePlant({ mistLeaves: false })

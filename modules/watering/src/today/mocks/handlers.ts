@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
 
 import { getUserId } from "@packages/core-module/db";
-import { plantsDb } from "@packages/core-plants/db";
+import { plantsDb, householdDb } from "@packages/core-plants/db";
 
 export const todayPlantHandlers = [
     http.get("/api/today/plants", ({ request }) => {
@@ -11,9 +11,22 @@ export const todayPlantHandlers = [
             return new HttpResponse(null, { status: 401 });
         }
 
-        const plants = plantsDb.getAllByUser(userId);
+        const userPlants = plantsDb.getAllByUser(userId);
 
-        return HttpResponse.json(plants);
+        // Include shared plants from the user's household
+        const household = householdDb.getByMemberId(userId);
+        if (household) {
+            const sharedPlants = plantsDb.getAllByHousehold(household.id);
+            // Merge, avoiding duplicates (user's own shared plants are already in userPlants)
+            const userPlantIds = new Set(userPlants.map(p => p.id));
+            const additionalShared = sharedPlants.filter(p => !userPlantIds.has(p.id));
+            const allPlants = [...userPlants, ...additionalShared];
+            allPlants.sort((a, b) => a.name.localeCompare(b.name));
+
+            return HttpResponse.json(allPlants);
+        }
+
+        return HttpResponse.json(userPlants);
     }),
 
     http.delete("/api/today/plants/:id", ({ params }) => {

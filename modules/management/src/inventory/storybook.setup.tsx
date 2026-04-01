@@ -4,6 +4,8 @@ import { NoopLogger } from "@workleap/logging";
 import { useMemo, type ReactNode } from "react";
 
 import { initializeFireflyForStorybook, withFireflyDecorator } from "../../../../apps/storybook-management/firefly.tsx";
+import { createManagementHouseholdCollection } from "../household/householdCollection.ts";
+import { ManagementHouseholdCollectionProvider } from "../household/ManagementHouseholdContext.tsx";
 import { ManagementPlantsCollectionProvider } from "./ManagementPlantsContext.tsx";
 import { createManagementPlantsCollection } from "./plantsCollection.ts";
 
@@ -21,11 +23,14 @@ function CollectionDecorator({ children }: { children: ReactNode }) {
             }),
         []
     );
-    const collection = useMemo(() => createManagementPlantsCollection(queryClient), [queryClient]);
+    const plantsCollection = useMemo(() => createManagementPlantsCollection(queryClient), [queryClient]);
+    const householdCollection = useMemo(() => createManagementHouseholdCollection(queryClient), [queryClient]);
 
     return (
         <QueryClientProvider client={queryClient}>
-            <ManagementPlantsCollectionProvider collection={collection}>{children}</ManagementPlantsCollectionProvider>
+            <ManagementHouseholdCollectionProvider collection={householdCollection}>
+                <ManagementPlantsCollectionProvider collection={plantsCollection}>{children}</ManagementPlantsCollectionProvider>
+            </ManagementHouseholdCollectionProvider>
         </QueryClientProvider>
     );
 }

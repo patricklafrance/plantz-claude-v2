@@ -21,6 +21,7 @@ export function makePlant(overrides: Partial<Plant> & { id: string; name: string
         nextWateringDate: FAR_FUTURE,
         creationDate: FIXED_CREATION,
         lastUpdateDate: FIXED_CREATION,
+        householdId: undefined,
         ...overrides
     };
 }

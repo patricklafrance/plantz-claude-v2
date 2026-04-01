@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { createManagementHouseholdHandlers } from "../household/mocks/createHandlers.ts";
 import { CreatePlantDialog } from "./CreatePlantDialog.tsx";
 import { managementPlantHandlers } from "./mocks/index.ts";
 import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
@@ -23,7 +24,7 @@ const meta = {
                 "dark desktop": { theme: "dark", viewport: 1280 }
             }
         },
-        msw: { handlers: managementPlantHandlers }
+        msw: { handlers: [...managementPlantHandlers, ...createManagementHouseholdHandlers([])] }
     },
     args: {
         open: true,

@@ -136,7 +136,8 @@ export function generatePlants(count?: number, userId?: string): Plant[] {
             wateringType: pick(wateringTypeIds),
             nextWateringDate,
             creationDate,
-            lastUpdateDate: new Date()
+            lastUpdateDate: new Date(),
+            householdId: Math.random() < 0.15 ? "household-1" : undefined
         });
     }
 

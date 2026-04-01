@@ -1,5 +1,6 @@
+import { useLiveQuery } from "@tanstack/react-db";
 import { format } from "date-fns";
-import { Droplets } from "lucide-react";
+import { Droplets, Users } from "lucide-react";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 
 import {
@@ -24,6 +25,7 @@ import {
 import { locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
 import type { Plant } from "@packages/core-plants";
 
+import { useManagementHouseholdCollection } from "../household/ManagementHouseholdContext.tsx";
 import { useManagementPlantsCollection } from "./ManagementPlantsContext.tsx";
 import { createManagementPlantActions } from "./plantsCollection.ts";
 
@@ -46,12 +48,18 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
     const [wateringFrequency, setWateringFrequency] = useState("");
     const [wateringQuantity, setWateringQuantity] = useState("");
     const [wateringType, setWateringType] = useState("");
+    const [householdId, setHouseholdId] = useState<string | undefined>(undefined);
     const [saved, setSaved] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const plantIdRef = useRef<string | null>(null);
 
     const collection = useManagementPlantsCollection();
     const actions = useMemo(() => createManagementPlantActions(collection), [collection]);
+
+    const householdCollection = useManagementHouseholdCollection();
+    const { data: households } = useLiveQuery(q => q.from({ household: householdCollection }));
+    const userHousehold = households?.[0];
 
     useEffect(() => {
         if (plant) {
@@ -66,7 +74,9 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
             setWateringFrequency(plant.wateringFrequency);
             setWateringQuantity(plant.wateringQuantity);
             setWateringType(plant.wateringType);
+            setHouseholdId(plant.householdId);
             setSaved(false);
+            setIsSaving(false);
         }
     }, [plant]);
 
@@ -80,6 +90,8 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
         const id = plantIdRef.current;
 
         try {
+            setIsSaving(true);
+
             const tx = actions.updatePlant({
                 id,
                 name: name.trim(),
@@ -91,18 +103,34 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                 soilType: soilType.trim() || undefined,
                 wateringFrequency,
                 wateringQuantity: wateringQuantity.trim(),
-                wateringType
+                wateringType,
+                householdId
             });
 
             tx.isPersisted.promise.then(() => {
+                setIsSaving(false);
                 setSaved(true);
                 setTimeout(() => setSaved(false), 2000);
             });
         } catch {
+            setIsSaving(false);
             // The collection may not contain the plant yet (e.g. initial fetch
             // still in flight). The next debounce cycle will retry.
         }
-    }, [name, description, family, location, luminosity, mistLeaves, soilType, wateringFrequency, wateringQuantity, wateringType, actions]);
+    }, [
+        name,
+        description,
+        family,
+        location,
+        luminosity,
+        mistLeaves,
+        soilType,
+        wateringFrequency,
+        wateringQuantity,
+        wateringType,
+        householdId,
+        actions
+    ]);
 
     useEffect(() => {
         if (!plant || !open) {
@@ -132,6 +160,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
         wateringFrequency,
         wateringQuantity,
         wateringType,
+        householdId,
         plant,
         open,
         saveChanges
@@ -150,9 +179,9 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                         <span
                             role="status"
                             aria-live="polite"
-                            className={`text-muted-foreground text-xs transition-opacity ${saved ? "opacity-100" : "opacity-0"}`}
+                            className={`text-muted-foreground text-xs transition-opacity ${isSaving || saved ? "opacity-100" : "opacity-0"}`}
                         >
-                            Saved
+                            {isSaving ? "Saving..." : "Saved"}
                         </span>
                     </div>
                 </DialogHeader>
@@ -227,6 +256,21 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                         <Label htmlFor="edit-soil">Soil type</Label>
                         <Input id="edit-soil" value={soilType} onChange={e => setSoilType(e.target.value)} />
                     </div>
+                    {userHousehold && (
+                        <div className="flex items-center gap-3">
+                            <Label htmlFor="edit-sharing" className="flex items-center gap-2">
+                                <Users className="size-4" aria-hidden="true" />
+                                Share with {userHousehold.name}
+                            </Label>
+                            <Switch
+                                id="edit-sharing"
+                                checked={!!householdId}
+                                onCheckedChange={checked => {
+                                    setHouseholdId(checked ? userHousehold.id : undefined);
+                                }}
+                            />
+                        </div>
+                    )}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1.5">
                             <Label htmlFor="edit-watering-frequency">Watering frequency *</Label>

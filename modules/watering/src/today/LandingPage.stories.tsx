@@ -111,6 +111,21 @@ const activePlan: VacationPlan = {
     updatedAt: new Date(2099, 4, 20)
 };
 
+// Some plants are shared with a household — the Users icon indicator should appear
+export const WithSharedPlants: Story = {
+    parameters: {
+        msw: {
+            handlers: createTodayPlantHandlers([
+                makePlant({ id: "due-1", name: "Aloe Vera", nextWateringDate: FAR_PAST }),
+                makePlant({ id: "due-shared-1", name: "Shared Fern", nextWateringDate: FAR_PAST, householdId: "household-1" }),
+                makePlant({ id: "due-shared-2", name: "Shared Cactus", nextWateringDate: FAR_PAST, householdId: "household-1" }),
+                makePlant({ id: "not-due-1", name: "Private Pothos", nextWateringDate: FAR_FUTURE }),
+                makePlant({ id: "not-due-shared-1", name: "Shared Monstera", nextWateringDate: FAR_FUTURE, householdId: "household-1" })
+            ])
+        }
+    }
+};
+
 export const WithActivePlan: Story = {
     parameters: {
         msw: {

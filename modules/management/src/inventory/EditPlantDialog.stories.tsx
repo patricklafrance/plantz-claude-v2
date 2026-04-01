@@ -1,10 +1,21 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { screen, userEvent } from "storybook/test";
 
-import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/core-plants/test-utils";
+import { makePlant, FAR_PAST, FAR_FUTURE, makeHousehold, makeHouseholdMember } from "@packages/core-plants/test-utils";
 
+import { createManagementHouseholdHandlers } from "../household/mocks/createHandlers.ts";
 import { EditPlantDialog } from "./EditPlantDialog.tsx";
 import { createManagementPlantHandlers } from "./mocks/index.ts";
 import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
+
+const testHousehold = makeHousehold({
+    id: "household-1",
+    name: "Plant Family",
+    members: [
+        makeHouseholdMember({ userId: "user-alice", userName: "Alice", role: "owner" }),
+        makeHouseholdMember({ userId: "user-bob", userName: "Bob" })
+    ]
+});
 
 // The dialog auto-saves via PUT after a 500ms debounce. The collection must
 // contain every plant referenced by the stories so the optimistic update in
@@ -16,7 +27,12 @@ const editPlants = [
     makePlant({ id: "test-edit-3", name: "Monstera Deliciosa" }),
     makePlant({ id: "test-edit-4", name: "Monstera Deliciosa" }),
     makePlant({ id: "test-edit-5", name: "Monstera Deliciosa" }),
-    makePlant({ id: "test-edit-6", name: "Monstera Deliciosa" })
+    makePlant({ id: "test-edit-6", name: "Monstera Deliciosa" }),
+    makePlant({ id: "test-edit-shared-1", name: "Shared Monstera", householdId: "household-1" }),
+    makePlant({ id: "test-edit-shared-2", name: "Shared Monstera", householdId: "household-1" }),
+    makePlant({ id: "test-edit-nohousehold-1", name: "Private Monstera" }),
+    makePlant({ id: "test-edit-saving-1", name: "Saving Monstera" }),
+    makePlant({ id: "test-edit-unshare-1", name: "Unshare Monstera", householdId: "household-1" })
 ];
 
 const meta = {
@@ -34,7 +50,7 @@ const meta = {
                 "dark desktop": { theme: "dark", viewport: 1280 }
             }
         },
-        msw: { handlers: createManagementPlantHandlers(editPlants) }
+        msw: { handlers: [...createManagementPlantHandlers(editPlants), ...createManagementHouseholdHandlers([])] }
     },
     args: {
         open: true,
@@ -140,5 +156,94 @@ export const Closed: Story = {
             name: "Monstera Deliciosa"
         }),
         open: false
+    }
+};
+
+// --- Sharing control stories ---
+
+export const WithHouseholdSharingOff: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-nohousehold-1",
+            name: "Private Monstera"
+        })
+    },
+    parameters: {
+        msw: {
+            handlers: [...createManagementPlantHandlers(editPlants), ...createManagementHouseholdHandlers([testHousehold])]
+        }
+    }
+};
+
+export const WithHouseholdSharingOn: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-shared-1",
+            name: "Shared Monstera",
+            householdId: "household-1"
+        })
+    },
+    parameters: {
+        msw: {
+            handlers: [...createManagementPlantHandlers(editPlants), ...createManagementHouseholdHandlers([testHousehold])]
+        }
+    }
+};
+
+export const SharingSaved: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-saving-1",
+            name: "Saving Monstera"
+        })
+    },
+    parameters: {
+        msw: {
+            handlers: [...createManagementPlantHandlers(editPlants), ...createManagementHouseholdHandlers([testHousehold])]
+        }
+    },
+    play: async () => {
+        // Dialog renders in a portal outside canvasElement — use screen.
+        // Toggle sharing on — this triggers the debounced auto-save which
+        // resolves optimistically and shows the "Saved" confirmation.
+        const sharingSwitch = await screen.findByRole("switch", { name: /share with/i }, { timeout: 5000 });
+        await userEvent.click(sharingSwitch);
+        // Wait for the "Saved" feedback to appear after the optimistic persist resolves
+        await screen.findByText("Saved", {}, { timeout: 5000 });
+    }
+};
+
+export const NoHouseholdNoSharingControl: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-1",
+            name: "Monstera Deliciosa"
+        })
+    },
+    parameters: {
+        msw: {
+            handlers: [...createManagementPlantHandlers(editPlants), ...createManagementHouseholdHandlers([])]
+        }
+    }
+};
+
+export const UnsharePlant: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-unshare-1",
+            name: "Unshare Monstera",
+            householdId: "household-1"
+        })
+    },
+    parameters: {
+        msw: {
+            handlers: [...createManagementPlantHandlers(editPlants), ...createManagementHouseholdHandlers([testHousehold])]
+        }
+    },
+    play: async () => {
+        // Dialog renders in a portal outside canvasElement — use screen
+        const sharingSwitch = await screen.findByRole("switch", { name: /share with/i }, { timeout: 5000 });
+        // Toggle off (currently shared)
+        await userEvent.click(sharingSwitch);
     }
 };
