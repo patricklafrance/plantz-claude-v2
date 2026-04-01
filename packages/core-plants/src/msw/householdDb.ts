@@ -1,4 +1,4 @@
-import type { Household } from "../household/householdTypes.ts";
+import type { Household, HouseholdMember, HouseholdMemberStatus } from "../household/householdTypes.ts";
 
 class HouseholdDb {
     #store = new Map<string, Household>();
@@ -36,6 +36,51 @@ class HouseholdDb {
 
         const updated: Household = { ...existing, ...data };
         this.#store.set(id, updated);
+
+        return updated;
+    }
+
+    addMember(householdId: string, member: HouseholdMember): Household | undefined {
+        const existing = this.#store.get(householdId);
+
+        if (!existing) {
+            return undefined;
+        }
+
+        const updated: Household = { ...existing, members: [...existing.members, member] };
+        this.#store.set(householdId, updated);
+
+        return updated;
+    }
+
+    updateMemberStatus(householdId: string, userId: string, status: HouseholdMemberStatus): Household | undefined {
+        const existing = this.#store.get(householdId);
+
+        if (!existing) {
+            return undefined;
+        }
+
+        const updated: Household = {
+            ...existing,
+            members: existing.members.map(m => (m.userId === userId ? { ...m, status } : m))
+        };
+        this.#store.set(householdId, updated);
+
+        return updated;
+    }
+
+    removeMember(householdId: string, userId: string): Household | undefined {
+        const existing = this.#store.get(householdId);
+
+        if (!existing) {
+            return undefined;
+        }
+
+        const updated: Household = {
+            ...existing,
+            members: existing.members.filter(m => m.userId !== userId)
+        };
+        this.#store.set(householdId, updated);
 
         return updated;
     }

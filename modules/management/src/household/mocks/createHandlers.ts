@@ -43,6 +43,54 @@ export function createManagementHouseholdHandlers(data: HouseholdData) {
                 },
                 { status: 201 }
             );
+        }),
+        http.post("/api/management/household/:id/members", async () => {
+            if (typeof data === "string") {
+                return new HttpResponse(null, { status: 500 });
+            }
+
+            const household = data[0];
+            const newMember = {
+                userId: "user-carol",
+                userName: "Carol",
+                email: "carol@example.com",
+                role: "member" as const,
+                joinedAt: new Date().toISOString(),
+                status: "invited" as const
+            };
+
+            return HttpResponse.json(
+                {
+                    ...household,
+                    members: [...(household?.members ?? []), newMember]
+                },
+                { status: 201 }
+            );
+        }),
+        http.put("/api/management/household/:id/members/:userId", async () => {
+            if (typeof data === "string") {
+                return new HttpResponse(null, { status: 500 });
+            }
+
+            const household = data[0];
+
+            return HttpResponse.json({
+                ...household,
+                members: household?.members.map(m => (m.status === "invited" ? { ...m, status: "active" } : m)) ?? []
+            });
+        }),
+        http.delete("/api/management/household/:id/members/:userId", () => {
+            if (typeof data === "string") {
+                return new HttpResponse(null, { status: 500 });
+            }
+
+            const household = data[0];
+
+            // Return the household with the last non-owner member removed
+            return HttpResponse.json({
+                ...household,
+                members: household?.members.filter(m => m.role === "owner") ?? []
+            });
         })
     ];
 }

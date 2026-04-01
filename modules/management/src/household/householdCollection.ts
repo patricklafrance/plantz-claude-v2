@@ -66,3 +66,99 @@ export function createManagementHouseholdActions(householdCollection: HouseholdC
 
     return { insertHousehold };
 }
+
+export function createManagementHouseholdMemberActions(householdCollection: HouseholdCollection) {
+    const inviteMember = createOptimisticAction<{ householdId: string; email: string }>({
+        onMutate: data => {
+            householdCollection.update(data.householdId, draft => {
+                draft.members = [
+                    ...draft.members,
+                    {
+                        userId: `temp-${Date.now()}`,
+                        userName: data.email.split("@")[0],
+                        email: data.email,
+                        role: "member",
+                        joinedAt: new Date(),
+                        status: "invited"
+                    }
+                ];
+            });
+        },
+        mutationFn: async data => {
+            const response = await fetch(`${API_BASE}/${data.householdId}/members`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+                body: JSON.stringify({ email: data.email })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to invite member: ${response.status}`);
+            }
+
+            await householdCollection.utils.refetch();
+        }
+    });
+
+    const acceptInvite = createOptimisticAction<{ householdId: string; userId: string }>({
+        onMutate: data => {
+            householdCollection.update(data.householdId, draft => {
+                draft.members = draft.members.map(m => (m.userId === data.userId ? { ...m, status: "active" as const } : m));
+            });
+        },
+        mutationFn: async data => {
+            const response = await fetch(`${API_BASE}/${data.householdId}/members/${data.userId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+                body: JSON.stringify({ status: "active" })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to accept invite: ${response.status}`);
+            }
+
+            await householdCollection.utils.refetch();
+        }
+    });
+
+    const declineInvite = createOptimisticAction<{ householdId: string; userId: string }>({
+        onMutate: data => {
+            householdCollection.update(data.householdId, draft => {
+                draft.members = draft.members.filter(m => m.userId !== data.userId);
+            });
+        },
+        mutationFn: async data => {
+            const response = await fetch(`${API_BASE}/${data.householdId}/members/${data.userId}`, {
+                method: "DELETE",
+                headers: getAuthHeaders()
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to decline invite: ${response.status}`);
+            }
+
+            await householdCollection.utils.refetch();
+        }
+    });
+
+    const removeMember = createOptimisticAction<{ householdId: string; userId: string }>({
+        onMutate: data => {
+            householdCollection.update(data.householdId, draft => {
+                draft.members = draft.members.filter(m => m.userId !== data.userId);
+            });
+        },
+        mutationFn: async data => {
+            const response = await fetch(`${API_BASE}/${data.householdId}/members/${data.userId}`, {
+                method: "DELETE",
+                headers: getAuthHeaders()
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to remove member: ${response.status}`);
+            }
+
+            await householdCollection.utils.refetch();
+        }
+    });
+
+    return { inviteMember, acceptInvite, declineInvite, removeMember };
+}
