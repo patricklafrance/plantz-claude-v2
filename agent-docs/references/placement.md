@@ -17,7 +17,7 @@
 | `@modules/management` | Plant identity, ownership, configuration, and user account/preferences.                                     | `inventory/`, `account/`      |
 | `@modules/watering`   | Daily care execution (what needs the user's attention now) and absence-aware care planning (vacation mode). | `today/`, `vacation-planner/` |
 
-The **host** (`apps/host-app/`) is not a module — it's a thin bootstrap wiring `registerShell` with modules.
+The **host** (`apps/host/`) is not a module — it's a thin bootstrap wiring `registerShell` with modules.
 
 ### Subfolder placement
 

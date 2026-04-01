@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 const storybookConfig: StorybookConfig = {
     framework: getAbsolutePath("@storybook/react-vite"),
     addons: [getAbsolutePath("@storybook/addon-a11y"), getAbsolutePath("@storybook/addon-themes"), getAbsolutePath("@storybook/addon-vitest")],
-    stories: ["../../../modules/watering/today/src/**/*.stories.tsx", "../../../modules/watering/vacation-planner/src/**/*.stories.tsx"],
+    stories: ["../../../modules/watering/src/today/**/*.stories.tsx", "../../../modules/watering/src/vacation-planner/**/*.stories.tsx"],
     staticDirs: ["./public"]
 };
 

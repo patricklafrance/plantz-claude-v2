@@ -14,24 +14,25 @@ A pnpm monorepo with Turborepo orchestration and [Squide](https://github.com/gso
 
 ```
 apps/
-  host/                        # Thin shell — bootstraps Squide, no domain logic
-  management/
-    plants/                    # Management domain module
-    user/                      # User profile module
-    storybook/                 # Management domain Storybook + Chromatic
-  today/
-    landing-page/              # Today domain module
-    vacation-planner/          # Vacation planner module
-    storybook/                 # Today domain Storybook + Chromatic
-  storybook/                   # Unified Storybook — all stories
+  host/                        # Thin shell — bootstraps Squide, no feature logic
+  management-storybook/        # Management module Storybook
+  watering-storybook/          # Watering module Storybook
+  unified-storybook/           # Unified Storybook — all stories
+  packages-storybook/          # Shared package stories
+modules/
+  management/                  # Plant inventory + user account (@modules/management)
+    src/inventory/             # Plant CRUD, plant list views
+    src/account/               # User profile, preferences
+  watering/                    # Daily care + vacation planning (@modules/watering)
+    src/today/                 # Daily care dashboard, watering actions
+    src/vacation-planner/      # Vacation scheduling, absence care plans
 packages/
   components/                  # Shared UI — shadcn/ui (Base UI) + Tailwind v4
   core-module/                 # Cross-module infrastructure — session, auth, app shell
   core-plants/                 # Shared plants data layer (MSW handlers, TanStack DB, seed data)
-  storybook/                   # Packages-layer Storybook
 ```
 
-Each domain is fully isolated — modules never import from each other. Each has its own Storybook and Chromatic token for independent visual regression testing.
+Each module is fully isolated — modules never import from each other. Each has its own Storybook and Chromatic token for independent visual regression testing.
 
 ### Tech stack
 
@@ -67,7 +68,7 @@ flowchart TD
         subgraph ModuleMap["Module Mapping"]
             direction TB
             Mapper --> Challengers --> Gate
-            Mapper -. "evidence gaps" .-> Evidence["Evidence\nResearcher"] -. findings .-> Mapper
+            Mapper -. "evidence gaps" .-> Evidence["Evidence Researcher"] -. findings .-> Mapper
             Gate -. "fail" .-> Mapper
         end
 
@@ -119,7 +120,7 @@ flowchart TD
 | `_adlc-coder`               | Implements a single slice — code, MSW handlers, Storybook stories                       |
 | `_adlc-reviewer`            | Verifies acceptance criteria via browser screenshots and interactions                   |
 | `_adlc-simplify`            | Reviews changed code for reuse, quality, and efficiency, then fixes issues              |
-| `_adlc-document`            | Updates domain docs and architecture references to reflect what was built               |
+| `_adlc-document`            | Updates module docs and architecture references to reflect what was built               |
 | `_adlc-pr`                  | Pushes branch, opens PR with summary and technical changes                              |
 | `_adlc-monitor`             | Polls CI workflows, auto-fixes failures (lint, Chromatic, Lighthouse)                   |
 
@@ -307,16 +308,14 @@ Plant data lives in an MSW in-memory database. Data resets on every reload — n
 
 ```bash
 pnpm dev-host                      # Full app — all modules (http://localhost:8080)
-pnpm dev-management-plants         # Just the plants module
-pnpm dev-management-user           # Just the user profile module
-pnpm dev-today-landing-page        # Just the today landing page module
-pnpm dev-today-vacation-planner    # Just the vacation planner module
+pnpm dev-management                # Just the management module
+pnpm dev-watering                  # Just the watering module
 ```
 
 To load specific modules manually:
 
 ```bash
-cross-env MODULES=management/plants pnpm dev-host
+cross-env MODULES=management pnpm dev-host
 ```
 
 ### Run Storybooks
@@ -324,8 +323,8 @@ cross-env MODULES=management/plants pnpm dev-host
 ```bash
 pnpm dev-storybook               # Unified Storybook — all stories (http://localhost:6006)
 pnpm dev-packages-storybook      # Shared components
-pnpm dev-management-storybook    # Management domain
-pnpm dev-today-storybook         # Today domain
+pnpm dev-management-storybook    # Management module
+pnpm dev-watering-storybook      # Watering module
 ```
 
 ### Run checks

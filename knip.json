@@ -16,7 +16,7 @@
             ],
             "ignoreDependencies": ["netlify-cli", "agent-browser"]
         },
-        "apps/host-app": {
+        "apps/host": {
             "entry": ["src/index.tsx", "rsbuild.build.ts", "rsbuild.dev.ts"],
             "ignoreDependencies": ["@tailwindcss/postcss", "@workleap/browserslist-config", "tailwindcss"]
         },
@@ -40,8 +40,12 @@
         "apps/watering-storybook": {
             "ignoreDependencies": ["@packages/components", "@packages/core-plants", "launchdarkly-js-client-sdk"]
         },
-        "modules/management": {},
-        "modules/watering": {},
+        "modules/management": {
+            "entry": ["src/inventory/index.ts", "src/account/index.ts"]
+        },
+        "modules/watering": {
+            "entry": ["src/today/index.ts", "src/vacation-planner/index.ts"]
+        },
         "packages/components": {
             "entry": ["rslib.build.ts", "rslib.dev.ts", "postcss.config.mjs"],
             "ignoreDependencies": ["@tailwindcss/postcss"]

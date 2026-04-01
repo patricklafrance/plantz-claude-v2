@@ -1,6 +1,6 @@
 [build]
 command = "pnpm build-host"
-publish = "apps/host-app/dist"
+publish = "apps/host/dist"
 
 [[redirects]]
 from = "/*"

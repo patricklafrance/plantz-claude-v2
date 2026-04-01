@@ -9,7 +9,7 @@ A plants watering application and proof-of-concept for Claude Code agent workflo
 ```
 plantz-claude/
   apps/
-    host-app/                        # Squide host application (@apps/host-app)
+    host/                        # Squide host application (@apps/host)
     unified-storybook/               # All stories across the repo (@apps/unified-storybook)
     packages-storybook/              # Shared package stories (@apps/packages-storybook)
     management-storybook/            # Management module Storybook (@apps/management-storybook)
@@ -32,7 +32,7 @@ plantz-claude/
 
 | Workspace path          | Package scope | Example                      |
 | ----------------------- | ------------- | ---------------------------- |
-| `apps/host-app`         | `@apps/*`     | `@apps/host-app`             |
+| `apps/host`             | `@apps/*`     | `@apps/host`                 |
 | `apps/<name>-storybook` | `@apps/*`     | `@apps/management-storybook` |
 | `modules/*`             | `@modules/*`  | `@modules/management`        |
 | `packages/*`            | `@packages/*` | `@packages/core-plants`      |
@@ -41,9 +41,9 @@ plantz-claude/
 
 ## Squide host/module topology
 
-- **Host** (`apps/host-app/`): Thin bootstrap layer. Creates `QueryClient`, calls `initializeFirefly` with `registerShell` (from `@packages/core-module/shell`) and active modules, seeds mock data, and renders `<App />`. Shell components (RootLayout, LoginPage, NotFoundPage, UserMenu, auth MSW handlers) live in `@packages/core-module/shell`, not in the host. Feature logic lives in modules.
+- **Host** (`apps/host/`): Thin bootstrap layer. Creates `QueryClient`, calls `initializeFirefly` with `registerShell` (from `@packages/core-module/shell`) and active modules, seeds mock data, and renders `<App />`. Shell components (RootLayout, LoginPage, NotFoundPage, UserMenu, auth MSW handlers) live in `@packages/core-module/shell`, not in the host. Feature logic lives in modules.
 - **Modules**: Each module registers via `(runtime, queryClient) => Promise<void>`. The host wraps these in closures matching Squide's `ModuleRegisterFunction` signature. Modules are isolated — they never import from each other. When two modules need to share code: prefer duplication if the surface area is small; extract to a shared package under `packages/` (e.g., `@packages/core-module` for cross-module infrastructure, `@packages/core-plants` for plant logic) when it's large enough to justify the indirection.
-- **Module registry**: `apps/host-app/src/getActiveModules.tsx` maps module names to their register functions. The host loads only modules present in this map. Each module has ONE register function that handles all its routes.
+- **Module registry**: `apps/host/src/getActiveModules.tsx` maps module names to their register functions. The host loads only modules present in this map. Each module has ONE register function that handles all its routes.
 - **Module internal structure**: Modules are wide-scoped — each covers a broad set of related features organized into internal subfolders. `@modules/management` has `inventory/` and `account/` subfolders. `@modules/watering` has `today/` and `vacation-planner/` subfolders. These subfolders are NOT separate packages — they are internal organizational boundaries within a single package.
 - **Shared packages**: Three tiers live under `packages/`, each with a distinct scope:
     - `@packages/core-module` — Cross-module **infrastructure** any Squide app needs: session context, auth headers, auth error handling, MSW auth helpers, `usersDb`, `getUserId`, and the app shell (`./shell` sub-path — RootLayout, LoginPage, NotFoundPage, UserMenu, registerShell). Not feature-specific.

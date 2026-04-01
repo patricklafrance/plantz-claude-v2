@@ -2,5 +2,5 @@
 
 @source "../../../packages/components/src/**/*.{ts,tsx}";
 @source "../../../packages/core-plants/src/**/*.{ts,tsx}";
-@source "../../../modules/watering/today/src/**/*.{ts,tsx}";
-@source "../../../modules/watering/vacation-planner/src/**/*.{ts,tsx}";
+@source "../../../modules/watering/src/today/**/*.{ts,tsx}";
+@source "../../../modules/watering/src/vacation-planner/**/*.{ts,tsx}";

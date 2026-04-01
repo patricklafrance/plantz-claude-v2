@@ -1,5 +1,5 @@
 {
-    "name": "@apps/host-app",
+    "name": "@apps/host",
     "version": "0.0.0",
     "private": true,
     "description": "Squide host application for the plantz application.",

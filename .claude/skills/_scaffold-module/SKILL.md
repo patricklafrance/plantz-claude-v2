@@ -99,7 +99,7 @@ Then update `modules/{module}/src/index.ts` to add a barrel export for the new s
 
 Add three things so the host app can load the module at runtime:
 
-1. **`apps/host-app/src/getActiveModules.tsx`** — add import and `ModuleRegistry` entry.
+1. **`apps/host/src/getActiveModules.tsx`** — add import and `ModuleRegistry` entry.
 
 <host-registration>
 import { {registerFunction} } from "{packageName}";
@@ -110,8 +110,8 @@ import { {registerFunction} } from "{packageName}";
 
 `getActiveModules` reads the `MODULES` env var to filter which modules to load. The dev script (step 7) sets this variable so the new module can be run in isolation.
 
-2. **`apps/host-app/package.json`** — add `"{packageName}": "workspace:*"` to dependencies (skip if the parent module package is already listed).
-3. **`apps/host-app/src/styles/globals.css`** — add `@source` directive for the new module path.
+2. **`apps/host/package.json`** — add `"{packageName}": "workspace:*"` to dependencies (skip if the parent module package is already listed).
+3. **`apps/host/src/styles/globals.css`** — add `@source` directive for the new module path.
 
 ### 4. Update module storybook
 
