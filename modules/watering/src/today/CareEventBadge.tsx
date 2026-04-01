@@ -1,7 +1,7 @@
 import { Badge, cn } from "@packages/components";
 import type { CareEventType } from "@packages/core-plants/care-event";
 
-const eventTypeConfig: Record<CareEventType, { label: string; className: string }> = {
+export const eventTypeConfig: Record<CareEventType, { label: string; className: string }> = {
     watered: {
         label: "Watered",
         className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"

@@ -2,7 +2,7 @@ import { format } from "date-fns";
 
 import type { CareEvent } from "@packages/core-plants/care-event";
 
-import { CareEventBadge } from "./CareEventBadge.tsx";
+import { CareEventBadge, eventTypeConfig } from "./CareEventBadge.tsx";
 
 interface CareHistoryTimelineProps {
     events: CareEvent[];
@@ -50,8 +50,7 @@ export function CareHistoryTimeline({ events }: CareHistoryTimelineProps) {
                             </div>
                             {event.actorName && (
                                 <span className="text-muted-foreground ml-1 text-xs">
-                                    {event.eventType === "watered" ? "Watered" : event.eventType === "skipped" ? "Skipped" : "Delegated"} by{" "}
-                                    {event.actorName}
+                                    {eventTypeConfig[event.eventType].label} by {event.actorName}
                                 </span>
                             )}
                         </div>

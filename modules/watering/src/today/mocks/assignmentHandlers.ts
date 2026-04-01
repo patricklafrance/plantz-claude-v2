@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw";
 
 import { getUserId } from "@packages/core-module/db";
 import { householdDb } from "@packages/core-plants/db";
+import { resolveMemberName } from "@packages/core-plants/household";
 
 import type { ResponsibilityStrategy } from "../responsibilityTypes.ts";
 import { assignmentsDb } from "./assignmentsDb.ts";
@@ -32,15 +33,9 @@ export const todayAssignmentHandlers = [
             assignedUserId?: string;
         };
 
-        // Resolve the assigned user's name from the household members
-        let assignedUserName: string | undefined;
-        if (body.assignedUserId) {
-            const household = householdDb.getByMemberId(userId);
-            if (household) {
-                const member = household.members.find(m => m.userId === body.assignedUserId);
-                assignedUserName = member?.userName;
-            }
-        }
+        const assignedUserName = body.assignedUserId
+            ? resolveMemberName(householdDb.getByMemberId(userId)?.members ?? [], body.assignedUserId)
+            : undefined;
 
         const assignment = {
             id: crypto.randomUUID(),
@@ -69,15 +64,9 @@ export const todayAssignmentHandlers = [
             assignedUserId?: string;
         };
 
-        // Resolve the assigned user's name from the household members
-        let assignedUserName: string | undefined;
-        if (body.assignedUserId) {
-            const household = householdDb.getByMemberId(userId);
-            if (household) {
-                const member = household.members.find(m => m.userId === body.assignedUserId);
-                assignedUserName = member?.userName;
-            }
-        }
+        const assignedUserName = body.assignedUserId
+            ? resolveMemberName(householdDb.getByMemberId(userId)?.members ?? [], body.assignedUserId)
+            : undefined;
 
         const updated = assignmentsDb.update(id as string, {
             strategy: body.strategy,

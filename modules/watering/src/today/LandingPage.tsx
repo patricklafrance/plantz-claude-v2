@@ -39,12 +39,11 @@ interface PlantGroup {
     plants: Plant[];
 }
 
-function groupPlantsByResponsibility(plants: Plant[], assignments: ResponsibilityAssignment[], currentUserId: string | null): PlantGroup[] {
-    const assignmentsByPlant = new Map<string, ResponsibilityAssignment>();
-    for (const a of assignments) {
-        assignmentsByPlant.set(a.plantId, a);
-    }
-
+function groupPlantsByResponsibility(
+    plants: Plant[],
+    assignmentsByPlant: Map<string, ResponsibilityAssignment>,
+    currentUserId: string | null
+): PlantGroup[] {
     const privatePlants: Plant[] = [];
     const myTasks: Plant[] = [];
     const othersTasks: Plant[] = [];
@@ -135,8 +134,8 @@ export function LandingPage() {
             return null;
         }
 
-        return groupPlantsByResponsibility(plants, assignments, currentUserId);
-    }, [plants, assignments, currentUserId, hasSharedPlants]);
+        return groupPlantsByResponsibility(plants, assignmentsByPlant, currentUserId);
+    }, [plants, assignmentsByPlant, currentUserId, hasSharedPlants]);
 
     const allSelected = plants.length > 0 && plants.every(p => selectedIds.has(p.id));
 

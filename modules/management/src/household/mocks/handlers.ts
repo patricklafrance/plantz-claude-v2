@@ -28,10 +28,8 @@ export const managementHouseholdHandlers = [
         const body = (await request.json()) as { name: string };
         const now = new Date();
 
-        const id =
-            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                ? crypto.randomUUID()
-                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+        const id = crypto.randomUUID();
+        const creator = usersDb.getById(userId);
 
         const household: Household = {
             id,
@@ -41,8 +39,8 @@ export const managementHouseholdHandlers = [
             members: [
                 {
                     userId,
-                    userName: userId === "user-alice" ? "Alice" : userId === "user-bob" ? "Bob" : "User",
-                    email: `${userId}@example.com`,
+                    userName: creator?.name ?? userId,
+                    email: creator?.email ?? `${userId}@example.com`,
                     role: "owner",
                     joinedAt: now,
                     status: "active"
