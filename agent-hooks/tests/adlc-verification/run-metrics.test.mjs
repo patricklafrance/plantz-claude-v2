@@ -292,12 +292,12 @@ describe("run-metrics", () => {
 
     it("should handle missing transcript gracefully", () => {
         recordMetrics("/nonexistent/path.jsonl", "_adlc-coder", cwd);
-        expect(() => readFileSync(join(cwd, ".adlc", "run-metrics.json"))).toThrow();
+        expect(() => readFileSync(join(cwd, ".adlc", "run-metrics.json"))).toThrow(/ENOENT/);
     });
 
     it("should handle null transcript path", () => {
         recordMetrics(null, "_adlc-coder", cwd);
-        expect(() => readFileSync(join(cwd, ".adlc", "run-metrics.json"))).toThrow();
+        expect(() => readFileSync(join(cwd, ".adlc", "run-metrics.json"))).toThrow(/ENOENT/);
     });
 
     describe("slice and mode tracking", () => {

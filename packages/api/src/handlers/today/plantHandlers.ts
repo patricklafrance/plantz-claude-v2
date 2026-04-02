@@ -4,7 +4,7 @@ import { getUserId } from "../../db/auth/getUserId.ts";
 import { plantsDb } from "../../db/plants/plantsDb.ts";
 
 export const todayPlantHandlers = [
-    http.get("/api/today/plants", ({ request }) => {
+    http.get("/api/today/plants", () => {
         const userId = getUserId();
 
         if (!userId) {

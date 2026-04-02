@@ -1,14 +1,14 @@
 import type { FireflyRuntime } from "@squide/firefly";
 
-function registerRoutes(runtime: FireflyRuntime) {
-    const lazy = async () => {
-        const { LandingPage } = await import("./LandingPage.tsx");
+const lazy = async () => {
+    const { LandingPage } = await import("./LandingPage.tsx");
 
-        return {
-            element: <LandingPage />
-        };
+    return {
+        element: <LandingPage />
     };
+};
 
+function registerRoutes(runtime: FireflyRuntime) {
     runtime.registerRoute({
         index: true,
         lazy

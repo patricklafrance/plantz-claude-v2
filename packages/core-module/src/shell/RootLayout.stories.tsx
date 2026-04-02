@@ -1,10 +1,10 @@
 import type { FireflyRuntime } from "@squide/firefly";
+import { initializeFireflyForStorybook, withFireflyDecorator } from "@squide/firefly-storybook";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NoopLogger } from "@workleap/logging";
 import { userEvent, within } from "storybook/test";
 
-import { initializeFireflyForStorybook, withFireflyDecorator } from "../../../../apps/storybook-packages/firefly.tsx";
 import { SessionProvider } from "../SessionContext.tsx";
 import { RootLayout } from "./RootLayout.tsx";
 

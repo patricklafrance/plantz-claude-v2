@@ -1,9 +1,8 @@
+import { initializeFireflyForStorybook, withFireflyDecorator } from "@squide/firefly-storybook";
 import type { Decorator } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NoopLogger } from "@workleap/logging";
 import { useMemo, type ReactNode } from "react";
-
-import { initializeFireflyForStorybook, withFireflyDecorator } from "../../../../apps/storybook-management/firefly.tsx";
 
 const runtime = await initializeFireflyForStorybook({
     loggers: [new NoopLogger()]

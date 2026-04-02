@@ -5,7 +5,7 @@ import { plantsDb } from "../../db/plants/plantsDb.ts";
 import type { Plant } from "../../entities/plants/types.ts";
 
 export const managementPlantHandlers = [
-    http.get("/api/management/plants", ({ request }) => {
+    http.get("/api/management/plants", () => {
         const userId = getUserId();
 
         if (!userId) {

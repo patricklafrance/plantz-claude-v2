@@ -57,6 +57,7 @@ function DialogContent({
                 {showCloseButton && (
                     <DialogPrimitive.Close
                         data-slot="dialog-close"
+                        // oxlint-disable-next-line react-perf/jsx-no-jsx-as-prop -- Base UI render prop API
                         render={<Button variant="ghost" className="absolute top-2 right-2" size="icon-sm" />}
                     >
                         <XIcon />
@@ -87,6 +88,7 @@ function DialogFooter({
             {...props}
         >
             {children}
+            {/* oxlint-disable-next-line react-perf/jsx-no-jsx-as-prop -- Base UI render prop API */}
             {showCloseButton && <DialogPrimitive.Close render={<Button variant="outline" />}>Close</DialogPrimitive.Close>}
         </div>
     );

@@ -115,7 +115,7 @@ MSW is managed globally via `msw-storybook-addon` (`initialize({ onUnhandledRequ
 
 Each domain has a `storybook.setup.tsx` providing two decorators:
 
-- `fireflyDecorator` — Squide runtime via `initializeFireflyForStorybook()` + `withFireflyDecorator()` from the domain storybook's `firefly.tsx`
+- `fireflyDecorator` — Squide runtime via `initializeFireflyForStorybook()` + `withFireflyDecorator()` from `@squide/firefly-storybook`
 - `queryDecorator` — fresh `QueryClient` with `retry: false, staleTime: Infinity` wrapped in `QueryClientProvider`
 
 Story files: `decorators: [queryDecorator, fireflyDecorator]`, `parameters: { msw: { handlers: [...] } }`. Per-story overrides via `parameters.msw.handlers`. Use `delay("infinite")` for loading states. The packages storybook needs none of this (presentational only).

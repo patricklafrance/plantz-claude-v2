@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* oxlint-disable no-console, no-await-in-loop -- CLI tool: console output and sequential polling are intentional */
 
 /**
  * wait-for-dev-server — deterministic dev server readiness check.

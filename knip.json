@@ -25,10 +25,8 @@
             "ignoreDependencies": [
                 "@packages/components",
                 "@packages/api",
-                "@squide/env-vars",
                 "@squide/firefly",
-                "@squide/launch-darkly",
-                "@squide/msw",
+                "@squide/firefly-storybook",
                 "@tanstack/react-query",
                 "@workleap/logging",
                 "react-router",
@@ -36,10 +34,26 @@
             ]
         },
         "apps/storybook-management": {
-            "ignoreDependencies": ["@packages/components", "@packages/api", "launchdarkly-js-client-sdk"]
+            "ignoreDependencies": [
+                "@packages/components",
+                "@packages/api",
+                "@squide/firefly",
+                "@squide/firefly-storybook",
+                "@tanstack/react-query",
+                "@workleap/logging",
+                "react-router"
+            ]
         },
         "apps/storybook-watering": {
-            "ignoreDependencies": ["@packages/components", "@packages/api", "launchdarkly-js-client-sdk"]
+            "ignoreDependencies": [
+                "@packages/components",
+                "@packages/api",
+                "@squide/firefly",
+                "@squide/firefly-storybook",
+                "@tanstack/react-query",
+                "@workleap/logging",
+                "react-router"
+            ]
         },
         "modules/management": {
             "entry": ["src/inventory/index.ts", "src/account/index.ts"]
@@ -52,7 +66,17 @@
             "ignoreDependencies": ["@tailwindcss/postcss"]
         },
         "apps/storybook-packages": {
-            "ignoreDependencies": ["@packages/components", "@packages/core-module", "@packages/api", "launchdarkly-js-client-sdk"]
+            "ignoreDependencies": [
+                "@packages/components",
+                "@packages/core-module",
+                "@packages/api",
+                "@squide/firefly",
+                "@squide/firefly-storybook",
+                "@tanstack/react-query",
+                "@workleap/logging",
+                "msw",
+                "react-router"
+            ]
         }
     }
 }

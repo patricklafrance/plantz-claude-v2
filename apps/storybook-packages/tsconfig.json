@@ -3,7 +3,7 @@
     "compilerOptions": {
         "incremental": true,
         "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
-        "types": ["vite/client", "./types/parameters.d.ts", "./types/css.d.ts"]
+        "types": ["node", "vite/client", "./types/parameters.d.ts", "./types/css.d.ts"]
     },
     "include": ["**/*", ".storybook/**/*"],
     "exclude": ["dist", "node_modules", "storybook-static"]

@@ -16,7 +16,7 @@ Every page and component must have a co-located `.stories.tsx` file. A feature w
 
 ## Storybook Setup
 
-Each subfolder (under `src/`) has a `storybook.setup.tsx` that imports `initializeFireflyForStorybook` and `withFireflyDecorator` from the storybook's `firefly.tsx` (e.g., `../../../../apps/storybook-watering/firefly.tsx`), and creates a `QueryDecorator` providing a fresh `QueryClient` per story. Story files import `queryDecorator` and `fireflyDecorator` from `./storybook.setup.tsx` and add both to `decorators: [queryDecorator, fireflyDecorator]`. MSW is managed globally via `msw-storybook-addon` in preview.tsx; per-story handlers use `parameters.msw.handlers`. Presentational component stories don't need the decorators.
+Each subfolder (under `src/`) has a `storybook.setup.tsx` that imports `initializeFireflyForStorybook` and `withFireflyDecorator` from `@squide/firefly-storybook`, and creates a `QueryDecorator` providing a fresh `QueryClient` per story. Story files import `queryDecorator` and `fireflyDecorator` from `./storybook.setup.tsx` and add both to `decorators: [queryDecorator, fireflyDecorator]`. MSW is managed globally via `msw-storybook-addon` in preview.tsx; per-story handlers use `parameters.msw.handlers`. Presentational component stories don't need the decorators.
 
 ## Storybook Wiring
 

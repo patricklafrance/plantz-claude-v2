@@ -134,7 +134,7 @@ export function PlantsPage() {
 
     const selectedCount = plants.filter(p => selectedIds.has(p.id)).length;
 
-    const deleteTargetNames = deleteTarget?.map(p => p.name) ?? [];
+    const deleteTargetNames = useMemo(() => deleteTarget?.map(p => p.name) ?? [], [deleteTarget]);
 
     const totalSize = virtualizer.getTotalSize();
     const virtualizerContainerStyle = useMemo(

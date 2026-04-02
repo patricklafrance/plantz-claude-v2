@@ -25,8 +25,3 @@ export const wateringTypes = [
     { id: "deep", label: "Deep" },
     { id: "surface", label: "Surface" }
 ] as const;
-
-type LocationId = (typeof locations)[number]["id"];
-type LuminosityId = (typeof luminosities)[number]["id"];
-type WateringFrequencyId = (typeof wateringFrequencies)[number]["id"];
-type WateringTypeId = (typeof wateringTypes)[number]["id"];

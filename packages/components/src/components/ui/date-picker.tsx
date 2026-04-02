@@ -30,6 +30,7 @@ function DatePicker({
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger
                 render={
+                    // oxlint-disable-next-line react-perf/jsx-no-jsx-as-prop -- Base UI render prop API
                     <Button
                         variant="outline"
                         disabled={disabled}

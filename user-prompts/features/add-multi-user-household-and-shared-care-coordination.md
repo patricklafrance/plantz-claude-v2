@@ -48,9 +48,10 @@ Once part of a household, users can access shared plants and tasks.
 
 A user can:
 
-- assign a plant to a household
-- remove a plant from a household
+- toggle sharing on or off for a plant from the existing plant edit dialog
 - view which plants are shared
+
+Toggling sharing must follow the existing auto-save pattern used by the edit dialog (debounce + optimistic persistence). There is no separate submit button — the save indicator ("Saving…" / "Saved") should reflect the sharing change just like any other field edit.
 
 Shared plants become visible to all members.
 

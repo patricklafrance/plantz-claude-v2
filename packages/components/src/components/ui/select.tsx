@@ -33,6 +33,7 @@ function SelectTrigger({
             {...props}
         >
             {children}
+            {/* oxlint-disable-next-line react-perf/jsx-no-jsx-as-prop -- Base UI render prop API */}
             <SelectPrimitive.Icon render={<ChevronDownIcon className="text-muted-foreground pointer-events-none size-4" />} />
         </SelectPrimitive.Trigger>
     );
@@ -91,6 +92,7 @@ function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Prop
             {...props}
         >
             <SelectPrimitive.ItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">{children}</SelectPrimitive.ItemText>
+            {/* oxlint-disable-next-line react-perf/jsx-no-jsx-as-prop -- Base UI render prop API */}
             <SelectPrimitive.ItemIndicator render={<span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />}>
                 <CheckIcon className="pointer-events-none" />
             </SelectPrimitive.ItemIndicator>
