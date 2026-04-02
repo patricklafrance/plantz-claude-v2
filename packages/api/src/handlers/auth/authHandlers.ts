@@ -2,8 +2,6 @@ import { http, HttpResponse } from "msw";
 
 import { getUserId } from "../../db/auth/getUserId.ts";
 import { usersDb } from "../../db/auth/usersDb.ts";
-import { AUTH_TOKEN_KEY } from "../../entities/auth/types.ts";
-
 export const authHandlers = [
     http.post("/api/auth/login", async ({ request }) => {
         const body = (await request.json()) as { email: string; password: string };
@@ -13,13 +11,13 @@ export const authHandlers = [
             return new HttpResponse(null, { status: 401 });
         }
 
-        sessionStorage.setItem(AUTH_TOKEN_KEY, user.id);
+        sessionStorage.setItem("plantz-auth-token", user.id);
 
         return HttpResponse.json({ token: user.id });
     }),
 
     http.post("/api/auth/logout", () => {
-        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        sessionStorage.removeItem("plantz-auth-token");
 
         return new HttpResponse(null, { status: 200 });
     }),
