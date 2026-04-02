@@ -131,6 +131,7 @@ function AlertDialogCancel({
         <AlertDialogPrimitive.Close
             data-slot="alert-dialog-cancel"
             className={cn(className)}
+            // oxlint-disable-next-line react-perf/jsx-no-jsx-as-prop -- Base UI render prop API
             render={<Button variant={variant} size={size} />}
             {...props}
         />

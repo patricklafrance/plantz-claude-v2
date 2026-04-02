@@ -97,9 +97,9 @@ writeFileSync(OUTPUT_PATH, output);
  *
  * Returns { displayPath, srcDir, pkgRoot } or null if unresolvable.
  */
-function resolvePackageRef(name, nameToPath, root) {
+function resolvePackageRef(name, pkgMap, root) {
     // Direct lookup — package name matches exactly.
-    const directPath = nameToPath.get(name);
+    const directPath = pkgMap.get(name);
 
     if (directPath) {
         return {
@@ -113,7 +113,7 @@ function resolvePackageRef(name, nameToPath, root) {
     // For scoped packages like `@scope/pkg/sub`, the base is `@scope/pkg`
     // and the subpath is `./sub`. For deeper paths like `@scope/pkg/a/b`,
     // the base is still `@scope/pkg` and the subpath is `./a/b`.
-    const subpathResult = resolveSubpathExport(name, nameToPath);
+    const subpathResult = resolveSubpathExport(name, pkgMap);
 
     if (subpathResult) {
         const { basePkgPath, entryDir } = subpathResult;
@@ -138,7 +138,7 @@ function resolvePackageRef(name, nameToPath, root) {
  *
  * Returns { basePkgPath, entryDir } or null.
  */
-function resolveSubpathExport(name, nameToPath) {
+function resolveSubpathExport(name, pkgMap) {
     // For scoped packages: @scope/pkg/sub → base = @scope/pkg, rest = sub
     // For unscoped packages: pkg/sub → base = pkg, rest = sub
     let baseName;
@@ -165,7 +165,7 @@ function resolveSubpathExport(name, nameToPath) {
         subpath = `./${name.slice(slashIdx + 1)}`;
     }
 
-    const basePkgPath = nameToPath.get(baseName);
+    const basePkgPath = pkgMap.get(baseName);
 
     if (!basePkgPath) {
         return null;

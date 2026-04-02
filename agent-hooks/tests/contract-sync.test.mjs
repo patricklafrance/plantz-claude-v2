@@ -97,11 +97,13 @@ describe("contract-sync: reviewer criteria coverage", () => {
         const sliceCriteria = extractCriteria(slice, /^[-*]\s*\[[ ]\]\s+(.+)$/);
         const resultsCriteria = extractCriteria(results, /^[-*]\s*\[[x ]\]\s+(.+)$/i);
 
+        // oxlint-disable-next-line jest/valid-expect -- Vitest supports custom message as second arg
         expect(sliceCriteria.length, "slice fixture has no criteria").toBeGreaterThan(0);
 
         for (const criterion of sliceCriteria) {
             const normalized = criterion.toLowerCase().trim();
             const found = resultsCriteria.some(r => r.toLowerCase().trim().includes(normalized) || normalized.includes(r.toLowerCase().trim()));
+            // oxlint-disable-next-line jest/valid-expect -- Vitest supports custom message as second arg
             expect(found, `Criterion "${criterion}" not found in results fixture`).toBe(true);
         }
     });
@@ -116,11 +118,13 @@ describe("contract-sync: reviewer criteria coverage", () => {
         // Strip failure reasons (same logic as criteria-coverage.mjs)
         const cleanedResults = resultsCriteria.map(r => r.replace(/\s+[—–-]\s+.+$/, ""));
 
+        // oxlint-disable-next-line jest/valid-expect -- Vitest supports custom message as second arg
         expect(sliceCriteria.length, "slice fixture has no criteria").toBeGreaterThan(0);
 
         for (const criterion of sliceCriteria) {
             const normalized = criterion.toLowerCase().trim();
             const found = cleanedResults.some(r => r.toLowerCase().trim().includes(normalized) || normalized.includes(r.toLowerCase().trim()));
+            // oxlint-disable-next-line jest/valid-expect -- Vitest supports custom message as second arg
             expect(found, `Criterion "${criterion}" not found in results fixture`).toBe(true);
         }
     });
