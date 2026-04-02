@@ -42,6 +42,7 @@ Read `.adlc/current-challenge-verdict.md`. For each concern:
 - Read the feature description.
 - Read `agent-docs/references/placement.md`.
 - Scan existing modules and their subfolders: read actual code — components, routes, pages, API calls. Heuristics applied to PRD text alone produce wrong answers.
+- For `extend` rows naming an existing component, read the `.tsx` file and note its interaction pattern in the Rationale (e.g., auto-save, form-submit). Skip new entities.
 
 ### 2. Apply the decision tree
 
