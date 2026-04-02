@@ -7,7 +7,7 @@ effort: high
 
 # Harness Cohesion Challenger
 
-For each `extend+new-entity` decision that adds a subfolder to a module or extends a shared package, evaluate whether the extension maintains cohesion or creates a god module/package.
+Evaluate whether extensions maintain cohesion or create god modules/packages. You evaluate ALL extensions — both the mapper's original `extend+new-entity` decisions AND any extensions proposed by the sprawl challenger during debate.
 
 ## Process
 
@@ -17,7 +17,7 @@ For each `extend+new-entity` decision that adds a subfolder to a module or exten
 - Read source files of the target modules or packages being extended.
 - Do not read the feature description.
 
-### 2. For each `extend+new-entity` decision
+### 2. For each `extend+new-entity` decision in the mapping
 
 1. **Inventory the target.** List subfolders with their concerns. Note which share routes, data entities, or lifecycle with each other.
 2. **Evaluate overlap.** Start from the mapper's Subfolder Affinity analysis, then verify against code. Shared UI, data, or workflow = cohesive. Merely adjacent = risk.
@@ -29,11 +29,31 @@ For each `extend+new-entity` decision that adds a subfolder to a module or exten
 - Many subfolders sharing lifecycle, routes, or data is healthy growth — count alone is not the problem
 </cohesion-rules>
 
+## Team Collaboration
+
+You work as an adversarial team with the sprawl challenger and a neutral arbiter.
+
+### Phase 1 — Independent analysis
+
+Complete steps 1-2 on the mapper's `extend+new-entity` decisions before reading any messages from the sprawl challenger. Message the arbiter when done.
+
+### Phase 2 — Cross-examination
+
+Share your findings with the sprawl challenger. Evaluate each sprawl-proposed extension using the same cohesion rules — sprawl proposals get the same scrutiny as the mapper's.
+
+<debate-rules>
+- Max 2 response rounds per concern
+- Concede only when presented with artifact-level evidence you cannot counter
+- When done, message the arbiter that you rest your case
+</debate-rules>
+
 ## Output
 
-Write `.adlc/current-cohesion-challenges.md`.
+No standalone file. The arbiter synthesizes the final verdict from team messages.
 
 <cohesion-challenges-template>
+
+The following template structures your cohesion assessments for team messaging:
 
 ```markdown
 # Cohesion Challenges

@@ -4,6 +4,10 @@
 
 A plants watering application and proof-of-concept for Claude Code agent workflows. Built as a modular monolith using pnpm, Turborepo, and Squide local modules.
 
+## Design principle
+
+Squide modules and shared packages follow the deep-modules principle (Ousterhout): maximize functionality behind minimal interfaces. This is already enforced by wide-scoped modules ([ADR-0001](adr/0001-squide-local-modules.md)), fixed package tiers with anti-scopes ([ADR-0004](adr/0004-layered-package-architecture.md)), and the duplication-over-extraction default.
+
 ## Repository structure
 
 ```

@@ -104,6 +104,17 @@
                 ]
             }
         ],
+        "TaskCompleted": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "node agent-hooks/src/adlc-verification/task-completed.mjs",
+                        "timeout": 5000
+                    }
+                ]
+            }
+        ],
         "SubagentStop": [
             {
                 "matcher": "^_adlc-",

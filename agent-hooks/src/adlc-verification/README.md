@@ -1,8 +1,8 @@
 # ADLC Verification
 
-Post-completion verification for ADLC subagents.
+Post-completion verification for ADLC subagents and team members.
 
-This hook family runs on `SubagentStop` and validates the work produced by ADLC agents before the workflow advances.
+This hook family runs on `SubagentStop` (standalone agents) and `TaskCompleted` (team members) to validate work before the workflow advances.
 
 It is not a live runtime controller like `supervisor`. It is a stop-time verification and cleanup pipeline.
 
@@ -20,13 +20,18 @@ Concretely, it improves the harness by:
 
 Without this hook family, the ADLC loop would depend much more on agents remembering to self-verify and on later stages discovering earlier mistakes by accident.
 
-## Hook entrypoint
+## Hook entrypoints
 
 - `subagent-stop.mjs`
     - Registered on `SubagentStop`
     - Routes by `agent_type`
     - Records run metrics for all agent runs
     - Blocks completion when a handled agent still has problems to fix
+
+- `task-completed.mjs`
+    - Registered on `TaskCompleted`
+    - Filters by `teammate_name` (currently: challenge arbiter only)
+    - Blocks task completion when deliverables are missing
 
 High-level flow:
 
@@ -45,12 +50,10 @@ Handled agent types:
 
 - `_adlc-plan-gate`
 - `_adlc-coder`
-- `_adlc-cohesion-challenger`
 - `_adlc-document`
 - `_adlc-evidence-researcher`
 - `_adlc-placement-gate`
 - `_adlc-domain-mapper`
-- `_adlc-sprawl-challenger`
 - `_adlc-planner`
 - `_adlc-reviewer`
 - `_adlc-simplify`
@@ -109,25 +112,15 @@ What this improves:
 
 - evidence gaps are resolved with documented findings before the mapper retries
 
-### `_adlc-sprawl-challenger`
+### `_adlc-challenge-arbiter` (via TaskCompleted)
 
 What the hook enforces:
 
-- `.adlc/current-sprawl-challenges.md` must exist
+- `.adlc/current-challenge-verdict.md` must exist when the arbiter marks a task complete
 
 What this improves:
 
-- every create/new-package decision gets a concrete extension counter-proposal
-
-### `_adlc-cohesion-challenger`
-
-What the hook enforces:
-
-- `.adlc/current-cohesion-challenges.md` must exist
-
-What this improves:
-
-- extend decisions that introduce new entities are evaluated for god-module risk
+- every mapping decision is challenged by an adversarial team and resolved into a unified verdict before the mapper revises
 
 ### `_adlc-placement-gate`
 

@@ -28,15 +28,12 @@ The Evidence Researcher has produced `.adlc/current-evidence-findings.md` with s
 
 ### `challenge-revision`
 
-Challengers have produced `.adlc/current-sprawl-challenges.md` and/or `.adlc/current-cohesion-challenges.md`. For each challenge:
+Read `.adlc/current-challenge-verdict.md`. For each concern:
 
-1. Read the challenger proposals.
-2. For each challenge, you see **two competing proposals on equal footing** — the challenger's proposal and your original decision. Treat these as "Proposal A" and "Proposal B" without anchoring on which is yours. Select the proposal with stronger artifact-level evidence.
-3. If rejecting a challenger's proposal:
-    - Cite specific artifact-level evidence for why the proposal fails
-    - Acknowledge the challenger's strongest argument and explain why it doesn't hold
-4. If accepting a challenger's proposal, update the decision accordingly.
-5. Update `.adlc/domain-mapping.md` with the resolved decisions. Add a `## Challenge Resolution` section documenting what was accepted, what was rejected, and the evidence for each.
+1. Treat the verdict's recommendation and your original decision as **two proposals on equal footing**. Select the one with stronger artifact-level evidence.
+2. For "contested" verdicts: both positions are presented — evaluate independently.
+3. If rejecting: cite artifact-level evidence and acknowledge the strongest counter-argument.
+4. Update `.adlc/domain-mapping.md` with a `## Challenge Resolution` section documenting outcomes and evidence.
 
 ## Process
 

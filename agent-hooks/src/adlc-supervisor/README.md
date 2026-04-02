@@ -105,8 +105,6 @@ Per-agent thresholds (nudge / hard stop):
 | \_adlc-pr                  | 5 min                           | 8 min          |
 | \_adlc-document            | 5 min                           | 8 min          |
 | \_adlc-evidence-researcher | 3 min                           | 5 min          |
-| \_adlc-sprawl-challenger   | 3 min                           | 5 min          |
-| \_adlc-cohesion-challenger | 3 min                           | 5 min          |
 | \_adlc-placement-gate      | 3 min                           | 5 min          |
 | \_adlc-monitor             | exempt (has own 30-min timeout) |
 | default                    | 10 min                          | 15 min         |

@@ -13,7 +13,6 @@
 import { readFileSync } from "node:fs";
 
 import handleCoder from "./coder/handler.mjs";
-import handleCohesionChallenger from "./cohesion-challenger/handler.mjs";
 import handleDocument from "./document/handler.mjs";
 import handleModuleMapper from "./domain-mapper/handler.mjs";
 import handleEvidenceResearcher from "./evidence-researcher/handler.mjs";
@@ -23,8 +22,6 @@ import handlePlanner from "./planner/handler.mjs";
 import handleReviewer from "./reviewer/handler.mjs";
 import { recordMetrics } from "./run-metrics.mjs";
 import handleSimplify from "./simplify/handler.mjs";
-import handleSprawlChallenger from "./sprawl-challenger/handler.mjs";
-
 // ── Stdin ──────────────────────────────────────────────────
 
 const input = JSON.parse(readFileSync(0, "utf8"));
@@ -54,12 +51,10 @@ const { agent_type: agentType, agent_transcript_path: transcriptPath, cwd } = in
 const handlers = {
     "_adlc-plan-gate": handlePlanGate,
     "_adlc-coder": handleCoder,
-    "_adlc-cohesion-challenger": handleCohesionChallenger,
     "_adlc-document": handleDocument,
     "_adlc-placement-gate": handlePlacementGate,
     "_adlc-domain-mapper": handleModuleMapper,
     "_adlc-evidence-researcher": handleEvidenceResearcher,
-    "_adlc-sprawl-challenger": handleSprawlChallenger,
     "_adlc-planner": handlePlanner,
     "_adlc-reviewer": handleReviewer,
     "_adlc-simplify": handleSimplify

@@ -24,7 +24,7 @@ Run the module mapping pipeline. Max 2 gate attempts.
 
 #### 2a. Mapper
 
-1. Delete `.adlc/current-evidence-findings.md`, `.adlc/current-sprawl-challenges.md`, and `.adlc/current-cohesion-challenges.md` if they exist.
+1. Delete `.adlc/current-evidence-findings.md` and `.adlc/current-challenge-verdict.md` if they exist.
 2. Spawn the `_adlc-domain-mapper` agent with the feature description and `mode: draft`. If the agent fails, print the error and stop.
 
 #### 2b. Evidence resolution (conditional)
@@ -33,14 +33,15 @@ Run the module mapping pipeline. Max 2 gate attempts.
 2. Spawn the `_adlc-evidence-researcher` agent. If the agent fails, print the error and stop.
 3. Resume the `_adlc-domain-mapper` agent via `SendMessage` with `mode: evidence-revision`. If the agent fails, print the error and stop.
 
-#### 2c. Challenger (conditional)
+#### 2c. Challenge team
 
-1. Read `.adlc/domain-mapping.md`. Determine which challengers are needed:
-   - If any row has Decision = `create` or `new-package`: spawn `_adlc-sprawl-challenger`.
-   - If any row has Decision = `extend+new-entity`: spawn `_adlc-cohesion-challenger`.
-   - Spawn needed challengers in parallel. If either fails, print the error and stop.
-2. If challenges `.adlc/current-sprawl-challenges.md` or `.adlc/current-cohesion-challenges.md` were produced: resume the `_adlc-domain-mapper` via `SendMessage` with `mode: challenge-revision`. If the agent fails, print the error and stop.
-3. Rename each `current-*-challenges.md` to `.adlc/challenges/{type}-{attempt}.md` (where `{type}` is `sprawl` or `cohesion` and `{attempt}` is the gate attempt number, starting at 1).
+1. Spawn an agent team to challenge the domain mapping:
+   - Teammate using `_adlc-sprawl-challenger` agent type
+   - Teammate using `_adlc-cohesion-challenger` agent type
+   - Teammate using `_adlc-challenge-arbiter` agent type
+   If the team fails, print the error and stop.
+2. Resume the `_adlc-domain-mapper` via `SendMessage` with `mode: challenge-revision`. If the agent fails, print the error and stop.
+3. Rename `current-challenge-verdict.md` to `.adlc/challenges/verdict-{attempt}.md` (where `{attempt}` is the gate attempt number, starting at 1).
 
 #### 2d. Gate
 

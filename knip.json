@@ -5,6 +5,7 @@
             "entry": [
                 "scripts/*.ts",
                 "agent-hooks/src/adlc-verification/subagent-stop.mjs",
+                "agent-hooks/src/adlc-verification/task-completed.mjs",
                 "agent-hooks/src/preflight/pre-tool-use.mjs",
                 "agent-hooks/src/pre-commit/pre-tool-use-bash.mjs",
                 "agent-hooks/src/safe-compact/post-compact.mjs",

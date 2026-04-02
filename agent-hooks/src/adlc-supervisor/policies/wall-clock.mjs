@@ -20,8 +20,6 @@ const THRESHOLDS = {
     "_adlc-pr": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
     "_adlc-document": { nudge: 5 * MINUTES, hardStop: 8 * MINUTES },
     "_adlc-evidence-researcher": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES },
-    "_adlc-sprawl-challenger": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES },
-    "_adlc-cohesion-challenger": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES },
     "_adlc-placement-gate": { nudge: 3 * MINUTES, hardStop: 5 * MINUTES }
 };
 

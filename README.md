@@ -110,8 +110,9 @@ flowchart TD
 | --------------------------- | --------------------------------------------------------------------------------------- |
 | `_adlc-domain-mapper`       | Analyzes feature terms against existing modules, writes placement decisions             |
 | `_adlc-evidence-researcher` | Resolves mapper evidence gaps by inspecting code artifacts                              |
-| `_adlc-sprawl-challenger`   | Challenges create decisions with concrete extension proposals                           |
-| `_adlc-cohesion-challenger` | Checks extend decisions for god-module risk when new entities are introduced            |
+| `_adlc-sprawl-challenger`   | Challenges create decisions with concrete extension proposals (team member)             |
+| `_adlc-cohesion-challenger` | Checks extend decisions for god-module risk (team member)                               |
+| `_adlc-challenge-arbiter`   | Synthesizes challenger debate into unified verdict                                      |
 | `_adlc-placement-gate`      | Holistic quality gate — reviews the entire mapping for architectural coherence          |
 | `_adlc-planner`             | Drafts a multi-slice plan with acceptance criteria per slice                            |
 | `_adlc-plan-gate`           | Structural review gate — flags wrong boundaries, missing denormalization, weak criteria |
@@ -156,8 +157,7 @@ Block a subagent's completion until its deliverables meet structural and quality
 | `_adlc-domain-mapper`       | mapping-file         | `.adlc/domain-mapping.md` must exist                                                |
 | `_adlc-domain-mapper`       | engagement-check     | After challenge-revision, every medium+ confidence challenge has a resolution entry |
 | `_adlc-evidence-researcher` | evidence-findings    | `.adlc/current-evidence-findings.md` must exist                                     |
-| `_adlc-sprawl-challenger`   | sprawl-challenges    | `.adlc/current-sprawl-challenges.md` must exist                                     |
-| `_adlc-cohesion-challenger` | cohesion-challenges  | `.adlc/current-cohesion-challenges.md` must exist                                   |
+| `_adlc-challenge-arbiter`   | challenge-verdict    | `.adlc/current-challenge-verdict.md` must exist (via TaskCompleted hook)            |
 | `_adlc-placement-gate`      | no-plan-mutations    | Must not modify plan files (reads mapping, shouldn't create plans)                  |
 | `_adlc-placement-gate`      | revision-issues      | If revision exists, must contain `ISSUE` blocks                                     |
 | `_adlc-reviewer`            | verification-results | `.adlc/verification-results.md` must exist                                          |
