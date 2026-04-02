@@ -100,7 +100,9 @@ function detectSlice(cwd) {
     try {
         const content = readFileSync(slicePath, "utf8");
         const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-        if (!fmMatch) return null;
+        if (!fmMatch) {
+            return null;
+        }
         const idMatch = fmMatch[1].match(/^id:\s*(.+)$/m);
         return idMatch ? idMatch[1].trim() : null;
     } catch {
@@ -341,7 +343,9 @@ function computeRework(runs) {
     let reworkTokens = 0;
     for (let i = 0; i < runs.length; i++) {
         const run = runs[i];
-        if (run.mode !== "revision") continue;
+        if (run.mode !== "revision") {
+            continue;
+        }
         reworkDuration += run.durationMs;
         reworkTokens += run.tokens.billableTokens;
 

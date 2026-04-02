@@ -220,7 +220,7 @@ function isPackageSpecifier(specifier) {
         !/^(?:[A-Za-z]:)?[\\/]/.test(specifier) &&
         !/^file:/i.test(specifier) &&
         !/^[@#~]\//.test(specifier) &&
-        !/^#/.test(specifier)
+        !specifier.startsWith("#")
     );
 }
 

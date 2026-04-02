@@ -14,7 +14,7 @@ import { evaluate } from "./handler.mjs";
 
 const input = JSON.parse(readFileSync(0, "utf8"));
 const toolName = input.tool_name ?? "Bash";
-const toolInput = { ...(input.tool_input ?? {}) };
+const toolInput = { ...input.tool_input };
 
 let rewritten = null;
 if (toolName === "Bash") {
