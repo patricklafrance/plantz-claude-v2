@@ -1,19 +1,11 @@
 import type { FireflyRuntime } from "@squide/firefly";
-import type { QueryClient } from "@tanstack/react-query";
 
-import { createTodayPlantsCollection } from "./plantsCollection.ts";
-import { TodayPlantsCollectionProvider } from "./TodayPlantsContext.tsx";
-
-function registerRoutes(runtime: FireflyRuntime, collection: ReturnType<typeof createTodayPlantsCollection>) {
+function registerRoutes(runtime: FireflyRuntime) {
     const lazy = async () => {
         const { LandingPage } = await import("./LandingPage.tsx");
 
         return {
-            element: (
-                <TodayPlantsCollectionProvider collection={collection}>
-                    <LandingPage />
-                </TodayPlantsCollectionProvider>
-            )
+            element: <LandingPage />
         };
     };
 
@@ -35,24 +27,11 @@ function registerRoutes(runtime: FireflyRuntime, collection: ReturnType<typeof c
     });
 }
 
-export async function registerTodayLandingPage(runtime: FireflyRuntime, queryClient: QueryClient) {
-    const collection = createTodayPlantsCollection(queryClient);
-    registerRoutes(runtime, collection);
+export async function registerTodayLandingPage(runtime: FireflyRuntime) {
+    registerRoutes(runtime);
 
     if (runtime.isMswEnabled) {
-        const {
-            todayPlantHandlers,
-            todayCareEventHandlers,
-            defaultSeedCareEvents,
-            careEventsDb,
-            todayAdjustmentHandlers,
-            adjustmentsDb,
-            defaultSeedAdjustments
-        } = await import("./mocks/index.ts");
-        careEventsDb.reset(defaultSeedCareEvents);
-        adjustmentsDb.reset(defaultSeedAdjustments);
+        const { todayPlantHandlers } = await import("@packages/api/handlers/today");
         runtime.registerRequestHandlers(todayPlantHandlers);
-        runtime.registerRequestHandlers(todayCareEventHandlers);
-        runtime.registerRequestHandlers(todayAdjustmentHandlers);
     }
 }

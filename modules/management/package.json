@@ -11,11 +11,9 @@
         "typecheck": "tsgo"
     },
     "dependencies": {
+        "@packages/api": "workspace:*",
         "@packages/components": "workspace:*",
         "@packages/core-module": "workspace:*",
-        "@packages/core-plants": "workspace:*",
-        "@tanstack/db": "^0.5.32",
-        "@tanstack/react-db": "^0.1.76",
         "@tanstack/react-virtual": "^3.13.21",
         "date-fns": "^4.1.0",
         "lucide-react": "^0.577.0"

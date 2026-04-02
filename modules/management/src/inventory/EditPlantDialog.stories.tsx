@@ -1,15 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/core-plants/test-utils";
+import { createManagementPlantHandlers } from "@packages/api/handlers/management";
+import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/api/test-utils";
 
 import { EditPlantDialog } from "./EditPlantDialog.tsx";
-import { createManagementPlantHandlers } from "./mocks/index.ts";
-import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
+import { queryDecorator, fireflyDecorator } from "./storybook.setup.tsx";
 
-// The dialog auto-saves via PUT after a 500ms debounce. The collection must
-// contain every plant referenced by the stories so the optimistic update in
-// `plantsCollection.update(id, …)` finds the item. Without this the debounce
-// fires after the collection loads and throws a CollectionOperationError.
 const editPlants = [
     makePlant({ id: "test-edit-1", name: "Monstera Deliciosa" }),
     makePlant({ id: "test-edit-2", name: "Monstera Deliciosa" }),
@@ -22,7 +18,7 @@ const editPlants = [
 const meta = {
     title: "Management/Inventory/Components/EditPlantDialog",
     component: EditPlantDialog,
-    decorators: [collectionDecorator, fireflyDecorator],
+    decorators: [queryDecorator, fireflyDecorator],
     parameters: {
         chromatic: {
             modes: {

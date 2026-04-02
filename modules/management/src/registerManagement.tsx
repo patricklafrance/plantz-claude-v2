@@ -1,10 +1,9 @@
 import type { FireflyRuntime } from "@squide/firefly";
-import type { QueryClient } from "@tanstack/react-query";
 
 import { registerManagementUser } from "./account/registerManagementUser.tsx";
 import { registerManagementPlants } from "./inventory/registerManagementPlants.tsx";
 
-export async function registerManagement(runtime: FireflyRuntime, queryClient: QueryClient) {
-    await registerManagementPlants(runtime, queryClient);
+export async function registerManagement(runtime: FireflyRuntime) {
+    await registerManagementPlants(runtime);
     await registerManagementUser(runtime);
 }

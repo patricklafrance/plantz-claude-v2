@@ -1,7 +1,8 @@
 import { format } from "date-fns";
 import { Droplets } from "lucide-react";
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
+import type { Plant } from "@packages/api/entities/plants";
 import {
     Dialog,
     DialogContent,
@@ -21,11 +22,9 @@ import {
     SelectValue,
     DatePicker
 } from "@packages/components";
-import { locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
-import type { Plant } from "@packages/core-plants";
 
-import { useManagementPlantsCollection } from "./ManagementPlantsContext.tsx";
-import { createManagementPlantActions } from "./plantsCollection.ts";
+import { locations, luminosities, wateringFrequencies, wateringTypes } from "./constants.ts";
+import { useUpdatePlant } from "./useManagementPlants.ts";
 
 interface EditPlantDialogProps {
     plant: Plant | null;
@@ -50,8 +49,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const plantIdRef = useRef<string | null>(null);
 
-    const collection = useManagementPlantsCollection();
-    const actions = useMemo(() => createManagementPlantActions(collection), [collection]);
+    const updatePlant = useUpdatePlant();
 
     useEffect(() => {
         if (plant) {
@@ -77,11 +75,10 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
         if (!name.trim() || !wateringQuantity.trim()) {
             return;
         }
-        const id = plantIdRef.current;
 
-        try {
-            const tx = actions.updatePlant({
-                id,
+        updatePlant.mutate(
+            {
+                id: plantIdRef.current,
                 name: name.trim(),
                 description: description.trim() || undefined,
                 family: family.trim() || undefined,
@@ -92,17 +89,15 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                 wateringFrequency,
                 wateringQuantity: wateringQuantity.trim(),
                 wateringType
-            });
-
-            tx.isPersisted.promise.then(() => {
-                setSaved(true);
-                setTimeout(() => setSaved(false), 2000);
-            });
-        } catch {
-            // The collection may not contain the plant yet (e.g. initial fetch
-            // still in flight). The next debounce cycle will retry.
-        }
-    }, [name, description, family, location, luminosity, mistLeaves, soilType, wateringFrequency, wateringQuantity, wateringType, actions]);
+            },
+            {
+                onSuccess: () => {
+                    setSaved(true);
+                    setTimeout(() => setSaved(false), 2000);
+                }
+            }
+        );
+    }, [name, description, family, location, luminosity, mistLeaves, soilType, wateringFrequency, wateringQuantity, wateringType, updatePlant]);
 
     useEffect(() => {
         if (!plant || !open) {

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { FilterBar } from "@packages/core-plants";
-import type { PlantFilters } from "@packages/core-plants";
+import { FilterBar } from "./FilterBar.tsx";
+import type { PlantFilters } from "./usePlantFilters.ts";
 
 const defaultFilters: PlantFilters = {
     name: "",

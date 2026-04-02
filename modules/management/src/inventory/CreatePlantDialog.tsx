@@ -1,4 +1,4 @@
-import { useState, useMemo, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 
 import {
     Dialog,
@@ -19,10 +19,9 @@ import {
     SelectValue,
     DatePicker
 } from "@packages/components";
-import { locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
 
-import { useManagementPlantsCollection } from "./ManagementPlantsContext.tsx";
-import { createManagementPlantActions } from "./plantsCollection.ts";
+import { locations, luminosities, wateringFrequencies, wateringTypes } from "./constants.ts";
+import { useCreatePlant } from "./useManagementPlants.ts";
 
 interface CreatePlantDialogProps {
     open: boolean;
@@ -50,8 +49,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
     const [wateringType, setWateringType] = useState("surface");
     const [firstWateringDate, setFirstWateringDate] = useState<Date | undefined>(defaultFirstWateringDate ?? tomorrow());
 
-    const collection = useManagementPlantsCollection();
-    const actions = useMemo(() => createManagementPlantActions(collection), [collection]);
+    const createPlant = useCreatePlant();
 
     const isValid = name.trim() !== "" && wateringQuantity.trim() !== "" && firstWateringDate !== undefined;
 
@@ -75,7 +73,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
             return;
         }
 
-        actions.insertPlant({
+        createPlant.mutate({
             name: name.trim(),
             description: description.trim() || undefined,
             family: family.trim() || undefined,
@@ -89,7 +87,6 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
             nextWateringDate: firstWateringDate!
         });
 
-        // Close optimistically — the UI updates instantly via TanStack DB
         resetForm();
         onOpenChange(false);
     }

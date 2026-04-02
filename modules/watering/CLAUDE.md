@@ -1,6 +1,6 @@
 # Watering Module
 
-Daily plant care features: today (landing page with care actions) and vacation-planner.
+Daily plant care features: today (landing page with watering actions).
 
 ## Stories
 
@@ -11,13 +11,12 @@ Every page and component must have a co-located `.stories.tsx` file. A feature w
 ### Module-Specific
 
 - Title prefix: `Watering/Today/` for today subfolder (e.g., `Watering/Today/Pages/LandingPage`).
-- Title prefix: `Watering/VacationPlanner/` for vacation-planner subfolder (e.g., `Watering/VacationPlanner/Pages/VacationPlannerPage`).
 - Reference: `modules/watering/src/today/LandingPage.stories.tsx`.
 - Storybook dev command: `pnpm dev-storybook-watering`.
 
 ## Storybook Setup
 
-Each subfolder (under `src/`) has a `storybook.setup.tsx` that imports `initializeFireflyForStorybook` and `withFireflyDecorator` from the storybook's `firefly.tsx` (e.g., `../../../../apps/storybook-watering/firefly.tsx`), and creates a `CollectionDecorator` providing a fresh `QueryClient` + collection context per story. Story files import `collectionDecorator` and `fireflyDecorator` from `./storybook.setup.tsx` and add both to `decorators: [collectionDecorator, fireflyDecorator]`. MSW is managed globally via `msw-storybook-addon` in preview.tsx; per-story handlers use `parameters.msw.handlers`. Presentational component stories don't need the decorators.
+Each subfolder (under `src/`) has a `storybook.setup.tsx` that imports `initializeFireflyForStorybook` and `withFireflyDecorator` from the storybook's `firefly.tsx` (e.g., `../../../../apps/storybook-watering/firefly.tsx`), and creates a `QueryDecorator` providing a fresh `QueryClient` per story. Story files import `queryDecorator` and `fireflyDecorator` from `./storybook.setup.tsx` and add both to `decorators: [queryDecorator, fireflyDecorator]`. MSW is managed globally via `msw-storybook-addon` in preview.tsx; per-story handlers use `parameters.msw.handlers`. Presentational component stories don't need the decorators.
 
 ## Storybook Wiring
 
@@ -27,11 +26,12 @@ Story globs in `.storybook/main.ts` must include every subfolder in this module.
 
 ## Data Layer
 
-This module owns its API surface under `/api/today/`. Each subfolder has:
+This module's API surface lives under `/api/today/`. Data access uses TanStack Query hooks co-located with the components that use them:
 
-- `src/plantsCollection.ts` — TanStack DB collection factory (`createTodayPlantsCollection`) called during registration + optimistic actions via `createOptimisticAction`. The collection is provided to components via `TodayPlantsCollectionProvider` React Context.
-- `src/mocks/` — MSW handlers scoped to `/api/today/<entity>`
+- `src/today/useTodayPlants.ts` — Query hooks (`useTodayPlants`, `useMarkWatered`). Hooks encapsulate query keys, fetch calls, and `parsePlant()` date coercion.
+- `@packages/api/entities/plants` — `Plant` type and `parsePlant()` for date coercion.
+- `@packages/api/handlers/today` — MSW handlers (runtime + storybook factories).
 
-Components read with `useLiveQuery`. Mutations go through MSW handlers (`DELETE /api/today/plants/:id` and `DELETE /api/today/plants`). No `api/` folder -- the collection handles data fetching internally via `queryCollectionOptions`.
+Components read with `useQuery` hooks and write with `useMutation` hooks.
 
 See `msw-tanstack-query.md` in `.claude/skills/plantz-adlc-*/references/` for implementation patterns.

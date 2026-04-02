@@ -1,11 +1,10 @@
 import type { ModuleRegisterFunction, FireflyRuntime } from "@squide/firefly";
-import type { QueryClient } from "@tanstack/react-query";
 
 import { registerManagement } from "@modules/management";
 import { registerWatering } from "@modules/watering";
 
 interface ModuleEntry {
-    register: (runtime: FireflyRuntime, queryClient: QueryClient) => Promise<void>;
+    register: (runtime: FireflyRuntime) => Promise<void>;
 }
 
 const ModuleRegistry: Record<string, ModuleEntry> = {
@@ -13,7 +12,7 @@ const ModuleRegistry: Record<string, ModuleEntry> = {
     watering: { register: registerWatering }
 };
 
-export function getActiveModules(filter: string | undefined, queryClient: QueryClient): ModuleRegisterFunction<FireflyRuntime>[] {
+export function getActiveModules(filter: string | undefined): ModuleRegisterFunction<FireflyRuntime>[] {
     const keys = filter
         ? filter
               .split(",")
@@ -31,6 +30,6 @@ export function getActiveModules(filter: string | undefined, queryClient: QueryC
     return keys.map(key => {
         const entry = ModuleRegistry[key];
 
-        return ((runtime: FireflyRuntime) => entry.register(runtime, queryClient)) as ModuleRegisterFunction<FireflyRuntime>;
+        return ((runtime: FireflyRuntime) => entry.register(runtime)) as ModuleRegisterFunction<FireflyRuntime>;
     });
 }

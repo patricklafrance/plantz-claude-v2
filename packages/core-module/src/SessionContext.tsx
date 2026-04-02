@@ -1,7 +1,6 @@
 import { createContext, useContext, type ReactNode } from "react";
 
 import { AuthError } from "./AuthError.ts";
-import { getAuthHeaders } from "./authHeader.ts";
 
 export interface Session {
     id: string;
@@ -16,9 +15,7 @@ export function sessionQueryOptions() {
         staleTime: Infinity,
         refetchOnWindowFocus: false,
         queryFn: async () => {
-            const res = await fetch("/api/auth/session", {
-                headers: getAuthHeaders()
-            });
+            const res = await fetch("/api/auth/session");
 
             if (!res.ok) {
                 throw new AuthError(res.status);

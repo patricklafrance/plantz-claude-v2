@@ -23,20 +23,19 @@ modules/
   management/                  # Plant inventory + user account (@modules/management)
     src/inventory/             # Plant CRUD, plant list views
     src/account/               # User profile, preferences
-  watering/                    # Daily care + vacation planning (@modules/watering)
+  watering/                    # Daily care (@modules/watering)
     src/today/                 # Daily care dashboard, watering actions
-    src/vacation-planner/      # Vacation scheduling, absence care plans
 packages/
   components/                  # Shared UI — shadcn/ui (Base UI) + Tailwind v4
   core-module/                 # Cross-module infrastructure — session, auth, app shell
-  core-plants/                 # Shared plants data layer (MSW handlers, TanStack DB, seed data)
+  api/                         # API layer — entity types, MSW handlers, test factories
 ```
 
 Each module is fully isolated — modules never import from each other. Each has its own Storybook and Chromatic token for independent visual regression testing.
 
 ### Tech stack
 
-Node 24+, pnpm 10, TypeScript 7 (tsgo), Rsbuild, Vite (Storybooks), Tailwind CSS 4, TanStack DB, Storybook 10, Chromatic, Vitest, Playwright, oxlint, oxfmt, syncpack, knip, gitleaks.
+Node 24+, pnpm 10, TypeScript 7 (tsgo), Rsbuild, Vite (Storybooks), Tailwind CSS 4, TanStack Query, Storybook 10, Chromatic, Vitest, Playwright, oxlint, oxfmt, syncpack, knip, gitleaks.
 
 ---
 

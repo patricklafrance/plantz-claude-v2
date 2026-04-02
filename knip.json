@@ -23,7 +23,7 @@
         "apps/storybook": {
             "ignoreDependencies": [
                 "@packages/components",
-                "@packages/core-plants",
+                "@packages/api",
                 "@squide/env-vars",
                 "@squide/firefly",
                 "@squide/launch-darkly",
@@ -35,23 +35,23 @@
             ]
         },
         "apps/storybook-management": {
-            "ignoreDependencies": ["@packages/components", "@packages/core-plants", "launchdarkly-js-client-sdk"]
+            "ignoreDependencies": ["@packages/components", "@packages/api", "launchdarkly-js-client-sdk"]
         },
         "apps/storybook-watering": {
-            "ignoreDependencies": ["@packages/components", "@packages/core-plants", "launchdarkly-js-client-sdk"]
+            "ignoreDependencies": ["@packages/components", "@packages/api", "launchdarkly-js-client-sdk"]
         },
         "modules/management": {
             "entry": ["src/inventory/index.ts", "src/account/index.ts"]
         },
         "modules/watering": {
-            "entry": ["src/today/index.ts", "src/vacation-planner/index.ts"]
+            "entry": ["src/today/index.ts"]
         },
         "packages/components": {
             "entry": ["rslib.build.ts", "rslib.dev.ts", "postcss.config.mjs"],
             "ignoreDependencies": ["@tailwindcss/postcss"]
         },
         "apps/storybook-packages": {
-            "ignoreDependencies": ["@packages/components", "@packages/core-module", "@packages/core-plants", "launchdarkly-js-client-sdk"]
+            "ignoreDependencies": ["@packages/components", "@packages/core-module", "@packages/api", "launchdarkly-js-client-sdk"]
         }
     }
 }

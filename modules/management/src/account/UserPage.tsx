@@ -3,7 +3,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 
 import { Button, Input, Label } from "@packages/components";
-import { getAuthHeaders, sessionQueryOptions, useSession } from "@packages/core-module";
+import { sessionQueryOptions, useSession } from "@packages/core-module";
 
 export function UserPage() {
     const session = useSession();
@@ -31,8 +31,7 @@ export function UserPage() {
             const response = await fetch("/api/management/user/profile", {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json",
-                    ...getAuthHeaders()
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ name: trimmed })
             });

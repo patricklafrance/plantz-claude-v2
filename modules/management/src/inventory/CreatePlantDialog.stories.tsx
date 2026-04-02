@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { managementPlantHandlers } from "@packages/api/handlers/management";
+
 import { CreatePlantDialog } from "./CreatePlantDialog.tsx";
-import { managementPlantHandlers } from "./mocks/index.ts";
-import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
+import { queryDecorator, fireflyDecorator } from "./storybook.setup.tsx";
 
 // Fixed date for deterministic Chromatic snapshots — passed as a prop so the
 // DatePicker always displays the same value regardless of when the snapshot runs.
@@ -11,7 +12,7 @@ const FIXED_FIRST_WATERING_DATE = new Date(2026, 2, 11, 0, 0, 0, 0);
 const meta = {
     title: "Management/Inventory/Components/CreatePlantDialog",
     component: CreatePlantDialog,
-    decorators: [collectionDecorator, fireflyDecorator],
+    decorators: [queryDecorator, fireflyDecorator],
     parameters: {
         chromatic: {
             modes: {

@@ -114,15 +114,15 @@ Do NOT use legacy `chromatic.viewports`. Does not apply to `packages/components/
 
 ## Tailwind CSS Source Scanning
 
-Each domain storybook's `.storybook/storybook.css` must include `@source` directives for every package whose components appear in stories. At minimum: `packages/components/src`, `packages/core-plants/src`, and each domain module's `src`.
+Each domain storybook's `.storybook/storybook.css` must include `@source` directives for every package whose components appear in stories. At minimum: `packages/components/src` and each domain module's `src`.
 
 **When adding a new module or package:** add a `@source` directive in `apps/host/src/styles/globals.css` and in the relevant domain storybook CSS files.
 
 ## Isolation
 
-- Page stories use `fireflyDecorator` (provides Squide runtime + React Router via memory router) and module-specific decorators (`collectionDecorator`, `sessionDecorator`) as needed. Each domain module's `storybook.setup.tsx` defines these. See `msw-tanstack-query.md` for the full setup pattern.
+- Page stories use `fireflyDecorator` (provides Squide runtime + React Router via memory router) and `queryDecorator` (`QueryClientProvider` with `retry: false, staleTime: Infinity`) as needed. Each domain module's `storybook.setup.tsx` defines these. See `msw-tanstack-query.md` for the full setup pattern.
 - Extract presentational sub-components (dialogs, cards, sections) so they can be tested with a lighter decorator stack or none at all.
-- `packages/components/` stories use no decorators — purely prop-driven. No MSW, collections, or QueryClient.
+- `packages/components/` stories use no decorators — purely prop-driven. No MSW or QueryClient.
 
 ## A11y Test Suppression
 

@@ -2,7 +2,7 @@ import { execSync } from "node:child_process";
 import { appendFileSync } from "node:fs";
 
 const StorybookDependencies = {
-    "@apps/storybook-packages": ["@packages/components", "@packages/core-plants"],
+    "@apps/storybook-packages": ["@packages/components", "@packages/api"],
     "@apps/storybook-management": ["@modules/management"],
     "@apps/storybook-watering": ["@modules/watering"]
 } as const;

@@ -17,7 +17,7 @@ export async function registerManagementUser(runtime: FireflyRuntime) {
     registerRoutes(runtime);
 
     if (runtime.isMswEnabled) {
-        const { managementUserHandlers } = await import("./mocks/index.ts");
+        const { managementUserHandlers } = await import("@packages/api/handlers/management");
         runtime.registerRequestHandlers(managementUserHandlers);
     }
 }

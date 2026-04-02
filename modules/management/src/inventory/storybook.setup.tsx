@@ -4,8 +4,6 @@ import { NoopLogger } from "@workleap/logging";
 import { useMemo, type ReactNode } from "react";
 
 import { initializeFireflyForStorybook, withFireflyDecorator } from "../../../../apps/storybook-management/firefly.tsx";
-import { ManagementPlantsCollectionProvider } from "./ManagementPlantsContext.tsx";
-import { createManagementPlantsCollection } from "./plantsCollection.ts";
 
 const runtime = await initializeFireflyForStorybook({
     loggers: [new NoopLogger()]
@@ -13,7 +11,7 @@ const runtime = await initializeFireflyForStorybook({
 
 export const fireflyDecorator = withFireflyDecorator(runtime);
 
-function CollectionDecorator({ children }: { children: ReactNode }) {
+function QueryDecorator({ children }: { children: ReactNode }) {
     const queryClient = useMemo(
         () =>
             new QueryClient({
@@ -21,17 +19,12 @@ function CollectionDecorator({ children }: { children: ReactNode }) {
             }),
         []
     );
-    const collection = useMemo(() => createManagementPlantsCollection(queryClient), [queryClient]);
 
-    return (
-        <QueryClientProvider client={queryClient}>
-            <ManagementPlantsCollectionProvider collection={collection}>{children}</ManagementPlantsCollectionProvider>
-        </QueryClientProvider>
-    );
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 
-function withCollectionDecorator(): Decorator {
-    return story => <CollectionDecorator>{story()}</CollectionDecorator>;
+function withQueryDecorator(): Decorator {
+    return story => <QueryDecorator>{story()}</QueryDecorator>;
 }
 
-export const collectionDecorator = withCollectionDecorator();
+export const queryDecorator = withQueryDecorator();

@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/core-plants/test-utils";
+import { createManagementPlantHandlers } from "@packages/api/handlers/management";
+import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/api/test-utils";
 
-import { createManagementPlantHandlers } from "./mocks/index.ts";
 import { PlantsPage } from "./PlantsPage.tsx";
-import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
+import { queryDecorator, fireflyDecorator } from "./storybook.setup.tsx";
 
 const meta = {
     title: "Management/Inventory/Pages/PlantsPage",
     component: PlantsPage,
-    decorators: [collectionDecorator, fireflyDecorator],
+    decorators: [queryDecorator, fireflyDecorator],
     parameters: {
         chromatic: {
             modes: {

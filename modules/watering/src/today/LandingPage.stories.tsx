@@ -1,16 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/core-plants/test-utils";
+import { createTodayPlantHandlers } from "@packages/api/handlers/today";
+import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/api/test-utils";
 
-import type { VacationPlan } from "../vacation-planner/vacationTypes.ts";
 import { LandingPage } from "./LandingPage.tsx";
-import { createTodayPlantHandlers } from "./mocks/index.ts";
-import { collectionDecorator, fireflyDecorator } from "./storybook.setup.tsx";
+import { queryDecorator, fireflyDecorator } from "./storybook.setup.tsx";
 
 const meta = {
     title: "Watering/Today/Pages/LandingPage",
     component: LandingPage,
-    decorators: [collectionDecorator, fireflyDecorator],
+    decorators: [queryDecorator, fireflyDecorator],
     parameters: {
         chromatic: {
             modes: {
@@ -97,31 +96,5 @@ export const Empty: Story = {
 export const Loading: Story = {
     parameters: {
         msw: { handlers: createTodayPlantHandlers("loading") }
-    }
-};
-
-const activePlan: VacationPlan = {
-    id: "plan-1",
-    startDate: new Date(2099, 5, 1),
-    endDate: new Date(2099, 5, 14),
-    strategy: "balanced",
-    status: "active",
-    recommendations: [],
-    createdAt: new Date(2099, 4, 20),
-    updatedAt: new Date(2099, 4, 20)
-};
-
-export const WithActivePlan: Story = {
-    parameters: {
-        msw: {
-            handlers: createTodayPlantHandlers(
-                [
-                    makePlant({ id: "due-1", name: "Aloe Vera", nextWateringDate: FAR_PAST }),
-                    makePlant({ id: "due-2", name: "Boston Fern", nextWateringDate: FAR_PAST }),
-                    makePlant({ id: "not-due-1", name: "Cactus", nextWateringDate: FAR_FUTURE })
-                ],
-                activePlan
-            )
-        }
     }
 };

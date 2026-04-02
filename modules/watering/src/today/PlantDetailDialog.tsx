@@ -1,20 +1,20 @@
 import { format } from "date-fns";
 import { Droplets } from "lucide-react";
-import type { ReactNode } from "react";
 
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Separator } from "@packages/components";
-import { getOptionLabel, locations, luminosities, wateringFrequencies, wateringTypes } from "@packages/core-plants";
-import type { Plant } from "@packages/core-plants";
+import type { Plant } from "@packages/api/entities/plants";
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@packages/components";
+
+import { locations, luminosities, wateringFrequencies, wateringTypes } from "./constants.ts";
+import { getOptionLabel } from "./plantUtils.ts";
 
 interface PlantDetailDialogProps {
     plant: Plant | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    careSection?: ReactNode;
     onMarkWatered?: () => void;
 }
 
-export function PlantDetailDialog({ plant, open, onOpenChange, careSection, onMarkWatered }: PlantDetailDialogProps) {
+export function PlantDetailDialog({ plant, open, onOpenChange, onMarkWatered }: PlantDetailDialogProps) {
     if (!plant) {
         return null;
     }
@@ -79,12 +79,6 @@ export function PlantDetailDialog({ plant, open, onOpenChange, careSection, onMa
                     <div className="text-muted-foreground text-xs">
                         Created: {format(plant.creationDate, "PPP")} · Last updated: {format(plant.lastUpdateDate, "PPP")}
                     </div>
-                    {careSection && (
-                        <>
-                            <Separator />
-                            {careSection}
-                        </>
-                    )}
                 </div>
                 <DialogFooter showCloseButton>
                     {onMarkWatered && (

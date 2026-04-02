@@ -15,27 +15,30 @@ describe("node-modules-read", () => {
     });
 
     it("should allow Read calls to .d.ts files in node_modules", () => {
-        expect(checkNodeModulesRead("Read", { file_path: "node_modules/@tanstack/db/dist/esm/transactions.d.ts" })).toBeNull();
+        expect(checkNodeModulesRead("Read", { file_path: "node_modules/@tanstack/react-query/dist/esm/transactions.d.ts" })).toBeNull();
     });
 
     it("should allow Read calls to .d.mts files in node_modules", () => {
-        expect(checkNodeModulesRead("Read", { file_path: "node_modules/@tanstack/db/dist/esm/index.d.mts" })).toBeNull();
+        expect(checkNodeModulesRead("Read", { file_path: "node_modules/@tanstack/react-query/dist/esm/index.d.mts" })).toBeNull();
     });
 
     it("should allow Read calls to .d.cts files in node_modules", () => {
-        expect(checkNodeModulesRead("Read", { file_path: "node_modules/@tanstack/db/dist/cjs/index.d.cts" })).toBeNull();
+        expect(checkNodeModulesRead("Read", { file_path: "node_modules/@tanstack/react-query/dist/cjs/index.d.cts" })).toBeNull();
     });
 
     it("should allow Read calls to .d.ts files in nested node_modules", () => {
         expect(
             checkNodeModulesRead("Read", {
-                file_path: "C:\\repo\\node_modules\\.pnpm\\@tanstack+db@0.5.33\\node_modules\\@tanstack\\db\\dist\\esm\\optimistic-action.d.ts"
+                file_path:
+                    "C:\\repo\\node_modules\\.pnpm\\@tanstack+react-query@5.90.21\\node_modules\\@tanstack\\react-query\\dist\\esm\\useQuery.d.ts"
             })
         ).toBeNull();
     });
 
     it("should block Read calls to .d.ts.map files in node_modules", () => {
-        expect(checkNodeModulesRead("Read", { file_path: "node_modules/@tanstack/db/dist/esm/index.d.ts.map" })?.reason).toContain("library source");
+        expect(checkNodeModulesRead("Read", { file_path: "node_modules/@tanstack/react-query/dist/esm/index.d.ts.map" })?.reason).toContain(
+            "library source"
+        );
     });
 
     it("should allow Read calls outside node_modules", () => {
@@ -51,11 +54,13 @@ describe("node-modules-read", () => {
     });
 
     it("should allow Glob patterns targeting .d.ts in node_modules", () => {
-        expect(checkNodeModulesRead("Glob", { pattern: "**/node_modules/.pnpm/@tanstack+db*/node_modules/@tanstack/db/**/*.d.ts" })).toBeNull();
+        expect(
+            checkNodeModulesRead("Glob", { pattern: "**/node_modules/.pnpm/@tanstack+react-query*/node_modules/@tanstack/react-query/**/*.d.ts" })
+        ).toBeNull();
     });
 
     it("should allow Glob patterns targeting .d.mts in node_modules", () => {
-        expect(checkNodeModulesRead("Glob", { pattern: "**/node_modules/@tanstack/db/**/*.d.mts" })).toBeNull();
+        expect(checkNodeModulesRead("Glob", { pattern: "**/node_modules/@tanstack/react-query/**/*.d.mts" })).toBeNull();
     });
 
     it("should allow Glob patterns that do not target node_modules", () => {
@@ -79,6 +84,6 @@ describe("node-modules-read", () => {
     });
 
     it("should allow bash commands that do not inspect node_modules", () => {
-        expect(checkNodeModulesRead("Bash", { command: "rg PlantList packages/core-plants/src" })).toBeNull();
+        expect(checkNodeModulesRead("Bash", { command: "rg PlantList packages/api/src" })).toBeNull();
     });
 });

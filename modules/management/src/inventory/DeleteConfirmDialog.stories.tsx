@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { DeleteConfirmDialog } from "@packages/core-plants";
+import { DeleteConfirmDialog } from "./DeleteConfirmDialog.tsx";
 
 const meta = {
     title: "Management/Inventory/Components/DeleteConfirmDialog",

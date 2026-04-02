@@ -15,8 +15,8 @@
         "doctor": "storybook doctor"
     },
     "dependencies": {
+        "@packages/api": "workspace:*",
         "@packages/components": "workspace:*",
-        "@packages/core-plants": "workspace:*",
         "@squide/env-vars": "1.4.19",
         "@squide/firefly": "16.2.0",
         "@squide/launch-darkly": "1.0.10",

@@ -1,27 +1,35 @@
-import { useLiveQuery } from "@tanstack/react-db";
-import { useQueryClient } from "@tanstack/react-query";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useState, useRef, useMemo, useCallback } from "react";
 
+import type { Plant } from "@packages/api/entities/plants";
+import { getFrequencyDays } from "@packages/api/entities/plants";
 import { Button } from "@packages/components";
-import { applyPlantFilters, FilterBar, isDueForWatering, PlantListHeader, PlantListItem, usePlantFilters } from "@packages/core-plants";
-import type { Plant } from "@packages/core-plants";
 
-import { createBulkCareEvents, createCareEvent } from "./careEventsApi.ts";
-import { PlantCareSection } from "./PlantCareSection.tsx";
+import { FilterBar } from "./FilterBar.tsx";
 import { PlantDetailDialog } from "./PlantDetailDialog.tsx";
-import { useTodayPlantsCollection } from "./TodayPlantsContext.tsx";
-import { VacationPlanBanner } from "./VacationPlanBanner.tsx";
+import { PlantListHeader } from "./PlantListHeader.tsx";
+import { PlantListItem } from "./PlantListItem.tsx";
+import { applyPlantFilters, isDueForWatering } from "./plantUtils.ts";
+import { usePlantFilters } from "./usePlantFilters.ts";
+import { useTodayPlants, useMarkWatered } from "./useTodayPlants.ts";
+
+function computeNextWateringDate(plant: Plant): Date {
+    const days = getFrequencyDays(plant.wateringFrequency);
+    const next = new Date();
+    next.setDate(next.getDate() + days);
+    next.setHours(0, 0, 0, 0);
+
+    return next;
+}
 
 export function LandingPage() {
     const { filters, updateFilter, clearFilters, hasActiveFilters } = usePlantFilters();
     const [detailPlant, setDetailPlant] = useState<Plant | null>(null);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const listRef = useRef<HTMLDivElement>(null);
-    const queryClient = useQueryClient();
 
-    const collection = useTodayPlantsCollection();
-    const { data: allPlants, isReady } = useLiveQuery(q => q.from({ plant: collection }));
+    const { data: allPlants, isPending } = useTodayPlants();
+    const markWatered = useMarkWatered();
 
     const plants = useMemo(() => {
         if (!allPlants) {
@@ -74,38 +82,25 @@ export function LandingPage() {
         }
     }, []);
 
-    const handleAdjustmentAccepted = useCallback(async () => {
-        await collection.utils.refetch();
-    }, [collection]);
-
-    const handleMarkWatered = useCallback(async () => {
+    const handleMarkWatered = useCallback(() => {
         if (!detailPlant) {
             return;
         }
 
-        try {
-            await createCareEvent(detailPlant.id, "watered");
-            await Promise.all([queryClient.invalidateQueries({ queryKey: ["today", "care-events", detailPlant.id] }), collection.utils.refetch()]);
-            setDetailPlant(null);
-        } catch {
-            // Silently handle — the user can retry.
-        }
-    }, [detailPlant, queryClient, collection]);
+        markWatered.mutate({ id: detailPlant.id, nextWateringDate: computeNextWateringDate(detailPlant) }, { onSuccess: () => setDetailPlant(null) });
+    }, [detailPlant, markWatered]);
 
-    const handleBulkMarkWatered = useCallback(async () => {
-        const ids = plants.filter(p => selectedIds.has(p.id)).map(p => p.id);
-        if (ids.length === 0) {
+    const handleBulkMarkWatered = useCallback(() => {
+        const duePlants = plants.filter(p => selectedIds.has(p.id));
+        if (duePlants.length === 0) {
             return;
         }
 
-        try {
-            await createBulkCareEvents(ids, "watered");
-            setSelectedIds(new Set());
-            await collection.utils.refetch();
-        } catch {
-            // Silently handle — the user can retry.
+        for (const plant of duePlants) {
+            markWatered.mutate({ id: plant.id, nextWateringDate: computeNextWateringDate(plant) });
         }
-    }, [plants, selectedIds, collection]);
+        setSelectedIds(new Set());
+    }, [plants, selectedIds, markWatered]);
 
     const selectedCount = plants.filter(p => selectedIds.has(p.id)).length;
 
@@ -119,7 +114,7 @@ export function LandingPage() {
         [totalSize]
     );
 
-    if (!isReady) {
+    if (isPending) {
         return (
             <div className="flex items-center justify-center p-6">
                 <p className="text-muted-foreground text-sm">Loading plants...</p>
@@ -132,8 +127,6 @@ export function LandingPage() {
             <div className="flex items-center justify-between">
                 <h1 className="text-xl font-semibold">Today</h1>
             </div>
-
-            <VacationPlanBanner />
 
             <FilterBar
                 filters={filters}
@@ -188,15 +181,6 @@ export function LandingPage() {
                 plant={detailPlant}
                 open={detailPlant !== null}
                 onOpenChange={handleDetailOpenChange}
-                careSection={
-                    detailPlant ? (
-                        <PlantCareSection
-                            plantId={detailPlant.id}
-                            wateringFrequency={detailPlant.wateringFrequency}
-                            onAdjustmentAccepted={handleAdjustmentAccepted}
-                        />
-                    ) : undefined
-                }
                 onMarkWatered={handleMarkWatered}
             />
         </div>

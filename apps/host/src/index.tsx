@@ -3,18 +3,18 @@ import { FireflyProvider, initializeFirefly } from "@squide/firefly";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
 
+import { seedDatabase } from "@packages/api/seed";
 import { App, registerShell } from "@packages/core-module/shell";
-import { defaultSeedPlants, plantsDb } from "@packages/core-plants/db";
 
 import { getActiveModules } from "./getActiveModules.tsx";
 
 const queryClient = new QueryClient();
 
-plantsDb.reset(defaultSeedPlants);
+seedDatabase();
 
 const runtime = initializeFirefly({
     useMsw: true,
-    localModules: [registerShell, ...getActiveModules(process.env.MODULES, queryClient)],
+    localModules: [registerShell, ...getActiveModules(process.env.MODULES)],
     startMsw: async x => {
         return (await import("./mocks/browser.ts")).startMsw(x.requestHandlers);
     }

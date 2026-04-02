@@ -12,13 +12,11 @@ const storybookConfig: StorybookConfig = {
         // Packages
         "../../../packages/components/src/**/*.stories.tsx",
         "../../../packages/core-module/src/**/*.stories.tsx",
-        "../../../packages/core-plants/src/**/*.stories.tsx",
         // Management
         "../../../modules/management/src/inventory/**/*.stories.tsx",
         "../../../modules/management/src/account/**/*.stories.tsx",
         // Watering
-        "../../../modules/watering/src/today/**/*.stories.tsx",
-        "../../../modules/watering/src/vacation-planner/**/*.stories.tsx"
+        "../../../modules/watering/src/today/**/*.stories.tsx"
     ],
     staticDirs: ["./public"]
 };

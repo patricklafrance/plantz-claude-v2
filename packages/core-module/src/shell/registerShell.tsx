@@ -27,7 +27,7 @@ export const registerShell: ModuleRegisterFunction<FireflyRuntime> = async runti
     });
 
     if (runtime.isMswEnabled) {
-        const { authHandlers } = await import("./mocks/authHandlers.ts");
+        const { authHandlers } = await import("@packages/api/handlers/auth");
         runtime.registerRequestHandlers(authHandlers);
     }
 };

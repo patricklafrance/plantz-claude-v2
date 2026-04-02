@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import type { Plant } from "@packages/core-plants";
+import type { Plant } from "@packages/api/entities/plants";
 
 import { PlantDetailDialog } from "./PlantDetailDialog.tsx";
 
@@ -77,31 +77,6 @@ export const LongValues: Story = {
                 "A rare variegated cultivar of the Philodendron Birkin with stunning white pinstripe patterns on dark green leaves. Requires consistent humidity and indirect light.",
             wateringQuantity: "500ml every other day when soil is dry"
         })
-    }
-};
-
-export const WithCareSection: Story = {
-    args: {
-        plant: makePlant(),
-        careSection: (
-            <div className="flex flex-col gap-3">
-                <div className="flex flex-col gap-1">
-                    <span className="text-sm font-semibold">Care Insights</span>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                            <span className="text-muted-foreground">Last watered:</span> 3 days ago
-                        </div>
-                        <div>
-                            <span className="text-muted-foreground">Streak:</span> 5 waterings
-                        </div>
-                    </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                    <span className="text-sm font-semibold">Care History</span>
-                    <p className="text-muted-foreground text-xs">Sample care history entries would appear here.</p>
-                </div>
-            </div>
-        )
     }
 };
 

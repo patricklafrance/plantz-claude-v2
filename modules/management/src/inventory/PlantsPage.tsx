@@ -1,17 +1,19 @@
-import { useLiveQuery } from "@tanstack/react-db";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { Plus } from "lucide-react";
 import { useState, useRef, useMemo, useCallback } from "react";
 
+import type { Plant } from "@packages/api/entities/plants";
 import { Button } from "@packages/components";
-import { applyPlantFilters, DeleteConfirmDialog, FilterBar, PlantListHeader, PlantListItem, usePlantFilters } from "@packages/core-plants";
-import type { Plant } from "@packages/core-plants";
 
-import { createBulkCareEvents, createCareEvent } from "./careEventsApi.ts";
 import { CreatePlantDialog } from "./CreatePlantDialog.tsx";
+import { DeleteConfirmDialog } from "./DeleteConfirmDialog.tsx";
 import { EditPlantDialog } from "./EditPlantDialog.tsx";
-import { useManagementPlantsCollection } from "./ManagementPlantsContext.tsx";
-import { createManagementPlantActions } from "./plantsCollection.ts";
+import { FilterBar } from "./FilterBar.tsx";
+import { PlantListHeader } from "./PlantListHeader.tsx";
+import { PlantListItem } from "./PlantListItem.tsx";
+import { applyPlantFilters } from "./plantUtils.ts";
+import { useManagementPlants, useDeletePlant, useDeletePlants } from "./useManagementPlants.ts";
+import { usePlantFilters } from "./usePlantFilters.ts";
 
 export function PlantsPage() {
     const { filters, updateFilter, clearFilters, hasActiveFilters } = usePlantFilters();
@@ -22,9 +24,9 @@ export function PlantsPage() {
     const [deleteTarget, setDeleteTarget] = useState<Plant[] | null>(null);
     const listRef = useRef<HTMLDivElement>(null);
 
-    const collection = useManagementPlantsCollection();
-    const actions = useMemo(() => createManagementPlantActions(collection), [collection]);
-    const { data: allPlants, isReady } = useLiveQuery(q => q.from({ plant: collection }));
+    const { data: allPlants, isPending } = useManagementPlants();
+    const deletePlantMutation = useDeletePlant();
+    const deletePlantsMutation = useDeletePlants();
 
     const plants = useMemo(() => {
         if (!allPlants) {
@@ -80,7 +82,11 @@ export function PlantsPage() {
             return;
         }
         const ids = deleteTarget.map(p => p.id);
-        actions.deletePlants(ids);
+        if (ids.length === 1) {
+            deletePlantMutation.mutate(ids[0]!);
+        } else {
+            deletePlantsMutation.mutate(ids);
+        }
         setSelectedIds(prev => {
             const next = new Set(prev);
             for (const plant of deleteTarget) {
@@ -93,7 +99,7 @@ export function PlantsPage() {
             setEditPlant(null);
         }
         setDeleteTarget(null);
-    }, [deleteTarget, editOpen, editPlant, actions]);
+    }, [deleteTarget, editOpen, editPlant, deletePlantMutation, deletePlantsMutation]);
 
     const handleEditFromDialog = useCallback(
         (plant: Plant) => {
@@ -117,34 +123,14 @@ export function PlantsPage() {
         }
     }, []);
 
-    const handleMarkWatered = useCallback(
-        async (plant: Plant) => {
-            try {
-                await createCareEvent(plant.id, "watered");
-                await collection.utils.refetch();
-                setEditOpen(false);
-                setEditPlant(null);
-            } catch {
-                // Silently handle — the user can retry.
-            }
-        },
-        [collection]
-    );
+    const handleMarkWatered = useCallback((_plant: Plant) => {
+        setEditOpen(false);
+        setEditPlant(null);
+    }, []);
 
-    const handleBulkMarkWatered = useCallback(async () => {
-        const ids = plants.filter(p => selectedIds.has(p.id)).map(p => p.id);
-        if (ids.length === 0) {
-            return;
-        }
-
-        try {
-            await createBulkCareEvents(ids, "watered");
-            setSelectedIds(new Set());
-            await collection.utils.refetch();
-        } catch {
-            // Silently handle — the user can retry.
-        }
-    }, [plants, selectedIds, collection]);
+    const handleBulkMarkWatered = useCallback(() => {
+        setSelectedIds(new Set());
+    }, []);
 
     const selectedCount = plants.filter(p => selectedIds.has(p.id)).length;
 
@@ -160,7 +146,7 @@ export function PlantsPage() {
         [totalSize]
     );
 
-    if (!isReady) {
+    if (isPending) {
         return (
             <div className="flex items-center justify-center p-6">
                 <p className="text-muted-foreground text-sm">Loading plants...</p>
