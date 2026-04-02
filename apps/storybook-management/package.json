@@ -18,7 +18,7 @@
         "@packages/api": "workspace:*",
         "@packages/components": "workspace:*",
         "@squide/firefly": "16.2.2",
-        "@squide/firefly-storybook": "1.0.0",
+        "@squide/firefly-storybook": "1.0.1",
         "@storybook/addon-a11y": "10.3.4",
         "@storybook/addon-themes": "10.3.4",
         "@storybook/addon-vitest": "10.3.4",
@@ -28,7 +28,7 @@
         "msw": "2.12.14",
         "react": "19.2.4",
         "react-dom": "19.2.4",
-        "react-router": "7.13.2",
+        "react-router": "7.14.0",
         "storybook": "10.3.4"
     },
     "devDependencies": {
