@@ -23,7 +23,7 @@
         "test-harness": "vitest run --config agent-hooks/vitest.config.ts",
         "lint": "turbo run lint --continue",
         "typecheck": "tsgo",
-        "oxlint": "oxlint --react-plugin --import-plugin --jsx-a11y-plugin --react-perf-plugin --promise-plugin --vitest-plugin",
+        "oxlint": "oxlint --deny-warnings --react-plugin --import-plugin --jsx-a11y-plugin --react-perf-plugin --promise-plugin --vitest-plugin",
         "oxfmt": "oxfmt --check",
         "oxfmt-fix": "oxfmt",
         "knip": "knip",
