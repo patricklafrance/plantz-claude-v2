@@ -81,12 +81,13 @@ The host app requires login. Demo credentials: `alice@example.com` / `password`.
 
 ### Routes
 
-| Route                | Module                              |
-| -------------------- | ----------------------------------- |
-| `/`                  | today/landing-page (index redirect) |
-| `/today`             | today/landing-page                  |
-| `/management/plants` | management/plants                   |
-| `/management/user`   | management/user                     |
+| Route                   | Module                              |
+| ----------------------- | ----------------------------------- |
+| `/`                     | today/landing-page (index redirect) |
+| `/today`                | today/landing-page                  |
+| `/management/plants`    | management/plants                   |
+| `/management/user`      | management/user                     |
+| `/management/household` | management/household                |
 
 ## Storybook URL pattern
 
