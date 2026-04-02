@@ -17,7 +17,7 @@
         "eslint/no-extra-bind": "warn",
         "eslint/no-lone-blocks": "warn",
         "eslint/no-loop-func": "warn",
-        "eslint/no-multiple-empty-lines": ["warn", { "max": 1 }],
+
         "eslint/no-new-wrappers": "warn",
         "eslint/no-param-reassign": "warn",
         "eslint/no-script-url": "warn",

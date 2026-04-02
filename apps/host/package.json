@@ -17,26 +17,26 @@
         "@packages/api": "workspace:*",
         "@packages/components": "workspace:*",
         "@packages/core-module": "workspace:*",
-        "@squide/firefly": "16.2.0",
-        "@tanstack/react-query": "5.90.21",
+        "@squide/firefly": "16.2.2",
+        "@tanstack/react-query": "5.96.1",
         "react": "19.2.4",
         "react-dom": "19.2.4",
-        "react-router": "7.12.0"
+        "react-router": "7.13.2"
     },
     "devDependencies": {
-        "@rsbuild/core": "1.7.2",
-        "@tailwindcss/postcss": "4.2.1",
-        "@types/react": "19.2.9",
+        "@rsbuild/core": "1.7.5",
+        "@tailwindcss/postcss": "4.2.2",
+        "@types/react": "19.2.14",
         "@types/react-dom": "19.2.3",
-        "@typescript/native-preview": "7.0.0-dev.20260303.1",
-        "@workleap/browserslist-config": "2.1.5",
-        "@workleap/rsbuild-configs": "3.2.0",
-        "@workleap/typescript-configs": "3.0.7",
+        "@typescript/native-preview": "7.0.0-dev.20260401.1",
+        "@workleap/browserslist-config": "2.1.8",
+        "@workleap/rsbuild-configs": "3.2.6",
+        "@workleap/typescript-configs": "4.0.0",
         "http-server": "14.1.1",
-        "msw": "2.12.10",
+        "msw": "2.12.14",
         "size-limit": "12.0.1",
-        "tailwindcss": "4.2.1",
-        "typescript": "5.9.3"
+        "tailwindcss": "4.2.2",
+        "typescript": "6.0.2"
     },
     "msw": {
         "workerDirectory": "public"
