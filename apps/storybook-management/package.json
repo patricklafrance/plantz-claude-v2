@@ -17,10 +17,8 @@
     "dependencies": {
         "@packages/api": "workspace:*",
         "@packages/components": "workspace:*",
-        "@squide/env-vars": "1.4.20",
         "@squide/firefly": "16.2.2",
-        "@squide/launch-darkly": "1.0.11",
-        "@squide/msw": "4.0.18",
+        "@squide/firefly-storybook": "1.0.0",
         "@storybook/addon-a11y": "10.3.4",
         "@storybook/addon-themes": "10.3.4",
         "@storybook/addon-vitest": "10.3.4",

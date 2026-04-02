@@ -18,6 +18,7 @@
         "lucide-react": "^1.7.0"
     },
     "devDependencies": {
+        "@squide/firefly-storybook": "1.0.0",
         "@storybook/react-vite": "10.3.4",
         "@types/react": "19.2.14",
         "@types/react-dom": "19.2.3",

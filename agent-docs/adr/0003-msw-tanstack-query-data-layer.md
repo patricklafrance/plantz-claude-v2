@@ -25,6 +25,6 @@ This mirrors a real BFF (backend-for-frontend) architecture: each frontend surfa
 - Data resets on page reload (intentional for POC).
 - Adding a new module requires creating local query hooks (co-located with components) and importing handler factories from `@packages/api/handlers/*`.
 - URL namespaces must not collide between modules.
-- Domain modules need a `storybook.setup.tsx` wiring `initializeFireflyForStorybook` + `withFireflyDecorator` from the domain storybook's `firefly.tsx`, and a `queryDecorator` for per-story `QueryClientProvider`. MSW is managed globally via `msw-storybook-addon` in preview.tsx.
+- Domain modules need a `storybook.setup.tsx` wiring `initializeFireflyForStorybook` + `withFireflyDecorator` from `@squide/firefly-storybook`, and a `queryDecorator` for per-story `QueryClientProvider`. MSW is managed globally via `msw-storybook-addon` in preview.tsx.
 
 See `agent-docs/references/msw-tanstack-query.md` for implementation patterns.
