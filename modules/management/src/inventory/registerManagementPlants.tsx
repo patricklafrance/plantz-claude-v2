@@ -24,7 +24,8 @@ export async function registerManagementPlants(runtime: FireflyRuntime) {
     registerRoutes(runtime);
 
     if (runtime.isMswEnabled) {
-        const { managementPlantHandlers } = await import("@packages/api/handlers/management");
+        const { managementPlantHandlers, managementCareEventHandlers } = await import("@packages/api/handlers/management");
         runtime.registerRequestHandlers(managementPlantHandlers);
+        runtime.registerRequestHandlers(managementCareEventHandlers);
     }
 }

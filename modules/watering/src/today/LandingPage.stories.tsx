@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { createHouseholdHandlers } from "@packages/api/handlers/household";
-import { createTodayPlantHandlers, createTodayAssignmentHandlers } from "@packages/api/handlers/today";
+import { createTodayPlantHandlers, createTodayAssignmentHandlers, createTodayCareEventHandlers } from "@packages/api/handlers/today";
 import { makePlant, makeAssignment, FAR_PAST, FAR_FUTURE, makeHouseholdMember } from "@packages/api/test-utils";
 
 import { LandingPage } from "./LandingPage.tsx";
@@ -52,6 +52,7 @@ export const Default: Story = {
                     makePlant({ id: "not-due-2", name: "Echeveria", nextWateringDate: FAR_FUTURE })
                 ]),
                 ...createTodayAssignmentHandlers([]),
+                ...createTodayCareEventHandlers([]),
                 ...householdHandlers
             ]
         }
@@ -69,6 +70,7 @@ export const NoPlantsDue: Story = {
                     makePlant({ id: "future-3", name: "Snake Plant", nextWateringDate: FAR_FUTURE })
                 ]),
                 ...createTodayAssignmentHandlers([]),
+                ...createTodayCareEventHandlers([]),
                 ...householdHandlers
             ]
         }
@@ -88,6 +90,7 @@ export const AllDueForWatering: Story = {
                     makePlant({ id: "due-5", name: "English Ivy", nextWateringDate: FAR_PAST })
                 ]),
                 ...createTodayAssignmentHandlers([]),
+                ...createTodayCareEventHandlers([]),
                 ...householdHandlers
             ]
         }
@@ -108,6 +111,7 @@ export const SinglePlant: Story = {
                     })
                 ]),
                 ...createTodayAssignmentHandlers([]),
+                ...createTodayCareEventHandlers([]),
                 ...householdHandlers
             ]
         }
@@ -117,7 +121,12 @@ export const SinglePlant: Story = {
 export const Empty: Story = {
     parameters: {
         msw: {
-            handlers: [...createTodayPlantHandlers([]), ...createTodayAssignmentHandlers([]), ...householdHandlers]
+            handlers: [
+                ...createTodayPlantHandlers([]),
+                ...createTodayAssignmentHandlers([]),
+                ...createTodayCareEventHandlers([]),
+                ...householdHandlers
+            ]
         }
     }
 };
@@ -125,7 +134,12 @@ export const Empty: Story = {
 export const Loading: Story = {
     parameters: {
         msw: {
-            handlers: [...createTodayPlantHandlers("loading"), ...createTodayAssignmentHandlers("loading"), ...householdHandlers]
+            handlers: [
+                ...createTodayPlantHandlers("loading"),
+                ...createTodayAssignmentHandlers("loading"),
+                ...createTodayCareEventHandlers([]),
+                ...householdHandlers
+            ]
         }
     }
 };
@@ -146,6 +160,7 @@ export const MyAssignedPlants: Story = {
                     makeAssignment({ id: "a-1", plantId: "mine-1", strategy: "fixed", assignedMemberId: "member-1", assignedMemberName: "Alice" }),
                     makeAssignment({ id: "a-2", plantId: "mine-2", strategy: "fixed", assignedMemberId: "member-1", assignedMemberName: "Alice" })
                 ]),
+                ...createTodayCareEventHandlers([]),
                 ...householdHandlers
             ]
         }
@@ -165,6 +180,7 @@ export const OthersAssignedPlants: Story = {
                     makeAssignment({ id: "a-3", plantId: "other-1", strategy: "fixed", assignedMemberId: "member-2", assignedMemberName: "Bob" }),
                     makeAssignment({ id: "a-4", plantId: "other-2", strategy: "fixed", assignedMemberId: "member-2", assignedMemberName: "Bob" })
                 ]),
+                ...createTodayCareEventHandlers([]),
                 ...householdHandlers
             ]
         }
@@ -184,6 +200,7 @@ export const UnassignedPlants: Story = {
                     makeAssignment({ id: "a-5", plantId: "unassigned-1", strategy: "unassigned" }),
                     makeAssignment({ id: "a-6", plantId: "unassigned-2", strategy: "unassigned" })
                 ]),
+                ...createTodayCareEventHandlers([]),
                 ...householdHandlers
             ]
         }
@@ -208,6 +225,7 @@ export const MixedAssignments: Story = {
                     makeAssignment({ id: "a-3", plantId: "unassigned-1", strategy: "unassigned" }),
                     makeAssignment({ id: "a-4", plantId: "rotating-1", strategy: "rotating" })
                 ]),
+                ...createTodayCareEventHandlers([]),
                 ...householdHandlers
             ]
         }
@@ -221,6 +239,7 @@ export const AssignmentsLoading: Story = {
             handlers: [
                 ...createTodayPlantHandlers([makePlant({ id: "due-1", name: "Aloe Vera", nextWateringDate: FAR_PAST })]),
                 ...createTodayAssignmentHandlers("loading"),
+                ...createTodayCareEventHandlers([]),
                 ...householdHandlers
             ]
         }

@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { userEvent, waitFor, within } from "storybook/test";
 
 import { createHouseholdHandlers } from "@packages/api/handlers/household";
-import { createManagementPlantHandlers } from "@packages/api/handlers/management";
-import { makePlant, makeHousehold, makeHouseholdMember, FAR_PAST, FAR_FUTURE } from "@packages/api/test-utils";
+import { createManagementPlantHandlers, createManagementCareEventHandlers } from "@packages/api/handlers/management";
+import { makePlant, makeCareEvent, makeHousehold, makeHouseholdMember, FAR_PAST, FAR_FUTURE } from "@packages/api/test-utils";
 
 import { EditPlantDialog } from "./EditPlantDialog.tsx";
 import { queryDecorator, fireflyDecorator } from "./storybook.setup.tsx";
@@ -238,5 +238,80 @@ export const SharingToggleOff: Story = {
                 throw new Error("Saved indicator not visible yet");
             }
         });
+    }
+};
+
+// --- Care activity stories ---
+
+const careEventsMultiActor = [
+    makeCareEvent({ id: "event-1", plantId: "test-edit-1", actorId: "user-alice", actorName: "Alice", timestamp: new Date(2025, 2, 15, 10, 0, 0) }),
+    makeCareEvent({ id: "event-2", plantId: "test-edit-1", actorId: "user-bob", actorName: "Bob", timestamp: new Date(2025, 2, 14, 8, 0, 0) }),
+    makeCareEvent({ id: "event-3", plantId: "test-edit-1", actorId: "user-alice", actorName: "Alice", timestamp: new Date(2025, 2, 13, 14, 30, 0) })
+];
+
+const careEventsSingleActor = [
+    makeCareEvent({ id: "event-1", plantId: "test-edit-1", actorId: "user-alice", actorName: "Alice", timestamp: new Date(2025, 2, 15, 10, 0, 0) })
+];
+
+export const SharedWithCareActivity: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-1",
+            name: "Monstera Deliciosa",
+            shared: true
+        }),
+        _hasHousehold: true,
+        _careEvents: careEventsMultiActor
+    },
+    parameters: {
+        msw: {
+            handlers: [...createManagementPlantHandlers(editPlants), ...householdHandlers, ...createManagementCareEventHandlers(careEventsMultiActor)]
+        }
+    }
+};
+
+export const SharedWithSingleCareEvent: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-1",
+            name: "Monstera Deliciosa",
+            shared: true
+        }),
+        _hasHousehold: true,
+        _careEvents: careEventsSingleActor
+    },
+    parameters: {
+        msw: {
+            handlers: [
+                ...createManagementPlantHandlers(editPlants),
+                ...householdHandlers,
+                ...createManagementCareEventHandlers(careEventsSingleActor)
+            ]
+        }
+    }
+};
+
+export const SharedWithNoCareEvents: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-1",
+            name: "Monstera Deliciosa",
+            shared: true
+        }),
+        _hasHousehold: true,
+        _careEvents: []
+    },
+    parameters: {
+        msw: { handlers: [...createManagementPlantHandlers(editPlants), ...householdHandlers, ...createManagementCareEventHandlers([])] }
+    }
+};
+
+export const NonSharedNoCareActivity: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-2",
+            name: "Monstera Deliciosa",
+            shared: false
+        })
     }
 };

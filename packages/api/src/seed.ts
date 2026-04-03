@@ -1,7 +1,9 @@
+import { careEventDb } from "./db/care-events/careEventDb.ts";
 import { householdDb } from "./db/household/householdDb.ts";
 import { plantsDb } from "./db/plants/plantsDb.ts";
 import { defaultSeedPlants } from "./db/plants/seedData.ts";
 import { assignmentDb } from "./db/responsibility/assignmentDb.ts";
+import type { CareEvent } from "./entities/care-events/types.ts";
 import type { ResponsibilityAssignment } from "./entities/responsibility/types.ts";
 
 const defaultSeedHouseholds = [
@@ -57,8 +59,42 @@ function generateDefaultAssignments(): ResponsibilityAssignment[] {
 
 const defaultSeedAssignments = generateDefaultAssignments();
 
+function generateDefaultCareEvents(): CareEvent[] {
+    const sharedPlants = defaultSeedPlants.filter(p => p.shared);
+    const events: CareEvent[] = [];
+    const now = Date.now();
+
+    // Seed a handful of care events for shared plants
+    for (let i = 0; i < Math.min(sharedPlants.length, 3); i++) {
+        const plant = sharedPlants[i]!;
+        // Event from Alice — 2 hours ago
+        events.push({
+            id: `care-event-${i * 2 + 1}`,
+            plantId: plant.id,
+            actorId: "user-alice",
+            actorName: "Alice",
+            eventType: "watered",
+            timestamp: new Date(now - 2 * 60 * 60 * 1000)
+        });
+        // Event from Bob — 1 day ago
+        events.push({
+            id: `care-event-${i * 2 + 2}`,
+            plantId: plant.id,
+            actorId: "user-bob",
+            actorName: "Bob",
+            eventType: "watered",
+            timestamp: new Date(now - 24 * 60 * 60 * 1000)
+        });
+    }
+
+    return events;
+}
+
+const defaultSeedCareEvents = generateDefaultCareEvents();
+
 export function seedDatabase() {
     plantsDb.reset(defaultSeedPlants);
     householdDb.reset(defaultSeedHouseholds, defaultSeedMembers);
     assignmentDb.reset(defaultSeedAssignments);
+    careEventDb.reset(defaultSeedCareEvents);
 }

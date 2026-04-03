@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { userEvent, within } from "storybook/test";
 
+import type { CareEvent } from "@packages/api/entities/care-events";
 import type { HouseholdMember } from "@packages/api/entities/household";
 import type { Plant } from "@packages/api/entities/plants";
 import type { ResponsibilityAssignment } from "@packages/api/entities/responsibility";
@@ -194,5 +195,69 @@ export const SharedWithStrategyOpen: Story = {
         await body.findByText("Responsibility");
         const trigger = body.getByLabelText("Responsibility strategy");
         await userEvent.click(trigger);
+    }
+};
+
+// --- Care activity stories (shared plants only) ---
+
+const singleCareEvent: CareEvent[] = [
+    { id: "event-1", plantId: "test-1", actorId: "user-alice", actorName: "Alice", eventType: "watered", timestamp: new Date(2025, 2, 15, 10, 0, 0) }
+];
+
+const multipleEventsOneActor: CareEvent[] = [
+    { id: "event-1", plantId: "test-1", actorId: "user-alice", actorName: "Alice", eventType: "watered", timestamp: new Date(2025, 2, 15, 10, 0, 0) },
+    { id: "event-2", plantId: "test-1", actorId: "user-alice", actorName: "Alice", eventType: "watered", timestamp: new Date(2025, 2, 14, 8, 0, 0) }
+];
+
+const multipleEventsDifferentActors: CareEvent[] = [
+    { id: "event-1", plantId: "test-1", actorId: "user-alice", actorName: "Alice", eventType: "watered", timestamp: new Date(2025, 2, 15, 10, 0, 0) },
+    { id: "event-2", plantId: "test-1", actorId: "user-bob", actorName: "Bob", eventType: "watered", timestamp: new Date(2025, 2, 14, 8, 0, 0) },
+    { id: "event-3", plantId: "test-1", actorId: "user-alice", actorName: "Alice", eventType: "watered", timestamp: new Date(2025, 2, 13, 14, 30, 0) }
+];
+
+export const SharedNoCareEvents: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        onAssignmentChange: () => {},
+        careEvents: []
+    }
+};
+
+export const SharedSingleCareEvent: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        onAssignmentChange: () => {},
+        careEvents: singleCareEvent
+    }
+};
+
+export const SharedMultipleEventsOneActor: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        onAssignmentChange: () => {},
+        careEvents: multipleEventsOneActor
+    }
+};
+
+export const SharedMultipleEventsDifferentActors: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        onAssignmentChange: () => {},
+        careEvents: multipleEventsDifferentActors
+    }
+};
+
+export const NonSharedNoCareEvents: Story = {
+    args: {
+        plant: makePlant({ shared: false }),
+        careEvents: multipleEventsDifferentActors
     }
 };

@@ -1,7 +1,8 @@
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { Droplets } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 
+import type { CareEvent } from "@packages/api/entities/care-events";
 import type { HouseholdMember } from "@packages/api/entities/household";
 import type { Plant } from "@packages/api/entities/plants";
 import type { ResponsibilityAssignment } from "@packages/api/entities/responsibility";
@@ -142,6 +143,28 @@ function ResponsibilitySection({ assignment, members, isSaving, onStrategyChange
     );
 }
 
+function CareActivitySection({ careEvents }: { careEvents: CareEvent[] }) {
+    return (
+        <>
+            <Separator />
+            <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium">Recent Activity</span>
+                {careEvents.length === 0 ? (
+                    <span className="text-muted-foreground text-sm">No activity yet</span>
+                ) : (
+                    <ul className="flex flex-col gap-1">
+                        {careEvents.map(event => (
+                            <li key={event.id} className="text-muted-foreground text-sm">
+                                Watered by {event.actorName} {formatDistanceToNow(event.timestamp, { addSuffix: true })}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+        </>
+    );
+}
+
 interface PlantDetailDialogProps {
     plant: Plant | null;
     open: boolean;
@@ -151,6 +174,7 @@ interface PlantDetailDialogProps {
     members?: HouseholdMember[] | undefined;
     isSavingAssignment?: boolean | undefined;
     onAssignmentChange?: ((strategy: "fixed" | "rotating" | "unassigned", memberId?: string, memberName?: string) => void) | undefined;
+    careEvents?: CareEvent[] | undefined;
 }
 
 export function PlantDetailDialog({
@@ -161,7 +185,8 @@ export function PlantDetailDialog({
     assignment,
     members,
     isSavingAssignment = false,
-    onAssignmentChange
+    onAssignmentChange,
+    careEvents
 }: PlantDetailDialogProps) {
     if (!plant) {
         return null;
@@ -235,6 +260,7 @@ export function PlantDetailDialog({
                             onStrategyChange={onAssignmentChange}
                         />
                     )}
+                    {plant.shared && careEvents && <CareActivitySection careEvents={careEvents} />}
                 </div>
                 <DialogFooter showCloseButton>
                     {onMarkWatered && (

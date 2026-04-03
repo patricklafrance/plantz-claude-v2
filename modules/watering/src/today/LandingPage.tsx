@@ -14,7 +14,7 @@ import { applyPlantFilters, isDueForWatering } from "./plantUtils.ts";
 import { useHouseholdMembers } from "./useHouseholdMembers.ts";
 import { usePlantFilters } from "./usePlantFilters.ts";
 import { useTodayAssignments, useSetAssignment } from "./useTodayAssignments.ts";
-import { useTodayPlants, useMarkWatered } from "./useTodayPlants.ts";
+import { useTodayPlants, useMarkWatered, useCareEvents } from "./useTodayPlants.ts";
 
 function computeNextWateringDate(plant: Plant): Date {
     const days = getFrequencyDays(plant.wateringFrequency);
@@ -37,6 +37,7 @@ export function LandingPage() {
     const { data: members } = useHouseholdMembers();
     const markWatered = useMarkWatered();
     const setAssignment = useSetAssignment();
+    const { data: careEvents } = useCareEvents(detailPlant?.id);
 
     const isPending = isPlantsLoading || isAssignmentsLoading;
 
@@ -242,6 +243,7 @@ export function LandingPage() {
                 members={members}
                 isSavingAssignment={setAssignment.isPending}
                 onAssignmentChange={handleAssignmentChange}
+                careEvents={careEvents}
             />
         </div>
     );

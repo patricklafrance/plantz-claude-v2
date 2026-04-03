@@ -1,6 +1,8 @@
 import { http, HttpResponse } from "msw";
 
 import { getUserId } from "../../db/auth/getUserId.ts";
+import { careEventDb } from "../../db/care-events/careEventDb.ts";
+import { householdDb } from "../../db/household/householdDb.ts";
 import { plantsDb } from "../../db/plants/plantsDb.ts";
 
 export const todayPlantHandlers = [
@@ -23,6 +25,38 @@ export const todayPlantHandlers = [
 
         if (!plant) {
             return new HttpResponse(null, { status: 404 });
+        }
+
+        // Record a care event when watering (nextWateringDate update indicates watering)
+        if (body.nextWateringDate) {
+            const userId = getUserId();
+
+            if (userId) {
+                let actorName = userId;
+                const household = householdDb.getHouseholdByUser(userId);
+
+                if (household) {
+                    const member = householdDb.getMemberByUserId(household.id, userId);
+
+                    if (member) {
+                        actorName = member.userName;
+                    }
+                }
+
+                const eventId =
+                    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+                        ? crypto.randomUUID()
+                        : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+
+                careEventDb.insert({
+                    id: eventId,
+                    plantId: id as string,
+                    actorId: userId,
+                    actorName,
+                    eventType: "watered",
+                    timestamp: new Date()
+                });
+            }
         }
 
         return HttpResponse.json(plant);

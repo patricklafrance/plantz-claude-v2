@@ -1,7 +1,8 @@
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { Droplets } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 
+import type { CareEvent } from "@packages/api/entities/care-events";
 import type { Plant } from "@packages/api/entities/plants";
 import {
     Dialog,
@@ -20,12 +21,36 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-    DatePicker
+    DatePicker,
+    Separator
 } from "@packages/components";
 
 import { useHousehold } from "../household/useHousehold.ts";
 import { locations, luminosities, wateringFrequencies, wateringTypes } from "./constants.ts";
+import { useManagementCareEvents } from "./useManagementCareEvents.ts";
 import { useUpdatePlant } from "./useManagementPlants.ts";
+
+function CareActivitySection({ careEvents }: { careEvents: CareEvent[] }) {
+    return (
+        <>
+            <Separator />
+            <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium">Recent Activity</span>
+                {careEvents.length === 0 ? (
+                    <span className="text-muted-foreground text-sm">No activity yet</span>
+                ) : (
+                    <ul className="flex flex-col gap-1">
+                        {careEvents.map(event => (
+                            <li key={event.id} className="text-muted-foreground text-sm">
+                                Watered by {event.actorName} {formatDistanceToNow(event.timestamp, { addSuffix: true })}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+        </>
+    );
+}
 
 interface EditPlantDialogProps {
     plant: Plant | null;
@@ -35,9 +60,11 @@ interface EditPlantDialogProps {
     onMarkWatered?: (plant: Plant) => void;
     /** @internal Test-only. When true, forces household membership to be truthy so the sharing toggle renders without waiting for the async hook. */
     _hasHousehold?: boolean;
+    /** @internal Test-only. Pre-sets care events to skip async resolution. */
+    _careEvents?: CareEvent[];
 }
 
-export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWatered, _hasHousehold }: EditPlantDialogProps) {
+export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWatered, _hasHousehold, _careEvents }: EditPlantDialogProps) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [family, setFamily] = useState("");
@@ -56,6 +83,8 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
     const updatePlant = useUpdatePlant();
     const household = useHousehold();
     const hasHousehold = _hasHousehold ?? (household.data !== undefined && household.data !== null);
+    const careEventsQuery = useManagementCareEvents(plant?.shared ? plant.id : undefined);
+    const careEvents = _careEvents ?? careEventsQuery.data;
 
     useEffect(() => {
         if (plant) {
@@ -311,6 +340,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                     <div className="text-muted-foreground text-xs">
                         Created: {format(plant.creationDate, "PPP")} · Last updated: {format(plant.lastUpdateDate, "PPP")}
                     </div>
+                    {plant.shared && careEvents && <CareActivitySection careEvents={careEvents} />}
                 </div>
                 <DialogFooter>
                     {onMarkWatered && (
