@@ -18,6 +18,7 @@ export function makePlant(overrides: Partial<Plant> & { id: string; name: string
         wateringFrequency: "1-week",
         wateringQuantity: "200ml",
         wateringType: "surface",
+        shared: false,
         nextWateringDate: FAR_FUTURE,
         creationDate: FIXED_CREATION,
         lastUpdateDate: FIXED_CREATION,

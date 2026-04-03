@@ -134,6 +134,7 @@ function generatePlants(count?: number, userId?: string): Plant[] {
             wateringFrequency: pick(wateringFrequencyIds),
             wateringQuantity: pick(wateringQuantities),
             wateringType: pick(wateringTypeIds),
+            shared: Math.random() > 0.7,
             nextWateringDate,
             creationDate,
             lastUpdateDate: new Date()

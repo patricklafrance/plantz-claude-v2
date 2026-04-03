@@ -84,6 +84,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
             wateringFrequency,
             wateringQuantity: wateringQuantity.trim(),
             wateringType,
+            shared: false,
             nextWateringDate: firstWateringDate!
         });
 

@@ -1,10 +1,21 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { userEvent, waitFor, within } from "storybook/test";
 
+import { createHouseholdHandlers } from "@packages/api/handlers/household";
 import { createManagementPlantHandlers } from "@packages/api/handlers/management";
-import { makePlant, FAR_PAST, FAR_FUTURE } from "@packages/api/test-utils";
+import { makePlant, makeHousehold, makeHouseholdMember, FAR_PAST, FAR_FUTURE } from "@packages/api/test-utils";
 
 import { EditPlantDialog } from "./EditPlantDialog.tsx";
 import { queryDecorator, fireflyDecorator } from "./storybook.setup.tsx";
+
+const defaultHousehold = makeHousehold({ id: "household-1", name: "Our Home" });
+const defaultMembers = [
+    makeHouseholdMember({ id: "member-1", userId: "user-alice", userName: "Alice", role: "owner" }),
+    makeHouseholdMember({ id: "member-2", userId: "user-bob", userName: "Bob" })
+];
+
+const householdHandlers = createHouseholdHandlers({ household: defaultHousehold, members: defaultMembers });
+const noHouseholdHandlers = createHouseholdHandlers({ household: null, members: [] });
 
 const editPlants = [
     makePlant({ id: "test-edit-1", name: "Monstera Deliciosa" }),
@@ -30,7 +41,7 @@ const meta = {
                 "dark desktop": { theme: "dark", viewport: 1280 }
             }
         },
-        msw: { handlers: createManagementPlantHandlers(editPlants) }
+        msw: { handlers: [...createManagementPlantHandlers(editPlants), ...noHouseholdHandlers] }
     },
     args: {
         open: true,
@@ -136,5 +147,96 @@ export const Closed: Story = {
             name: "Monstera Deliciosa"
         }),
         open: false
+    }
+};
+
+export const WithHouseholdSharedOn: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-1",
+            name: "Monstera Deliciosa",
+            shared: true
+        }),
+        _hasHousehold: true
+    },
+    parameters: {
+        msw: { handlers: [...createManagementPlantHandlers(editPlants), ...householdHandlers] }
+    }
+};
+
+export const WithHouseholdSharedOff: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-2",
+            name: "Monstera Deliciosa",
+            shared: false
+        }),
+        _hasHousehold: true
+    },
+    parameters: {
+        msw: { handlers: [...createManagementPlantHandlers(editPlants), ...householdHandlers] }
+    }
+};
+
+export const WithoutHousehold: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-3",
+            name: "Monstera Deliciosa",
+            shared: false
+        })
+    },
+    parameters: {
+        msw: { handlers: [...createManagementPlantHandlers(editPlants), ...noHouseholdHandlers] }
+    }
+};
+
+export const SharingToggleOn: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-4",
+            name: "Monstera Deliciosa",
+            shared: false
+        }),
+        _hasHousehold: true
+    },
+    parameters: {
+        msw: { handlers: [...createManagementPlantHandlers(editPlants), ...householdHandlers] }
+    },
+    play: async () => {
+        const body = within(document.body);
+        const toggle = await body.findByRole("switch", { name: "Share with household" });
+        await userEvent.click(toggle);
+        await waitFor(() => {
+            const status = body.getByRole("status");
+            if (!status.classList.contains("opacity-100")) {
+                throw new Error("Saved indicator not visible yet");
+            }
+        });
+    }
+};
+
+export const SharingToggleOff: Story = {
+    args: {
+        plant: makePlant({
+            id: "test-edit-5",
+            name: "Monstera Deliciosa",
+            shared: true
+        }),
+        _hasHousehold: true
+    },
+    parameters: {
+        msw: { handlers: [...createManagementPlantHandlers(editPlants), ...householdHandlers] }
+    },
+    play: async () => {
+        const body = within(document.body);
+        const toggle = await body.findByRole("switch", { name: "Share with household" });
+        await userEvent.click(toggle);
+        await waitFor(() => {
+            const status = body.getByRole("status");
+            if (!status.classList.contains("opacity-100")) {
+                throw new Error("Saved indicator not visible yet");
+            }
+        });
     }
 };

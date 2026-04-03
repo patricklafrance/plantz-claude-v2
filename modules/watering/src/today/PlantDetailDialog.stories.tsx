@@ -21,6 +21,7 @@ function makePlant(overrides: Partial<Plant> = {}): Plant {
         wateringFrequency: "1-week",
         wateringQuantity: "200ml",
         wateringType: "surface",
+        shared: false,
         nextWateringDate: FAR_PAST,
         creationDate: FIXED_CREATION,
         lastUpdateDate: FIXED_CREATION,

@@ -11,6 +11,7 @@ export interface Plant {
     wateringFrequency: string;
     wateringQuantity: string;
     wateringType: string;
+    shared: boolean;
     nextWateringDate: Date;
     creationDate: Date;
     lastUpdateDate: Date;

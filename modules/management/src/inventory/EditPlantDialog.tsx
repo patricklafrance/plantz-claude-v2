@@ -23,6 +23,7 @@ import {
     DatePicker
 } from "@packages/components";
 
+import { useHousehold } from "../household/useHousehold.ts";
 import { locations, luminosities, wateringFrequencies, wateringTypes } from "./constants.ts";
 import { useUpdatePlant } from "./useManagementPlants.ts";
 
@@ -32,9 +33,11 @@ interface EditPlantDialogProps {
     onOpenChange: (open: boolean) => void;
     onDelete: (plant: Plant) => void;
     onMarkWatered?: (plant: Plant) => void;
+    /** @internal Test-only. When true, forces household membership to be truthy so the sharing toggle renders without waiting for the async hook. */
+    _hasHousehold?: boolean;
 }
 
-export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWatered }: EditPlantDialogProps) {
+export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWatered, _hasHousehold }: EditPlantDialogProps) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [family, setFamily] = useState("");
@@ -45,11 +48,14 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
     const [wateringFrequency, setWateringFrequency] = useState("");
     const [wateringQuantity, setWateringQuantity] = useState("");
     const [wateringType, setWateringType] = useState("");
+    const [shared, setShared] = useState(false);
     const [saved, setSaved] = useState(false);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const plantIdRef = useRef<string | null>(null);
 
     const updatePlant = useUpdatePlant();
+    const household = useHousehold();
+    const hasHousehold = _hasHousehold ?? (household.data !== undefined && household.data !== null);
 
     useEffect(() => {
         if (plant) {
@@ -64,6 +70,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
             setWateringFrequency(plant.wateringFrequency);
             setWateringQuantity(plant.wateringQuantity);
             setWateringType(plant.wateringType);
+            setShared(plant.shared ?? false);
             setSaved(false);
         }
     }, [plant]);
@@ -88,7 +95,8 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                 soilType: soilType.trim() || undefined,
                 wateringFrequency,
                 wateringQuantity: wateringQuantity.trim(),
-                wateringType
+                wateringType,
+                shared
             },
             {
                 onSuccess: () => {
@@ -97,7 +105,20 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                 }
             }
         );
-    }, [name, description, family, location, luminosity, mistLeaves, soilType, wateringFrequency, wateringQuantity, wateringType, updatePlant]);
+    }, [
+        name,
+        description,
+        family,
+        location,
+        luminosity,
+        mistLeaves,
+        soilType,
+        wateringFrequency,
+        wateringQuantity,
+        wateringType,
+        shared,
+        updatePlant
+    ]);
 
     useEffect(() => {
         if (!plant || !open) {
@@ -127,6 +148,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
         wateringFrequency,
         wateringQuantity,
         wateringType,
+        shared,
         plant,
         open,
         saveChanges
@@ -218,6 +240,12 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                         <Label htmlFor="edit-mist">Mist leaves *</Label>
                         <Switch id="edit-mist" checked={mistLeaves} onCheckedChange={setMistLeaves} />
                     </div>
+                    {hasHousehold && (
+                        <div className="flex items-center gap-3">
+                            <Label htmlFor="edit-shared">Share with household</Label>
+                            <Switch id="edit-shared" checked={shared} onCheckedChange={setShared} />
+                        </div>
+                    )}
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="edit-soil">Soil type</Label>
                         <Input id="edit-soil" value={soilType} onChange={e => setSoilType(e.target.value)} />
