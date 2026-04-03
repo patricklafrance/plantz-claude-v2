@@ -3,35 +3,19 @@ import { userEvent, within } from "storybook/test";
 
 import type { CareEvent } from "@packages/api/entities/care-events";
 import type { HouseholdMember } from "@packages/api/entities/household";
-import type { Plant } from "@packages/api/entities/plants";
 import type { ResponsibilityAssignment } from "@packages/api/entities/responsibility";
+import { makePlant, FAR_PAST, FIXED_CREATION } from "@packages/api/test-utils";
 
 import { PlantDetailDialog } from "./PlantDetailDialog.tsx";
 
-const FAR_PAST = new Date(2020, 0, 1, 0, 0, 0, 0);
-const FIXED_CREATION = new Date(2025, 0, 1, 0, 0, 0, 0);
-
-function makePlant(overrides: Partial<Plant> = {}): Plant {
-    return {
-        id: "test-1",
-        userId: "user-alice",
-        name: "Monstera Deliciosa",
-        description: "A tropical plant with large fenestrated leaves.",
-        family: "Araceae",
-        location: "living-room",
-        luminosity: "medium",
-        mistLeaves: true,
-        soilType: "Well-draining mix",
-        wateringFrequency: "1-week",
-        wateringQuantity: "200ml",
-        wateringType: "surface",
-        shared: false,
-        nextWateringDate: FAR_PAST,
-        creationDate: FIXED_CREATION,
-        lastUpdateDate: FIXED_CREATION,
-        ...overrides
-    };
-}
+const defaultPlant = {
+    id: "test-1" as const,
+    name: "Monstera Deliciosa" as const,
+    description: "A tropical plant with large fenestrated leaves.",
+    family: "Araceae",
+    soilType: "Well-draining mix",
+    nextWateringDate: FAR_PAST
+};
 
 const defaultMembers: HouseholdMember[] = [
     { id: "member-1", householdId: "household-1", userId: "user-alice", userName: "Alice", role: "owner", joinDate: FIXED_CREATION },
@@ -88,13 +72,14 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
     args: {
-        plant: makePlant()
+        plant: makePlant({ ...defaultPlant })
     }
 };
 
 export const MinimalFields: Story = {
     args: {
         plant: makePlant({
+            ...defaultPlant,
             description: undefined,
             family: undefined,
             soilType: undefined
@@ -105,6 +90,7 @@ export const MinimalFields: Story = {
 export const LongValues: Story = {
     args: {
         plant: makePlant({
+            ...defaultPlant,
             name: "Philodendron Birkin Variegated Extra Special Limited Edition",
             description:
                 "A rare variegated cultivar of the Philodendron Birkin with stunning white pinstripe patterns on dark green leaves. Requires consistent humidity and indirect light.",
@@ -115,7 +101,7 @@ export const LongValues: Story = {
 
 export const WithMarkWatered: Story = {
     args: {
-        plant: makePlant(),
+        plant: makePlant({ ...defaultPlant }),
         onMarkWatered: () => {}
     }
 };
@@ -124,7 +110,7 @@ export const WithMarkWatered: Story = {
 
 export const SharedWithFixedAssignment: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         isSavingAssignment: false,
@@ -134,7 +120,7 @@ export const SharedWithFixedAssignment: Story = {
 
 export const SharedWithRotatingAssignment: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: rotatingAssignment,
         members: defaultMembers,
         isSavingAssignment: false,
@@ -144,7 +130,7 @@ export const SharedWithRotatingAssignment: Story = {
 
 export const SharedUnassigned: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: unassignedAssignment,
         members: defaultMembers,
         isSavingAssignment: false,
@@ -154,7 +140,7 @@ export const SharedUnassigned: Story = {
 
 export const SharedNoAssignment: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: undefined,
         members: defaultMembers,
         isSavingAssignment: false,
@@ -164,7 +150,7 @@ export const SharedNoAssignment: Story = {
 
 export const NonSharedPlant: Story = {
     args: {
-        plant: makePlant({ shared: false }),
+        plant: makePlant({ ...defaultPlant, shared: false }),
         assignment: fixedAssignment,
         members: defaultMembers,
         onAssignmentChange: () => {}
@@ -173,7 +159,7 @@ export const NonSharedPlant: Story = {
 
 export const AssignmentSaving: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         isSavingAssignment: true,
@@ -183,7 +169,7 @@ export const AssignmentSaving: Story = {
 
 export const SharedWithStrategyOpen: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         isSavingAssignment: false,
@@ -217,7 +203,7 @@ const multipleEventsDifferentActors: CareEvent[] = [
 
 export const SharedNoCareEvents: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         onAssignmentChange: () => {},
@@ -227,7 +213,7 @@ export const SharedNoCareEvents: Story = {
 
 export const SharedSingleCareEvent: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         onAssignmentChange: () => {},
@@ -237,7 +223,7 @@ export const SharedSingleCareEvent: Story = {
 
 export const SharedMultipleEventsOneActor: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         onAssignmentChange: () => {},
@@ -247,7 +233,7 @@ export const SharedMultipleEventsOneActor: Story = {
 
 export const SharedMultipleEventsDifferentActors: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         onAssignmentChange: () => {},
@@ -257,7 +243,7 @@ export const SharedMultipleEventsDifferentActors: Story = {
 
 export const NonSharedNoCareEvents: Story = {
     args: {
-        plant: makePlant({ shared: false }),
+        plant: makePlant({ ...defaultPlant, shared: false }),
         careEvents: multipleEventsDifferentActors
     }
 };
@@ -274,7 +260,7 @@ const todayCareEventByAlice: CareEvent[] = [
 
 export const AlreadyWateredByOther: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         onAssignmentChange: () => {},
@@ -286,7 +272,7 @@ export const AlreadyWateredByOther: Story = {
 
 export const AlreadyWateredByCurrentUser: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         onAssignmentChange: () => {},
@@ -298,7 +284,7 @@ export const AlreadyWateredByCurrentUser: Story = {
 
 export const NotWateredTodayShared: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         onAssignmentChange: () => {},
@@ -310,7 +296,7 @@ export const NotWateredTodayShared: Story = {
 
 export const ReWaterConfirmation: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         onAssignmentChange: () => {},
@@ -326,7 +312,7 @@ export const ReWaterConfirmation: Story = {
 
 export const ReWaterConfirmationPending: Story = {
     args: {
-        plant: makePlant({ shared: true }),
+        plant: makePlant({ ...defaultPlant, shared: true }),
         assignment: fixedAssignment,
         members: defaultMembers,
         onAssignmentChange: () => {},

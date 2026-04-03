@@ -37,14 +37,10 @@ const strategies = [
     { id: "unassigned", label: "Unassigned" }
 ] as const;
 
-const strategyLabels: Record<string, string> = {
-    fixed: "Fixed owner",
-    rotating: "Rotating",
-    unassigned: "Unassigned"
-};
-
 function StrategyValueDisplay({ strategy }: { strategy: string }) {
-    return <span className="flex flex-1 text-left">{strategyLabels[strategy] ?? strategy}</span>;
+    const label = strategies.find(s => s.id === strategy)?.label ?? strategy;
+
+    return <span className="flex flex-1 text-left">{label}</span>;
 }
 
 function MemberValueDisplay({ memberId, members }: { memberId?: string; members: HouseholdMember[] }) {

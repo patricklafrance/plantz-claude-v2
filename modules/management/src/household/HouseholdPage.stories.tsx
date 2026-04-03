@@ -42,35 +42,30 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-// [visual] Household page shows household name and member list with names and roles
 export const Default: Story = {
     parameters: {
         msw: { handlers: createHouseholdHandlers(defaultData) }
     }
 };
 
-// [visual] When no household exists, shows a prompt to create one
 export const NoHousehold: Story = {
     parameters: {
         msw: { handlers: createHouseholdHandlers({ household: null, members: [] }) }
     }
 };
 
-// [visual] Loading skeleton appears while household data is being fetched
 export const Loading: Story = {
     parameters: {
         msw: { handlers: createHouseholdHandlers("loading") }
     }
 };
 
-// [visual] Error message appears when household data fails to load
 export const Error: Story = {
     parameters: {
         msw: { handlers: createHouseholdHandlers("error") }
     }
 };
 
-// [visual] Single member household (owner only)
 export const SingleMember: Story = {
     parameters: {
         msw: {
@@ -82,7 +77,6 @@ export const SingleMember: Story = {
     }
 };
 
-// [interactive] Clicking "Create Household" with a name creates a household and shows the member list
 export const CreateHouseholdSuccess: Story = {
     parameters: {
         msw: {
@@ -123,13 +117,11 @@ export const CreateHouseholdSuccess: Story = {
         const nameInput = await canvas.findByLabelText("Household name");
         await userEvent.type(nameInput, "My New Household");
         await userEvent.click(canvas.getByRole("button", { name: /create household/i }));
-        // Wait for the household view to render after mutation + refetch
         await canvas.findByText("My New Household");
         await canvas.findByText("Alice");
     }
 };
 
-// [interactive] Clicking "Create Household" disables the button while the request is in flight
 export const CreateHouseholdLoading: Story = {
     parameters: {
         msw: {
@@ -149,12 +141,10 @@ export const CreateHouseholdLoading: Story = {
         const nameInput = await canvas.findByLabelText("Household name");
         await userEvent.type(nameInput, "My New Household");
         await userEvent.click(canvas.getByRole("button", { name: /create household/i }));
-        // Button should now show "Creating..." and be disabled
         await canvas.findByRole("button", { name: /creating/i });
     }
 };
 
-// [interactive] Entering an email and submitting adds a new member
 export const InviteMemberSuccess: Story = {
     parameters: {
         msw: {
@@ -187,12 +177,10 @@ export const InviteMemberSuccess: Story = {
         const emailInput = await canvas.findByLabelText("Invite member");
         await userEvent.type(emailInput, "charlie@example.com");
         await userEvent.click(canvas.getByRole("button", { name: /invite/i }));
-        // Wait for the member list to include Charlie after mutation + refetch
         await canvas.findByText("charlie");
     }
 };
 
-// [interactive] Clicking "Invite" disables the button while the request is in flight
 export const InviteMemberLoading: Story = {
     parameters: {
         msw: {
@@ -212,7 +200,6 @@ export const InviteMemberLoading: Story = {
         const emailInput = await canvas.findByLabelText("Invite member");
         await userEvent.type(emailInput, "charlie@example.com");
         await userEvent.click(canvas.getByRole("button", { name: /invite/i }));
-        // Button should now show "Inviting..." and be disabled
         await canvas.findByRole("button", { name: /inviting/i });
     }
 };

@@ -31,7 +31,6 @@ export function LandingPage() {
     const [detailPlant, setDetailPlant] = useState<Plant | null>(null);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [conflictEvent, setConflictEvent] = useState<CareEvent | null>(null);
-    const [isForceWatering, setIsForceWatering] = useState(false);
     const listRef = useRef<HTMLDivElement>(null);
 
     const session = useSession();
@@ -161,17 +160,12 @@ export function LandingPage() {
             return;
         }
 
-        setIsForceWatering(true);
         markWatered.mutate(
             { id: detailPlant.id, nextWateringDate: computeNextWateringDate(detailPlant), force: true },
             {
                 onSuccess: () => {
                     setConflictEvent(null);
-                    setIsForceWatering(false);
                     setDetailPlant(null);
-                },
-                onError: () => {
-                    setIsForceWatering(false);
                 }
             }
         );
@@ -310,7 +304,7 @@ export function LandingPage() {
                 conflictEvent={conflictEvent}
                 onForceWater={handleForceWater}
                 onDismissConflict={handleDismissConflict}
-                isForceWateringPending={isForceWatering}
+                isForceWateringPending={markWatered.isPending}
                 currentUserId={session?.id}
             />
         </div>

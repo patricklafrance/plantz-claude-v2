@@ -1,4 +1,5 @@
 import type { ResponsibilityAssignment } from "../../entities/responsibility/types.ts";
+import { generateId } from "../generateId.ts";
 
 class AssignmentDb {
     #store = new Map<string, ResponsibilityAssignment>();
@@ -27,11 +28,7 @@ class AssignmentDb {
             return updated;
         }
 
-        const id =
-            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                ? crypto.randomUUID()
-                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-
+        const id = generateId();
         const assignment: ResponsibilityAssignment = {
             id,
             plantId,

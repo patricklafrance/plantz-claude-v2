@@ -15,10 +15,7 @@ export const todayCareEventHandlers = [
         const plantId = url.searchParams.get("plantId");
 
         if (!plantId) {
-            // Return all care events when no plantId is specified
-            const allEvents = careEventDb.getAll();
-
-            return HttpResponse.json(allEvents);
+            return HttpResponse.json(careEventDb.getAll());
         }
 
         const events = careEventDb.getAllByPlant(plantId);

@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw";
 
 import { getUserId } from "../../db/auth/getUserId.ts";
 import { careEventDb } from "../../db/care-events/careEventDb.ts";
+import { generateId } from "../../db/generateId.ts";
 import { householdDb } from "../../db/household/householdDb.ts";
 import { plantsDb } from "../../db/plants/plantsDb.ts";
 
@@ -28,7 +29,6 @@ export const todayPlantHandlers = [
             return new HttpResponse(null, { status: 404 });
         }
 
-        // Duplicate watering detection for shared plants
         if (body.nextWateringDate && plant.shared && body.force !== true) {
             const userId = getUserId();
 
@@ -49,7 +49,6 @@ export const todayPlantHandlers = [
             return new HttpResponse(null, { status: 404 });
         }
 
-        // Record a care event when watering (nextWateringDate update indicates watering)
         if (body.nextWateringDate) {
             const userId = getUserId();
 
@@ -65,13 +64,8 @@ export const todayPlantHandlers = [
                     }
                 }
 
-                const eventId =
-                    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                        ? crypto.randomUUID()
-                        : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-
                 careEventDb.insert({
-                    id: eventId,
+                    id: generateId(),
                     plantId,
                     actorId: userId,
                     actorName,

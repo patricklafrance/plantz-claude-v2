@@ -2,11 +2,11 @@ import { http, HttpResponse } from "msw";
 
 import { getUserId } from "../../db/auth/getUserId.ts";
 import { usersDb } from "../../db/auth/usersDb.ts";
+import { generateId } from "../../db/generateId.ts";
 import { householdDb } from "../../db/household/householdDb.ts";
 import type { HouseholdMember } from "../../entities/household/types.ts";
 
 export const householdHandlers = [
-    // Get current user's household
     http.get("/api/household", () => {
         const userId = getUserId();
 
@@ -23,7 +23,6 @@ export const householdHandlers = [
         return HttpResponse.json(household);
     }),
 
-    // Create a household
     http.post("/api/household", async ({ request }) => {
         const userId = getUserId();
 
@@ -34,24 +33,15 @@ export const householdHandlers = [
         const body = (await request.json()) as { name: string };
         const now = new Date();
 
-        const id =
-            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                ? crypto.randomUUID()
-                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-
         const household = householdDb.insertHousehold({
-            id,
+            id: generateId(),
             name: body.name,
             createdBy: userId,
             creationDate: now
         });
 
-        // Add the creator as owner
         const user = usersDb.getById(userId);
-        const memberId =
-            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                ? crypto.randomUUID()
-                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+        const memberId = generateId();
 
         householdDb.insertMember({
             id: memberId,
@@ -65,7 +55,6 @@ export const householdHandlers = [
         return HttpResponse.json(household, { status: 201 });
     }),
 
-    // Get members of the current user's household
     http.get("/api/household/members", () => {
         const userId = getUserId();
 
@@ -84,7 +73,6 @@ export const householdHandlers = [
         return HttpResponse.json(members);
     }),
 
-    // Invite a member by email
     http.post("/api/household/invite", async ({ request }) => {
         const userId = getUserId();
 
@@ -105,17 +93,13 @@ export const householdHandlers = [
             return HttpResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        // Check if already a member
         const existingMember = householdDb.getMemberByUserId(household.id, invitedUser.id);
 
         if (existingMember) {
             return HttpResponse.json({ error: "User is already a member" }, { status: 409 });
         }
 
-        const memberId =
-            typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-                ? crypto.randomUUID()
-                : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+        const memberId = generateId();
 
         const member: HouseholdMember = {
             id: memberId,

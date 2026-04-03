@@ -64,7 +64,6 @@ function generateDefaultCareEvents(): CareEvent[] {
     const events: CareEvent[] = [];
     const now = Date.now();
 
-    // Seed a handful of care events for shared plants
     for (let i = 0; i < Math.min(sharedPlants.length, 3); i++) {
         const plant = sharedPlants[i]!;
         // Event from Alice — 2 hours ago
