@@ -3,6 +3,10 @@ import type { CareEvent } from "../../entities/care-events/types.ts";
 class CareEventDb {
     #store = new Map<string, CareEvent>();
 
+    getAll(): CareEvent[] {
+        return [...this.#store.values()].toSorted((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    }
+
     getAllByPlant(plantId: string): CareEvent[] {
         return [...this.#store.values()].filter(e => e.plantId === plantId).toSorted((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
     }

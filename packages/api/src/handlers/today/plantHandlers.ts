@@ -21,9 +21,31 @@ export const todayPlantHandlers = [
     http.put("/api/today/plants/:id", async ({ params, request }) => {
         const { id } = params;
         const body = (await request.json()) as Record<string, unknown>;
-        const plant = plantsDb.update(id as string, body);
+        const plantId = id as string;
+        const plant = plantsDb.get(plantId);
 
         if (!plant) {
+            return new HttpResponse(null, { status: 404 });
+        }
+
+        // Duplicate watering detection for shared plants
+        if (body.nextWateringDate && plant.shared && body.force !== true) {
+            const userId = getUserId();
+
+            if (userId) {
+                const events = careEventDb.getAllByPlant(plantId);
+                const today = new Date().toDateString();
+                const recentEvent = events.find(e => e.eventType === "watered" && e.timestamp.toDateString() === today && e.actorId !== userId);
+
+                if (recentEvent) {
+                    return HttpResponse.json({ conflict: true, recentEvent }, { status: 409 });
+                }
+            }
+        }
+
+        const updated = plantsDb.update(plantId, body);
+
+        if (!updated) {
             return new HttpResponse(null, { status: 404 });
         }
 
@@ -50,7 +72,7 @@ export const todayPlantHandlers = [
 
                 careEventDb.insert({
                     id: eventId,
-                    plantId: id as string,
+                    plantId,
                     actorId: userId,
                     actorName,
                     eventType: "watered",
@@ -59,7 +81,7 @@ export const todayPlantHandlers = [
             }
         }
 
-        return HttpResponse.json(plant);
+        return HttpResponse.json(updated);
     }),
 
     http.delete("/api/today/plants/:id", ({ params }) => {

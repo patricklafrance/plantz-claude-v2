@@ -1,5 +1,5 @@
 import { format, formatDistanceToNow } from "date-fns";
-import { Droplets } from "lucide-react";
+import { AlertCircle, Droplets } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 
 import type { CareEvent } from "@packages/api/entities/care-events";
@@ -7,6 +7,14 @@ import type { HouseholdMember } from "@packages/api/entities/household";
 import type { Plant } from "@packages/api/entities/plants";
 import type { ResponsibilityAssignment } from "@packages/api/entities/responsibility";
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
     Button,
     Dialog,
     DialogContent,
@@ -165,16 +173,64 @@ function CareActivitySection({ careEvents }: { careEvents: CareEvent[] }) {
     );
 }
 
+function AlreadyWateredBanner({ event }: { event: CareEvent }) {
+    return (
+        <div className="bg-muted flex items-center gap-2 rounded-md px-3 py-2">
+            <AlertCircle className="text-muted-foreground size-4 shrink-0" aria-hidden="true" />
+            <span className="text-sm">
+                Watered by {event.actorName} {formatDistanceToNow(event.timestamp, { addSuffix: true })}
+            </span>
+        </div>
+    );
+}
+
+interface ReWaterConfirmDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    recentEvent: CareEvent;
+    onConfirm: () => void;
+    isPending: boolean;
+}
+
+function ReWaterConfirmDialog({ open, onOpenChange, recentEvent, onConfirm, isPending }: ReWaterConfirmDialogProps) {
+    return (
+        <AlertDialog open={open} onOpenChange={onOpenChange}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Already watered</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {recentEvent.actorName} already watered this plant {formatDistanceToNow(recentEvent.timestamp, { addSuffix: true })}. Water
+                        again?
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={onConfirm} disabled={isPending}>
+                        {isPending ? "Watering..." : "Water again"}
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    );
+}
+
 interface PlantDetailDialogProps {
     plant: Plant | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onMarkWatered?: () => void;
+    isMarkWateredPending?: boolean | undefined;
     assignment?: ResponsibilityAssignment | undefined;
     members?: HouseholdMember[] | undefined;
     isSavingAssignment?: boolean | undefined;
     onAssignmentChange?: ((strategy: "fixed" | "rotating" | "unassigned", memberId?: string, memberName?: string) => void) | undefined;
     careEvents?: CareEvent[] | undefined;
+    conflictEvent?: CareEvent | null | undefined;
+    onForceWater?: () => void;
+    onDismissConflict?: () => void;
+    isForceWateringPending?: boolean | undefined;
+    /** The current user's ID, used to determine if the most recent watering was by someone else. */
+    currentUserId?: string | undefined;
 }
 
 export function PlantDetailDialog({
@@ -182,95 +238,124 @@ export function PlantDetailDialog({
     open,
     onOpenChange,
     onMarkWatered,
+    isMarkWateredPending = false,
     assignment,
     members,
     isSavingAssignment = false,
     onAssignmentChange,
-    careEvents
+    careEvents,
+    conflictEvent,
+    onForceWater,
+    onDismissConflict,
+    isForceWateringPending = false,
+    currentUserId
 }: PlantDetailDialogProps) {
     if (!plant) {
         return null;
     }
 
+    // Find today's watering event by another member for the already-watered banner
+    const today = new Date().toDateString();
+    const todayWateringByOther =
+        plant.shared && careEvents && currentUserId
+            ? careEvents.find(e => e.eventType === "watered" && e.timestamp.toDateString() === today && e.actorId !== currentUserId)
+            : undefined;
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
-                <DialogHeader>
-                    <DialogTitle>{plant.name}</DialogTitle>
-                </DialogHeader>
-                <div className="flex flex-col gap-3">
-                    {plant.description && (
-                        <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Description</span>
-                            <span className="text-sm">{plant.description}</span>
+        <>
+            <Dialog open={open} onOpenChange={onOpenChange}>
+                <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>{plant.name}</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-3">
+                        {todayWateringByOther && <AlreadyWateredBanner event={todayWateringByOther} />}
+                        {plant.description && (
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-medium">Description</span>
+                                <span className="text-sm">{plant.description}</span>
+                            </div>
+                        )}
+                        {plant.family && (
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-medium">Family</span>
+                                <span className="text-sm">{plant.family}</span>
+                            </div>
+                        )}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-medium">Location</span>
+                                <span className="text-sm">{getOptionLabel(locations, plant.location)}</span>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-medium">Luminosity</span>
+                                <span className="text-sm">{getOptionLabel(luminosities, plant.luminosity)}</span>
+                            </div>
                         </div>
-                    )}
-                    {plant.family && (
                         <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Family</span>
-                            <span className="text-sm">{plant.family}</span>
+                            <span className="text-muted-foreground text-xs font-medium">Mist leaves</span>
+                            <span className="text-sm">{plant.mistLeaves ? "Yes" : "No"}</span>
                         </div>
-                    )}
-                    <div className="grid grid-cols-2 gap-3">
+                        {plant.soilType && (
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-medium">Soil type</span>
+                                <span className="text-sm">{plant.soilType}</span>
+                            </div>
+                        )}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-medium">Watering frequency</span>
+                                <span className="text-sm">{getOptionLabel(wateringFrequencies, plant.wateringFrequency)}</span>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-medium">Watering type</span>
+                                <span className="text-sm">{getOptionLabel(wateringTypes, plant.wateringType)}</span>
+                            </div>
+                        </div>
                         <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Location</span>
-                            <span className="text-sm">{getOptionLabel(locations, plant.location)}</span>
+                            <span className="text-muted-foreground text-xs font-medium">Watering quantity</span>
+                            <span className="text-sm">{plant.wateringQuantity}</span>
                         </div>
                         <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Luminosity</span>
-                            <span className="text-sm">{getOptionLabel(luminosities, plant.luminosity)}</span>
+                            <span className="text-muted-foreground text-xs font-medium">Next watering date</span>
+                            <span className="text-sm">{format(plant.nextWateringDate, "PPP")}</span>
                         </div>
+                        <div className="text-muted-foreground text-xs">
+                            Created: {format(plant.creationDate, "PPP")} · Last updated: {format(plant.lastUpdateDate, "PPP")}
+                        </div>
+                        {plant.shared && onAssignmentChange && members && (
+                            <ResponsibilitySection
+                                assignment={assignment}
+                                members={members}
+                                isSaving={isSavingAssignment}
+                                onStrategyChange={onAssignmentChange}
+                            />
+                        )}
+                        {plant.shared && careEvents && <CareActivitySection careEvents={careEvents} />}
                     </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-muted-foreground text-xs font-medium">Mist leaves</span>
-                        <span className="text-sm">{plant.mistLeaves ? "Yes" : "No"}</span>
-                    </div>
-                    {plant.soilType && (
-                        <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Soil type</span>
-                            <span className="text-sm">{plant.soilType}</span>
-                        </div>
-                    )}
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Watering frequency</span>
-                            <span className="text-sm">{getOptionLabel(wateringFrequencies, plant.wateringFrequency)}</span>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Watering type</span>
-                            <span className="text-sm">{getOptionLabel(wateringTypes, plant.wateringType)}</span>
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-muted-foreground text-xs font-medium">Watering quantity</span>
-                        <span className="text-sm">{plant.wateringQuantity}</span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-muted-foreground text-xs font-medium">Next watering date</span>
-                        <span className="text-sm">{format(plant.nextWateringDate, "PPP")}</span>
-                    </div>
-                    <div className="text-muted-foreground text-xs">
-                        Created: {format(plant.creationDate, "PPP")} · Last updated: {format(plant.lastUpdateDate, "PPP")}
-                    </div>
-                    {plant.shared && onAssignmentChange && members && (
-                        <ResponsibilitySection
-                            assignment={assignment}
-                            members={members}
-                            isSaving={isSavingAssignment}
-                            onStrategyChange={onAssignmentChange}
-                        />
-                    )}
-                    {plant.shared && careEvents && <CareActivitySection careEvents={careEvents} />}
-                </div>
-                <DialogFooter showCloseButton>
-                    {onMarkWatered && (
-                        <Button variant="default" className="sm:mr-auto" onClick={onMarkWatered}>
-                            <Droplets data-icon="inline-start" aria-hidden="true" />
-                            Mark as Watered
-                        </Button>
-                    )}
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    <DialogFooter showCloseButton>
+                        {onMarkWatered && (
+                            <Button variant="default" className="sm:mr-auto" onClick={onMarkWatered} disabled={isMarkWateredPending}>
+                                <Droplets data-icon="inline-start" aria-hidden="true" />
+                                Mark as Watered
+                            </Button>
+                        )}
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            {conflictEvent && onForceWater && onDismissConflict && (
+                <ReWaterConfirmDialog
+                    open={!!conflictEvent}
+                    onOpenChange={isOpen => {
+                        if (!isOpen) {
+                            onDismissConflict();
+                        }
+                    }}
+                    recentEvent={conflictEvent}
+                    onConfirm={onForceWater}
+                    isPending={isForceWateringPending}
+                />
+            )}
+        </>
     );
 }

@@ -261,3 +261,81 @@ export const NonSharedNoCareEvents: Story = {
         careEvents: multipleEventsDifferentActors
     }
 };
+
+// --- Already-watered / conflict stories ---
+
+const todayCareEventByBob: CareEvent[] = [
+    { id: "event-today-1", plantId: "test-1", actorId: "user-bob", actorName: "Bob", eventType: "watered", timestamp: new Date() }
+];
+
+const todayCareEventByAlice: CareEvent[] = [
+    { id: "event-today-2", plantId: "test-1", actorId: "user-alice", actorName: "Alice", eventType: "watered", timestamp: new Date() }
+];
+
+export const AlreadyWateredByOther: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        onAssignmentChange: () => {},
+        onMarkWatered: () => {},
+        careEvents: todayCareEventByBob,
+        currentUserId: "user-alice"
+    }
+};
+
+export const AlreadyWateredByCurrentUser: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        onAssignmentChange: () => {},
+        onMarkWatered: () => {},
+        careEvents: todayCareEventByAlice,
+        currentUserId: "user-alice"
+    }
+};
+
+export const NotWateredTodayShared: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        onAssignmentChange: () => {},
+        onMarkWatered: () => {},
+        careEvents: [],
+        currentUserId: "user-alice"
+    }
+};
+
+export const ReWaterConfirmation: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        onAssignmentChange: () => {},
+        onMarkWatered: () => {},
+        careEvents: todayCareEventByBob,
+        currentUserId: "user-alice",
+        conflictEvent: todayCareEventByBob[0],
+        onForceWater: () => {},
+        onDismissConflict: () => {},
+        isForceWateringPending: false
+    }
+};
+
+export const ReWaterConfirmationPending: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        onAssignmentChange: () => {},
+        onMarkWatered: () => {},
+        careEvents: todayCareEventByBob,
+        currentUserId: "user-alice",
+        conflictEvent: todayCareEventByBob[0],
+        onForceWater: () => {},
+        onDismissConflict: () => {},
+        isForceWateringPending: true
+    }
+};

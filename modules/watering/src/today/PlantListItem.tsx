@@ -1,4 +1,4 @@
-import { Check, Droplets, Users } from "lucide-react";
+import { Check, CheckCircle, Droplets, Users } from "lucide-react";
 import { memo, useCallback } from "react";
 
 import type { Plant } from "@packages/api/entities/plants";
@@ -13,6 +13,7 @@ interface PlantListItemProps {
     selected?: boolean | undefined;
     assignedTo?: string | undefined;
     isMine?: boolean | undefined;
+    wateredByName?: string | undefined;
     onClick: (plant: Plant) => void;
     onToggleSelect?: ((id: string) => void) | undefined;
 }
@@ -22,17 +23,19 @@ export const PlantListItem = memo(function PlantListItem({
     selected = false,
     assignedTo,
     isMine = false,
+    wateredByName,
     onClick,
     onToggleSelect
 }: PlantListItemProps) {
     const due = isDueForWatering(plant);
+    const alreadyWatered = !!wateredByName;
 
     const handleToggleSelect = useCallback(() => onToggleSelect?.(plant.id), [onToggleSelect, plant.id]);
     const handleClick = useCallback(() => onClick(plant), [onClick, plant]);
 
     return (
         <div
-            className={`border-border relative flex h-full items-center gap-3 border-b px-4 py-2.5 transition-colors ${due ? "bg-destructive/5" : "hover:bg-muted/50"} ${isMine ? "border-l-primary border-l-2" : ""}`}
+            className={`border-border relative flex h-full items-center gap-3 border-b px-4 py-2.5 transition-colors ${alreadyWatered ? "opacity-60" : due ? "bg-destructive/5" : "hover:bg-muted/50"} ${isMine ? "border-l-primary border-l-2" : ""}`}
         >
             <button
                 type="button"
@@ -48,23 +51,32 @@ export const PlantListItem = memo(function PlantListItem({
             <div className={`flex min-w-0 flex-1 flex-col gap-0.5 ${PLANT_LIST_GRID} md:items-center md:gap-4`}>
                 <div className="flex w-full items-center gap-2">
                     <span className="truncate text-sm font-medium">{plant.name}</span>
-                    {due && (
-                        <>
-                            <Droplets className="text-destructive size-3.5 shrink-0" aria-hidden="true" />
-                            <span className="sr-only">Due for watering</span>
-                        </>
-                    )}
-                    {plant.shared && assignedTo && (
-                        <Badge variant="outline" className="shrink-0 gap-1 text-[10px]">
-                            <Users className="size-3" aria-hidden="true" />
-                            {assignedTo}
-                        </Badge>
-                    )}
-                    {plant.shared && !assignedTo && (
+                    {alreadyWatered ? (
                         <Badge variant="secondary" className="shrink-0 gap-1 text-[10px]">
-                            <Users className="size-3" aria-hidden="true" />
-                            Unassigned
+                            <CheckCircle className="size-3" aria-hidden="true" />
+                            Watered by {wateredByName}
                         </Badge>
+                    ) : (
+                        <>
+                            {due && (
+                                <>
+                                    <Droplets className="text-destructive size-3.5 shrink-0" aria-hidden="true" />
+                                    <span className="sr-only">Due for watering</span>
+                                </>
+                            )}
+                            {plant.shared && assignedTo && (
+                                <Badge variant="outline" className="shrink-0 gap-1 text-[10px]">
+                                    <Users className="size-3" aria-hidden="true" />
+                                    {assignedTo}
+                                </Badge>
+                            )}
+                            {plant.shared && !assignedTo && (
+                                <Badge variant="secondary" className="shrink-0 gap-1 text-[10px]">
+                                    <Users className="size-3" aria-hidden="true" />
+                                    Unassigned
+                                </Badge>
+                            )}
+                        </>
                     )}
                 </div>
                 <span className="text-muted-foreground w-full truncate text-xs whitespace-nowrap md:hidden">

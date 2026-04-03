@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { userEvent, within } from "storybook/test";
 
 import { createHouseholdHandlers } from "@packages/api/handlers/household";
 import { createTodayPlantHandlers, createTodayAssignmentHandlers, createTodayCareEventHandlers } from "@packages/api/handlers/today";
-import { makePlant, makeAssignment, FAR_PAST, FAR_FUTURE, makeHouseholdMember } from "@packages/api/test-utils";
+import { makePlant, makeAssignment, makeCareEvent, FAR_PAST, FAR_FUTURE, makeHouseholdMember } from "@packages/api/test-utils";
 
 import { LandingPage } from "./LandingPage.tsx";
 import { queryDecorator, fireflyDecorator } from "./storybook.setup.tsx";
@@ -243,5 +244,131 @@ export const AssignmentsLoading: Story = {
                 ...householdHandlers
             ]
         }
+    }
+};
+
+// --- Conflict / already-watered stories ---
+
+// Shared plant already watered today by Bob (another member) — shows dimmed with "Watered by Bob" badge
+export const AlreadyWateredByOther: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                ...createTodayPlantHandlers([
+                    makePlant({ id: "shared-1", name: "Aloe Vera", shared: true, nextWateringDate: FAR_PAST }),
+                    makePlant({ id: "shared-2", name: "Boston Fern", shared: true, nextWateringDate: FAR_PAST }),
+                    makePlant({ id: "private-1", name: "Cactus", shared: false, nextWateringDate: FAR_PAST })
+                ]),
+                ...createTodayAssignmentHandlers([]),
+                ...createTodayCareEventHandlers([
+                    makeCareEvent({ id: "event-1", plantId: "shared-1", actorId: "user-bob", actorName: "Bob", timestamp: new Date() })
+                ]),
+                ...householdHandlers
+            ]
+        }
+    }
+};
+
+// Mix of already-watered and not-watered shared plants
+export const MixedWateringStatus: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                ...createTodayPlantHandlers([
+                    makePlant({ id: "watered-1", name: "Aloe Vera", shared: true, nextWateringDate: FAR_PAST }),
+                    makePlant({ id: "not-watered-1", name: "Boston Fern", shared: true, nextWateringDate: FAR_PAST }),
+                    makePlant({ id: "private-1", name: "Cactus", shared: false, nextWateringDate: FAR_PAST })
+                ]),
+                ...createTodayAssignmentHandlers([]),
+                ...createTodayCareEventHandlers([
+                    makeCareEvent({ id: "event-1", plantId: "watered-1", actorId: "user-bob", actorName: "Bob", timestamp: new Date() })
+                ]),
+                ...householdHandlers
+            ]
+        }
+    }
+};
+
+// Shared plant watered by current user today — should NOT show "already watered" badge
+export const WateredByCurrentUser: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                ...createTodayPlantHandlers([makePlant({ id: "shared-1", name: "Aloe Vera", shared: true, nextWateringDate: FAR_PAST })]),
+                ...createTodayAssignmentHandlers([]),
+                ...createTodayCareEventHandlers([
+                    makeCareEvent({ id: "event-1", plantId: "shared-1", actorId: "user-alice", actorName: "Alice", timestamp: new Date() })
+                ]),
+                ...householdHandlers
+            ]
+        }
+    }
+};
+
+// --- Interactive conflict stories ---
+
+const conflictCareEvent = makeCareEvent({ id: "conflict-1", plantId: "shared-1", actorId: "user-bob", actorName: "Bob", timestamp: new Date() });
+
+// Play: click plant -> click "Mark as Watered" -> 409 triggers confirmation dialog
+export const ConflictConfirmationPrompt: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                ...createTodayPlantHandlers([makePlant({ id: "shared-1", name: "Aloe Vera", shared: true, nextWateringDate: FAR_PAST })], {
+                    conflictEvent: conflictCareEvent
+                }),
+                ...createTodayAssignmentHandlers([]),
+                ...createTodayCareEventHandlers([conflictCareEvent]),
+                ...householdHandlers
+            ]
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const body = within(document.body);
+        // Click the plant row to open the detail dialog
+        await userEvent.click(await canvas.findByRole("button", { name: /View Aloe Vera/i }));
+        // Wait for the detail dialog to appear (portal renders outside canvas)
+        const dialog = await body.findByRole("dialog");
+        // Click "Mark as Watered" in the detail dialog
+        const markBtn = within(dialog).getByRole("button", { name: /Mark as Watered/i });
+        await userEvent.click(markBtn);
+        // Wait for the confirmation alert dialog to appear
+        await body.findByRole("alertdialog");
+    }
+};
+
+// Play: conflict prompt shown with loading state while force-watering
+export const ConflictForceWateringLoading: Story = {
+    parameters: {
+        msw: {
+            handlers: [
+                ...createTodayPlantHandlers([makePlant({ id: "shared-1", name: "Aloe Vera", shared: true, nextWateringDate: FAR_PAST })], {
+                    conflictEvent: conflictCareEvent,
+                    putLoading: true
+                }),
+                ...createTodayAssignmentHandlers([]),
+                ...createTodayCareEventHandlers([conflictCareEvent]),
+                ...householdHandlers
+            ]
+        }
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const body = within(document.body);
+        // Click the plant row to open the detail dialog
+        await userEvent.click(await canvas.findByRole("button", { name: /View Aloe Vera/i }));
+        // Wait for the detail dialog to appear (portal renders outside canvas)
+        const dialog = await body.findByRole("dialog");
+        // Click "Mark as Watered" in the detail dialog
+        const markBtn = within(dialog).getByRole("button", { name: /Mark as Watered/i });
+        await userEvent.click(markBtn);
+        // Wait for the confirmation alert dialog to appear
+        const alertDialog = await body.findByRole("alertdialog");
+        // Click "Water again" to trigger force watering (PUT will hang due to putLoading)
+        const waterAgainBtn = within(alertDialog).getByRole("button", { name: /Water again/i });
+        await userEvent.click(waterAgainBtn);
+        // The button should now show "Watering..." and be disabled
+        await within(alertDialog).findByRole("button", { name: /Watering/i });
     }
 };

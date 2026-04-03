@@ -1,6 +1,7 @@
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useState, useRef, useMemo, useCallback } from "react";
 
+import type { CareEvent } from "@packages/api/entities/care-events";
 import type { Plant } from "@packages/api/entities/plants";
 import { getFrequencyDays } from "@packages/api/entities/plants";
 import { Button } from "@packages/components";
@@ -14,7 +15,7 @@ import { applyPlantFilters, isDueForWatering } from "./plantUtils.ts";
 import { useHouseholdMembers } from "./useHouseholdMembers.ts";
 import { usePlantFilters } from "./usePlantFilters.ts";
 import { useTodayAssignments, useSetAssignment } from "./useTodayAssignments.ts";
-import { useTodayPlants, useMarkWatered, useCareEvents } from "./useTodayPlants.ts";
+import { useTodayPlants, useMarkWatered, useAllCareEvents, useCareEvents, WateringConflictError } from "./useTodayPlants.ts";
 
 function computeNextWateringDate(plant: Plant): Date {
     const days = getFrequencyDays(plant.wateringFrequency);
@@ -29,6 +30,8 @@ export function LandingPage() {
     const { filters, updateFilter, clearFilters, hasActiveFilters } = usePlantFilters();
     const [detailPlant, setDetailPlant] = useState<Plant | null>(null);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [conflictEvent, setConflictEvent] = useState<CareEvent | null>(null);
+    const [isForceWatering, setIsForceWatering] = useState(false);
     const listRef = useRef<HTMLDivElement>(null);
 
     const session = useSession();
@@ -38,6 +41,7 @@ export function LandingPage() {
     const markWatered = useMarkWatered();
     const setAssignment = useSetAssignment();
     const { data: careEvents } = useCareEvents(detailPlant?.id);
+    const { data: allCareEvents } = useAllCareEvents();
 
     const isPending = isPlantsLoading || isAssignmentsLoading;
 
@@ -60,6 +64,28 @@ export function LandingPage() {
 
         return map;
     }, [assignments, members, session?.id]);
+
+    // Build a map of plantId -> actorName for shared plants watered today by another member
+    const wateredByMap = useMemo(() => {
+        const map = new Map<string, string>();
+
+        if (!allCareEvents || !session?.id) {
+            return map;
+        }
+
+        const today = new Date().toDateString();
+
+        for (const event of allCareEvents) {
+            if (event.eventType === "watered" && event.timestamp.toDateString() === today && event.actorId !== session.id) {
+                // Only set if not already set (first = most recent due to sort order)
+                if (!map.has(event.plantId)) {
+                    map.set(event.plantId, event.actorName);
+                }
+            }
+        }
+
+        return map;
+    }, [allCareEvents, session?.id]);
 
     const plants = useMemo(() => {
         if (!allPlants) {
@@ -117,8 +143,43 @@ export function LandingPage() {
             return;
         }
 
-        markWatered.mutate({ id: detailPlant.id, nextWateringDate: computeNextWateringDate(detailPlant) }, { onSuccess: () => setDetailPlant(null) });
+        markWatered.mutate(
+            { id: detailPlant.id, nextWateringDate: computeNextWateringDate(detailPlant) },
+            {
+                onSuccess: () => setDetailPlant(null),
+                onError: error => {
+                    if (error instanceof WateringConflictError) {
+                        setConflictEvent(error.recentEvent);
+                    }
+                }
+            }
+        );
     }, [detailPlant, markWatered]);
+
+    const handleForceWater = useCallback(() => {
+        if (!detailPlant || !conflictEvent) {
+            return;
+        }
+
+        setIsForceWatering(true);
+        markWatered.mutate(
+            { id: detailPlant.id, nextWateringDate: computeNextWateringDate(detailPlant), force: true },
+            {
+                onSuccess: () => {
+                    setConflictEvent(null);
+                    setIsForceWatering(false);
+                    setDetailPlant(null);
+                },
+                onError: () => {
+                    setIsForceWatering(false);
+                }
+            }
+        );
+    }, [detailPlant, conflictEvent, markWatered]);
+
+    const handleDismissConflict = useCallback(() => {
+        setConflictEvent(null);
+    }, []);
 
     const handleBulkMarkWatered = useCallback(() => {
         const duePlants = plants.filter(p => selectedIds.has(p.id));
@@ -127,7 +188,7 @@ export function LandingPage() {
         }
 
         for (const plant of duePlants) {
-            markWatered.mutate({ id: plant.id, nextWateringDate: computeNextWateringDate(plant) });
+            markWatered.mutate({ id: plant.id, nextWateringDate: computeNextWateringDate(plant), force: true });
         }
         setSelectedIds(new Set());
     }, [plants, selectedIds, markWatered]);
@@ -225,6 +286,7 @@ export function LandingPage() {
                                     selected={selectedIds.has(plant.id)}
                                     assignedTo={assignmentInfo?.assignedTo}
                                     isMine={assignmentInfo?.isMine}
+                                    wateredByName={plant.shared ? wateredByMap.get(plant.id) : undefined}
                                     onToggleSelect={toggleSelect}
                                     onClick={handleViewDetail}
                                 />
@@ -239,11 +301,17 @@ export function LandingPage() {
                 open={detailPlant !== null}
                 onOpenChange={handleDetailOpenChange}
                 onMarkWatered={handleMarkWatered}
+                isMarkWateredPending={markWatered.isPending}
                 assignment={detailAssignment}
                 members={members}
                 isSavingAssignment={setAssignment.isPending}
                 onAssignmentChange={handleAssignmentChange}
                 careEvents={careEvents}
+                conflictEvent={conflictEvent}
+                onForceWater={handleForceWater}
+                onDismissConflict={handleDismissConflict}
+                isForceWateringPending={isForceWatering}
+                currentUserId={session?.id}
             />
         </div>
     );
