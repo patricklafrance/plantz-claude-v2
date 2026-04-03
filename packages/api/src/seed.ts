@@ -1,6 +1,8 @@
 import { householdDb } from "./db/household/householdDb.ts";
 import { plantsDb } from "./db/plants/plantsDb.ts";
 import { defaultSeedPlants } from "./db/plants/seedData.ts";
+import { assignmentDb } from "./db/responsibility/assignmentDb.ts";
+import type { ResponsibilityAssignment } from "./entities/responsibility/types.ts";
 
 const defaultSeedHouseholds = [
     {
@@ -30,7 +32,33 @@ const defaultSeedMembers = [
     }
 ];
 
+function generateDefaultAssignments(): ResponsibilityAssignment[] {
+    const sharedPlants = defaultSeedPlants.filter(p => p.shared);
+    const strategies: Array<"fixed" | "rotating" | "unassigned"> = ["fixed", "rotating", "unassigned"];
+    const members = [
+        { id: "member-1", name: "Alice" },
+        { id: "member-2", name: "Bob" }
+    ];
+
+    return sharedPlants.map((plant, index) => {
+        const strategy = strategies[index % strategies.length]!;
+        const member = strategy === "fixed" ? members[index % members.length]! : undefined;
+
+        return {
+            id: `assignment-${index + 1}`,
+            plantId: plant.id,
+            householdId: "household-1",
+            strategy,
+            assignedMemberId: member?.id,
+            assignedMemberName: member?.name
+        };
+    });
+}
+
+const defaultSeedAssignments = generateDefaultAssignments();
+
 export function seedDatabase() {
     plantsDb.reset(defaultSeedPlants);
     householdDb.reset(defaultSeedHouseholds, defaultSeedMembers);
+    assignmentDb.reset(defaultSeedAssignments);
 }

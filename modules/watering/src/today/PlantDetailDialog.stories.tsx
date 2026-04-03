@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { userEvent, within } from "storybook/test";
 
+import type { HouseholdMember } from "@packages/api/entities/household";
 import type { Plant } from "@packages/api/entities/plants";
+import type { ResponsibilityAssignment } from "@packages/api/entities/responsibility";
 
 import { PlantDetailDialog } from "./PlantDetailDialog.tsx";
 
@@ -28,6 +31,34 @@ function makePlant(overrides: Partial<Plant> = {}): Plant {
         ...overrides
     };
 }
+
+const defaultMembers: HouseholdMember[] = [
+    { id: "member-1", householdId: "household-1", userId: "user-alice", userName: "Alice", role: "owner", joinDate: FIXED_CREATION },
+    { id: "member-2", householdId: "household-1", userId: "user-bob", userName: "Bob", role: "member", joinDate: FIXED_CREATION }
+];
+
+const fixedAssignment: ResponsibilityAssignment = {
+    id: "assignment-1",
+    plantId: "test-1",
+    householdId: "household-1",
+    strategy: "fixed",
+    assignedMemberId: "member-1",
+    assignedMemberName: "Alice"
+};
+
+const unassignedAssignment: ResponsibilityAssignment = {
+    id: "assignment-2",
+    plantId: "test-1",
+    householdId: "household-1",
+    strategy: "unassigned"
+};
+
+const rotatingAssignment: ResponsibilityAssignment = {
+    id: "assignment-3",
+    plantId: "test-1",
+    householdId: "household-1",
+    strategy: "rotating"
+};
 
 const meta = {
     title: "Watering/Today/Components/PlantDetailDialog",
@@ -85,5 +116,83 @@ export const WithMarkWatered: Story = {
     args: {
         plant: makePlant(),
         onMarkWatered: () => {}
+    }
+};
+
+// --- Responsibility section stories (shared plants only) ---
+
+export const SharedWithFixedAssignment: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        isSavingAssignment: false,
+        onAssignmentChange: () => {}
+    }
+};
+
+export const SharedWithRotatingAssignment: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: rotatingAssignment,
+        members: defaultMembers,
+        isSavingAssignment: false,
+        onAssignmentChange: () => {}
+    }
+};
+
+export const SharedUnassigned: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: unassignedAssignment,
+        members: defaultMembers,
+        isSavingAssignment: false,
+        onAssignmentChange: () => {}
+    }
+};
+
+export const SharedNoAssignment: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: undefined,
+        members: defaultMembers,
+        isSavingAssignment: false,
+        onAssignmentChange: () => {}
+    }
+};
+
+export const NonSharedPlant: Story = {
+    args: {
+        plant: makePlant({ shared: false }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        onAssignmentChange: () => {}
+    }
+};
+
+export const AssignmentSaving: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        isSavingAssignment: true,
+        onAssignmentChange: () => {}
+    }
+};
+
+export const SharedWithStrategyOpen: Story = {
+    args: {
+        plant: makePlant({ shared: true }),
+        assignment: fixedAssignment,
+        members: defaultMembers,
+        isSavingAssignment: false,
+        onAssignmentChange: () => {}
+    },
+    play: async () => {
+        // Portal-based Dialog renders outside canvas — use within(document.body)
+        const body = within(document.body);
+        await body.findByText("Responsibility");
+        const trigger = body.getByLabelText("Responsibility strategy");
+        await userEvent.click(trigger);
     }
 };

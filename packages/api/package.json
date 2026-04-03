@@ -14,6 +14,7 @@
         "./handlers/today": "./src/handlers/today/index.ts",
         "./handlers/auth": "./src/handlers/auth/index.ts",
         "./entities/household": "./src/entities/household/index.ts",
+        "./entities/responsibility": "./src/entities/responsibility/index.ts",
         "./handlers/household": "./src/handlers/household/index.ts",
         "./test-utils": "./src/test-utils/index.ts"
     },

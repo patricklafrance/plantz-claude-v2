@@ -1,8 +1,8 @@
-import { Check, Droplets } from "lucide-react";
+import { Check, Droplets, Users } from "lucide-react";
 import { memo, useCallback } from "react";
 
 import type { Plant } from "@packages/api/entities/plants";
-import { Checkbox } from "@packages/components";
+import { Badge, Checkbox } from "@packages/components";
 
 import { locations, wateringTypes } from "./constants.ts";
 import { PLANT_LIST_GRID } from "./plantListLayout.ts";
@@ -11,11 +11,20 @@ import { getOptionLabel, isDueForWatering } from "./plantUtils.ts";
 interface PlantListItemProps {
     plant: Plant;
     selected?: boolean | undefined;
+    assignedTo?: string | undefined;
+    isMine?: boolean | undefined;
     onClick: (plant: Plant) => void;
     onToggleSelect?: ((id: string) => void) | undefined;
 }
 
-export const PlantListItem = memo(function PlantListItem({ plant, selected = false, onClick, onToggleSelect }: PlantListItemProps) {
+export const PlantListItem = memo(function PlantListItem({
+    plant,
+    selected = false,
+    assignedTo,
+    isMine = false,
+    onClick,
+    onToggleSelect
+}: PlantListItemProps) {
     const due = isDueForWatering(plant);
 
     const handleToggleSelect = useCallback(() => onToggleSelect?.(plant.id), [onToggleSelect, plant.id]);
@@ -23,7 +32,7 @@ export const PlantListItem = memo(function PlantListItem({ plant, selected = fal
 
     return (
         <div
-            className={`border-border relative flex h-full items-center gap-3 border-b px-4 py-2.5 transition-colors ${due ? "bg-destructive/5" : "hover:bg-muted/50"}`}
+            className={`border-border relative flex h-full items-center gap-3 border-b px-4 py-2.5 transition-colors ${due ? "bg-destructive/5" : "hover:bg-muted/50"} ${isMine ? "border-l-primary border-l-2" : ""}`}
         >
             <button
                 type="button"
@@ -44,6 +53,18 @@ export const PlantListItem = memo(function PlantListItem({ plant, selected = fal
                             <Droplets className="text-destructive size-3.5 shrink-0" aria-hidden="true" />
                             <span className="sr-only">Due for watering</span>
                         </>
+                    )}
+                    {plant.shared && assignedTo && (
+                        <Badge variant="outline" className="shrink-0 gap-1 text-[10px]">
+                            <Users className="size-3" aria-hidden="true" />
+                            {assignedTo}
+                        </Badge>
+                    )}
+                    {plant.shared && !assignedTo && (
+                        <Badge variant="secondary" className="shrink-0 gap-1 text-[10px]">
+                            <Users className="size-3" aria-hidden="true" />
+                            Unassigned
+                        </Badge>
                     )}
                 </div>
                 <span className="text-muted-foreground w-full truncate text-xs whitespace-nowrap md:hidden">

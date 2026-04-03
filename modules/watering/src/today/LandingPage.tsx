@@ -4,13 +4,16 @@ import { useState, useRef, useMemo, useCallback } from "react";
 import type { Plant } from "@packages/api/entities/plants";
 import { getFrequencyDays } from "@packages/api/entities/plants";
 import { Button } from "@packages/components";
+import { useSession } from "@packages/core-module";
 
 import { FilterBar } from "./FilterBar.tsx";
 import { PlantDetailDialog } from "./PlantDetailDialog.tsx";
 import { PlantListHeader } from "./PlantListHeader.tsx";
 import { PlantListItem } from "./PlantListItem.tsx";
 import { applyPlantFilters, isDueForWatering } from "./plantUtils.ts";
+import { useHouseholdMembers } from "./useHouseholdMembers.ts";
 import { usePlantFilters } from "./usePlantFilters.ts";
+import { useTodayAssignments, useSetAssignment } from "./useTodayAssignments.ts";
 import { useTodayPlants, useMarkWatered } from "./useTodayPlants.ts";
 
 function computeNextWateringDate(plant: Plant): Date {
@@ -28,8 +31,34 @@ export function LandingPage() {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const listRef = useRef<HTMLDivElement>(null);
 
-    const { data: allPlants, isPending } = useTodayPlants();
+    const session = useSession();
+    const { data: allPlants, isPending: isPlantsLoading } = useTodayPlants();
+    const { data: assignments, isPending: isAssignmentsLoading } = useTodayAssignments();
+    const { data: members } = useHouseholdMembers();
     const markWatered = useMarkWatered();
+    const setAssignment = useSetAssignment();
+
+    const isPending = isPlantsLoading || isAssignmentsLoading;
+
+    const assignmentMap = useMemo(() => {
+        if (!assignments) {
+            return new Map<string, { assignedTo?: string; isMine: boolean }>();
+        }
+
+        const map = new Map<string, { assignedTo?: string; isMine: boolean }>();
+
+        for (const a of assignments) {
+            const isMine = a.assignedMemberId ? (members?.some(m => m.id === a.assignedMemberId && m.userId === session?.id) ?? false) : false;
+
+            map.set(a.plantId, {
+                assignedTo:
+                    a.strategy === "fixed" && a.assignedMemberName ? a.assignedMemberName : a.strategy === "rotating" ? "Rotating" : undefined,
+                isMine
+            });
+        }
+
+        return map;
+    }, [assignments, members, session?.id]);
 
     const plants = useMemo(() => {
         if (!allPlants) {
@@ -102,6 +131,30 @@ export function LandingPage() {
         setSelectedIds(new Set());
     }, [plants, selectedIds, markWatered]);
 
+    const handleAssignmentChange = useCallback(
+        (strategy: "fixed" | "rotating" | "unassigned", memberId?: string, memberName?: string) => {
+            if (!detailPlant) {
+                return;
+            }
+
+            setAssignment.mutate({
+                plantId: detailPlant.id,
+                strategy,
+                assignedMemberId: strategy === "fixed" ? memberId : undefined,
+                assignedMemberName: strategy === "fixed" ? memberName : undefined
+            });
+        },
+        [detailPlant, setAssignment]
+    );
+
+    const detailAssignment = useMemo(() => {
+        if (!detailPlant || !assignments) {
+            return undefined;
+        }
+
+        return assignments.find(a => a.plantId === detailPlant.id);
+    }, [detailPlant, assignments]);
+
     const selectedCount = plants.filter(p => selectedIds.has(p.id)).length;
 
     const totalSize = virtualizer.getTotalSize();
@@ -154,6 +207,7 @@ export function LandingPage() {
                 <div ref={listRef} role="list" aria-label="Plants due for watering" style={virtualizerContainerStyle}>
                     {virtualizer.getVirtualItems().map(virtualRow => {
                         const plant = plants[virtualRow.index]!;
+                        const assignmentInfo = assignmentMap.get(plant.id);
                         // oxlint-disable-next-line react-perf/jsx-no-new-object-as-prop -- Virtual row positioning requires per-item inline styles
                         const rowStyle = {
                             position: "absolute" as const,
@@ -168,6 +222,8 @@ export function LandingPage() {
                                 <PlantListItem
                                     plant={plant}
                                     selected={selectedIds.has(plant.id)}
+                                    assignedTo={assignmentInfo?.assignedTo}
+                                    isMine={assignmentInfo?.isMine}
                                     onToggleSelect={toggleSelect}
                                     onClick={handleViewDetail}
                                 />
@@ -182,6 +238,10 @@ export function LandingPage() {
                 open={detailPlant !== null}
                 onOpenChange={handleDetailOpenChange}
                 onMarkWatered={handleMarkWatered}
+                assignment={detailAssignment}
+                members={members}
+                isSavingAssignment={setAssignment.isPending}
+                onAssignmentChange={handleAssignmentChange}
             />
         </div>
     );

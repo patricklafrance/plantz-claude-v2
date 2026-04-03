@@ -13,6 +13,7 @@
     "dependencies": {
         "@packages/api": "workspace:*",
         "@packages/components": "workspace:*",
+        "@packages/core-module": "workspace:*",
         "@tanstack/react-virtual": "^3.13.23",
         "date-fns": "^4.1.0",
         "lucide-react": "^1.7.0"
@@ -24,6 +25,7 @@
         "@types/react-dom": "19.2.3",
         "@typescript/native-preview": "7.0.0-dev.20260401.1",
         "@workleap/typescript-configs": "4.0.0",
+        "storybook": "10.3.4",
         "typescript": "6.0.2"
     },
     "peerDependencies": {
