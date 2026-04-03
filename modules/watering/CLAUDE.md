@@ -1,6 +1,6 @@
 # Watering Module
 
-Daily plant care features: today (landing page with watering actions).
+Daily plant care features: today (landing page with watering actions, responsibility assignments, care event tracking, duplicate watering prevention).
 
 ## Stories
 
@@ -28,9 +28,14 @@ Story globs in `.storybook/main.ts` must include every subfolder in this module.
 
 This module's API surface lives under `/api/today/`. Data access uses TanStack Query hooks co-located with the components that use them:
 
-- `src/today/useTodayPlants.ts` — Query hooks (`useTodayPlants`, `useMarkWatered`). Hooks encapsulate query keys, fetch calls, and `parsePlant()` date coercion.
-- `@packages/api/entities/plants` — `Plant` type and `parsePlant()` for date coercion.
-- `@packages/api/handlers/today` — MSW handlers (runtime + storybook factories).
+- `src/today/useTodayPlants.ts` — Query hooks (`useTodayPlants`, `useMarkWatered`, `useCareEvents`, `useAllCareEvents`). Hooks encapsulate query keys, fetch calls, and `parsePlant()` date coercion. `useMarkWatered` throws `WateringConflictError` on 409 responses and supports `force: true` to override.
+- `src/today/useTodayAssignments.ts` — Query hooks (`useTodayAssignments`, `useSetAssignment`) for responsibility assignment management.
+- `src/today/useHouseholdMembers.ts` — Query hook for fetching household members (duplicated from management due to module isolation rule).
+- `@packages/api/entities/plants` — `Plant` type (includes `shared: boolean`) and `parsePlant()` for date coercion.
+- `@packages/api/entities/responsibility` — `ResponsibilityAssignment` type.
+- `@packages/api/entities/care-events` — `CareEvent` type and `parseCareEvent()`.
+- `@packages/api/handlers/today` — MSW handlers for plants, assignments, and care events (runtime + storybook factories).
+- `@packages/api/handlers/household` — MSW handlers for household data (registered by watering module for `useHouseholdMembers`).
 
 Components read with `useQuery` hooks and write with `useMutation` hooks.
 

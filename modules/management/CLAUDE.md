@@ -1,6 +1,6 @@
 # Management Module
 
-Plant management features: inventory (plants CRUD) and account (user profile).
+Plant management features: inventory (plants CRUD, shared plant indicators), account (user profile), and household (create/join households, invite/manage members).
 
 ## Stories
 
@@ -12,6 +12,7 @@ Every page and component must have a co-located `.stories.tsx` file. A feature w
 
 - Title prefix: `Management/Inventory/` for inventory subfolder (e.g., `Management/Inventory/Pages/PlantsPage`, `Management/Inventory/Components/FilterBar`).
 - Title prefix: `Management/Account/` for account subfolder (e.g., `Management/Account/Pages/UserPage`).
+- Title prefix: `Management/Household/` for household subfolder (e.g., `Management/Household/Pages/HouseholdPage`).
 - Reference: `modules/management/src/inventory/FilterBar.stories.tsx` (presentational component), `modules/management/src/inventory/PlantsPage.stories.tsx` (page with query + firefly decorators).
 - Storybook dev command: `pnpm dev-storybook-management`.
 
@@ -30,8 +31,13 @@ Story globs in `.storybook/main.ts` must include every subfolder in this module.
 This module's API surface lives under `/api/management/`. Data access uses TanStack Query hooks co-located with the components that use them:
 
 - `src/inventory/useManagementPlants.ts` — Query hooks (`useManagementPlants`, `useCreatePlant`, `useUpdatePlant`, `useDeletePlant`, `useDeletePlants`). Hooks encapsulate query keys, fetch calls, and `parsePlant()` date coercion.
-- `@packages/api/entities/plants` — `Plant` type and `parsePlant()` for date coercion.
-- `@packages/api/handlers/management` — MSW handlers (runtime + storybook factories).
+- `src/inventory/useManagementCareEvents.ts` — Query hook (`useManagementCareEvents`) for fetching care activity per plant.
+- `src/household/useHousehold.ts` — Query hooks for household CRUD, member listing, and invite flow.
+- `@packages/api/entities/plants` — `Plant` type (includes `shared: boolean`) and `parsePlant()` for date coercion.
+- `@packages/api/entities/household` — `Household` and `HouseholdMember` types.
+- `@packages/api/entities/care-events` — `CareEvent` type and `parseCareEvent()`.
+- `@packages/api/handlers/management` — MSW handlers for plants and care events (runtime + storybook factories).
+- `@packages/api/handlers/household` — MSW handlers for household CRUD and member management.
 
 Components read with `useQuery` hooks and write with `useMutation` hooks.
 

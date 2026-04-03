@@ -20,11 +20,23 @@ Query hooks live in the module that uses them, co-located with components:
 // modules/management/src/inventory/useManagementPlants.ts
 import { useManagementPlants, useCreatePlant, useUpdatePlant } from "./useManagementPlants.ts";
 
+// modules/management/src/inventory/useManagementCareEvents.ts
+import { useManagementCareEvents } from "./useManagementCareEvents.ts";
+
+// modules/management/src/household/useHousehold.ts
+import { useHousehold } from "./useHousehold.ts";
+
 // modules/watering/src/today/useTodayPlants.ts
-import { useTodayPlants, useMarkWatered } from "./useTodayPlants.ts";
+import { useTodayPlants, useMarkWatered, useCareEvents, useAllCareEvents } from "./useTodayPlants.ts";
+
+// modules/watering/src/today/useTodayAssignments.ts
+import { useTodayAssignments, useSetAssignment } from "./useTodayAssignments.ts";
+
+// modules/watering/src/today/useHouseholdMembers.ts (duplicated from management — module isolation)
+import { useHouseholdMembers } from "./useHouseholdMembers.ts";
 ```
 
-Hooks import `parsePlant()` and entity types from `@packages/api/entities/plants`. Query keys and fetch URLs are encapsulated inside each hook file.
+Hooks import entity types and parse functions from `@packages/api/entities/*`. Query keys and fetch URLs are encapsulated inside each hook file. When two modules need the same data (e.g., household members), each module has its own hook hitting the same endpoint — hooks are never shared across modules.
 
 ## Query Hook Pattern
 
@@ -76,13 +88,13 @@ Key patterns:
 
 ## API Package vs. Module Boundary
 
-| Concern                                | Where it lives                                | Why                                                       |
-| -------------------------------------- | --------------------------------------------- | --------------------------------------------------------- |
-| Entity types (`Plant`, `User`)         | `@packages/api/entities/*`                    | Shared contract — used by handlers, hooks, and test utils |
-| MSW handlers                           | `@packages/api/handlers/*`                    | Backend simulation — framework-agnostic, no React         |
-| DB singletons + seed                   | `@packages/api/db/*` (internal)               | Shared state across modules                               |
-| Test factories (`makePlant`)           | `@packages/api/test-utils`                    | Shared across storybooks                                  |
-| Query hooks (`useQuery`/`useMutation`) | Module-local (e.g., `useManagementPlants.ts`) | React hooks — consumers of the API, not part of it        |
+| Concern                                                                                                 | Where it lives                                | Why                                                       |
+| ------------------------------------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------- |
+| Entity types (`Plant`, `User`, `Household`, `HouseholdMember`, `ResponsibilityAssignment`, `CareEvent`) | `@packages/api/entities/*`                    | Shared contract — used by handlers, hooks, and test utils |
+| MSW handlers                                                                                            | `@packages/api/handlers/*`                    | Backend simulation — framework-agnostic, no React         |
+| DB singletons + seed                                                                                    | `@packages/api/db/*` (internal)               | Shared state across modules                               |
+| Test factories (`makePlant`, `makeAssignment`, `makeCareEvent`)                                         | `@packages/api/test-utils`                    | Shared across storybooks                                  |
+| Query hooks (`useQuery`/`useMutation`)                                                                  | Module-local (e.g., `useManagementPlants.ts`) | React hooks — consumers of the API, not part of it        |
 
 The API package has zero React dependency — it's a pure data/handler package. React hooks live in modules next to the components that use them.
 
@@ -99,15 +111,22 @@ export async function registerTodayLandingPage(runtime: FireflyRuntime) {
     runtime.registerRoute({ path: "/today", lazy: () => import("./LandingPage.tsx").then(m => ({ element: <m.LandingPage /> })) });
 
     if (runtime.isMswEnabled) {
-        const { todayPlantHandlers } = await import("@packages/api/handlers/today");
-        runtime.registerRequestHandlers(todayPlantHandlers);
+        const { todayPlantHandlers, todayAssignmentHandlers, todayCareEventHandlers } = await import("@packages/api/handlers/today");
+        const { householdHandlers } = await import("@packages/api/handlers/household");
+        runtime.registerRequestHandlers([...todayPlantHandlers, ...todayAssignmentHandlers, ...todayCareEventHandlers, ...householdHandlers]);
     }
 }
 ```
 
+Modules register all MSW handlers they depend on, even if those handlers are in another handler namespace (e.g., watering registers `householdHandlers` because `useHouseholdMembers` needs the `/api/household/members` endpoint).
+
 ## Centralized Handlers
 
-All MSW handlers live in `@packages/api/handlers/<module-name>/`. Handlers are self-contained — they use entity types and internal DB singletons, never importing from module feature code. Auth handlers live in `@packages/api/handlers/auth`. Module endpoints follow `/api/<domain>/<entity>`. Handlers share state through internal DB singletons (`plantsDb`, `usersDb`). MSW handlers read `sessionStorage` directly for user identity — no `Authorization` headers.
+All MSW handlers live in `@packages/api/handlers/<module-name>/`. Handlers are self-contained — they use entity types and internal DB singletons, never importing from module feature code. Auth handlers live in `@packages/api/handlers/auth`. Module endpoints follow `/api/<domain>/<entity>`. Handlers share state through internal DB singletons (`plantsDb`, `usersDb`, `householdDb`, `assignmentDb`, `careEventDb`). MSW handlers read `sessionStorage` directly for user identity — no `Authorization` headers.
+
+Handler namespaces: `handlers/management/` (plant CRUD, care events per plant), `handlers/today/` (today plants, assignments, care events), `handlers/household/` (household CRUD, members, invites), `handlers/auth/` (login, logout, session).
+
+**Conflict responses:** The PUT `/api/today/plants/:id` handler returns HTTP 409 when a shared plant was already watered today by another user. The response body includes `{ conflict: true, recentEvent }`. Clients send `{ force: true }` to override. The `useMarkWatered` mutation throws a typed `WateringConflictError` on 409 responses.
 
 ## Storybook Setup
 
@@ -119,3 +138,5 @@ Each domain has a `storybook.setup.tsx` providing two decorators:
 - `queryDecorator` — fresh `QueryClient` with `retry: false, staleTime: Infinity` wrapped in `QueryClientProvider`
 
 Story files: `decorators: [queryDecorator, fireflyDecorator]`, `parameters: { msw: { handlers: [...] } }`. Per-story overrides via `parameters.msw.handlers`. Use `delay("infinite")` for loading states. The packages storybook needs none of this (presentational only).
+
+**Stateful MSW handlers in stories:** Interactive stories that trigger a mutation followed by query invalidation cannot use static MSW GET handlers. The GET handlers must use `let` variable closures so the POST/PUT handler can update the data that subsequent GET refetches return. Example: `HouseholdPage.stories.tsx` (CreateHouseholdSuccess, InviteMemberSuccess) uses stateful closures for household/members data.
