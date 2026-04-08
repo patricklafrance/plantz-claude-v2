@@ -14,7 +14,7 @@ export function ColorModeToggle() {
     const [mode, setMode] = useColorMode();
 
     return (
-        <div className="border-border flex items-center gap-0.5 rounded-lg border p-0.5">
+        <div className="border-border/50 flex items-center gap-0.5 rounded-xl border p-0.5">
             {modes.map(({ value, icon: Icon, label }) => (
                 <Button
                     key={value}

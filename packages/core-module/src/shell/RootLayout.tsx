@@ -8,6 +8,8 @@ import {
 } from "@squide/firefly";
 import { Link, Outlet } from "react-router";
 
+import { Toaster } from "@packages/components";
+
 import { PlantzLogo } from "./PlantzLogo.tsx";
 import { UserMenu } from "./UserMenu.tsx";
 
@@ -20,7 +22,11 @@ const renderItem: RenderItemFunction = (item, key) => {
 
     return (
         <li key={key}>
-            <Link {...linkProps} {...additionalProps} className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+            <Link
+                {...linkProps}
+                {...additionalProps}
+                className="text-muted-foreground hover:text-foreground font-body text-sm underline-offset-4 transition-colors hover:underline"
+            >
                 {label}
             </Link>
         </li>
@@ -40,8 +46,9 @@ export function RootLayout() {
 
     if (!isActiveRouteProtected) {
         return (
-            <main className="bg-background text-foreground flex min-h-screen items-center justify-center">
+            <main className="text-foreground flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,var(--botanical)_0%,var(--background)_50%)] opacity-95">
                 <Outlet />
+                <Toaster position="bottom-right" />
             </main>
         );
     }
@@ -54,7 +61,7 @@ export function RootLayout() {
             >
                 Skip to main content
             </a>
-            <header className="border-border flex items-center gap-6 border-b px-6 py-3">
+            <header className="bg-card flex items-center gap-6 px-8 py-4 shadow-sm">
                 <Link to="/" aria-label="Plantz home">
                     <PlantzLogo className="text-foreground h-7 w-auto" />
                 </Link>
@@ -66,6 +73,7 @@ export function RootLayout() {
             <main id="main-content" className="flex-1">
                 <Outlet />
             </main>
+            <Toaster position="bottom-right" />
         </div>
     );
 }

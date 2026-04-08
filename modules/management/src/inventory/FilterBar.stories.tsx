@@ -81,7 +81,7 @@ export const SoilTypeFilter: Story = {
     }
 };
 
-export const MultipleFiltersActive: Story = {
+export const MultipleFiltersWithChips: Story = {
     args: {
         filters: {
             ...defaultFilters,
@@ -89,27 +89,6 @@ export const MultipleFiltersActive: Story = {
             luminosity: "high",
             wateringFrequency: "1-week"
         },
-        hasActiveFilters: true
-    }
-};
-
-export const LuminositySelected: Story = {
-    args: {
-        filters: { ...defaultFilters, luminosity: "high" },
-        hasActiveFilters: true
-    }
-};
-
-export const WateringFrequencySelected: Story = {
-    args: {
-        filters: { ...defaultFilters, wateringFrequency: "2-weeks" },
-        hasActiveFilters: true
-    }
-};
-
-export const WateringTypeSelected: Story = {
-    args: {
-        filters: { ...defaultFilters, wateringType: "deep" },
         hasActiveFilters: true
     }
 };
@@ -127,5 +106,13 @@ export const AllFiltersActive: Story = {
             dueForWatering: true
         },
         hasActiveFilters: true
+    }
+};
+
+export const HideDueForWatering: Story = {
+    args: {
+        filters: defaultFilters,
+        hasActiveFilters: false,
+        showDueForWatering: false
     }
 };

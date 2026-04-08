@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import { Button, Input, Label } from "@packages/components";
 
 import { sessionQueryOptions } from "../SessionContext.tsx";
+import { PlantzLogo } from "./PlantzLogo.tsx";
 
 export function LoginPage() {
     const navigate = useNavigate();
@@ -42,9 +43,12 @@ export function LoginPage() {
     }
 
     return (
-        <div className="flex flex-1 items-center justify-center p-6">
-            <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-                <h1 className="text-foreground text-2xl font-semibold">Log in</h1>
+        <div className="flex flex-1 items-center justify-center bg-[radial-gradient(ellipse_at_top,oklch(0.90_0.03_155/0.3),var(--background)_60%)] p-6">
+            <form onSubmit={handleSubmit} className="bg-card border-border/50 w-full max-w-sm space-y-4 rounded-xl border p-8 shadow-lg">
+                <div className="flex flex-col items-center gap-3">
+                    <PlantzLogo className="text-foreground h-8 w-auto" />
+                    <h1 className="text-foreground font-display text-2xl font-semibold tracking-tight">Log in</h1>
+                </div>
                 {error && (
                     <p className="text-destructive text-sm" role="alert">
                         {error}
@@ -68,7 +72,7 @@ export function LoginPage() {
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                     {isSubmitting ? "Logging in..." : "Log in"}
                 </Button>
-                <div className="text-muted-foreground rounded-md border p-3 text-sm">
+                <div className="text-muted-foreground bg-secondary/50 rounded-md p-3 text-sm">
                     <p className="mb-1 font-medium">Demo accounts:</p>
                     <ul className="space-y-1">
                         <li>

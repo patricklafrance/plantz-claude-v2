@@ -38,7 +38,7 @@ export function UserMenu() {
     return (
         <Popover>
             <PopoverTrigger
-                className="bg-primary text-primary-foreground flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-xs font-medium transition-opacity hover:opacity-80"
+                className="bg-botanical text-botanical-foreground hover:ring-botanical/20 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-xs font-medium transition-all hover:ring-2"
                 aria-label="User menu"
             >
                 {getInitials(session.name)}
