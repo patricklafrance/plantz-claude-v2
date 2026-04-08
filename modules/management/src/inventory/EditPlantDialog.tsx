@@ -141,11 +141,11 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
             <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
                 <DialogHeader>
                     <div className="flex items-center gap-2">
-                        <DialogTitle>Edit plant</DialogTitle>
+                        <DialogTitle className="font-display tracking-tight">Edit plant</DialogTitle>
                         <span
                             role="status"
                             aria-live="polite"
-                            className={`text-muted-foreground text-xs transition-opacity ${saved ? "opacity-100" : "opacity-0"}`}
+                            className={`text-botanical text-xs transition-opacity ${saved ? "opacity-100" : "opacity-0"}`}
                         >
                             Saved
                         </span>
@@ -280,7 +280,7 @@ export function EditPlantDialog({ plant, open, onOpenChange, onDelete, onMarkWat
                         <Label>Next watering date</Label>
                         <DatePicker value={plant.nextWateringDate} disabled aria-label="Next watering date" />
                     </div>
-                    <div className="text-muted-foreground text-xs">
+                    <div className="text-muted-foreground border-border/50 border-t pt-3 text-xs">
                         Created: {format(plant.creationDate, "PPP")} · Last updated: {format(plant.lastUpdateDate, "PPP")}
                     </div>
                 </div>

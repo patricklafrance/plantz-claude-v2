@@ -34,7 +34,7 @@ export const PlantListItem = memo(function PlantListItem({
 
     return (
         <div
-            className={`border-border relative flex h-full items-center gap-3 border-b px-4 py-2.5 transition-colors ${due ? "bg-destructive/5" : "hover:bg-muted/50"}`}
+            className={`border-border relative flex h-full items-center gap-3 border-b px-5 py-2.5 transition-colors ${due ? "bg-terracotta/5 border-l-terracotta border-l-2" : "hover:bg-secondary/40"}`}
         >
             <button
                 type="button"
@@ -49,10 +49,10 @@ export const PlantListItem = memo(function PlantListItem({
             )}
             <div className={`flex min-w-0 flex-1 flex-col gap-0.5 ${PLANT_LIST_GRID} md:items-center md:gap-4`}>
                 <div className="flex w-full items-center gap-2">
-                    <span className="truncate text-sm font-medium">{plant.name}</span>
+                    <span className="truncate text-sm font-semibold">{plant.name}</span>
                     {due && (
                         <>
-                            <Droplets className="text-destructive size-3.5 shrink-0" aria-hidden="true" />
+                            <Droplets className="text-terracotta size-3.5 shrink-0" aria-hidden="true" />
                             <span className="sr-only">Due for watering</span>
                         </>
                     )}

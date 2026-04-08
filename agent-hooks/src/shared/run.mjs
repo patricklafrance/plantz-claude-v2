@@ -2,7 +2,7 @@
 
 import { exec as execCb } from "node:child_process";
 
-const RUN_TIMEOUT = 2 * 60_000; // 2 min per command
+const RUN_TIMEOUT = 5 * 60_000; // 5 min per command
 
 /** Run a command asynchronously. Never rejects — inspect `ok`. */
 export function run(cwd, cmd, opts = {}) {

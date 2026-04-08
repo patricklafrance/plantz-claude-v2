@@ -23,66 +23,74 @@ export function PlantDetailDialog({ plant, open, onOpenChange, onMarkWatered }: 
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>{plant.name}</DialogTitle>
+                    <DialogTitle className="font-display tracking-tight">{plant.name}</DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col gap-3">
                     {plant.description && (
                         <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Description</span>
+                            <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Description</span>
                             <span className="text-sm">{plant.description}</span>
                         </div>
                     )}
                     {plant.family && (
                         <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Family</span>
+                            <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Family</span>
                             <span className="text-sm">{plant.family}</span>
                         </div>
                     )}
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Location</span>
-                            <span className="text-sm">{getOptionLabel(locations, plant.location)}</span>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Luminosity</span>
-                            <span className="text-sm">{getOptionLabel(luminosities, plant.luminosity)}</span>
+                    <div className="bg-secondary/30 rounded-lg p-4">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Location</span>
+                                <span className="text-sm">{getOptionLabel(locations, plant.location)}</span>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Luminosity</span>
+                                <span className="text-sm">{getOptionLabel(luminosities, plant.luminosity)}</span>
+                            </div>
                         </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                        <span className="text-muted-foreground text-xs font-medium">Mist leaves</span>
+                        <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Mist leaves</span>
                         <span className="text-sm">{plant.mistLeaves ? "Yes" : "No"}</span>
                     </div>
                     {plant.soilType && (
                         <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Soil type</span>
+                            <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Soil type</span>
                             <span className="text-sm">{plant.soilType}</span>
                         </div>
                     )}
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Watering frequency</span>
-                            <span className="text-sm">{getOptionLabel(wateringFrequencies, plant.wateringFrequency)}</span>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <span className="text-muted-foreground text-xs font-medium">Watering type</span>
-                            <span className="text-sm">{getOptionLabel(wateringTypes, plant.wateringType)}</span>
+                    <div className="bg-secondary/30 rounded-lg p-4">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Watering frequency</span>
+                                <span className="text-sm">{getOptionLabel(wateringFrequencies, plant.wateringFrequency)}</span>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Watering type</span>
+                                <span className="text-sm">{getOptionLabel(wateringTypes, plant.wateringType)}</span>
+                            </div>
                         </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                        <span className="text-muted-foreground text-xs font-medium">Watering quantity</span>
+                        <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Watering quantity</span>
                         <span className="text-sm">{plant.wateringQuantity}</span>
                     </div>
                     <div className="flex flex-col gap-1">
-                        <span className="text-muted-foreground text-xs font-medium">Next watering date</span>
+                        <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Next watering date</span>
                         <span className="text-sm">{format(plant.nextWateringDate, "PPP")}</span>
                     </div>
-                    <div className="text-muted-foreground text-xs">
+                    <div className="border-border/50 text-muted-foreground border-t pt-3 text-xs">
                         Created: {format(plant.creationDate, "PPP")} · Last updated: {format(plant.lastUpdateDate, "PPP")}
                     </div>
                 </div>
                 <DialogFooter showCloseButton>
                     {onMarkWatered && (
-                        <Button variant="default" className="sm:mr-auto" onClick={onMarkWatered}>
+                        <Button
+                            variant="default"
+                            className="bg-botanical text-botanical-foreground hover:bg-botanical/90 sm:mr-auto"
+                            onClick={onMarkWatered}
+                        >
                             <Droplets data-icon="inline-start" aria-hidden="true" />
                             Mark as Watered
                         </Button>

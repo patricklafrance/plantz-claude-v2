@@ -155,9 +155,9 @@ export function PlantsPage() {
     }
 
     return (
-        <div className="flex flex-col gap-4 p-6">
+        <div className="flex flex-col gap-5 p-8">
             <div className="flex items-center justify-between">
-                <h1 className="text-xl font-semibold">Plants</h1>
+                <h1 className="font-display text-2xl tracking-tight">Plants</h1>
                 <div className="flex items-center gap-2">
                     <Button size="sm" onClick={handleOpenCreate}>
                         <Plus data-icon="inline-start" />
@@ -169,7 +169,7 @@ export function PlantsPage() {
             <FilterBar filters={filters} onFilterChange={updateFilter} onClear={clearFilters} hasActiveFilters={hasActiveFilters} />
 
             {selectedCount > 0 && (
-                <div role="status" className="border-primary/20 bg-primary/5 flex items-center gap-3 rounded-lg border px-4 py-2">
+                <div role="status" className="border-botanical/20 bg-botanical/10 flex items-center gap-3 rounded-lg border px-4 py-2">
                     <span className="text-sm font-medium">{selectedCount} selected</span>
                     <Button variant="default" size="xs" onClick={handleBulkMarkWatered}>
                         Mark selected as Watered
@@ -180,11 +180,11 @@ export function PlantsPage() {
                 </div>
             )}
 
-            <div role="status" aria-live="polite" className="text-muted-foreground text-xs">
+            <div role="status" aria-live="polite" className="text-muted-foreground text-sm font-medium">
                 {plants.length} plant{plants.length !== 1 ? "s" : ""}
             </div>
 
-            <div className="border-border rounded-lg border">
+            <div className="bg-card border-border/50 overflow-hidden rounded-xl border shadow-sm">
                 <PlantListHeader showActions selectAllChecked={allSelected} onToggleSelectAll={toggleAll} />
                 <div ref={listRef} role="list" aria-label="Plants" style={virtualizerContainerStyle}>
                     {virtualizer.getVirtualItems().map(virtualRow => {

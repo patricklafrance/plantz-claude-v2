@@ -53,8 +53,8 @@ export function UserPage() {
 
     return (
         <div className="flex flex-1 items-center justify-center p-6">
-            <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-                <h1 className="text-foreground text-2xl font-semibold">Edit profile</h1>
+            <form onSubmit={handleSubmit} className="bg-card border-border/50 w-full max-w-sm space-y-4 rounded-xl border p-8 shadow-lg">
+                <h1 className="text-foreground font-display text-2xl font-semibold tracking-tight">Edit profile</h1>
                 {error && (
                     <p id="username-error" className="text-destructive text-sm" role="alert">
                         {error}

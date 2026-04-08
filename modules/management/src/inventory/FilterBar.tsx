@@ -24,7 +24,7 @@ function FilterSelect({
 }) {
     return (
         <div className="flex items-center gap-2">
-            <Label className="text-muted-foreground text-xs whitespace-nowrap">{label}</Label>
+            <Label className="text-muted-foreground text-xs font-medium whitespace-nowrap">{label}</Label>
             <Select value={value ?? ""} onValueChange={val => onChange(!val || val === "" ? null : val)}>
                 <SelectTrigger size="sm" className="w-32" aria-label={label}>
                     <SelectValue placeholder="All" />
@@ -46,9 +46,9 @@ function FilterSelect({
 
 export function FilterBar({ filters, onFilterChange, onClear, hasActiveFilters, showDueForWatering = true }: FilterBarProps) {
     return (
-        <div className="border-border bg-muted/30 flex flex-wrap items-center gap-3 rounded-lg border p-3">
+        <div className="bg-card border-border/50 flex flex-wrap items-center gap-3 rounded-xl border p-4 shadow-sm">
             <div className="flex items-center gap-2">
-                <Label htmlFor="filter-name" className="text-muted-foreground text-xs whitespace-nowrap">
+                <Label htmlFor="filter-name" className="text-muted-foreground text-xs font-medium whitespace-nowrap">
                     Name
                 </Label>
                 <Input
@@ -62,7 +62,7 @@ export function FilterBar({ filters, onFilterChange, onClear, hasActiveFilters, 
             <FilterSelect label="Location" value={filters.location} onChange={v => onFilterChange("location", v)} options={locations} />
             <FilterSelect label="Luminosity" value={filters.luminosity} onChange={v => onFilterChange("luminosity", v)} options={luminosities} />
             <div className="flex items-center gap-2">
-                <Label htmlFor="filter-mist" className="text-muted-foreground text-xs whitespace-nowrap">
+                <Label htmlFor="filter-mist" className="text-muted-foreground text-xs font-medium whitespace-nowrap">
                     Mist leaves
                 </Label>
                 <Switch
@@ -73,7 +73,7 @@ export function FilterBar({ filters, onFilterChange, onClear, hasActiveFilters, 
                 />
             </div>
             <div className="flex items-center gap-2">
-                <Label htmlFor="filter-soil" className="text-muted-foreground text-xs whitespace-nowrap">
+                <Label htmlFor="filter-soil" className="text-muted-foreground text-xs font-medium whitespace-nowrap">
                     Soil type
                 </Label>
                 <Input
@@ -93,7 +93,7 @@ export function FilterBar({ filters, onFilterChange, onClear, hasActiveFilters, 
             <FilterSelect label="Type" value={filters.wateringType} onChange={v => onFilterChange("wateringType", v)} options={wateringTypes} />
             {showDueForWatering && (
                 <div className="flex items-center gap-2">
-                    <Label htmlFor="filter-due" className="text-muted-foreground text-xs whitespace-nowrap">
+                    <Label htmlFor="filter-due" className="text-muted-foreground text-xs font-medium whitespace-nowrap">
                         Due for watering
                     </Label>
                     <Switch

@@ -62,7 +62,7 @@
             "entry": ["src/today/index.ts"]
         },
         "packages/components": {
-            "entry": ["rslib.build.ts", "rslib.dev.ts", "postcss.config.mjs"],
+            "entry": ["rslib.build.ts", "rslib.dev.ts", "postcss.config.mjs", "src/index.ts"],
             "ignoreDependencies": ["@tailwindcss/postcss"]
         },
         "apps/storybook-packages": {

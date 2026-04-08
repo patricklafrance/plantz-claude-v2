@@ -21,20 +21,24 @@ export function DeleteConfirmDialog({ open, onOpenChange, plantNames, onConfirm 
         <AlertDialog open={open} onOpenChange={onOpenChange}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Delete {plantNames.length === 1 ? "plant" : "plants"}?</AlertDialogTitle>
+                    <AlertDialogTitle className="font-display tracking-tight">
+                        Delete {plantNames.length === 1 ? "plant" : "plants"}?
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
                         {plantNames.length === 1
                             ? `Are you sure you want to delete "${plantNames[0]}"? This action cannot be undone.`
                             : `Are you sure you want to delete ${plantNames.length} plants? This action cannot be undone.`}
                     </AlertDialogDescription>
                     {plantNames.length > 1 && (
-                        <ul className="text-muted-foreground mt-2 max-h-32 w-full min-w-0 overflow-y-auto text-sm">
-                            {plantNames.map(name => (
-                                <li key={name} className="truncate">
-                                    {name}
-                                </li>
-                            ))}
-                        </ul>
+                        <div className="bg-secondary/30 mt-2 max-h-32 overflow-y-auto rounded-lg p-3">
+                            <ul className="text-muted-foreground w-full min-w-0 text-sm">
+                                {plantNames.map(name => (
+                                    <li key={name} className="truncate">
+                                        {name}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     )}
                 </AlertDialogHeader>
                 <AlertDialogFooter>

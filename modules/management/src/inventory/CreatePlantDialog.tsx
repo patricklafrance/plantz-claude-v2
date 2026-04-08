@@ -102,7 +102,7 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>New plant</DialogTitle>
+                    <DialogTitle className="font-display tracking-tight">New plant</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
