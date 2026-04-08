@@ -21,19 +21,13 @@ export const PlantListItem = memo(function PlantListItem({ plant, selected = fal
     const handleClick = useCallback(() => onClick(plant), [onClick, plant]);
 
     return (
-        <div
-            role="button"
-            tabIndex={0}
+        <button
+            type="button"
             onClick={handleClick}
-            onKeyDown={e => {
-                if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleClick();
-                }
-            }}
             aria-label={`View ${plant.name}`}
-            className={`border-border focus-visible:outline-ring flex h-full cursor-pointer items-center gap-3 border-b px-5 py-2.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] ${PLANT_LIST_GRID} ${due ? "bg-terracotta/5 border-l-terracotta border-l-2" : "hover:bg-secondary/40"}`}
+            className={`border-border focus-visible:outline-ring flex h-full w-full cursor-pointer items-center gap-3 border-b px-5 py-2.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] ${PLANT_LIST_GRID} ${due ? "bg-terracotta/5 border-l-terracotta border-l-2" : "hover:bg-secondary/40"}`}
         >
+            {/* oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- stopPropagation wrapper to isolate checkbox clicks from row button */}
             <div className="flex items-center justify-center" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
                 {onToggleSelect ? (
                     <Checkbox checked={selected} onCheckedChange={() => onToggleSelect(plant.id)} aria-label={`Select ${plant.name}`} />
@@ -56,6 +50,6 @@ export const PlantListItem = memo(function PlantListItem({ plant, selected = fal
             <span className="hidden md:flex md:items-center">
                 {plant.mistLeaves && <Check className="text-muted-foreground size-3.5" aria-label="Mist leaves" />}
             </span>
-        </div>
+        </button>
     );
 });
