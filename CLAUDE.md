@@ -24,6 +24,7 @@
 - [references/ci-cd.md](agent-docs/references/ci-cd.md) — CI workflows
 - [references/static-analysis.md](agent-docs/references/static-analysis.md) — lint tools
 - [references/agent-browser.md](agent-docs/references/agent-browser.md) — browser verification CLI
+- [references/ui-ux-design.md](agent-docs/references/ui-ux-design.md) — UI/UX design thinking principles
 
 ### Decisions
 
