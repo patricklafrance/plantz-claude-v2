@@ -9,8 +9,104 @@
  * the main metrics file.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+
+// ── Metrics directory ──────────────────────────────────────
+
+/**
+ * Resolve the persistent metrics directory for this run.
+ * On first call, bootstraps `.adlc-metrics/{timestamp}_{branch}/` and
+ * writes a pointer to `.adlc/metrics-dir`. Subsequent calls read the pointer.
+ */
+function resolveMetricsDir(cwd) {
+    const pointerPath = resolve(cwd, ".adlc", "metrics-dir");
+    try {
+        const dir = readFileSync(pointerPath, "utf8").trim();
+        if (existsSync(dir)) {
+            return dir;
+        }
+    } catch {
+        // Missing pointer — bootstrap below.
+    }
+
+    const head = readFileSync(resolve(cwd, ".git", "HEAD"), "utf8").trim();
+    const branch = head.startsWith("ref: refs/heads/") ? head.slice(16) : head.slice(0, 8);
+    const timestamp = new Date()
+        .toISOString()
+        .replace(/:/g, "-")
+        .replace(/\.\d+Z$/, "");
+    const folderName = `${timestamp}_${branch.replace(/\//g, "-")}`;
+    const metricsDir = resolve(cwd, ".adlc-metrics", folderName);
+
+    for (const sub of ["run-details", "slices", "challenges", "verification-results"]) {
+        mkdirSync(resolve(metricsDir, sub), { recursive: true });
+    }
+
+    try {
+        writeFileSync(pointerPath, metricsDir);
+    } catch {
+        // .adlc/ may not exist yet — metrics dir still works.
+    }
+
+    return metricsDir;
+}
+
+// ── Artifact archival ──────────────────────────────────────
+
+/**
+ * Copy workflow artifacts to the persistent metrics folder when a gate passes.
+ * Called from subagent-stop after a successful (problems-free) agent run.
+ */
+export function archiveArtifacts(agentType, cwd) {
+    const metricsDir = resolveMetricsDir(cwd);
+
+    switch (agentType) {
+        case "_adlc-placement-gate":
+            if (!existsSync(resolve(cwd, ".adlc", "placement-gate-revision.md"))) {
+                copyIfExists(resolve(cwd, ".adlc", "domain-mapping.md"), resolve(metricsDir, "domain-mapping.md"));
+                copyDirContents(resolve(cwd, ".adlc", "challenges"), resolve(metricsDir, "challenges"));
+            }
+            break;
+        case "_adlc-plan-gate":
+            if (!existsSync(resolve(cwd, ".adlc", "plan-gate-revision.md"))) {
+                copyIfExists(resolve(cwd, ".adlc", "plan-header.md"), resolve(metricsDir, "plan-header.md"));
+                copyDirContents(resolve(cwd, ".adlc", "slices"), resolve(metricsDir, "slices"));
+            }
+            break;
+        case "_adlc-reviewer": {
+            const sliceId = detectSlice(cwd);
+            if (sliceId) {
+                copyIfExists(resolve(cwd, ".adlc", "verification-results.md"), resolve(metricsDir, "verification-results", `${sliceId}.md`));
+            }
+            break;
+        }
+    }
+}
+
+function copyIfExists(src, dest) {
+    try {
+        copyFileSync(src, dest);
+    } catch {
+        // Source missing — skip.
+    }
+}
+
+function copyDirContents(srcDir, destDir) {
+    let files;
+    try {
+        files = readdirSync(srcDir);
+    } catch {
+        return; // Source dir missing.
+    }
+    for (const file of files) {
+        try {
+            copyFileSync(resolve(srcDir, file), resolve(destDir, file));
+        } catch {
+            // Single file failed (e.g. subdirectory) — continue with the rest.
+        }
+    }
+}
 
 /**
  * @param {string} transcriptPath  Absolute path to the agent's .jsonl transcript
@@ -27,7 +123,8 @@ export function recordMetrics(transcriptPath, agentType, cwd) {
         return;
     }
 
-    const metricsPath = resolve(cwd, ".adlc", "run-metrics.json");
+    const metricsDir = resolveMetricsDir(cwd);
+    const metricsPath = resolve(metricsDir, "run-metrics.json");
 
     let metrics;
     try {
@@ -42,9 +139,9 @@ export function recordMetrics(transcriptPath, agentType, cwd) {
     // Write detail file
     const runIndex = metrics.runs.length + 1;
     const detailsFile = `run-details/${String(runIndex).padStart(3, "0")}-${agentType}.json`;
-    const detailsPath = resolve(cwd, ".adlc", detailsFile);
+    const detailsPath = resolve(metricsDir, detailsFile);
 
-    const detailsDir = resolve(cwd, ".adlc", "run-details");
+    const detailsDir = resolve(metricsDir, "run-details");
     if (!existsSync(detailsDir)) {
         mkdirSync(detailsDir, { recursive: true });
     }

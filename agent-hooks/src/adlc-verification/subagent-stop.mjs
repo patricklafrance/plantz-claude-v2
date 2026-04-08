@@ -20,7 +20,7 @@ import handlePlacementGate from "./placement-gate/handler.mjs";
 import handlePlanGate from "./plan-gate/handler.mjs";
 import handlePlanner from "./planner/handler.mjs";
 import handleReviewer from "./reviewer/handler.mjs";
-import { recordMetrics } from "./run-metrics.mjs";
+import { archiveArtifacts, recordMetrics } from "./run-metrics.mjs";
 import handleSimplify from "./simplify/handler.mjs";
 // ── Stdin ──────────────────────────────────────────────────
 
@@ -72,6 +72,7 @@ const problems = await Promise.resolve(handle(cwd));
 
 if (problems.length === 0) {
     recordMetrics(transcriptPath, agentType, cwd);
+    archiveArtifacts(agentType, cwd);
     process.exit(0);
 }
 
