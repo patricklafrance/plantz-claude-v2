@@ -1,13 +1,15 @@
 export function PlantzLogo({ className }: { className?: string }) {
     return (
         <svg viewBox="0 0 140 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} aria-label="Plantz">
-            <g>
-                {/* Main leaf — elegant curve */}
-                <path d="M10 28C10 28 7 20 11 13C15 6 22 4 22 4C22 4 16 9 13 16C10 23 10 28 10 28Z" fill="currentColor" opacity="0.65" />
-                {/* Secondary leaf — lighter, overlapping */}
-                <path d="M14 28C14 28 19 19 16 12C13 5 6 2 6 2C6 2 11 8 12.5 15C14 22 14 28 14 28Z" fill="currentColor" opacity="0.4" />
-                {/* Stem — thin, organic */}
-                <path d="M12 14C12 18 11.5 24 11.5 30" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" fill="none" />
+            <g transform="translate(3,2)">
+                {/* Stem */}
+                <path d="M10 28 C10 22 9 18 10 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.7" />
+                {/* Left leaf */}
+                <path d="M10 12 C7 9 1 7 0 4 C3 6 7 6 10 8" fill="currentColor" opacity="0.55" />
+                {/* Right leaf */}
+                <path d="M10 15 C14 12 19 11 21 8 C18 11 14 12 10 13" fill="currentColor" opacity="0.7" />
+                {/* Small accent leaf */}
+                <path d="M10 19 C8 17 4 16 3 14 C5 16 8 16 10 17" fill="currentColor" opacity="0.4" />
             </g>
             <text x="28" y="24" fontFamily="'Fraunces', Georgia, serif" fontWeight="600" fontSize="20" fill="currentColor" letterSpacing="-0.5">
                 Plantz
