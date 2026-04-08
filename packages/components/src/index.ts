@@ -49,3 +49,5 @@ export { Separator } from "./components/ui/separator.tsx";
 export { Checkbox } from "./components/ui/checkbox.tsx";
 export { Badge, badgeVariants } from "./components/ui/badge.tsx";
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./components/ui/tooltip.tsx";
+export { Toaster } from "./components/ui/sonner.tsx";
+export { toast } from "sonner";

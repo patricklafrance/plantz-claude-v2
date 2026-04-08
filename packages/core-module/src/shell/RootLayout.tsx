@@ -8,6 +8,8 @@ import {
 } from "@squide/firefly";
 import { Link, Outlet } from "react-router";
 
+import { Toaster } from "@packages/components";
+
 import { PlantzLogo } from "./PlantzLogo.tsx";
 import { UserMenu } from "./UserMenu.tsx";
 
@@ -46,6 +48,7 @@ export function RootLayout() {
         return (
             <main className="text-foreground flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,var(--botanical)_0%,var(--background)_50%)] opacity-95">
                 <Outlet />
+                <Toaster position="bottom-right" />
             </main>
         );
     }
@@ -70,6 +73,7 @@ export function RootLayout() {
             <main id="main-content" className="flex-1">
                 <Outlet />
             </main>
+            <Toaster position="bottom-right" />
         </div>
     );
 }

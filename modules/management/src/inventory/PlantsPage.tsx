@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { useState, useRef, useMemo, useCallback } from "react";
 
 import type { Plant } from "@packages/api/entities/plants";
-import { Button } from "@packages/components";
+import { Button, toast } from "@packages/components";
 
 import { CreatePlantDialog } from "./CreatePlantDialog.tsx";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog.tsx";
@@ -24,7 +24,7 @@ export function PlantsPage() {
     const [deleteTarget, setDeleteTarget] = useState<Plant[] | null>(null);
     const listRef = useRef<HTMLDivElement>(null);
 
-    const { data: allPlants, isPending } = useManagementPlants();
+    const { data: allPlants, isPending, isError } = useManagementPlants();
     const deletePlantMutation = useDeletePlant();
     const deletePlantsMutation = useDeletePlants();
 
@@ -82,10 +82,18 @@ export function PlantsPage() {
             return;
         }
         const ids = deleteTarget.map(p => p.id);
-        if (ids.length === 1) {
-            deletePlantMutation.mutate(ids[0]!);
+        const count = ids.length;
+        const label = count === 1 ? deleteTarget[0]!.name : `${count} plants`;
+        if (count === 1) {
+            deletePlantMutation.mutate(ids[0]!, {
+                onSuccess: () => toast.success(`${label} deleted`),
+                onError: () => toast.error(`Failed to delete ${label}`)
+            });
         } else {
-            deletePlantsMutation.mutate(ids);
+            deletePlantsMutation.mutate(ids, {
+                onSuccess: () => toast.success(`${label} deleted`),
+                onError: () => toast.error(`Failed to delete ${label}`)
+            });
         }
         setSelectedIds(prev => {
             const next = new Set(prev);
@@ -148,8 +156,17 @@ export function PlantsPage() {
 
     if (isPending) {
         return (
-            <div className="flex items-center justify-center p-6">
+            <div className="flex items-center justify-center p-12">
                 <p className="text-muted-foreground text-sm">Loading plants...</p>
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="flex flex-col items-center justify-center gap-2 p-12">
+                <p className="text-destructive text-sm font-medium">Failed to load plants</p>
+                <p className="text-muted-foreground text-xs">Please try refreshing the page.</p>
             </div>
         );
     }
@@ -184,35 +201,42 @@ export function PlantsPage() {
                 {plants.length} plant{plants.length !== 1 ? "s" : ""}
             </div>
 
-            <div className="bg-card border-border/50 overflow-hidden rounded-xl border shadow-sm">
-                <PlantListHeader showActions selectAllChecked={allSelected} onToggleSelectAll={toggleAll} />
-                <div ref={listRef} role="list" aria-label="Plants" style={virtualizerContainerStyle}>
-                    {virtualizer.getVirtualItems().map(virtualRow => {
-                        const plant = plants[virtualRow.index]!;
-                        // oxlint-disable-next-line react-perf/jsx-no-new-object-as-prop -- Virtual row positioning requires per-item inline styles
-                        const rowStyle = {
-                            position: "absolute" as const,
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: `${virtualRow.size}px`,
-                            transform: `translateY(${virtualRow.start - virtualizer.options.scrollMargin}px)`
-                        };
-                        return (
-                            <div key={plant.id} role="listitem" style={rowStyle}>
-                                <PlantListItem
-                                    plant={plant}
-                                    selected={selectedIds.has(plant.id)}
-                                    onToggleSelect={toggleSelect}
-                                    onEdit={handleEditPlant}
-                                    onDelete={handleDeleteSingle}
-                                    onMarkWatered={handleMarkWatered}
-                                />
-                            </div>
-                        );
-                    })}
+            {plants.length === 0 ? (
+                <div className="bg-card border-border/50 flex flex-col items-center justify-center gap-2 rounded-xl border p-12 shadow-sm">
+                    <p className="text-muted-foreground text-sm font-medium">No plants yet</p>
+                    <p className="text-muted-foreground text-xs">Add your first plant to get started.</p>
                 </div>
-            </div>
+            ) : (
+                <div className="bg-card border-border/50 overflow-hidden rounded-xl border shadow-sm">
+                    <PlantListHeader selectAllChecked={allSelected} onToggleSelectAll={toggleAll} />
+                    <div ref={listRef} role="list" aria-label="Plants" style={virtualizerContainerStyle}>
+                        {virtualizer.getVirtualItems().map(virtualRow => {
+                            const plant = plants[virtualRow.index]!;
+                            // oxlint-disable-next-line react-perf/jsx-no-new-object-as-prop -- Virtual row positioning requires per-item inline styles
+                            const rowStyle = {
+                                position: "absolute" as const,
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: `${virtualRow.size}px`,
+                                transform: `translateY(${virtualRow.start - virtualizer.options.scrollMargin}px)`
+                            };
+                            return (
+                                <div key={plant.id} role="listitem" style={rowStyle}>
+                                    <PlantListItem
+                                        plant={plant}
+                                        selected={selectedIds.has(plant.id)}
+                                        onToggleSelect={toggleSelect}
+                                        onEdit={handleEditPlant}
+                                        onDelete={handleDeleteSingle}
+                                        onMarkWatered={handleMarkWatered}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
             <CreatePlantDialog open={createOpen} onOpenChange={setCreateOpen} />
             <EditPlantDialog

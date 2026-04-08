@@ -17,7 +17,8 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-    DatePicker
+    DatePicker,
+    Separator
 } from "@packages/components";
 
 import { locations, luminosities, wateringFrequencies, wateringTypes } from "./constants.ts";
@@ -104,171 +105,190 @@ export function CreatePlantDialog({ open, onOpenChange, defaultFirstWateringDate
                 <DialogHeader>
                     <DialogTitle className="font-display tracking-tight">New plant</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="create-name">Name *</Label>
-                        <Input
-                            id="create-name"
-                            value={name}
-                            onChange={e => setName(e.target.value)}
-                            placeholder="Plant name"
-                            aria-required="true"
-                            aria-invalid={name.trim() === "" && name !== ""}
-                            aria-describedby={name.trim() === "" && name !== "" ? "create-name-error" : undefined}
-                        />
-                        {name.trim() === "" && name !== "" && (
-                            <p id="create-name-error" role="alert" className="text-destructive text-xs">
-                                Name is required.
-                            </p>
-                        )}
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="create-description">Description</Label>
-                        <Textarea
-                            id="create-description"
-                            value={description}
-                            onChange={e => setDescription(e.target.value)}
-                            placeholder="Optional description"
-                        />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="create-family">Family</Label>
-                        <Input id="create-family" value={family} onChange={e => setFamily(e.target.value)} placeholder="Plant family" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                    {/* About */}
+                    <fieldset className="flex flex-col gap-3">
+                        <legend className="text-muted-foreground mb-1 text-xs font-semibold tracking-wider uppercase">About</legend>
                         <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="create-location">Location *</Label>
-                            <Select
-                                value={location}
-                                onValueChange={v => {
-                                    if (v) {
-                                        setLocation(v);
-                                    }
-                                }}
-                            >
-                                <SelectTrigger id="create-location" className="w-full" aria-required="true">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        {locations.map(l => (
-                                            <SelectItem key={l.id} value={l.id}>
-                                                {l.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                            <Label htmlFor="create-name">Name *</Label>
+                            <Input
+                                id="create-name"
+                                value={name}
+                                onChange={e => setName(e.target.value)}
+                                placeholder="Plant name"
+                                aria-required="true"
+                                aria-invalid={name.trim() === "" && name !== ""}
+                                aria-describedby={name.trim() === "" && name !== "" ? "create-name-error" : undefined}
+                            />
+                            {name.trim() === "" && name !== "" && (
+                                <p id="create-name-error" role="alert" className="text-destructive text-xs">
+                                    Name is required.
+                                </p>
+                            )}
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="create-luminosity">Luminosity *</Label>
-                            <Select
-                                value={luminosity}
-                                onValueChange={v => {
-                                    if (v) {
-                                        setLuminosity(v);
-                                    }
-                                }}
-                            >
-                                <SelectTrigger id="create-luminosity" className="w-full" aria-required="true">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        {luminosities.map(l => (
-                                            <SelectItem key={l.id} value={l.id}>
-                                                {l.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Label htmlFor="create-mist">Mist leaves *</Label>
-                        <Switch id="create-mist" checked={mistLeaves} onCheckedChange={setMistLeaves} />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="create-soil">Soil type</Label>
-                        <Input id="create-soil" value={soilType} onChange={e => setSoilType(e.target.value)} placeholder="Soil type" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="create-watering-frequency">Watering frequency *</Label>
-                            <Select
-                                value={wateringFrequency}
-                                onValueChange={v => {
-                                    if (v) {
-                                        setWateringFrequency(v);
-                                    }
-                                }}
-                            >
-                                <SelectTrigger id="create-watering-frequency" className="w-full" aria-required="true">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        {wateringFrequencies.map(f => (
-                                            <SelectItem key={f.id} value={f.id}>
-                                                {f.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                            <Label htmlFor="create-description">Description</Label>
+                            <Textarea
+                                id="create-description"
+                                value={description}
+                                onChange={e => setDescription(e.target.value)}
+                                placeholder="Optional description"
+                            />
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="create-watering-type">Watering type *</Label>
-                            <Select
-                                value={wateringType}
-                                onValueChange={v => {
-                                    if (v) {
-                                        setWateringType(v);
-                                    }
-                                }}
-                            >
-                                <SelectTrigger id="create-watering-type" className="w-full" aria-required="true">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        {wateringTypes.map(t => (
-                                            <SelectItem key={t.id} value={t.id}>
-                                                {t.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                            <Label htmlFor="create-family">Family</Label>
+                            <Input id="create-family" value={family} onChange={e => setFamily(e.target.value)} placeholder="Plant family" />
                         </div>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="create-quantity">Watering quantity *</Label>
-                        <Input
-                            id="create-quantity"
-                            value={wateringQuantity}
-                            onChange={e => setWateringQuantity(e.target.value)}
-                            placeholder="e.g. 200ml"
-                            aria-required="true"
-                            aria-invalid={wateringQuantity.trim() === "" && wateringQuantity !== ""}
-                            aria-describedby={wateringQuantity.trim() === "" && wateringQuantity !== "" ? "create-quantity-error" : undefined}
-                        />
-                        {wateringQuantity.trim() === "" && wateringQuantity !== "" && (
-                            <p id="create-quantity-error" role="alert" className="text-destructive text-xs">
-                                Watering quantity is required.
-                            </p>
-                        )}
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label>First watering date *</Label>
-                        <DatePicker
-                            value={firstWateringDate}
-                            onChange={setFirstWateringDate}
-                            placeholder="Pick a date"
-                            aria-label="First watering date"
-                        />
-                    </div>
+                    </fieldset>
+
+                    <Separator />
+
+                    {/* Environment */}
+                    <fieldset className="flex flex-col gap-3">
+                        <legend className="text-muted-foreground mb-1 text-xs font-semibold tracking-wider uppercase">Environment</legend>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <Label htmlFor="create-location">Location *</Label>
+                                <Select
+                                    value={location}
+                                    onValueChange={v => {
+                                        if (v) {
+                                            setLocation(v);
+                                        }
+                                    }}
+                                >
+                                    <SelectTrigger id="create-location" className="w-full" aria-required="true">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            {locations.map(l => (
+                                                <SelectItem key={l.id} value={l.id}>
+                                                    {l.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <Label htmlFor="create-luminosity">Luminosity *</Label>
+                                <Select
+                                    value={luminosity}
+                                    onValueChange={v => {
+                                        if (v) {
+                                            setLuminosity(v);
+                                        }
+                                    }}
+                                >
+                                    <SelectTrigger id="create-luminosity" className="w-full" aria-required="true">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            {luminosities.map(l => (
+                                                <SelectItem key={l.id} value={l.id}>
+                                                    {l.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <Label htmlFor="create-mist">Mist leaves *</Label>
+                            <Switch id="create-mist" checked={mistLeaves} onCheckedChange={setMistLeaves} />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <Label htmlFor="create-soil">Soil type</Label>
+                            <Input id="create-soil" value={soilType} onChange={e => setSoilType(e.target.value)} placeholder="Soil type" />
+                        </div>
+                    </fieldset>
+
+                    <Separator />
+
+                    {/* Watering */}
+                    <fieldset className="flex flex-col gap-3">
+                        <legend className="text-muted-foreground mb-1 text-xs font-semibold tracking-wider uppercase">Watering</legend>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <Label htmlFor="create-watering-frequency">Frequency *</Label>
+                                <Select
+                                    value={wateringFrequency}
+                                    onValueChange={v => {
+                                        if (v) {
+                                            setWateringFrequency(v);
+                                        }
+                                    }}
+                                >
+                                    <SelectTrigger id="create-watering-frequency" className="w-full" aria-required="true">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            {wateringFrequencies.map(f => (
+                                                <SelectItem key={f.id} value={f.id}>
+                                                    {f.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <Label htmlFor="create-watering-type">Type *</Label>
+                                <Select
+                                    value={wateringType}
+                                    onValueChange={v => {
+                                        if (v) {
+                                            setWateringType(v);
+                                        }
+                                    }}
+                                >
+                                    <SelectTrigger id="create-watering-type" className="w-full" aria-required="true">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            {wateringTypes.map(t => (
+                                                <SelectItem key={t.id} value={t.id}>
+                                                    {t.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <Label htmlFor="create-quantity">Quantity *</Label>
+                            <Input
+                                id="create-quantity"
+                                value={wateringQuantity}
+                                onChange={e => setWateringQuantity(e.target.value)}
+                                placeholder="e.g. 200ml"
+                                aria-required="true"
+                                aria-invalid={wateringQuantity.trim() === "" && wateringQuantity !== ""}
+                                aria-describedby={wateringQuantity.trim() === "" && wateringQuantity !== "" ? "create-quantity-error" : undefined}
+                            />
+                            {wateringQuantity.trim() === "" && wateringQuantity !== "" && (
+                                <p id="create-quantity-error" role="alert" className="text-destructive text-xs">
+                                    Watering quantity is required.
+                                </p>
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <Label>First watering date *</Label>
+                            <DatePicker
+                                value={firstWateringDate}
+                                onChange={setFirstWateringDate}
+                                placeholder="Pick a date"
+                                aria-label="First watering date"
+                            />
+                        </div>
+                    </fieldset>
+
                     <DialogFooter>
                         <Button variant="outline" type="button" onClick={() => handleOpenChange(false)}>
                             Cancel
