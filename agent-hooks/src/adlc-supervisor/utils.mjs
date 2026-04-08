@@ -33,6 +33,16 @@ export function isScreenshotCommand(command) {
     return isBrowserCommand(command) && /\bscreenshot\b/.test(command);
 }
 
+export function extractBrowserTarget(command) {
+    if (!isBrowserCommand(command)) {
+        return null;
+    }
+
+    const match = String(command).match(/agent-browser\s+open\s+(https?:\/\/\S+)/);
+
+    return match ? match[1] : null;
+}
+
 export function isTestCommand(command) {
     return /\b(pnpm\s+(--filter\s+\S+\s+)?test\b|pnpm\s+turbo\s+run\s+test\b|vitest\b)/.test(command);
 }

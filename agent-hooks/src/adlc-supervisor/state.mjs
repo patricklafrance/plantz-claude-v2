@@ -8,11 +8,12 @@ const DEFAULT_STATE = {
     eventCount: 0,
     recentEvents: [],
     browser: {
-        consecutiveCalls: 0,
         totalCalls: 0,
         screenshotNudgeFired: false,
         recoveryTier: 0,
-        nonBrowserSinceRecovery: 0
+        nonBrowserSinceRecovery: 0,
+        currentTarget: null,
+        sameTargetCalls: 0
     },
     test: {
         consecutiveWithoutEdit: 0,
@@ -81,17 +82,30 @@ export function applyEventToState(state, event) {
     state.recentEvents = state.recentEvents.filter(item => item.index > event.index - RECENT_EVENT_WINDOW);
 
     if (event.toolName !== "Bash" || !event.isBrowserCommand) {
-        state.browser.consecutiveCalls = 0;
         state.browser.nonBrowserSinceRecovery += 1;
     }
 
     if (event.toolName === "Bash" && event.isBrowserCommand) {
-        state.browser.consecutiveCalls += 1;
         state.browser.totalCalls += 1;
+
+        // Repetition tracking: count browser commands on the same page.
+        if (event.browserTarget != null) {
+            // "open" command — new page or same page revisited.
+            if (event.browserTarget !== state.browser.currentTarget) {
+                state.browser.currentTarget = event.browserTarget;
+                state.browser.sameTargetCalls = 1;
+            } else {
+                state.browser.sameTargetCalls += 1;
+            }
+        } else {
+            // Non-open browser command (eval, screenshot, etc.) — stays on current page.
+            state.browser.sameTargetCalls += 1;
+        }
     }
 
-    // Test thrash tracking: Edit/Write resets the edit-gap counter.
+    // Edit/Write means the agent is making progress — reset repetition counter.
     if (event.toolName === "Edit" || event.toolName === "Write") {
+        state.browser.sameTargetCalls = 0;
         state.test.consecutiveWithoutEdit = 0;
         state.test.editsSinceRecovery += 1;
     }

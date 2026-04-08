@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { handlePreTool } from "../../src/adlc-supervisor/handler.mjs";
-import { BROWSER_DENSITY_MIN_CALLS, BROWSER_TOTAL_BUDGET } from "../../src/adlc-supervisor/policies/browser-thrash.mjs";
+import { BROWSER_DENSITY_MIN_CALLS, BROWSER_TOTAL_BUDGET, SAME_TARGET_THRESHOLD } from "../../src/adlc-supervisor/policies/browser-thrash.mjs";
 import { readState, writeState } from "../../src/adlc-supervisor/state.mjs";
 
 describe("supervisor handler", () => {
@@ -192,6 +192,106 @@ describe("supervisor handler", () => {
         expect(result.reason).toContain("pnpm exec agent-browser");
     });
 
+    // --- Same-target repetition detection ---
+
+    it("triggers recovery when same-page browser calls reach threshold", () => {
+        // Suppress the screenshot nudge first.
+        handlePreTool("Bash", { command: "agent-browser screenshot" }, tmp);
+
+        // Open a page, then probe it repeatedly.
+        handlePreTool("Bash", { command: "agent-browser open http://localhost:6006/?path=/story/foo--bar" }, tmp);
+
+        for (let i = 0; i < SAME_TARGET_THRESHOLD - 2; i++) {
+            // Interleave Read calls (like viewing screenshots) — these should NOT reset the counter.
+            handlePreTool("Read", { file_path: "screenshot.png" }, tmp);
+            const result = handlePreTool("Bash", { command: "agent-browser eval document.title" }, tmp);
+            expect(result.action).toBe("allow");
+        }
+
+        // Next browser call crosses the threshold.
+        const result = handlePreTool("Bash", { command: "agent-browser eval document.title" }, tmp);
+        expect(result.action).toBe("block");
+        expect(result.reason).toContain("Same-page repetition detected");
+        expect(result.reason).toContain("_browser-recovery");
+    });
+
+    it("resets repetition counter when a different URL is opened", () => {
+        handlePreTool("Bash", { command: "agent-browser screenshot" }, tmp); // nudge
+
+        // Open page A, probe it near threshold — interleave Reads to avoid density trigger.
+        handlePreTool("Bash", { command: "agent-browser open http://localhost:6006/?path=/story/foo--bar" }, tmp);
+        for (let i = 0; i < SAME_TARGET_THRESHOLD - 3; i++) {
+            handlePreTool("Read", { file_path: "screenshot.png" }, tmp);
+            handlePreTool("Bash", { command: "agent-browser eval document.title" }, tmp);
+        }
+
+        // Open a DIFFERENT URL — resets the counter.
+        handlePreTool("Read", { file_path: "screenshot.png" }, tmp);
+        handlePreTool("Bash", { command: "agent-browser open http://localhost:6006/?path=/story/other--story" }, tmp);
+
+        // Continue probing the new page — should have a fresh count.
+        for (let i = 0; i < SAME_TARGET_THRESHOLD - 3; i++) {
+            handlePreTool("Read", { file_path: "screenshot.png" }, tmp);
+            const result = handlePreTool("Bash", { command: "agent-browser eval document.title" }, tmp);
+            expect(result.action).toBe("allow");
+        }
+
+        expect(readState(tmp).browser.sameTargetCalls).toBeLessThan(SAME_TARGET_THRESHOLD);
+    });
+
+    it("resets repetition counter on Edit", () => {
+        handlePreTool("Bash", { command: "agent-browser screenshot" }, tmp); // nudge
+
+        // Probe a page near threshold — interleave Reads to avoid density trigger.
+        handlePreTool("Bash", { command: "agent-browser open http://localhost:6006/?path=/story/foo--bar" }, tmp);
+        for (let i = 0; i < SAME_TARGET_THRESHOLD - 3; i++) {
+            handlePreTool("Read", { file_path: "screenshot.png" }, tmp);
+            handlePreTool("Bash", { command: "agent-browser eval document.title" }, tmp);
+        }
+
+        // Edit a file — agent is making progress, counter resets.
+        handlePreTool("Edit", { file_path: "src/Component.tsx", old_string: "a", new_string: "b" }, tmp);
+        expect(readState(tmp).browser.sameTargetCalls).toBe(0);
+
+        // Can resume browser work without triggering.
+        const result = handlePreTool("Bash", { command: "agent-browser eval document.title" }, tmp);
+        expect(result.action).toBe("allow");
+    });
+
+    it("does not count open command toward previous target when URL changes", () => {
+        handlePreTool("Bash", { command: "agent-browser screenshot" }, tmp); // nudge
+
+        // Open page A, probe it near threshold — interleave Reads to avoid density trigger.
+        handlePreTool("Bash", { command: "agent-browser open http://localhost:6006/?path=/story/page-a" }, tmp);
+        for (let i = 0; i < SAME_TARGET_THRESHOLD - 3; i++) {
+            handlePreTool("Read", { file_path: "screenshot.png" }, tmp);
+            handlePreTool("Bash", { command: "agent-browser eval document.title" }, tmp);
+        }
+
+        // Open page B — should NOT trigger even though total browser calls are high.
+        handlePreTool("Read", { file_path: "screenshot.png" }, tmp);
+        const result = handlePreTool("Bash", { command: "agent-browser open http://localhost:6006/?path=/story/page-b" }, tmp);
+        expect(result.action).toBe("allow");
+        expect(readState(tmp).browser.sameTargetCalls).toBe(1);
+    });
+
+    it("counts reopening the same URL as repetition", () => {
+        handlePreTool("Bash", { command: "agent-browser screenshot" }, tmp); // nudge
+
+        // Open the same URL repeatedly — interleave Reads to avoid density trigger.
+        // The open that pushes sameTargetCalls to SAME_TARGET_THRESHOLD should trigger.
+        for (let i = 0; i < SAME_TARGET_THRESHOLD - 1; i++) {
+            handlePreTool("Read", { file_path: "screenshot.png" }, tmp);
+            handlePreTool("Bash", { command: "agent-browser open http://localhost:6006/?path=/story/foo--bar" }, tmp);
+        }
+
+        // This open is the Nth call on the same target — triggers repetition.
+        handlePreTool("Read", { file_path: "screenshot.png" }, tmp);
+        const result = handlePreTool("Bash", { command: "agent-browser open http://localhost:6006/?path=/story/foo--bar" }, tmp);
+        expect(result.action).toBe("block");
+        expect(result.reason).toContain("Same-page repetition detected");
+    });
+
     // --- Event logging ---
 
     it("logs events to .adlc/supervisor-events.jsonl", () => {
@@ -210,16 +310,6 @@ describe("supervisor handler", () => {
     });
 
     // --- State tracking ---
-
-    it("resets browser consecutive calls on non-browser tool activity", () => {
-        handlePreTool("Bash", { command: "pnpm exec agent-browser snapshot -i -c" }, tmp);
-        handlePreTool("Bash", { command: "pnpm exec agent-browser snapshot -i -c" }, tmp);
-
-        expect(readState(tmp).browser.consecutiveCalls).toBe(2);
-
-        handlePreTool("Read", { file_path: "README.md" }, tmp);
-        expect(readState(tmp).browser.consecutiveCalls).toBe(0);
-    });
 
     it("increments nonBrowserSinceRecovery on non-browser calls", () => {
         handlePreTool("Read", { file_path: "README.md" }, tmp);

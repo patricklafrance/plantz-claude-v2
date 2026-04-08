@@ -1,21 +1,37 @@
 /**
- * Browser thrash policy — density-based detection with recovery tiers.
+ * Browser thrash policy — dual detection with recovery tiers.
  *
- * Detects browser interaction spirals by measuring browser-call density in the
- * rolling event window. When triggered, suggests the _browser-recovery skill
- * and gates further browser calls behind non-browser work.
+ * Two orthogonal detectors catch different stuck patterns:
+ * - Density (rolling window) — cross-page eval spirals where the agent jumps
+ *   URLs without editing code. Resets naturally as non-browser events enter
+ *   the window. Threshold 0.75 in 12 events.
+ * - Repetition (counter) — same-page probing loops where the agent screenshots
+ *   or evals the same URL repeatedly without editing code. Resets on Edit/Write
+ *   or URL change. Threshold 8 calls.
  *
- * Four checks in priority order:
+ * Both are needed because reviewers legitimately make 25-34 browser calls with
+ * 0-2 edits across 7-13 distinct URLs (~3.5 calls/URL). A unified "calls since
+ * Edit/Write" counter would false-positive on every reviewer run. The URL-change
+ * reset on repetition and the rolling window on density prevent this.
+ *
+ * Five checks in priority order:
  * 1. Gate enforcement — blocks browser calls until non-browser work is done
- * 2. Density detection — identifies stuck loops, escalates through tiers
- * 3. Total budget — hard cap on browser calls per run
- * 4. Screenshot nudge — one-time suggestion on first screenshot
+ * 2. Density detection — catches cross-page spirals, escalates through tiers
+ * 3. Repetition detection — catches same-page probing loops
+ * 4. Total budget — hard cap on browser calls per run
+ * 5. Screenshot nudge — one-time suggestion on first screenshot
  */
 
 // Total browser calls allowed per agent run. Raised from 30 to 50 to
 // accommodate recovery overhead (the agent may legitimately return to the
 // browser after doing non-browser recovery work).
 export const BROWSER_TOTAL_BUDGET = 50;
+
+// Same-target repetition: when the agent makes this many browser calls
+// targeting the same page without an Edit/Write (i.e., without making
+// progress), it is likely stuck probing the same state. This catches
+// screenshot-then-Read loops that evade density detection.
+export const SAME_TARGET_THRESHOLD = 8;
 
 // Density threshold: when this fraction of recent events are browser commands,
 // the agent is likely stuck. 0.75 = 9 out of 12 events.
@@ -99,6 +115,21 @@ function tier2Message(density, recentEvents) {
     ].join("\n");
 }
 
+function repetitionMessage(sameTargetCalls, currentTarget) {
+    const targetDisplay = currentTarget ? `on ${currentTarget}` : "on the same page";
+
+    return [
+        `[runtime-supervisor] Same-page repetition detected: ${sameTargetCalls} browser calls ${targetDisplay} without editing any code.`,
+        "",
+        "You are likely probing the same state repeatedly. Stop and read the source",
+        "code of the component to understand why it renders this way.",
+        "",
+        "Load the _browser-recovery skill to diagnose and plan alternative approaches.",
+        "",
+        `Your next browser command will be allowed after ${TIER_GATES[1]} non-browser tool calls.`
+    ].join("\n");
+}
+
 function totalBudgetMessage(totalCalls) {
     return [
         `[runtime-supervisor] Browser call budget exceeded (${totalCalls}/${BROWSER_TOTAL_BUDGET}).`,
@@ -133,8 +164,9 @@ export default function checkBrowserThrash(event, state) {
         // Gate satisfied — fall through to density/budget checks.
     }
 
-    // 2. Density-based detection — only after enough calls to be meaningful.
-    //    Uses severity "recovery" so the handler escalates the tier and resets state.
+    // 2. Density-based detection — catches cross-page eval spirals where the
+    //    agent jumps between URLs (resetting the repetition counter each time).
+    //    Only after enough calls to be meaningful.
     if (state.browser.totalCalls >= BROWSER_DENSITY_MIN_CALLS) {
         const density = browserDensity(state.recentEvents);
 
@@ -146,12 +178,25 @@ export default function checkBrowserThrash(event, state) {
         }
     }
 
-    // 3. Total budget — hard cap, triggers tier 2 recovery.
+    // 3. Same-target repetition — catches probing loops that evade density
+    //    (e.g., screenshot → Read → screenshot → Read on the same page).
+    if (state.browser.currentTarget != null && state.browser.sameTargetCalls >= SAME_TARGET_THRESHOLD) {
+        const nextTier = Math.min((state.browser.recoveryTier ?? 0) + 1, 2);
+
+        return {
+            action: "block",
+            severity: "recovery",
+            tier: nextTier,
+            reason: repetitionMessage(state.browser.sameTargetCalls, state.browser.currentTarget)
+        };
+    }
+
+    // 4. Total budget — hard cap, triggers tier 2 recovery.
     if (state.browser.totalCalls > BROWSER_TOTAL_BUDGET) {
         return { action: "block", severity: "recovery", tier: 2, reason: totalBudgetMessage(state.browser.totalCalls) };
     }
 
-    // 4. Screenshot nudge — one-time suggestion on first screenshot.
+    // 5. Screenshot nudge — one-time suggestion on first screenshot.
     if (event.isScreenshotCommand && !state.browser.screenshotNudgeFired) {
         return { action: "block", severity: "nudge", reason: SCREENSHOT_MESSAGE };
     }
