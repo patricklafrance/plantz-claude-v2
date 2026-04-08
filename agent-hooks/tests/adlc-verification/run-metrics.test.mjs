@@ -9,6 +9,8 @@ import { recordMetrics } from "../../src/adlc-verification/run-metrics.mjs";
 function makeTmpDir() {
     const dir = mkdtempSync(join(tmpdir(), "metrics-test-"));
     mkdirSync(join(dir, ".adlc"));
+    mkdirSync(join(dir, ".git"), { recursive: true });
+    writeFileSync(join(dir, ".git", "HEAD"), "ref: refs/heads/main\n");
     return dir;
 }
 
@@ -19,12 +21,17 @@ function makeTranscript(lines) {
     return { path, cleanup: () => rmSync(tmp, { recursive: true, force: true }) };
 }
 
+function resolveMetricsDir(cwd) {
+    const pointer = readFileSync(join(cwd, ".adlc", "metrics-dir"), "utf8").trim();
+    return pointer;
+}
+
 function readMetrics(cwd) {
-    return JSON.parse(readFileSync(join(cwd, ".adlc", "run-metrics.json"), "utf8"));
+    return JSON.parse(readFileSync(join(resolveMetricsDir(cwd), "run-metrics.json"), "utf8"));
 }
 
 function readDetails(cwd, file) {
-    return JSON.parse(readFileSync(join(cwd, ".adlc", file), "utf8"));
+    return JSON.parse(readFileSync(join(resolveMetricsDir(cwd), file), "utf8"));
 }
 
 describe("run-metrics", () => {
@@ -184,8 +191,9 @@ describe("run-metrics", () => {
         expect(metrics.runs[1].model).toBe("claude-opus-4-6");
 
         // Both detail files exist
-        expect(existsSync(join(cwd, ".adlc", "run-details", "001-_adlc-planner.json"))).toBe(true);
-        expect(existsSync(join(cwd, ".adlc", "run-details", "002-_adlc-coder.json"))).toBe(true);
+        const mDir = resolveMetricsDir(cwd);
+        expect(existsSync(join(mDir, "run-details", "001-_adlc-planner.json"))).toBe(true);
+        expect(existsSync(join(mDir, "run-details", "002-_adlc-coder.json"))).toBe(true);
 
         // Detail file has tool call with input
         const d2 = readDetails(cwd, metrics.runs[1].detailsFile);
