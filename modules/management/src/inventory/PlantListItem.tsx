@@ -27,25 +27,26 @@ export const PlantListItem = memo(function PlantListItem({
 }: PlantListItemProps) {
     const due = isDueForWatering(plant);
 
+    const handleToggleSelect = useCallback(() => onToggleSelect?.(plant.id), [onToggleSelect, plant.id]);
     const handleEdit = useCallback(() => onEdit(plant), [onEdit, plant]);
     const handleDelete = useCallback(() => onDelete(plant), [onDelete, plant]);
     const handleMarkWatered = useCallback(() => onMarkWatered(plant), [onMarkWatered, plant]);
 
     return (
-        <button
-            type="button"
-            onClick={handleEdit}
-            aria-label={`Edit ${plant.name}`}
-            className={`border-border focus-visible:outline-ring flex h-full w-full cursor-pointer items-center gap-3 border-b px-5 py-2.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] ${PLANT_LIST_GRID} ${due ? "bg-terracotta/5 border-l-terracotta border-l-2" : "hover:bg-secondary/40"}`}
+        <div
+            className={`border-border relative flex h-full items-center gap-3 border-b px-5 py-2.5 transition-colors ${PLANT_LIST_GRID} ${due ? "bg-terracotta/5 border-l-terracotta border-l-2" : "hover:bg-secondary/40"}`}
         >
-            {/* oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- stopPropagation wrapper to isolate checkbox clicks from row button */}
-            <div className="flex items-center justify-center" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
-                {onToggleSelect ? (
-                    <Checkbox checked={selected} onCheckedChange={() => onToggleSelect(plant.id)} aria-label={`Select ${plant.name}`} />
-                ) : (
-                    <span className="w-4" />
-                )}
-            </div>
+            <button
+                type="button"
+                onClick={handleEdit}
+                aria-label={`Edit ${plant.name}`}
+                className="focus-visible:outline-ring absolute inset-0 z-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+            />
+            {onToggleSelect && (
+                <span className="relative z-10">
+                    <Checkbox checked={selected} onCheckedChange={handleToggleSelect} aria-label={`Select ${plant.name}`} />
+                </span>
+            )}
             <div className="flex min-w-0 items-center gap-2">
                 <span className="truncate text-sm font-semibold">{plant.name}</span>
                 {due && (
@@ -61,8 +62,7 @@ export const PlantListItem = memo(function PlantListItem({
             <span className="hidden md:flex md:items-center">
                 {plant.mistLeaves && <Check className="text-muted-foreground size-3.5" aria-label="Mist leaves" />}
             </span>
-            {/* oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- stopPropagation wrapper to isolate action button clicks from row button */}
-            <div className="flex shrink-0 items-center justify-end gap-1" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
+            <div className="relative z-10 flex shrink-0 items-center gap-1">
                 {due && (
                     <Button variant="ghost" size="icon-xs" onClick={handleMarkWatered} aria-label={`Mark ${plant.name} as watered`}>
                         <Droplets />
@@ -75,6 +75,6 @@ export const PlantListItem = memo(function PlantListItem({
                     <Trash2 />
                 </Button>
             </div>
-        </button>
+        </div>
     );
 });
