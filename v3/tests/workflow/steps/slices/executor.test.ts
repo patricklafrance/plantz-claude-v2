@@ -1,0 +1,205 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+// ── Mock SDK ────────────────────────────────────────────────────────────────
+
+type MockMessage = { type: "result"; subtype: "success"; result: string; session_id: string };
+
+function createMockConversation(result: string): AsyncGenerator<MockMessage, void> {
+    return (async function* () {
+        yield {
+            type: "result" as const,
+            subtype: "success" as const,
+            result,
+            session_id: "mock-session-id"
+        };
+    })();
+}
+
+vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
+    query: vi.fn(() => createMockConversation(""))
+}));
+
+vi.mock("../../../../src/workflow/agents/loader.js", () => ({
+    loadAllAgents: vi.fn(() => ({
+        "explorer": { description: "mock", prompt: "mock" },
+        "coder": { description: "mock", prompt: "mock" },
+        "reviewer": { description: "mock", prompt: "mock" }
+    }))
+}));
+
+// ── Mock hooks ──────────────────────────────────────────────────────────────
+
+vi.mock("../../../../src/hooks/index.js", () => ({
+    createHooks: vi.fn(() => ({
+        hooks: {}
+    }))
+}));
+
+// ── Mock git / worktree operations ──────────────────────────────────────────
+
+const mockWorktrees: { path: string; branch: string; sliceName: string }[] = [];
+const mockMergedBranches: string[] = [];
+const mockRemovedWorktrees: string[] = [];
+
+vi.mock("../../../../src/workflow/steps/slices/worktree/lifecycle.js", () => ({
+    createWorktree: vi.fn((sliceName: string, _baseBranch: string, cwd: string) => {
+        const wtPath = join(cwd, ".adlc-worktrees", sliceName);
+        mkdirSync(wtPath, { recursive: true });
+        const wt = { path: wtPath, branch: `adlc/${sliceName}`, sliceName };
+        mockWorktrees.push(wt);
+        return wt;
+    }),
+    removeWorktree: vi.fn((worktreePath: string) => {
+        mockRemovedWorktrees.push(worktreePath);
+    })
+}));
+
+vi.mock("../../../../src/workflow/steps/slices/worktree/merger.js", () => ({
+    mergeWorktree: vi.fn((worktreeBranch: string) => {
+        mockMergedBranches.push(worktreeBranch);
+        return { success: true };
+    })
+}));
+
+vi.mock("../../../../src/workflow/steps/slices/worktree/seeder.js", () => ({
+    seedAdlc: vi.fn(async () => {})
+}));
+
+vi.mock("../../../../src/workflow/steps/slices/worktree/collector.js", () => ({
+    collectResults: vi.fn(async () => {})
+}));
+
+// ── Mock revision-loop ──────────────────────────────────────────────────────
+
+let slicePipelineResults: Record<string, { success: boolean; reason?: string }> = {};
+
+vi.mock("../../../../src/workflow/steps/slices/revision-loop.js", () => ({
+    runSlicePipeline: vi.fn(async (sliceName: string) => {
+        return slicePipelineResults[sliceName] ?? { success: true };
+    })
+}));
+
+// ── Mock child_process for git branch command ───────────────────────────────
+
+vi.mock("node:child_process", async importOriginal => {
+    const actual = await importOriginal<typeof import("node:child_process")>();
+    return {
+        ...actual,
+        execSync: vi.fn((cmd: string, opts?: Record<string, unknown>) => {
+            if (typeof cmd === "string" && cmd.includes("git branch --show-current")) {
+                return "feat/test-feature\n";
+            }
+            return actual.execSync(cmd, opts as Parameters<typeof actual.execSync>[1]);
+        }),
+        exec: actual.exec
+    };
+});
+
+// ── Mock promisify(exec) for pnpm install ──────────────────────────────────
+
+vi.mock("node:util", async importOriginal => {
+    const actual = await importOriginal<typeof import("node:util")>();
+    return {
+        ...actual,
+        promisify: vi.fn((_fn: unknown) => {
+            return async () => ({ stdout: "", stderr: "" });
+        })
+    };
+});
+
+// ── Import under test ───────────────────────────────────────────────────────
+
+import type { OrchestratorOptions } from "../../../../src/workflow/orchestrator.js";
+import { runSlices } from "../../../../src/workflow/steps/slices/executor.js";
+
+// ── Tests ───────────────────────────────────────────────────────────────────
+
+describe("runSlices", () => {
+    let tmpDir: string;
+
+    beforeEach(() => {
+        tmpDir = mkdtempSync(join(tmpdir(), "slicing-test-"));
+        mockWorktrees.length = 0;
+        mockMergedBranches.length = 0;
+        mockRemovedWorktrees.length = 0;
+        slicePipelineResults = {};
+
+        // Create .adlc structure with slice files
+        const slicesDir = join(tmpDir, ".adlc", "slices");
+        mkdirSync(slicesDir, { recursive: true });
+        mkdirSync(join(tmpDir, ".adlc", "implementation-notes"), { recursive: true });
+        writeFileSync(join(tmpDir, ".adlc", "plan-header.md"), "# Plan\n");
+        writeFileSync(join(tmpDir, ".adlc", "domain-mapping.md"), "# Domain mapping\n");
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+        vi.restoreAllMocks();
+    });
+
+    const baseOptions: OrchestratorOptions = {
+        cwd: "" // overridden per test
+    };
+
+    it("executes independent slices in a single wave", async () => {
+        const slicesDir = join(tmpDir, ".adlc", "slices");
+        writeFileSync(join(slicesDir, "slice-01-alpha.md"), "# Slice 1 -- Alpha\nContent.\n");
+        writeFileSync(join(slicesDir, "slice-02-beta.md"), "# Slice 2 -- Beta\nContent.\n");
+
+        await runSlices(tmpDir, { ...baseOptions, cwd: tmpDir });
+
+        expect(mockWorktrees).toHaveLength(2);
+        expect(mockWorktrees[0].sliceName).toBe("alpha");
+        expect(mockWorktrees[1].sliceName).toBe("beta");
+        expect(mockMergedBranches).toHaveLength(2);
+        expect(mockRemovedWorktrees).toHaveLength(2);
+    });
+
+    it("executes dependent slices in sequential waves", async () => {
+        const slicesDir = join(tmpDir, ".adlc", "slices");
+        writeFileSync(join(slicesDir, "slice-01-base.md"), "# Slice 1 -- Base\nBase slice.\n");
+        writeFileSync(join(slicesDir, "slice-02-feature.md"), "# Slice 2 -- Feature\n\n> **Depends on:** Slice 1\n\nFeature.\n");
+
+        const { runSlicePipeline } = await import("../../../../src/workflow/steps/slices/revision-loop.js");
+        const callOrder: string[] = [];
+        vi.mocked(runSlicePipeline).mockImplementation(async (sliceName: string) => {
+            callOrder.push(sliceName);
+            return { success: true };
+        });
+
+        await runSlices(tmpDir, { ...baseOptions, cwd: tmpDir });
+
+        expect(callOrder).toEqual(["base", "feature"]);
+    });
+
+    it("does not merge a failed slice", async () => {
+        const slicesDir = join(tmpDir, ".adlc", "slices");
+        writeFileSync(join(slicesDir, "slice-01-good.md"), "# Slice 1 -- Good\nContent.\n");
+        writeFileSync(join(slicesDir, "slice-02-bad.md"), "# Slice 2 -- Bad\nContent.\n");
+
+        slicePipelineResults["bad"] = { success: false, reason: "max revision attempts exceeded" };
+
+        await runSlices(tmpDir, { ...baseOptions, cwd: tmpDir });
+
+        expect(mockMergedBranches).toHaveLength(1);
+        expect(mockMergedBranches[0]).toBe("adlc/good");
+        expect(mockRemovedWorktrees).toHaveLength(2);
+    });
+
+    it("does not merge a slice that threw an exception", async () => {
+        const slicesDir = join(tmpDir, ".adlc", "slices");
+        writeFileSync(join(slicesDir, "slice-01-crash.md"), "# Slice 1 -- Crash\nContent.\n");
+
+        const { runSlicePipeline } = await import("../../../../src/workflow/steps/slices/revision-loop.js");
+        vi.mocked(runSlicePipeline).mockRejectedValue(new Error("Unexpected crash"));
+
+        await runSlices(tmpDir, { ...baseOptions, cwd: tmpDir });
+
+        expect(mockMergedBranches).toHaveLength(0);
+        expect(mockRemovedWorktrees).toHaveLength(1);
+    });
+});
