@@ -1,8 +1,8 @@
-/** Auto-format (writes in place) and stage changes. Must run before lint. */
+/** Auto-format (writes in place). Must run before lint. */
 
-import { run } from "../post-agent-checks/utils.js";
+import { run } from "./utils.js";
 
-export async function formatAutofix(cwd: string): Promise<string[]> {
+export async function formatFix(cwd: string): Promise<string[]> {
     let result = await run(cwd, "pnpm format-fix");
 
     // oxfmt has a transient race condition in its CSS import resolver that
@@ -15,12 +15,5 @@ export async function formatAutofix(cwd: string): Promise<string[]> {
     if (!result.ok) {
         return [`[format] Auto-format failed:\n${result.stderr || result.stdout}`];
     }
-
-    // Stage formatting changes so they're included in the commit.
-    const stage = await run(cwd, "git add -u");
-    if (!stage.ok) {
-        return [`[format] Failed to stage formatted files:\n${stage.stderr || stage.stdout}`];
-    }
-
     return [];
 }

@@ -141,7 +141,7 @@ Block a subagent's completion until its deliverables meet structural and quality
 | Agent                       | Check                | What it validates                                                                   |
 | --------------------------- | -------------------- | ----------------------------------------------------------------------------------- |
 | `_adlc-coder`               | build                | Full monorepo build                                                                 |
-| `_adlc-coder`               | lint                 | Full monorepo lint — oxlint, oxfmt, typecheck, syncpack, knip                       |
+| `_adlc-coder`               | lint                 | Full monorepo lint — linter, formatter, typecheck, syncpack, knip                   |
 | `_adlc-coder`               | tests                | Full monorepo tests — Vitest + Storybook a11y via Playwright                        |
 | `_adlc-coder`               | no-file-disable      | Rejects file-level `/* oxlint-disable */` comments (line-level only)                |
 | `_adlc-coder`               | no-secrets           | gitleaks scan on changed files                                                      |
@@ -179,9 +179,12 @@ Run corrections before validation to reduce noise. Formatting violations never a
 
 | Agent            | Autofix       | What it does                        |
 | ---------------- | ------------- | ----------------------------------- |
-| `_adlc-coder`    | oxfmt-autofix | `oxfmt --write .` before lint phase |
-| `_adlc-simplify` | oxfmt-autofix | `oxfmt --write .` before lint phase |
-| `_adlc-document` | oxfmt-autofix | `oxfmt --write .` after doc updates |
+| `_adlc-coder`    | format-fix | `pnpm format-fix` before lint phase |
+| `_adlc-coder`    | lint-fix   | `pnpm lint-fix` after format, before lint check |
+| `_adlc-simplify` | format-fix | `pnpm format-fix` before lint phase |
+| `_adlc-simplify` | lint-fix   | `pnpm lint-fix` after format, before lint check |
+| `_adlc-document` | format-fix | `pnpm format-fix` after doc updates |
+| `_adlc-document` | lint-fix   | `pnpm lint-fix` after format |
 
 #### Run metrics
 
@@ -196,7 +199,7 @@ Constraints that apply to every tool call, regardless of which skill is running.
 | `preflight`         | Bash + Read + Glob         | Rewrites bare `agent-browser` commands, then blocks disallowed package-manager calls, bare `pnpm typecheck`, `cmd`, and `node_modules` source reads (type definitions are allowed) |
 | `adlc-supervisor`   | Bash + Read + Write + Edit | Wall-clock circuit breaker (nudge + hard stop), test-thrash detection, browser thrash detection, and evidence-gated `pnpm install` blocking in real time                           |
 | `gitignore-guard`   | `git commit`               | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` (all ADLC artifacts are ephemeral)                                                                             |
-| `pre-tool-use-bash` | `git commit`               | Intercepts commits — runs oxfmt autofix, then build + lint + tests in parallel before allowing                                                                                     |
+| `pre-tool-use-bash` | `git commit`               | Intercepts commits — runs format-fix + lint-fix, then build + lint + tests in parallel before allowing                                                                             |
 
 #### Permissions
 
@@ -306,7 +309,7 @@ Plant data lives in an MSW in-memory database. Data resets on every reload — n
 ### Run the app
 
 ```bash
-pnpm dev-host                      # Full app — all modules (http://localhost:8080)
+pnpm dev-app                       # Full app — all modules (http://localhost:8080)
 pnpm dev-management                # Just the management module
 pnpm dev-watering                  # Just the watering module
 ```
@@ -314,7 +317,7 @@ pnpm dev-watering                  # Just the watering module
 To load specific modules manually:
 
 ```bash
-cross-env MODULES=management pnpm dev-host
+cross-env MODULES=management pnpm dev-app
 ```
 
 ### Run Storybooks
@@ -331,8 +334,8 @@ pnpm dev-storybook-watering      # Watering module
 ```bash
 pnpm lint          # ESLint (per-package, via Turborepo)
 pnpm test          # Storybook a11y tests (Vitest + Playwright, via Turborepo)
-pnpm oxlint        # oxlint (custom config in oxlintrc.json)
-pnpm oxfmt         # Formatter check (oxfmt with Tailwind class sorting)
+pnpm lint-check    # Linter (custom config in oxlintrc.json)
+pnpm format-check  # Formatter check (with Tailwind class sorting)
 pnpm typecheck     # TypeScript (tsgo)
 pnpm syncpack      # Dependency version consistency
 pnpm knip          # Dead code detection (unused files, deps, exports)

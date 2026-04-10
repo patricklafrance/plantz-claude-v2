@@ -142,9 +142,12 @@ Run corrections before validation to reduce noise. Formatting violations never a
 
 | Agent | Autofix | What it does |
 |-------|---------|-------------|
-| `coder` | format-autofix | `pnpm format-fix` before lint phase |
-| `simplify` | format-autofix | `pnpm format-fix` before lint phase |
-| `document` | format-autofix | `pnpm format-fix` after doc updates |
+| `coder` | format-fix | `pnpm format-fix` before lint phase |
+| `coder` | lint-fix | `pnpm lint-fix` after format, before lint check |
+| `simplify` | format-fix | `pnpm format-fix` before lint phase |
+| `simplify` | lint-fix | `pnpm lint-fix` after format, before lint check |
+| `document` | format-fix | `pnpm format-fix` after doc updates |
+| `document` | lint-fix | `pnpm lint-fix` after format |
 
 ### Run metrics
 
@@ -166,7 +169,7 @@ Constraints that apply to every tool call, regardless of which agent is running.
 
 | Hook | Trigger | What it does |
 |------|---------|-------------|
-| `pre-commit` | `git commit` | Intercepts commits — runs format autofix, then build + lint + tests in parallel before allowing |
+| `pre-commit` | `git commit` | Intercepts commits — runs format-fix + lint-fix, then build + lint + tests in parallel before allowing |
 | `gitignore-guard` | `git commit` | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` |
 
 ## Principle 2: Context should be delivered, not requested
@@ -242,7 +245,7 @@ Modules are fully isolated — modules never import from each other. Each has it
 
 The orchestrator validates that these scripts exist in the target repo's `package.json` at startup:
 
-`build`, `lint`, `test`, `typecheck`, `lint-check`, `lint-fix`, `format-check`, `format-fix`, `dev-app`, `dev-storybook`
+`build`, `lint`, `test`, `typecheck`, `lint-check`, `lint-fix`, `format-check`, `format-fix`, `knip`, `syncpack`, `dev-app`, `dev-storybook`
 
 ### Required binaries
 

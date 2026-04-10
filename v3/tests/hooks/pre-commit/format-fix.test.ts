@@ -6,15 +6,15 @@ vi.mock("../../../src/hooks/post-agent-checks/utils.js", () => ({
     run: vi.fn()
 }));
 
-import { formatAutofix } from "../../../src/hooks/pre-commit/format-autofix.js";
+import { formatFix } from "../../../src/hooks/pre-commit/format-fix.js";
 
-describe("pre-commit format-autofix", () => {
+describe("pre-commit format-fix", () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
     it("returns empty array and stages changes on success", async () => {
         vi.mocked(run).mockResolvedValue({ ok: true, stdout: "", stderr: "", code: undefined });
-        const result = await formatAutofix("/tmp/test");
+        const result = await formatFix("/tmp/test");
         expect(result).toEqual([]);
 
         // Should have called git add -u after formatting
@@ -27,7 +27,7 @@ describe("pre-commit format-autofix", () => {
             .mockResolvedValueOnce({ ok: true, stdout: "", stderr: "", code: undefined })
             .mockResolvedValue({ ok: true, stdout: "", stderr: "", code: undefined });
 
-        const result = await formatAutofix("/tmp/test");
+        const result = await formatFix("/tmp/test");
         expect(result).toEqual([]);
 
         // format-fix called twice (retry), then git add -u
@@ -36,7 +36,7 @@ describe("pre-commit format-autofix", () => {
 
     it("returns error when format-fix fails with non-transient error", async () => {
         vi.mocked(run).mockResolvedValue({ ok: false, stdout: "", stderr: "Unexpected token", code: 1 });
-        const result = await formatAutofix("/tmp/test");
+        const result = await formatFix("/tmp/test");
         expect(result).toHaveLength(1);
         expect(result[0]).toContain("[format] Auto-format failed");
     });

@@ -41,9 +41,9 @@ Flow:
 
 Pipeline:
 
-1. `format-autofix`
-    - auto-format files
-    - stage any formatting changes
+1. `format-fix` → `lint-fix` (sequential)
+    - auto-format files, then auto-fix lint errors
+    - stage all changes
 2. run in parallel:
     - `build`
     - `lint`
@@ -59,7 +59,8 @@ The handler returns:
 
 - `create-pre-commit-hook.ts` — hook factory, regex-matches `git commit` commands
 - `handler.ts` — pipeline orchestrator
-- `format-autofix.ts` — auto-format and stage changes (runs first, before lint)
+- `format-fix.ts` — auto-format and stage changes (runs first)
+- `lint-fix.ts` — auto-fix lint errors and stage changes (runs after format, before lint check)
 - `build.ts` — turbo build check
 - `lint.ts` — turbo lint check
 - `tests.ts` — turbo test check

@@ -41,7 +41,7 @@ Flow:
 
 Pipeline:
 
-1. `oxfmt-autofix`
+1. `format-autofix`
     - auto-format files
     - stage any formatting changes
 2. run in parallel:

@@ -18,6 +18,8 @@ describe("loadAgent", () => {
             "node_modules/@patlaf/adlc/skills/scaffold-storybook/SKILL.md",
             "node_modules/@patlaf/adlc/skills/browser-recovery/SKILL.md",
             "node_modules/@patlaf/adlc/skills/workleap-squide/SKILL.md",
+            "node_modules/@patlaf/adlc/skills/workleap-logging/SKILL.md",
+            "node_modules/@patlaf/adlc/skills/workleap-telemetry/SKILL.md",
             "node_modules/@patlaf/adlc/skills/agent-browser/SKILL.md"
         ]);
         expect(definition.prompt).toBeTruthy();
@@ -115,6 +117,8 @@ describe("loadAllAgents", () => {
             "node_modules/@patlaf/adlc/skills/scaffold-storybook/SKILL.md",
             "node_modules/@patlaf/adlc/skills/browser-recovery/SKILL.md",
             "node_modules/@patlaf/adlc/skills/workleap-squide/SKILL.md",
+            "node_modules/@patlaf/adlc/skills/workleap-logging/SKILL.md",
+            "node_modules/@patlaf/adlc/skills/workleap-telemetry/SKILL.md",
             "node_modules/@patlaf/adlc/skills/agent-browser/SKILL.md",
             join("/repo", ".claude", "skills", "accessibility", "SKILL.md")
         ]);
@@ -137,6 +141,8 @@ describe("loadAllAgents", () => {
             "node_modules/@patlaf/adlc/skills/scaffold-storybook/SKILL.md",
             "node_modules/@patlaf/adlc/skills/browser-recovery/SKILL.md",
             "node_modules/@patlaf/adlc/skills/workleap-squide/SKILL.md",
+            "node_modules/@patlaf/adlc/skills/workleap-logging/SKILL.md",
+            "node_modules/@patlaf/adlc/skills/workleap-telemetry/SKILL.md",
             "node_modules/@patlaf/adlc/skills/agent-browser/SKILL.md"
         ]);
     });

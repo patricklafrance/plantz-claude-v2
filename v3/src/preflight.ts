@@ -15,6 +15,8 @@ export const REQUIRED_SCRIPTS = [
     "lint-fix",
     "format-check",
     "format-fix",
+    "knip",
+    "syncpack",
     "dev-app",
     "dev-storybook"
 ] as const;

@@ -2,7 +2,7 @@
  * coder handler
  *
  * Post-completion pipeline:
- *   1 -- format autofix (must complete before lint)
+ *   1 -- format-fix → lint-fix (sequential, must complete before checks)
  *   2 -- build, lint, tests, file-disable scan, secret scan, import guard,
  *       implementation-notes check, story coverage, context refresh (parallel)
  *   3 -- kill dev server ports (always)
@@ -10,8 +10,9 @@
 
 import { loadConfig, resolveConfig } from "../../../config.js";
 import { buildCheck } from "../build-check.js";
-import { formatAutofix } from "../format-autofix.js";
+import { formatFix } from "../format-fix.js";
 import { crossBoundaryImportsCheck } from "../import-check.js";
+import { lintFix } from "../lint-fix.js";
 import { lintCheck } from "../lint-check.js";
 import { noFileDisableCheck } from "../no-file-disable-check.js";
 import { testsCheck } from "../tests-check.js";
@@ -25,8 +26,9 @@ import { storyCoverageCheck } from "./story-coverage-check.js";
 export async function handleCoder(cwd: string): Promise<string[]> {
     const changedFiles = getChangedFiles(cwd);
 
-    // Phase 1: auto-format before lint
-    const formatProblems = await formatAutofix(cwd);
+    // Phase 1: autofix — format first, then lint-fix (sequential to avoid conflicts)
+    const formatProblems = await formatFix(cwd);
+    const lintFixProblems = await lintFix(cwd);
 
     // Phase 2: everything else in parallel
     const results = await Promise.all([
@@ -46,5 +48,5 @@ export async function handleCoder(cwd: string): Promise<string[]> {
     const portsToKill = Object.values(config.ports).filter((p): p is number => p !== undefined);
     killPorts(portsToKill);
 
-    return [...formatProblems, ...results.flat()];
+    return [...formatProblems, ...lintFixProblems, ...results.flat()];
 }

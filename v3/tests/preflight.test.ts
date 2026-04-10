@@ -26,6 +26,8 @@ describe("validateRepository", () => {
             "lint-fix": "oxlint --fix .",
             "format-check": "oxfmt --check .",
             "format-fix": "oxfmt --write .",
+            "knip": "knip",
+            "syncpack": "syncpack lint",
             "dev-app": "turbo dev --filter=@apps/host",
             "dev-storybook": "turbo dev --filter=@apps/storybook"
         },
