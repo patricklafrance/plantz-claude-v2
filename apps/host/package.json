@@ -8,7 +8,6 @@
         "dev": "rsbuild dev --config rsbuild.dev.ts",
         "build": "rsbuild build --config rsbuild.build.ts",
         "serve-build": "pnpm http-server dist -p 8080 -P http://localhost:8080? -c-1",
-        "size": "size-limit",
         "typecheck": "tsgo"
     },
     "dependencies": {
@@ -34,7 +33,6 @@
         "@workleap/typescript-configs": "4.0.0",
         "http-server": "14.1.1",
         "msw": "2.12.14",
-        "size-limit": "12.0.1",
         "tailwindcss": "4.2.2",
         "typescript": "6.0.2"
     },

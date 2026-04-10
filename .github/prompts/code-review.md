@@ -30,7 +30,6 @@ Read reference docs only when the diff touches their topic:
 
 - `turbo.json` or pipeline config → `agent-docs/references/turborepo.md`
 - `package.json` dependency fields → `agent-docs/odr/0002-dependency-versioning-syncpack.md`
-- `.size-limit.json` or bundle budgets → `agent-docs/references/bundle-size-budget.md`
 - `tsconfig*` files → `agent-docs/references/typescript.md`
 - `.github/workflows/` → `agent-docs/references/ci-cd.md`
 
@@ -53,12 +52,6 @@ When the diff adds or modifies `package.json` dependencies:
 - Flag large dependencies where a lighter, tree-shakeable alternative exists.
 - Flag dependencies added without a clear justification in the PR description or commit message.
 - Verify new dependencies are in the correct `package.json` (domain-specific deps belong in the app/package that uses them, not the root).
-
-When the diff modifies `.size-limit.json` budget files:
-
-- Verify the PR description contains a `## Budget increase` section explaining the increase.
-- Flag budget increases that are not accompanied by at least one optimization attempt (import narrowing, lazy loading, or alternative dep evaluation).
-- Flag any single-PR budget increase exceeding 20 KB gzipped — this requires human approval per ODR-0006.
 
 ## Issues reporting
 
