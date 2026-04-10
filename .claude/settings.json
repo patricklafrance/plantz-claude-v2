@@ -102,7 +102,7 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "node agent-hooks/src/safe-compact/post-compact.mjs"
+                        "command": "node .claude/hooks/src/safe-compact/post-compact.mjs"
                     }
                 ]
             }
