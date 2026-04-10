@@ -1,15 +1,17 @@
-# ADLC Orchestrator (v3)
+# ADLC Harness
 
-A headless CLI that plans, implements, and ships features using a multi-agent pipeline. Built on the [Claude Agent SDK](https://docs.anthropic.com/en/docs/claude-code/sdk), it replaces the in-process SKILL.md orchestrator with an external Node.js process that supports parallel slice execution via git worktrees.
+A headless CLI that plans, implements, and ships features using a multi-agent pipeline. Built on the [Claude Agent SDK](https://docs.anthropic.com/en/docs/claude-code/sdk), it orchestrates fifteen agents through an Agent Development Life Cycle (ADLC) — from domain mapping to PR creation — with parallel slice execution via git worktrees.
 
 ## What is an agent harness?
 
-An agent harness enhances the agent's natural capabilities instead of micromanaging each step. Rather than scripting every tool call, it provides:
+An agent harness enhances the agent's natural capabilities instead of micromanaging each step. Rather than scripting every tool call, it provides two complementary layers:
 
-- **Skills** that define _what_ to do — lightweight orchestration that tells the agent where to go next
-- **Hooks** that enforce _how well_ — automated verification, autofix, and context delivery that runs whether the agent remembers or not
+- **Skills** define _what_ to do — lightweight orchestration that tells the agent where to go next
+- **Hooks** enforce _how well_ — automated verification, autofix, and context delivery that runs whether the agent remembers or not
 
-The design is based on three principles from the [Agent Harness](https://medium.com/@bijit211987/agent-harness-b1f6d5a7a1d1) article:
+### Design principles
+
+This design is based on three principles from the [Agent Harness](https://medium.com/@bijit211987/agent-harness-b1f6d5a7a1d1) article:
 
 | # | Principle | Implementation |
 |---|-----------|----------------|
@@ -17,75 +19,58 @@ The design is based on three principles from the [Agent Harness](https://medium.
 | 2 | Context should be delivered, not requested | Project context preamble, reference doc injection |
 | 3 | Supervision must be real-time | Supervisor policies (wall-clock, test-thrash, browser-thrash, install-gate) |
 
-Every subagent is verified by hooks before the workflow advances. The agent cannot skip verification — it's infrastructure, not instructions.
+---
 
-## What changed from v2
-
-| Aspect | v2 (SKILL.md) | v3 (Agent SDK) |
-|--------|----------------|----------------|
-| Orchestration | `_adlc` skill runs inline in the main conversation | External Node.js process — `adlc` CLI |
-| Parallelism | Sequential slices on one branch | Parallel slices via git worktrees |
-| Supervisor state | Disk-based JSON in `.adlc/supervisor-state.json` | In-memory — no I/O between tool calls |
-| Hook protocol | stdin/stdout JSON over subprocess boundary | Direct function calls in the same process |
-| Entry point | `/adlc` slash command inside Claude Code | `adlc` CLI binary |
-
-## Pipeline
+## ADLC pipeline
 
 ```mermaid
 flowchart TD
-    Start([Feature description]) --> Plan
+    Start([Feature request]) --> Coord
 
-    subgraph Plan["Planning"]
+    subgraph Coord["ADLC orchestrator"]
         direction TB
-        DM["Domain Mapper"] --> PG["Placement Gate"]
-        PG -. "evidence gaps" .-> ER["Evidence Researcher"] -. "findings" .-> DM
-        PG -- "pass" --> Planner
-        Planner --> PlanGate["Plan Gate"]
-        PlanGate -. "revision" .-> Planner
-        PlanGate -- "pass" --> Challenge
-        subgraph Challenge["Adversarial Challenge"]
-            direction LR
-            CC["Cohesion Challenger"] ~~~ SC["Sprawl Challenger"]
+
+        subgraph ModuleMap["Module Mapping"]
+            direction TB
+            Mapper --> Challengers --> Gate
+            Mapper -. "evidence gaps" .-> Evidence["Evidence Researcher"] -. findings .-> Mapper
+            Gate -. "fail" .-> Mapper
         end
-        Challenge --> Arbiter
-        Arbiter -. "revise" .-> Planner
-    end
 
-    Plan -- ".adlc/ artifacts" --> Exec
+        Gate -- "pass" --> PlanLoop
 
-    subgraph Exec["Slice Execution (parallel waves)"]
-        direction TB
-        DAG["DAG Scheduler"] --> W0["Wave 0: foundation"]
-        W0 --> W1["Wave 1: independent slices"]
-        W1 --> W2["Wave N: dependent slices"]
+        subgraph PlanLoop["Plan Loop (max 5)"]
+            direction LR
+            Planner --> PlanGate["Gate"]
+            PlanGate -. "revision" .-> Planner
+        end
 
-        subgraph Slice["Per-slice (in worktree)"]
+        PlanLoop --> SliceLoop
+
+        subgraph SliceLoop["Slice Loop (parallel)"]
             direction LR
             Explorer --> Coder --> Reviewer
             Reviewer -. "failures" .-> Coder
         end
-    end
 
-    Exec --> Post
-
-    subgraph Post["Post-processing"]
-        direction LR
-        Simplify --> Document --> PR --> Monitor
+        SliceLoop --> Simplify --> Document --> PR --> Monitor
     end
 
     Monitor --> Done([PR ready])
 
     style Start fill:#4ade80,stroke:#16a34a,color:#000
     style Done fill:#4ade80,stroke:#16a34a,color:#000
-    style Plan fill:#f0f9ff,stroke:#0284c7
-    style Exec fill:#fefce8,stroke:#ca8a04
-    style Post fill:#f0fdf4,stroke:#16a34a
-    style Slice fill:#fff,stroke:#999,stroke-dasharray: 5 5
+    style Coord fill:#f0f9ff,stroke:#0284c7
+    style Evidence fill:#f8f8f8,stroke:#ccc,color:#888
 ```
+
+Slices declare dependencies in their plan files. Independent slices run in parallel — each in its own git worktree with isolated `.adlc/` state, ports, and branch. After completion, results merge back to the feature branch sequentially.
+
+All inter-agent coordination goes through files in `.adlc/` — plan-header, slices, verification-results, implementation-notes, domain-mapping. This makes handoffs explicit and debuggable.
 
 ## Agents
 
-Fifteen agents form the pipeline. Each is defined as a markdown file with YAML frontmatter in `agents/`, loaded at runtime by `src/workflow/agents.ts`.
+Fifteen agents form the pipeline. Each is defined as a markdown file with YAML frontmatter in [`agents/`](agents/), loaded at runtime by `src/workflow/agents.ts`.
 
 | Agent | What it does |
 |-------|-------------|
@@ -105,37 +90,17 @@ Fifteen agents form the pipeline. Each is defined as a markdown file with YAML f
 | `pr` | Pushes branch, opens PR with summary and technical changes |
 | `monitor` | Polls CI workflows, auto-fixes failures (lint, Chromatic, Lighthouse) |
 
-All inter-agent coordination goes through files in `.adlc/` — plan-header, slices, verification-results, implementation-notes, domain-mapping. This makes handoffs explicit and debuggable.
+---
 
-## Runtime hooks
+## Principle 1: Verification is not optional
 
-Every agent instance runs with three hook layers, wired as SDK `HookCallbackMatcher` callbacks in `src/hooks/create-hooks.ts`.
+Every subagent is verified by hooks before the workflow advances. The agent cannot skip verification — it's infrastructure, not instructions.
 
-### Guards
+Hooks fall into four categories: **verificators** that block completion until checks pass, **context refreshers** that surface easy-to-forget concerns at stop time, **autofixers** that correct issues before validation, and **guards** that enforce constraints on every tool call. If any check fails, the problems are fed back to the agent for correction — not reported as a final failure.
 
-PreToolUse hooks that inspect and optionally rewrite commands before execution.
+### Verificators ([README](src/hooks/post-agent-checks/README.md))
 
-| Guard | Trigger | What it does |
-|-------|---------|-------------|
-| `block-npm` | Bash | Blocks `npm`, `npx`, `pnpx`, `pnpm dlx` — only `pnpm` allowed |
-| `block-windows-cmd` | Bash | Blocks `cmd` / `cmd.exe` invocations on Windows |
-| `block-node-modules-read` | Bash, Read, Glob | Blocks reading `node_modules` source (type definitions `.d.ts` are allowed) |
-| `agent-browser-rewrite` | Bash | Rewrites bare `agent-browser` to `pnpm exec agent-browser` |
-
-### Supervisor policies
-
-Stateful policies that observe tool calls in real time. State is in-memory — shared across all tool calls within a single agent run, no disk I/O.
-
-| Policy | What it detects | Response |
-|--------|----------------|----------|
-| `wall-clock` | Agent running too long | Nudge at threshold, hard stop at limit. Per-agent thresholds. |
-| `browser-thrash` | Browser stuck loops | Dual detection: density (cross-page spirals) + repetition (same-page probing). Tiered recovery gates. Total budget cap. |
-| `test-thrash` | Test reruns without code edits | Edit-gap detection with tiered recovery. Requires code changes between test runs. |
-| `install-gate` | Blind `pnpm install` | Blocks unless manifests changed, an override exists, or a PostToolUse dependency failure grants a one-shot bypass. |
-
-### Verification handlers
-
-SubagentStop hooks that run post-completion checks per agent type. If any check fails, the problems are fed back to the agent for correction.
+Block a subagent's completion until its deliverables meet structural and quality checks.
 
 | Agent | Check | What it validates |
 |-------|-------|-------------------|
@@ -161,13 +126,19 @@ SubagentStop hooks that run post-completion checks per agent type. If any check 
 | `reviewer` | verification-results | `.adlc/verification-results.md` must exist |
 | `reviewer` | criteria-coverage | Results must cover every acceptance criterion from the slice |
 
-#### Context refreshers
+### Context refreshers
+
+By the time a subagent reaches completion, its original instructions are buried under thousands of tokens of code and tool output. Context refreshers block once per slice with a concise checklist — forcing recency-bias attention on concerns that are easy to forget.
 
 | Agent | Refresh | What it reminds |
 |-------|---------|-----------------|
 | `coder` | context-refresh | MSW handlers, story variants, implementation notes |
 
-#### Autofixers
+Uses `.adlc/markers.json` keyed by slice name so the checklist fires once per slice — not on every stop attempt.
+
+### Autofixers
+
+Run corrections before validation to reduce noise. Formatting violations never appear as failures.
 
 | Agent | Autofix | What it does |
 |-------|---------|-------------|
@@ -175,35 +146,145 @@ SubagentStop hooks that run post-completion checks per agent type. If any check 
 | `simplify` | oxfmt-autofix | `oxfmt --write .` before lint phase |
 | `document` | oxfmt-autofix | `oxfmt --write .` after doc updates |
 
-#### Run metrics
+### Run metrics
 
 On every agent completion, the SubagentStop hook parses the agent's transcript JSONL and appends a run entry to `.adlc/run-metrics.json`. Each entry includes token breakdown (input, output, cache read, cache creation), per-tool use counts, wall time, and timestamps.
 
-### Pre-commit gate
+### Guards ([README](src/hooks/guards/README.md))
+
+Constraints that apply to every tool call, regardless of which agent is running.
+
+| Guard | Trigger | What it does |
+|-------|---------|-------------|
+| `block-npm` | Bash | Blocks `npm`, `npx`, `pnpx`, `pnpm dlx` — only `pnpm` allowed |
+| `block-windows-cmd` | Bash | Blocks `cmd` / `cmd.exe` invocations on Windows |
+| `block-node-modules-read` | Bash, Read, Glob | Blocks reading `node_modules` source (`.d.ts` type definitions are allowed) |
+| `agent-browser-rewrite` | Bash | Rewrites bare `agent-browser` to `pnpm exec agent-browser` |
+
+### Pre-commit gate ([README](src/hooks/pre-commit/README.md))
 
 | Hook | Trigger | What it does |
 |------|---------|-------------|
 | `pre-commit` | `git commit` | Intercepts commits — runs oxfmt autofix, then build + lint + tests in parallel before allowing |
 | `gitignore-guard` | `git commit` | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` |
 
-## Parallel execution model
+## Principle 2: Context should be delivered, not requested
 
-Slices declare dependencies via `> **Depends on:** Slice 1, Slice 3` in their `.md` files. The DAG scheduler (`src/workflow/steps/slices/dag/`) topologically sorts slices into waves:
+Agents shouldn't spend tool calls searching for information they will inevitably need. At the start of every run, the orchestrator builds a project context preamble from the target repository and injects it into every agent prompt:
+
+- **Commands** — discovers standardized scripts (`build`, `lint`, `test`, `dev-host`, etc.) from the root `package.json` so agents know the exact commands to run
+- **Reference docs** — recursively scans the reference directory (default `./agent-docs/`), extracts titles, then classifies each doc into semantic categories (architecture, placement, API patterns, Storybook, styling, etc.) using a lightweight agent — with filename heuristics as fallback
+- **Structure** — injects the repo layout (apps, modules, packages paths), license, and author so agents place code correctly without exploring first
+
+The result: agents start with full context rather than burning tokens on `ls`, `cat`, and `find` calls to orient themselves.
+
+## Principle 3: Supervision must be real-time
+
+The supervisor observes tool calls in real time during execution — not just at agent completion. Stateful policies detect waste as it happens and interrupt before the budget is spent. ([README](src/hooks/supervisor/README.md))
+
+| Policy | What it detects | Response |
+|--------|----------------|----------|
+| `wall-clock` | Agent running too long | Nudge at threshold, hard stop at limit. Per-agent thresholds. |
+| `browser-thrash` | Browser stuck loops | Dual detection: density (cross-page spirals) + repetition (same-page probing). Tiered recovery gates. Total budget cap. |
+| `test-thrash` | Test reruns without code edits | Edit-gap detection with tiered recovery. Requires code changes between test runs. |
+| `install-gate` | Blind `pnpm install` | Blocks unless manifests changed, an override exists, or a PostToolUse dependency failure grants a one-shot bypass. |
+
+State is in-memory — shared across all tool calls within a single agent run, no disk I/O. The supervisor also consumes `PostToolUse` events so command-result evidence can unlock narrow recovery paths (e.g., a one-shot `pnpm install` bypass after a real missing-dependency failure).
+
+---
+
+## Embedded skills
+
+Skills shipped with the package that agents load at runtime for scaffolding and validation.
+
+| Skill | What it does |
+|-------|-------------|
+| `agent-browser` | Browser automation CLI for navigating pages, filling forms, taking screenshots, testing web apps |
+| `browser-recovery` | Recovery process for agents stuck in browser interaction loops (loaded by supervisor) |
+| `scaffold-module` | Scaffolds a new Squide module or subfolder — files, host registration, Storybook wiring |
+| `scaffold-storybook` | Scaffolds a module-scoped Storybook with Chromatic CI integration |
+| `validate-modules` | Validates module structure and wiring (files, exports, host registration, Storybook) |
+| `workleap-squide` | Reference skill for Squide's FireflyRuntime, AppRouter, and modular shell patterns |
+
+Scaffolding skills use a **reference module pattern** — instead of hardcoding versions or configs, they read a canonical module at runtime and clone from it.
+
+## Conventions and assumed dependencies
+
+The orchestrator is built for **pnpm monorepos** using the [Squide](https://github.com/gsoft-inc/wl-squide) modular application shell. It assumes the following conventions in the target repository.
+
+### Package scopes
+
+| Layer | Scope | Example |
+|-------|-------|---------|
+| Apps | `@apps` | `@apps/host`, `@apps/storybook` |
+| Modules | `@modules` | `@modules/management`, `@modules/watering` |
+| Packages | `@packages` | `@packages/components`, `@packages/api` |
+
+### Expected repo structure
 
 ```
-Wave 0:  [slice-00 foundation]           # no deps — runs alone
-Wave 1:  [slice-01, slice-02, slice-04]   # all depend only on slice-00 — run in parallel
-Wave 2:  [slice-03]                       # depends on slice-01
-Wave 3:  [slice-05]                       # depends on slice-03 + slice-04
+apps/
+  host/                        # Thin shell — bootstraps Squide, no feature logic
+  storybook/                   # Unified Storybook — all stories
+  storybook-<module>/          # Per-module Storybook
+modules/
+  <module>/                    # Feature module (@modules/<name>)
+packages/
+  <package>/                   # Shared package (@packages/<name>)
 ```
 
-Each slice in a wave gets its own git worktree under `.adlc-worktrees/`, with:
+Modules are fully isolated — modules never import from each other. Each has its own Storybook and Chromatic token for independent visual regression testing.
 
-- Its own `.adlc/` directory seeded with plan artifacts and prior implementation notes
-- Non-overlapping port allocation (Storybook, host app, browser)
-- An independent supervisor state
+### Required root scripts
 
-After a wave completes, successful slices merge to the feature branch in dependency order. If a merge conflicts, a coder agent attempts resolution. Worktrees are automatically cleaned up in a `finally` block regardless of success or failure.
+The orchestrator validates that these scripts exist in the target repo's `package.json` at startup:
+
+`build`, `lint`, `test`, `typecheck`, `oxlint`, `oxlint-auto-fix`, `oxfmt`, `oxfmt-auto-fix`, `dev-host`, `dev-storybook`
+
+### Required devDependencies
+
+`oxlint`, `oxfmt`, `agent-browser`
+
+### Tech stack
+
+The orchestrator assumes and leverages these tools:
+
+| Tool | Purpose |
+|------|---------|
+| [TypeScript](https://www.typescriptlang.org) | Type-safe codebase — checked by `pnpm typecheck` in pre-commit gate and coder verificator |
+| [pnpm](https://pnpm.io) | Package manager — enforced by guards (npm/npx blocked) |
+| [Squide](https://github.com/gsoft-inc/wl-squide) | Modular application shell — module isolation, host registration |
+| [Storybook](https://storybook.js.org) | Component development + a11y testing via Playwright |
+| [Chromatic](https://www.chromatic.com) | Visual regression testing — per-module tokens |
+| [Vitest](https://vitest.dev) | Unit and integration tests |
+| [oxlint](https://oxc.rs/docs/guide/usage/linter) | Fast linter — enforced by pre-commit gate and coder verificator |
+| [oxfmt](https://oxc.rs/docs/guide/usage/formatter) | Formatter with Tailwind class sorting — autofixed before validation |
+| [agent-browser](https://www.npmjs.com/package/agent-browser) | Browser automation for reviewer agent screenshots and interactions |
+
+## Project structure
+
+```
+v3/
+  agents/                           # 15 agent prompt files (markdown + YAML frontmatter)
+  skills/                           # Embedded skills (agent-browser, scaffolding, validation)
+
+  src/
+    workflow/
+      steps/
+        slices/
+          dag/                      # Slice dependency parser + topological wave scheduler
+          worktree/                 # Git worktree lifecycle (create, seed, merge, collect, remove)
+
+    hooks/
+      guards/                       # PreToolUse tool guards (block-npm, block-cmd, etc.)
+      rewrites/                     # PreToolUse command rewrites (agent-browser -> pnpm exec)
+      supervisor/                   # Stateful real-time supervision (wall-clock, thrash, install-gate)
+      post-agent-checks/            # SubagentStop verificators, autofixers, context refreshers
+      pre-commit/                   # git commit interceptor (build + lint + tests gate)
+
+  tests/                            # 69 test files
+    fixtures/                       # Markdown fixtures for verification tests
+```
 
 ## Installation
 
@@ -226,7 +307,7 @@ pnpm build
 In the repository where you want to run the harness:
 
 ```bash
-pnpm exec adlc init
+pnpm adlc init
 ```
 
 This creates an `adlc.config.ts` scaffold:
@@ -242,13 +323,13 @@ export default defineConfig({});
 ### Run the full pipeline
 
 ```bash
-pnpm exec adlc "Add a household feature with member invitations and plant sharing"
+pnpm adlc "Add a household feature with member invitations and plant sharing"
 ```
 
-### Preview the wave schedule
+### Preview the execution plan
 
 ```bash
-pnpm exec adlc --dry-run "Add household feature"
+pnpm adlc --dry-run "Add household feature"
 ```
 
 ### CLI reference
@@ -266,28 +347,6 @@ Options:
   -h, --help          Show this help message
 ```
 
-### Progress output
-
-```
-[12:03:01] [plan] Starting placement phase...
-[12:03:01] [plan] Domain mapping attempt 1/3
-[12:03:18] [plan] Starting plan phase...
-[12:03:18] [plan] Plan attempt 1/5
-[12:04:03] [plan] Plan gate... passed
-[12:04:08] [plan] Challengers (cohesion + sprawl)...
-[12:04:38] [plan] Arbiter verdict... approved
-[12:04:38] [exec] Starting slice execution...
-[12:04:38] [wave-0] 1 slice(s)
-[12:04:38]   [foundation] [pipeline] starting
-[12:22:04]   [foundation] [reviewer] passed
-[12:22:04] [wave-1] 3 slice(s)
-[12:22:04]   [invitations] [pipeline] starting
-[12:22:04]   [plant-sharing] [pipeline] starting
-[12:22:04]   [member-list] [pipeline] starting
-[12:45:00] [post] Starting post-processing...
-[12:48:30] [done] Feature complete in 45m 29s
-```
-
 ## Configuration
 
 The `adlc.config.ts` file in the target repository customizes the orchestrator:
@@ -297,10 +356,10 @@ import { defineConfig } from "@patlaf/adlc";
 
 export default defineConfig({
     structure: {
-        apps: "./apps",        // default
-        hostApp: "host",       // default
-        modules: "./modules",  // default
-        packages: "./packages", // default
+        apps: "./apps",           // default
+        hostApp: "host",          // default
+        modules: "./modules",     // default
+        packages: "./packages",   // default
         reference: "./agent-docs" // default — where reference docs live
     },
     scaffolding: {
@@ -312,132 +371,16 @@ export default defineConfig({
         referenceStorybook: "apps/storybook-management"
     },
     ports: {
-        storybook: 6100, // default — base port, offset per worktree
+        storybook: 6100, // base port — offset per worktree
         hostApp: 8100,
         browser: 9200
     },
     agents: {
         coder: {
-            skills: ["accessibility"] // extra skills injected as .claude/skills/{name}/SKILL.md
+            skills: ["accessibility"] // extra skills resolved to .claude/skills/{name}/SKILL.md
         }
     }
 });
-```
-
-The orchestrator also auto-discovers reference documentation in the `reference` directory and classifies it (via a lightweight agent or filename heuristics) to inject relevant docs into agent prompts.
-
-## Project structure
-
-```
-v3/
-  agents/                       # 15 agent prompt files (markdown + YAML frontmatter)
-  skills/                       # Skills shipped with the package (agent-browser, scaffolding, etc.)
-
-  src/
-    cli.ts                      # Entry point — arg parsing, calls orchestrator
-    config.ts                   # Model IDs, budget defaults, port config, defineConfig()
-    context.ts                  # Project context preamble builder (doc discovery + classification)
-    index.ts                    # Public API — exports defineConfig, run, types
-    ports.ts                    # Port allocation for parallel worktrees
-    preflight.ts                # Repository validation (required scripts, devDependencies)
-    progress.ts                 # Progress tracking and duration formatting
-
-    workflow/
-      orchestrator.ts           # Top-level pipeline: placement -> plan -> slices -> post
-      agents.ts                 # Agent .md parser, loadAllAgents(), runAgent() SDK wrapper
-
-      steps/
-        placement.ts            # Domain mapping + placement gate loop
-        plan.ts                 # Plan draft + adversarial challenge loop
-        simplify.ts             # Post-processing: code quality review
-        document.ts             # Post-processing: doc updates
-        pr.ts                   # Post-processing: push + open PR
-        monitor.ts              # Post-processing: CI polling + auto-fix
-
-        slices/
-          run-slices.ts         # DAG-aware wave execution with parallel worktrees
-          revision-loop.ts      # Per-slice: explorer -> coder <-> reviewer retry
-
-          dag/
-            parser.ts           # Slice dependency parser (reads `Depends on:` lines)
-            scheduler.ts        # Topological sort into execution waves
-            types.ts            # DAG types (Slice, Wave)
-
-          worktree/
-            lifecycle.ts        # Git worktree create / remove
-            seeder.ts           # Seeds .adlc/ in worktrees with plan artifacts
-            merger.ts           # Merge worktree branch back to feature branch
-            collector.ts        # Copies artifacts (notes, verification) from worktree to main .adlc/
-
-    hooks/
-      create-hooks.ts           # Assembles all hooks into SDK HookCallbackMatcher format
-      types.ts                  # Local types for SDK hook inputs/outputs
-
-      guards/
-        create-guards-hook.ts   # PreToolUse guard chain factory
-        block-npm.ts            # Blocks npm/npx/pnpx/dlx
-        block-windows-cmd.ts    # Blocks cmd.exe on Windows
-        block-node-modules-read.ts # Blocks node_modules reads (allows .d.ts)
-        utils.ts                # Guard utilities (command segment splitting)
-        types.ts                # Guard types
-
-      rewrites/
-        create-rewrites-hook.ts # PreToolUse rewrite chain factory
-        agent-browser-rewrite.ts # Rewrites bare agent-browser to pnpm exec
-
-      supervisor/
-        create-supervisor-hooks.ts     # Factory wiring shared state
-        create-supervisor-pre-tool-hook.ts  # PreToolUse policy chain
-        create-supervisor-post-tool-hook.ts # PostToolUse install-bypass scanner
-        state.ts                # In-memory SupervisorState
-        event-builder.ts        # Constructs supervisor events from tool input
-        wall-clock.ts           # Per-agent nudge + hard stop circuit breaker
-        browser-thrash.ts       # Density + repetition detection with tiered gates
-        test-thrash.ts          # Edit-gap detection with tiered recovery
-        install-gate.ts         # Evidence-gated pnpm install blocking
-
-      post-agent-checks/
-        create-post-agent-checks-hook.ts # SubagentStop routing to handlers
-        metrics.ts              # Transcript parser, appends to .adlc/run-metrics.json
-        utils.ts                # .adlc artifact helpers, getChangedFiles
-        build-check.ts          # Full monorepo build check
-        lint-check.ts           # Full monorepo lint check
-        tests-check.ts          # Full monorepo test check
-        import-check.ts         # Architectural boundary enforcement
-        no-file-disable-check.ts # Rejects file-level oxlint-disable
-        oxfmt-autofix.ts        # Auto-format before validation
-
-        coder/                  # handler + 4 checks + context refresh + kill-ports
-        planner/                # handler + 4 checks
-        plan-gate/              # handler + 2 checks
-        reviewer/               # handler + 2 checks
-        domain-mapper/          # handler + 2 checks
-        evidence-researcher/    # handler
-        challenge-arbiter/      # handler
-        placement-gate/         # handler
-        simplify/               # handler
-        document/               # handler
-
-      pre-commit/
-        create-pre-commit-hook.ts # PreToolUse git commit interceptor
-        handler.ts              # Commit pipeline: oxfmt -> build + lint + tests
-        build-check.ts          # Build check for commit gate
-        lint-check.ts           # Lint check for commit gate
-        tests-check.ts          # Test check for commit gate
-        oxfmt-autofix.ts        # Auto-format before commit
-        gitignore-guard.ts      # Blocks !.adlc/ in .gitignore
-
-  tests/                        # 69 test files — ~396 tests
-    fixtures/                   # Markdown fixtures for verification tests
-    hooks/
-      guards/                   # 3 test files
-      rewrites/                 # 1 test file
-      supervisor/               # 5 test files
-      post-agent-checks/        # ~35 test files (mirrors src structure)
-      pre-commit/               # 7 test files
-    workflow/
-      agents/                   # 1 test file
-      steps/                    # 7 test files (placement, plan, slices, dag, worktree)
 ```
 
 ## Development
