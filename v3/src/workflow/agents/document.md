@@ -19,7 +19,7 @@ Keep agent documentation in sync with what the code actually does.
 
 ### 2. Update placement reference
 
-Read `agent-docs/references/placement.md`.
+Read the `placement` reference doc.
 
 - Module scope expanded → update its Domains table description (one line each).
 - New module created → add to the Domains table.
@@ -30,7 +30,7 @@ Read `agent-docs/references/placement.md`.
 
 ### 3. Update architecture doc
 
-Read `agent-docs/ARCHITECTURE.md`. Skip if implementation notes show only extensions to existing modules.
+Read the `architecture` reference doc. Skip if implementation notes show only extensions to existing modules.
 
 - New module → add to the repo structure tree and domain isolation section.
 - New shared package or subpath export → add to the shared packages description.
@@ -38,17 +38,17 @@ Read `agent-docs/ARCHITECTURE.md`. Skip if implementation notes show only extens
 
 ### 4. Update ADR index
 
-Read `agent-docs/adr/index.md`. Skip if the feature only extends existing patterns.
+Read the `decisions` reference doc. Skip if the feature only extends existing patterns.
 
 - New architectural pattern → write an ADR following existing format, add to index.
 
 ### 5. Update CLAUDE.md indexes
 
-If previous steps added new files to `agent-docs/`, add entries to the Index section of `CLAUDE.md`. Also check domain-scoped `CLAUDE.md` files for any content that needs updating.
+If previous steps added new files to the reference docs directory, add entries to the Index section of `CLAUDE.md`. Also check domain-scoped `CLAUDE.md` files for any content that needs updating.
 
 ### 6. Scan other references
 
-Skim `agent-docs/references/` for any other docs affected by the implementation. Add, update, or remove content as needed.
+Skim the reference docs listed in the Project context section above for any other docs affected by the implementation. Add, update, or remove content as needed.
 
 ### 7. Verify consistency
 

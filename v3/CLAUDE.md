@@ -28,13 +28,13 @@ This directory contains the ADLC orchestrator built on `@anthropic-ai/claude-age
 - `src/hooks/` — SDK hook wiring
   - `create-hooks.ts` — Hook assembly, creates SDK hooks config
   - `pre-commit/create-pre-commit-hook.ts` — PreToolUse/Bash commit gate (oxfmt, build, lint, tests, gitignore guard)
-  - `preflight/create-preflight-hook.ts` — PreToolUse guards (block-npm, block-windows-cmd, etc.)
+  - `guards/create-guards-hook.ts` — PreToolUse guards (block-npm, block-windows-cmd, etc.)
   - `supervisor/` — PreToolUse+PostToolUse policies (browser-thrash, wall-clock, etc.)
     - `create-supervisor-hooks.ts` — Factory wiring shared state
     - `create-supervisor-pre-tool-hook.ts` — PreToolUse policy chain
     - `create-supervisor-post-tool-hook.ts` — PostToolUse install-bypass scanner
-  - `verification/create-verification-hook.ts` — SubagentStop verification handlers and checks
-  - `verification/metrics.ts` — Transcript metrics recording and artifact archival
+  - `post-agent-checks/create-post-agent-checks-hook.ts` — SubagentStop post-agent checks and handlers
+  - `post-agent-checks/metrics.ts` — Transcript metrics recording and artifact archival
 
 ### Key design
 

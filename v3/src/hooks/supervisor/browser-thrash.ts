@@ -100,7 +100,7 @@ function tier1Message(density: number, recentEvents: SupervisorEvent[]): string 
         "Recent browser commands:",
         ...fingerprints.map(fp => `- ${fp}`),
         "",
-        "Load the _browser-recovery skill to diagnose and plan alternative approaches.",
+        "Load the browser-recovery skill (node_modules/@patlaf/adlc/skills/browser-recovery/SKILL.md) to diagnose and plan alternative approaches.",
         "",
         `Your next browser command will be allowed after ${TIER_GATES[1]} non-browser tool calls.`
     ].join("\n");
@@ -133,7 +133,7 @@ function repetitionMessage(sameTargetCalls: number, currentTarget: string | null
         "You are likely probing the same state repeatedly. Stop and read the source",
         "code of the component to understand why it renders this way.",
         "",
-        "Load the _browser-recovery skill to diagnose and plan alternative approaches.",
+        "Load the browser-recovery skill (node_modules/@patlaf/adlc/skills/browser-recovery/SKILL.md) to diagnose and plan alternative approaches.",
         "",
         `Your next browser command will be allowed after ${TIER_GATES[1]} non-browser tool calls.`
     ].join("\n");

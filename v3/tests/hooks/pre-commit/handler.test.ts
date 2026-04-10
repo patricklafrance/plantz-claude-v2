@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 // ── Mock run ────────────────────────────────────────────────────────────────
 
-vi.mock("../../../src/hooks/verification/utils.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/utils.js", () => ({
     run: vi.fn().mockResolvedValue({ ok: true, stdout: "", stderr: "" })
 }));
 

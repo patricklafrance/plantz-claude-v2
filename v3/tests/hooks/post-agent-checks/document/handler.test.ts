@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { handleDocument } from "../../../../src/hooks/verification/document/handler.js";
+import { handleDocument } from "../../../../src/hooks/post-agent-checks/document/handler.js";
 
-vi.mock("../../../../src/hooks/verification/utils.js", () => ({
+vi.mock("../../../../src/hooks/post-agent-checks/utils.js", () => ({
     run: vi.fn().mockResolvedValue({ ok: true, stdout: "", stderr: "" })
 }));
 

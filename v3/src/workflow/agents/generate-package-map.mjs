@@ -291,10 +291,11 @@ function parseReferences(section) {
 
 /**
  * Scan workspace for all package.json files and build a name → absolute path map.
+ * Directories match the config.structure defaults: apps, packages, modules.
  */
 function buildWorkspaceMap(root) {
     const map = new Map();
-    const dirs = ["apps", "packages"];
+    const dirs = ["apps", "packages", "modules"];
 
     for (const dir of dirs) {
         const base = resolve(root, dir);

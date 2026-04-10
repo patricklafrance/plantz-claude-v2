@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { existsSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 
@@ -14,8 +15,31 @@ const { values, positionals } = parseArgs({
     }
 });
 
+const command = positionals[0];
+
+if (command === "init") {
+    const cwd = resolve(process.cwd());
+    const configPath = resolve(cwd, "adlc.config.ts");
+
+    if (existsSync(configPath)) {
+        console.log("adlc.config.ts already exists — skipping.");
+    } else {
+        writeFileSync(
+            configPath,
+            `import { defineConfig } from "@patlaf/adlc";\n\nexport default defineConfig({});\n`
+        );
+        console.log("Created adlc.config.ts");
+    }
+
+    process.exit(0);
+}
+
 if (values.help || positionals.length === 0) {
     console.log(`Usage: adlc [options] <feature-description>
+       adlc init
+
+Commands:
+  init                Scaffold adlc.config.ts if not present
 
 Options:
   --dry-run           Show wave schedule without executing

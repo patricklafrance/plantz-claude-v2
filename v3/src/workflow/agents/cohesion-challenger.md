@@ -13,7 +13,7 @@ Evaluate whether extensions maintain cohesion or create god modules/packages. Yo
 
 ### 1. Load context
 
-- Read `agent-docs/references/placement.md` and `.adlc/domain-mapping.md`.
+- Read the `placement` reference doc and `.adlc/domain-mapping.md`.
 - Read source files of the target modules or packages being extended.
 - Do not read the feature description.
 

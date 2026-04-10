@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { criteriaCoverageCheck } from "../../../../src/hooks/verification/reviewer/criteria-coverage-check.js";
+import { criteriaCoverageCheck } from "../../../../src/hooks/post-agent-checks/reviewer/criteria-coverage-check.js";
 import { loadFixture } from "../../../fixtures/load.js";
 
 describe("criteria-coverage-check", () => {

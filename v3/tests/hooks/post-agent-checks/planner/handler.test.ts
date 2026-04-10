@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { handlePlanner } from "../../../../src/hooks/verification/planner/handler.js";
+import { handlePlanner } from "../../../../src/hooks/post-agent-checks/planner/handler.js";
 import { loadFixture } from "../../../fixtures/load.js";
 
 describe("planner handler (orchestration)", () => {

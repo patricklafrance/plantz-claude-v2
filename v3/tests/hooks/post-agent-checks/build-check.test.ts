@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { buildCheck } from "../../../src/hooks/verification/build-check.js";
+import { buildCheck } from "../../../src/hooks/post-agent-checks/build-check.js";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 

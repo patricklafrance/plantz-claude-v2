@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 
-import { recordMetrics } from "../../../src/hooks/verification/metrics.js";
+import { recordMetrics } from "../../../src/hooks/post-agent-checks/metrics.js";
 
 function makeTmpDir(): string {
     const dir = mkdtempSync(join(tmpdir(), "metrics-test-"));

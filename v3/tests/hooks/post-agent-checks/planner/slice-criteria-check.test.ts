@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { sliceCriteriaCheck } from "../../../../src/hooks/verification/planner/slice-criteria-check.js";
+import { sliceCriteriaCheck } from "../../../../src/hooks/post-agent-checks/planner/slice-criteria-check.js";
 import { loadFixture } from "../../../fixtures/load.js";
 
 describe("slice-criteria-check", () => {

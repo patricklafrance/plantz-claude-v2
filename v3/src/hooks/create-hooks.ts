@@ -1,10 +1,11 @@
 /** Hook assembly — creates the SDK hooks configuration object. */
 
 import { createPreCommitHook } from "./pre-commit/create-pre-commit-hook.js";
-import { createPreflightHook } from "./preflight/create-preflight-hook.js";
+import { createGuardsHook } from "./guards/create-guards-hook.js";
+import { createRewritesHook } from "./rewrites/create-rewrites-hook.js";
 import { createSupervisorHooks } from "./supervisor/create-supervisor-hooks.js";
 import type { HookJSONOutput, PostToolUseHookInput, PreToolUseHookInput, SubagentStopHookInput } from "./types.js";
-import { createVerificationHook } from "./verification/create-verification-hook.js";
+import { createPostAgentChecksHook } from "./post-agent-checks/create-post-agent-checks-hook.js";
 
 // ── SDK callback types (kept local to avoid SDK dependency at type level) ──
 
@@ -37,15 +38,16 @@ function wrapSubagentStopHook(fn: (input: SubagentStopHookInput) => Promise<Hook
 
 export function createHooks(_options?: { cwd?: string }): { hooks: SDKHooks } {
     const preCommitHook = wrapPreToolHook(createPreCommitHook());
-    const preflightHook = wrapPreToolHook(createPreflightHook());
+    const rewritesHook = wrapPreToolHook(createRewritesHook());
+    const guardsHook = wrapPreToolHook(createGuardsHook());
     const { preToolHook, postToolHook } = createSupervisorHooks();
     const supervisorPreHook = wrapPreToolHook(preToolHook);
     const supervisorPostHook = wrapPostToolHook(postToolHook);
-    const verificationHook = wrapSubagentStopHook(createVerificationHook());
+    const verificationHook = wrapSubagentStopHook(createPostAgentChecksHook());
 
     return {
         hooks: {
-            PreToolUse: [{ matcher: "Bash", hooks: [preCommitHook, preflightHook, supervisorPreHook] }, { hooks: [supervisorPreHook] }],
+            PreToolUse: [{ matcher: "Bash", hooks: [preCommitHook, rewritesHook, guardsHook, supervisorPreHook] }, { hooks: [supervisorPreHook] }],
             PostToolUse: [{ matcher: "Bash", hooks: [supervisorPostHook] }],
             SubagentStop: [{ hooks: [verificationHook] }]
         }

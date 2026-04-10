@@ -3,9 +3,9 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { testsCheck } from "../../../src/hooks/verification/tests-check.js";
+import { testsCheck } from "../../../src/hooks/post-agent-checks/tests-check.js";
 
-vi.mock("../../../src/hooks/verification/utils.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/utils.js", () => ({
     run: vi.fn().mockResolvedValue({ ok: true, stdout: "", stderr: "" })
 }));
 

@@ -1,6 +1,6 @@
 /** Full monorepo tests via turbo (vitest + Storybook a11y). */
 
-import { run } from "../verification/utils.js";
+import { run } from "../post-agent-checks/utils.js";
 
 export async function testsCheck(cwd: string): Promise<string[]> {
     const result = await run(cwd, "pnpm test");

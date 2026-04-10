@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { crossBoundaryImportsCheck } from "../../../src/hooks/verification/import-check.js";
+import { crossBoundaryImportsCheck } from "../../../src/hooks/post-agent-checks/import-check.js";
 
 describe("import-guard", () => {
     let tmp: string;

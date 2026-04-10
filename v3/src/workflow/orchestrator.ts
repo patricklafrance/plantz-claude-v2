@@ -1,3 +1,6 @@
+import { loadConfig, resolveConfig } from "../config.js";
+import { buildProjectContext, contextToPreamble } from "../context.js";
+import { validateRepository } from "../preflight.js";
 import { loadAllAgents } from "./agents/loader.js";
 import { Progress, formatDuration } from "../progress.js";
 import { runDocument } from "./steps/document.js";
@@ -23,7 +26,18 @@ export async function run(featureDescription: string, options: OrchestratorOptio
     const startTime = Date.now();
 
     try {
-        const agents = loadAllAgents();
+        // Load and resolve config
+        const rawConfig = await loadConfig(cwd);
+        const config = resolveConfig(rawConfig);
+
+        // Repository preflight — validates scripts and devDependencies
+        validateRepository(cwd);
+
+        // Build project context preamble
+        const projectContext = buildProjectContext(cwd, config);
+        const preamble = contextToPreamble(projectContext);
+
+        const agents = loadAllAgents(preamble, config, cwd);
 
         // Step 1: Domain mapping + placement gate
         progress.log("plan", "Starting placement phase...");

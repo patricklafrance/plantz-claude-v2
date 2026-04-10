@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { handleChallengeArbiter } from "../../../../src/hooks/verification/challenge-arbiter/handler.js";
+import { handleChallengeArbiter } from "../../../../src/hooks/post-agent-checks/challenge-arbiter/handler.js";
 
 describe("challenge-arbiter handler", () => {
     let tmp: string;

@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { noSecretsCheck } from "../../../../src/hooks/verification/coder/no-secrets-check.js";
+import { noSecretsCheck } from "../../../../src/hooks/post-agent-checks/coder/no-secrets-check.js";
 
-vi.mock("../../../../src/hooks/verification/utils.js", () => ({
+vi.mock("../../../../src/hooks/post-agent-checks/utils.js", () => ({
     run: vi.fn().mockResolvedValue({ ok: true, stdout: "", stderr: "" })
 }));
 

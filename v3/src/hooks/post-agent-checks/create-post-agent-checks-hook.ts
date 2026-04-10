@@ -1,5 +1,5 @@
 /**
- * Verification hook — wraps the 9 per-agent-type verification handlers
+ * Post-agent checks hook — wraps the per-agent-type check handlers
  * into a SubagentStop callback.
  *
  * When an ADLC subagent signals completion, this hook runs the matching
@@ -36,7 +36,7 @@ const handlers: Record<string, HandlerFn> = {
     "simplify": handleSimplify
 };
 
-export function createVerificationHook() {
+export function createPostAgentChecksHook() {
     return async (input: SubagentStopHookInput): Promise<HookJSONOutput> => {
         const { agent_type: agentType, agent_transcript_path: transcriptPath, cwd } = input;
 

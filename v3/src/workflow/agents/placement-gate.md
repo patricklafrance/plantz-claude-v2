@@ -13,7 +13,7 @@ Review the completed placement mapping for architectural coherence before the pl
 
 ### 1. Load context
 
-- Read `agent-docs/references/placement.md` and `.adlc/domain-mapping.md`.
+- Read the `placement` reference doc and `.adlc/domain-mapping.md`.
 - Read source files of modules that are being extended or created.
 - Do not read the feature description. Evaluate the mapping on its architectural merits.
 

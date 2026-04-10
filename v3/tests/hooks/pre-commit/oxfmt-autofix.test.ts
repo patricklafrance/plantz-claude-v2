@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { run } from "../../../src/hooks/verification/utils.js";
+import { run } from "../../../src/hooks/post-agent-checks/utils.js";
 
-vi.mock("../../../src/hooks/verification/utils.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/utils.js", () => ({
     run: vi.fn()
 }));
 

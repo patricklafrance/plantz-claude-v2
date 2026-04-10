@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { noPlanMutationsCheck } from "../../../../src/hooks/verification/plan-gate/no-plan-mutations-check.js";
+import { noPlanMutationsCheck } from "../../../../src/hooks/post-agent-checks/plan-gate/no-plan-mutations-check.js";
 
 function gitInit(cwd: string): void {
     execSync("git init && git config user.email test@test.com && git config user.name test && git add -A && git commit --allow-empty -m init", {

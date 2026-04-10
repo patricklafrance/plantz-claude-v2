@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { resultsFileCheck } from "../../../../src/hooks/verification/reviewer/verification-results-check.js";
+import { resultsFileCheck } from "../../../../src/hooks/post-agent-checks/reviewer/verification-results-check.js";
 import { loadFixture } from "../../../fixtures/load.js";
 
 describe("verification-results-check", () => {

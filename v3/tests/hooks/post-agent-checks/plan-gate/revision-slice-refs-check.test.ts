@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { revisionSliceRefsCheck } from "../../../../src/hooks/verification/plan-gate/revision-slice-refs-check.js";
+import { revisionSliceRefsCheck } from "../../../../src/hooks/post-agent-checks/plan-gate/revision-slice-refs-check.js";
 import { loadFixture } from "../../../fixtures/load.js";
 
 describe("revision-slice-refs-check", () => {

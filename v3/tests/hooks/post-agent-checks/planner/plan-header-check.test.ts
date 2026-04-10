@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { planHeaderCheck } from "../../../../src/hooks/verification/planner/plan-header-check.js";
+import { planHeaderCheck } from "../../../../src/hooks/post-agent-checks/planner/plan-header-check.js";
 import { loadFixture } from "../../../fixtures/load.js";
 
 describe("plan-header-check", () => {

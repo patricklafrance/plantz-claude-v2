@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { mappingFileCheck } from "../../../../src/hooks/verification/domain-mapper/mapping-file-check.js";
+import { mappingFileCheck } from "../../../../src/hooks/post-agent-checks/domain-mapper/mapping-file-check.js";
 import { loadFixture } from "../../../fixtures/load.js";
 
 describe("mapping-file-check", () => {

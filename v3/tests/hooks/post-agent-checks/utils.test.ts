@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { getChangedFiles } from "../../../src/hooks/verification/utils.js";
+import { getChangedFiles } from "../../../src/hooks/post-agent-checks/utils.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "../..");

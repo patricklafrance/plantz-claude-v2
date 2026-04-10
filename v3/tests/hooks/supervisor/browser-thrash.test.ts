@@ -125,7 +125,7 @@ describe("browser-thrash policy", () => {
         expect(result!.severity).toBe("recovery");
         expect(result!.tier).toBe(1);
         expect(result!.reason).toContain("Browser stuck detected");
-        expect(result!.reason).toContain("_browser-recovery");
+        expect(result!.reason).toContain("node_modules/@patlaf/adlc/skills/browser-recovery/SKILL.md");
     });
 
     it("escalates to tier 2 when already in tier 1 and density still high", () => {

@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { noFileDisableCheck } from "../../../src/hooks/verification/no-file-disable-check.js";
+import { noFileDisableCheck } from "../../../src/hooks/post-agent-checks/no-file-disable-check.js";
 
 describe("no-file-disable", () => {
     let tmp: string;

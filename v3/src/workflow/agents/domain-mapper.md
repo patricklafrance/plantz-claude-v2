@@ -40,7 +40,7 @@ Read `.adlc/current-challenge-verdict.md`. For each concern:
 ### 1. Load context
 
 - Read the feature description.
-- Read `agent-docs/references/placement.md`.
+- Read the `placement` reference doc.
 - Scan existing modules and their subfolders: read actual code — components, routes, pages, API calls. Heuristics applied to PRD text alone produce wrong answers.
 - For `extend` rows naming an existing component, read the `.tsx` file and note its interaction pattern in the Rationale (e.g., auto-save, form-submit). Skip new entities.
 

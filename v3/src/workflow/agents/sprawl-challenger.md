@@ -15,7 +15,7 @@ For each "create" or "new-package" decision that proposes a new top-level module
 
 Read in this order to minimize anchoring on the mapper's framing:
 
-1. Read `agent-docs/references/placement.md`.
+1. Read the `placement` reference doc.
 2. Read registration files and key source files of modules relevant to the "create" decisions (routes, components, data layer).
 3. Read `.adlc/domain-mapping.md`.
 

@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { parse } from "yaml";
 
-import { resolveModel } from "../../config.js";
+import { resolveModel, type ResolvedConfig } from "../../config.js";
 
 /** SDK-compatible agent definition. */
 export type AgentDefinition = {
@@ -104,17 +104,37 @@ export function loadAgent(name: string): { name: string; definition: AgentDefini
     }
 }
 
+/** Resolve a skill name to a `.claude/skills/{name}/SKILL.md` path relative to `cwd`. */
+function resolveSkillName(name: string, cwd: string): string {
+    return [cwd, ".claude", "skills", name, "SKILL.md"].join("/");
+}
+
 /**
  * Load all agent definitions from the agents directory.
  *
+ * @param preamble - Optional project context preamble to prepend to every agent's prompt.
+ * @param config - Optional resolved config; consumer-defined skills are merged into agent definitions.
+ * @param cwd - Target repository root; used to resolve consumer skill names to paths.
  * @returns a record keyed by agent name.
  */
-export function loadAllAgents(): Record<string, AgentDefinition> {
+export function loadAllAgents(preamble?: string, config?: ResolvedConfig, cwd?: string): Record<string, AgentDefinition> {
     const files = readdirSync(AGENTS_DIR).filter(f => f.endsWith(".md"));
     const agents: Record<string, AgentDefinition> = {};
+    const agentOverrides = config?.agents ?? {};
 
     for (const file of files) {
         const { name, definition } = parseAgentFile(join(AGENTS_DIR, file));
+
+        if (preamble) {
+            definition.prompt = `${preamble}\n\n---\n\n${definition.prompt}`;
+        }
+
+        const extra = agentOverrides[name]?.skills;
+        if (extra?.length && cwd) {
+            const resolved = extra.map(s => resolveSkillName(s, cwd));
+            definition.skills = [...(definition.skills ?? []), ...resolved];
+        }
+
         agents[name] = definition;
     }
 

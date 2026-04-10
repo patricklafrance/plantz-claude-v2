@@ -1,47 +1,47 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { SubagentStopHookInput } from "../../../src/hooks/types.js";
-import { createVerificationHook } from "../../../src/hooks/verification/create-verification-hook.js";
+import { createPostAgentChecksHook } from "../../../src/hooks/post-agent-checks/create-post-agent-checks-hook.js";
 
 // Mock metrics — avoid filesystem side effects
-vi.mock("../../../src/hooks/verification/metrics.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/metrics.js", () => ({
     recordMetrics: vi.fn(),
     archiveArtifacts: vi.fn()
 }));
 
 // Mock all 9 handlers
-vi.mock("../../../src/hooks/verification/coder/handler.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/coder/handler.js", () => ({
     handleCoder: vi.fn(async () => [])
 }));
-vi.mock("../../../src/hooks/verification/document/handler.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/document/handler.js", () => ({
     handleDocument: vi.fn(async () => [])
 }));
-vi.mock("../../../src/hooks/verification/domain-mapper/handler.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/domain-mapper/handler.js", () => ({
     handleModuleMapper: vi.fn(async () => [])
 }));
-vi.mock("../../../src/hooks/verification/evidence-researcher/handler.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/evidence-researcher/handler.js", () => ({
     handleEvidenceResearcher: vi.fn(() => [])
 }));
-vi.mock("../../../src/hooks/verification/placement-gate/handler.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/placement-gate/handler.js", () => ({
     handlePlacementGate: vi.fn(() => [])
 }));
-vi.mock("../../../src/hooks/verification/plan-gate/handler.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/plan-gate/handler.js", () => ({
     handlePlanGate: vi.fn(() => [])
 }));
-vi.mock("../../../src/hooks/verification/planner/handler.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/planner/handler.js", () => ({
     handlePlanner: vi.fn(() => [])
 }));
-vi.mock("../../../src/hooks/verification/reviewer/handler.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/reviewer/handler.js", () => ({
     handleReviewer: vi.fn(() => [])
 }));
-vi.mock("../../../src/hooks/verification/simplify/handler.js", () => ({
+vi.mock("../../../src/hooks/post-agent-checks/simplify/handler.js", () => ({
     handleSimplify: vi.fn(async () => [])
 }));
 
 // Import the mocked modules so we can control their return values
-import { handleCoder } from "../../../src/hooks/verification/coder/handler.js";
-import { handlePlanner } from "../../../src/hooks/verification/planner/handler.js";
-import { handleReviewer } from "../../../src/hooks/verification/reviewer/handler.js";
+import { handleCoder } from "../../../src/hooks/post-agent-checks/coder/handler.js";
+import { handlePlanner } from "../../../src/hooks/post-agent-checks/planner/handler.js";
+import { handleReviewer } from "../../../src/hooks/post-agent-checks/reviewer/handler.js";
 
 function makeStopInput(overrides: Partial<SubagentStopHookInput> = {}): SubagentStopHookInput {
     return {
@@ -57,9 +57,9 @@ function makeStopInput(overrides: Partial<SubagentStopHookInput> = {}): Subagent
     };
 }
 
-describe("createVerificationHook", () => {
+describe("createPostAgentChecksHook", () => {
     it("routes coder to coder handler", async () => {
-        const hook = createVerificationHook();
+        const hook = createPostAgentChecksHook();
         const result = await hook(makeStopInput({ agent_type: "coder" }));
 
         expect(handleCoder).toHaveBeenCalledWith("/tmp/test-project");
@@ -67,28 +67,28 @@ describe("createVerificationHook", () => {
     });
 
     it("routes planner to planner handler", async () => {
-        const hook = createVerificationHook();
+        const hook = createPostAgentChecksHook();
         await hook(makeStopInput({ agent_type: "planner" }));
 
         expect(handlePlanner).toHaveBeenCalledWith("/tmp/test-project");
     });
 
     it("passes through unknown agent types", async () => {
-        const hook = createVerificationHook();
+        const hook = createPostAgentChecksHook();
         const result = await hook(makeStopInput({ agent_type: "unknown" }));
 
         expect(result).toEqual({ continue: true });
     });
 
     it("passes through non-ADLC agent types", async () => {
-        const hook = createVerificationHook();
+        const hook = createPostAgentChecksHook();
         const result = await hook(makeStopInput({ agent_type: "some-other-agent" }));
 
         expect(result).toEqual({ continue: true });
     });
 
     it("skips verification when stop_hook_active is true", async () => {
-        const hook = createVerificationHook();
+        const hook = createPostAgentChecksHook();
         const result = await hook(makeStopInput({ stop_hook_active: true }));
 
         // Should pass through without calling any handler
@@ -98,7 +98,7 @@ describe("createVerificationHook", () => {
     it("blocks when handler reports problems", async () => {
         vi.mocked(handleCoder).mockResolvedValueOnce(["Build failed: type error in src/foo.ts", "Lint: 3 errors found"]);
 
-        const hook = createVerificationHook();
+        const hook = createPostAgentChecksHook();
         const result = await hook(makeStopInput({ agent_type: "coder" }));
 
         expect(result.decision).toBe("block");
@@ -110,7 +110,7 @@ describe("createVerificationHook", () => {
     it("allows when handler returns empty problems", async () => {
         vi.mocked(handleReviewer).mockReturnValueOnce([]);
 
-        const hook = createVerificationHook();
+        const hook = createPostAgentChecksHook();
         const result = await hook(makeStopInput({ agent_type: "reviewer" }));
 
         expect(result).toEqual({ continue: true });

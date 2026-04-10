@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { implementationNotesCheck } from "../../../../src/hooks/verification/coder/implementation-notes-check.js";
+import { implementationNotesCheck } from "../../../../src/hooks/post-agent-checks/coder/implementation-notes-check.js";
 
 describe("implementation-notes-check", () => {
     it("should pass when a file in the directory is in changed list", () => {

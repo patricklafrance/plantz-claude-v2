@@ -1,14 +1,14 @@
-# Verification
+# Post-Agent Checks
 
-Post-completion verification for ADLC subagents.
+Post-completion checks for ADLC subagents.
 
 This hook runs on `SubagentStop` to validate work before the workflow advances.
 
-It is not a live runtime controller like `supervisor`. It is a stop-time verification and cleanup pipeline.
+It is not a live runtime controller like `supervisor`. It is a stop-time check and cleanup pipeline.
 
 ## Why it exists
 
-`verification` makes the ADLC workflow materially more reliable by turning agent completion into a gated handoff instead of a trust-based handoff.
+`post-agent-checks` makes the ADLC workflow materially more reliable by turning agent completion into a gated handoff instead of a trust-based handoff.
 
 Concretely, it improves the harness by:
 
@@ -22,7 +22,7 @@ Without this hook family, the ADLC loop would depend much more on agents remembe
 
 ## Hook entrypoint
 
-- `create-verification-hook.ts`
+- `create-post-agent-checks-hook.ts`
     - Registered on `SubagentStop`
     - Routes by `agent_type`
     - Records run metrics for all agent runs
@@ -39,7 +39,7 @@ High-level flow:
 
 ## Router and shared modules
 
-The main router lives in `create-verification-hook.ts`.
+The main router lives in `create-post-agent-checks-hook.ts`.
 
 Handled agent types:
 
@@ -58,7 +58,7 @@ Unhandled agent types are allowed through, but their metrics are still recorded.
 
 Shared modules:
 
-- `create-verification-hook.ts` — main router and metrics wiring
+- `create-post-agent-checks-hook.ts` — main router and metrics wiring
 - `metrics.ts` — transcript parsing, run-metric recording, and artifact archival
 - `utils.ts` — `.adlc` artifact helpers (`hasFile`, `listFiles`, `getChangedFiles`) and shared `run` shell helper
 
@@ -168,7 +168,7 @@ Artifact archival happens on successful (problem-free) runs:
 
 ## Public hook contract
 
-`verification` returns:
+`post-agent-checks` returns:
 
 - allow:
     - `{ continue: true }`

@@ -20,9 +20,9 @@ Resolve architecture upfront, slice the work, define success through acceptance 
 
 ### 1. Load context
 
-- Read `agent-docs/ARCHITECTURE.md`, `agent-docs/adr/index.md`, and `agent-docs/references/placement.md`.
+- Read the `architecture` reference doc, the `decisions` reference doc, and the `placement` reference doc.
 - Read `.adlc/domain-mapping.md`. The Mapping table tells you which features go to which modules and packages — carry these decisions forward, don't re-derive them.
-- Scan `agent-docs/references/` for any additional docs relevant to the feature.
+- Scan the reference docs listed in the Project context section above for any additional docs relevant to the feature.
 
 ### 2. Analyze requirements
 
@@ -42,8 +42,14 @@ Resolve before slicing. Placement comes from the module mapping — carry it for
 Each slice is a narrow but complete path through all layers — not a horizontal slice of one layer. Every slice produces a user-visible outcome.
 
 - No purely internal slices — pair data work with its first UI consumer.
-- Order by dependency. Each slice is independently verifiable.
 - Scaffolding goes in the first slice that needs the new module.
+
+#### Parallelism
+
+Slices with satisfied dependencies run concurrently. Minimize the critical path:
+
+- Default to `Depends on: None` — only declare a dependency when a slice needs artifacts produced by an earlier slice.
+- Prefer wide dependency trees over long chains.
 
 ### 5. Write the plan
 

@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { handleEvidenceResearcher } from "../../../../src/hooks/verification/evidence-researcher/handler.js";
+import { handleEvidenceResearcher } from "../../../../src/hooks/post-agent-checks/evidence-researcher/handler.js";
 
 describe("evidence-researcher handler", () => {
     let tmp: string;

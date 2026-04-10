@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { engagementCheck } from "../../../../src/hooks/verification/domain-mapper/engagement-check.js";
+import { engagementCheck } from "../../../../src/hooks/post-agent-checks/domain-mapper/engagement-check.js";
 
 describe("engagement-check", () => {
     let tmp: string;

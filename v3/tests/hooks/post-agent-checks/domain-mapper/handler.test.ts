@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { handleModuleMapper } from "../../../../src/hooks/verification/domain-mapper/handler.js";
+import { handleModuleMapper } from "../../../../src/hooks/post-agent-checks/domain-mapper/handler.js";
 import { loadFixture } from "../../../fixtures/load.js";
 
 describe("domain-mapper handler (composition)", () => {

@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { contextRefreshCheck, extractSliceId } from "../../../../src/hooks/verification/coder/context-refresh.js";
+import { contextRefreshCheck, extractSliceId } from "../../../../src/hooks/post-agent-checks/coder/context-refresh.js";
 
 describe("extractSliceId", () => {
     it("should extract id from frontmatter", () => {
