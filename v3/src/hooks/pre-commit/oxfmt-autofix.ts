@@ -17,7 +17,10 @@ export async function oxfmtAutofix(cwd: string): Promise<string[]> {
     }
 
     // Stage formatting changes so they're included in the commit.
-    await run(cwd, "git add -u");
+    const stage = await run(cwd, "git add -u");
+    if (!stage.ok) {
+        return [`[oxfmt] Failed to stage formatted files:\n${stage.stderr || stage.stdout}`];
+    }
 
     return [];
 }

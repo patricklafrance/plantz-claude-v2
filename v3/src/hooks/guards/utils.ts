@@ -2,7 +2,7 @@
  * Shared helpers for PreToolUse tool guardrails.
  */
 
-const SEGMENT_SPLIT = /\s*(?:&&|\|\||;)\s*/;
+const SEGMENT_SPLIT = /\s*(?:&&|\|\||\||;)\s*/;
 
 export function splitCommandSegments(command: string | null | undefined): string[] {
     return String(command ?? "")

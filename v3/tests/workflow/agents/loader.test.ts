@@ -1,3 +1,5 @@
+import { join } from "node:path";
+
 import { describe, it, expect } from "vitest";
 
 import { loadAgent, loadAllAgents } from "../../../src/workflow/agents.js";
@@ -114,7 +116,7 @@ describe("loadAllAgents", () => {
             "node_modules/@patlaf/adlc/skills/browser-recovery/SKILL.md",
             "node_modules/@patlaf/adlc/skills/workleap-squide/SKILL.md",
             "node_modules/@patlaf/adlc/skills/agent-browser/SKILL.md",
-            "/repo/.claude/skills/accessibility/SKILL.md"
+            join("/repo", ".claude", "skills", "accessibility", "SKILL.md")
         ]);
 
         // Reviewer: bundled skills + resolved consumer skill
@@ -122,7 +124,7 @@ describe("loadAllAgents", () => {
             "node_modules/@patlaf/adlc/skills/validate-modules/SKILL.md",
             "node_modules/@patlaf/adlc/skills/browser-recovery/SKILL.md",
             "node_modules/@patlaf/adlc/skills/agent-browser/SKILL.md",
-            "/repo/.claude/skills/custom-review/SKILL.md"
+            join("/repo", ".claude", "skills", "custom-review", "SKILL.md")
         ]);
     });
 

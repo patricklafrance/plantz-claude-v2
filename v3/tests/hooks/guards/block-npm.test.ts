@@ -26,6 +26,14 @@ describe("block-npm", () => {
         expect(checkBlockNpm("Bash", { command: "cd /repo && npm install lodash" })?.reason).toContain("pnpm");
     });
 
+    it("should block npm after a pipe", () => {
+        expect(checkBlockNpm("Bash", { command: "cat foo | npm install lodash" })?.reason).toContain("pnpm");
+    });
+
+    it("should block npx after a pipe", () => {
+        expect(checkBlockNpm("Bash", { command: "echo bar | npx create-react-app" })?.reason).toContain("pnpm exec");
+    });
+
     it("should allow pnpm exec", () => {
         expect(checkBlockNpm("Bash", { command: "pnpm exec oxfmt --write ." })).toBeNull();
     });

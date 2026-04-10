@@ -41,6 +41,10 @@ describe("install-gate policy", () => {
             expect(isInstallCommand("cd /repo && pnpm install")).toBe(true);
         });
 
+        it("matches install after a pipe", () => {
+            expect(isInstallCommand("cat foo | pnpm install")).toBe(true);
+        });
+
         it("does not match pnpm run", () => {
             expect(isInstallCommand("pnpm run build")).toBe(false);
         });

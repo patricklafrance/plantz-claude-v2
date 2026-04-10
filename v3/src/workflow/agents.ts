@@ -109,7 +109,7 @@ export function loadAgent(name: string): { name: string; definition: AgentDefini
 
 /** Resolve a skill name to a `.claude/skills/{name}/SKILL.md` path relative to `cwd`. */
 function resolveSkillName(name: string, cwd: string): string {
-    return [cwd, ".claude", "skills", name, "SKILL.md"].join("/");
+    return join(cwd, ".claude", "skills", name, "SKILL.md");
 }
 
 /**

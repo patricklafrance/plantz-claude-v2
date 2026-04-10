@@ -102,7 +102,7 @@ function parseVerdict(adlcDir: string): Concern[] {
 
 function extractSection(md: string, heading: string): string | null {
     const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const re = new RegExp(`^##\\s+${escaped}\\b[^\\n]*\\n([\\s\\S]*?)(?=^##\\s|$)`, "m");
+    const re = new RegExp(`(?:^|\\n)##\\s+${escaped}\\b[^\\n]*\\n([\\s\\S]*?)(?=\\n##\\s|$)`);
     const match = md.match(re);
-    return match ? match[1] : null;
+    return match ? match[1].trim() || null : null;
 }

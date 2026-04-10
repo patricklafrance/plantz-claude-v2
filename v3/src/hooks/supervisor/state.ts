@@ -48,7 +48,6 @@ export interface SupervisorState {
     test: TestState;
     startedAt: number | null;
     wallClock: WallClockState;
-    postEventSequence: number;
     installBypass: InstallBypass | null;
 }
 
@@ -75,7 +74,6 @@ export function createDefaultState(): SupervisorState {
         wallClock: {
             nudgeFired: false
         },
-        postEventSequence: 0,
         installBypass: null
     };
 }
@@ -84,7 +82,6 @@ const RECENT_EVENT_WINDOW = 12;
 
 export function applyEventToState(state: SupervisorState, event: SupervisorEvent): SupervisorState {
     state.eventCount = event.index;
-    state.postEventSequence = 0;
 
     if (state.startedAt == null) {
         state.startedAt = event.timestamp;

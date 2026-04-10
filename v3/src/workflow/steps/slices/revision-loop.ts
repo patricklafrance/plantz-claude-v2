@@ -48,9 +48,15 @@ async function runAgentInWorktree(
     let result = "";
     let sessionId = "";
     for await (const message of conversation) {
-        if (message.type === "result" && message.subtype === "success") {
-            result = message.result;
-            sessionId = message.session_id;
+        if (message.type === "result") {
+            if (message.subtype === "success") {
+                result = message.result;
+                sessionId = message.session_id;
+            } else {
+                const msg = message as Record<string, unknown>;
+                const errors = Array.isArray(msg.errors) ? (msg.errors as string[]).join("; ") : String(msg.subtype);
+                throw new Error(`Agent "${agentName}" failed (${msg.subtype}): ${errors}`);
+            }
         }
     }
     return { result, sessionId };

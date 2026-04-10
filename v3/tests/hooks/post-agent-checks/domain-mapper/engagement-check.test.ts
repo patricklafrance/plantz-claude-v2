@@ -65,23 +65,17 @@ describe("engagement-check", () => {
                 "| Route overlap | sprawl says X | cohesion says Y | needs-action | medium |"
             ].join("\n")
         );
-        // The Challenge Resolution heading exists but the section-extraction
-        // regex (multiline + lazy) captures an empty body, which is falsy.
-        // This means the check reports the section as missing rather than
-        // reporting individual unaddressed concerns.
+        // Section exists but doesn't mention the specific concern name
         writeFileSync(
             join(tmp, ".adlc/domain-mapping.md"),
             ["# Mapping", "", "## Challenge Resolution", "", "We addressed the naming concern.", ""].join("\n")
         );
         const problems = engagementCheck(tmp);
         expect(problems).toHaveLength(1);
-        expect(problems[0]).toContain("Challenge Resolution");
+        expect(problems[0]).toContain("Route overlap");
     });
 
-    it("should report missing section when mapping has Challenge Resolution with content below", () => {
-        // Due to the multiline + lazy regex in extractSection, the captured
-        // body is always empty, making the section appear missing even when
-        // content exists. This test documents the current behaviour.
+    it("should pass when all concerns are addressed in Challenge Resolution section", () => {
         writeFileSync(
             join(tmp, ".adlc/current-challenge-verdict.md"),
             [
@@ -107,8 +101,7 @@ describe("engagement-check", () => {
             ].join("\n")
         );
         const problems = engagementCheck(tmp);
-        expect(problems).toHaveLength(1);
-        expect(problems[0]).toContain("Challenge Resolution");
+        expect(problems).toHaveLength(0);
     });
 
     it("should fail when domain-mapping.md cannot be read", () => {

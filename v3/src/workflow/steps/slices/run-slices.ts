@@ -119,7 +119,7 @@ async function resolveConflicts(sliceName: string, conflictFiles: string[], prea
             "Do NOT commit — just stage the resolved files."
         ].join("\n");
 
-        await runAgent("_adlc-coder", prompt, cwd, agents);
+        await runAgent("coder", prompt, cwd, agents);
 
         return true;
     } catch {

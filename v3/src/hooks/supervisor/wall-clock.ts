@@ -91,7 +91,7 @@ export default function checkWallClock(event: WallClockEvent, state: SupervisorS
         return null;
     }
 
-    const elapsed = new Date(event.timestamp).getTime() - new Date(state.startedAt).getTime();
+    const elapsed = event.timestamp - state.startedAt;
 
     if (elapsed >= thresholds.hardStop) {
         return {
