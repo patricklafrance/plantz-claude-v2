@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { loadAgent, loadAllAgents } from "../../../src/workflow/agents/loader.js";
+import { loadAgent, loadAllAgents } from "../../../src/workflow/agents.js";
 import { resolveConfig } from "../../../src/config.js";
 
 describe("loadAgent", () => {

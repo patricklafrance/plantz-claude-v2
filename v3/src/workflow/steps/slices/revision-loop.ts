@@ -5,12 +5,12 @@ import { resolve } from "node:path";
 
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
-import type { AgentDefinition } from "../../agents/loader.js";
-import { loadAllAgents } from "../../agents/loader.js";
-import { DEFAULTS } from "../../../config.js";
+import { DEFAULTS, type ResolvedConfig } from "../../../config.js";
 import { createHooks } from "../../../hooks/create-hooks.js";
 import type { Ports } from "../../../ports.js";
 import type { Progress } from "../../../progress.js";
+import type { AgentDefinition } from "../../agents.js";
+import { loadAllAgents } from "../../agents.js";
 
 /** Hooks record shape returned by createHooks. */
 type SDKHooks = ReturnType<typeof createHooks>["hooks"];
@@ -84,7 +84,9 @@ async function runCoderPass(
 /** Check whether the reviewer's verification results indicate a pass. */
 export function checkVerificationResults(worktreePath: string): boolean {
     const resultsPath = resolve(worktreePath, ".adlc/verification-results.md");
-    if (!existsSync(resultsPath)) return false;
+    if (!existsSync(resultsPath)) {
+        return false;
+    }
 
     const content = readFileSync(resultsPath, "utf-8").toLowerCase();
 
@@ -96,9 +98,12 @@ export async function runSlicePipeline(
     sliceName: string,
     worktreePath: string,
     ports: Ports,
+    preamble: string,
+    config: ResolvedConfig,
+    cwd: string,
     progress?: Progress
 ): Promise<{ success: boolean; reason?: string }> {
-    const agents = loadAllAgents();
+    const agents = loadAllAgents(preamble, config, cwd);
     const { hooks } = createHooks({ cwd: worktreePath });
 
     // Explorer phase

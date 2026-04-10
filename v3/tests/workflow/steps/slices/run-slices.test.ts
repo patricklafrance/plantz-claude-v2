@@ -23,20 +23,14 @@ vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
     query: vi.fn(() => createMockConversation(""))
 }));
 
-vi.mock("../../../../src/workflow/agents/loader.js", () => ({
+vi.mock("../../../../src/workflow/agents.js", () => ({
     loadAllAgents: vi.fn(() => ({
         "explorer": { description: "mock", prompt: "mock" },
         "coder": { description: "mock", prompt: "mock" },
         "reviewer": { description: "mock", prompt: "mock" }
-    }))
-}));
-
-// ── Mock hooks ──────────────────────────────────────────────────────────────
-
-vi.mock("../../../../src/hooks/index.js", () => ({
-    createHooks: vi.fn(() => ({
-        hooks: {}
-    }))
+    })),
+    loadAgent: vi.fn(() => ({ name: "_adlc-coder", definition: { description: "mock", prompt: "mock" } })),
+    runAgent: vi.fn(async () => "resolved")
 }));
 
 // ── Mock git / worktree operations ──────────────────────────────────────────
@@ -58,10 +52,18 @@ vi.mock("../../../../src/workflow/steps/slices/worktree/lifecycle.js", () => ({
     })
 }));
 
+let mockMergeResults: Record<string, { success: boolean; conflictFiles?: string[] }> = {};
+
 vi.mock("../../../../src/workflow/steps/slices/worktree/merger.js", () => ({
+    attemptMerge: vi.fn((worktreeBranch: string) => {
+        mockMergedBranches.push(worktreeBranch);
+        return mockMergeResults[worktreeBranch] ?? { success: true };
+    }),
+    completeMerge: vi.fn(),
+    abortMerge: vi.fn(),
     mergeWorktree: vi.fn((worktreeBranch: string) => {
         mockMergedBranches.push(worktreeBranch);
-        return { success: true };
+        return mockMergeResults[worktreeBranch] ?? { success: true };
     })
 }));
 
@@ -113,8 +115,11 @@ vi.mock("node:util", async importOriginal => {
 
 // ── Import under test ───────────────────────────────────────────────────────
 
+import { resolveConfig } from "../../../../src/config.js";
 import type { OrchestratorOptions } from "../../../../src/workflow/orchestrator.js";
-import { runSlices } from "../../../../src/workflow/steps/slices/executor.js";
+import { runSlices } from "../../../../src/workflow/steps/slices/run-slices.js";
+
+const config = resolveConfig({});
 
 // ── Tests ───────────────────────────────────────────────────────────────────
 
@@ -127,6 +132,7 @@ describe("runSlices", () => {
         mockMergedBranches.length = 0;
         mockRemovedWorktrees.length = 0;
         slicePipelineResults = {};
+        mockMergeResults = {};
 
         // Create .adlc structure with slice files
         const slicesDir = join(tmpDir, ".adlc", "slices");
@@ -150,7 +156,7 @@ describe("runSlices", () => {
         writeFileSync(join(slicesDir, "slice-01-alpha.md"), "# Slice 1 -- Alpha\nContent.\n");
         writeFileSync(join(slicesDir, "slice-02-beta.md"), "# Slice 2 -- Beta\nContent.\n");
 
-        await runSlices(tmpDir, { ...baseOptions, cwd: tmpDir });
+        await runSlices(tmpDir, config, "", { ...baseOptions, cwd: tmpDir });
 
         expect(mockWorktrees).toHaveLength(2);
         expect(mockWorktrees[0].sliceName).toBe("alpha");
@@ -171,7 +177,7 @@ describe("runSlices", () => {
             return { success: true };
         });
 
-        await runSlices(tmpDir, { ...baseOptions, cwd: tmpDir });
+        await runSlices(tmpDir, config, "", { ...baseOptions, cwd: tmpDir });
 
         expect(callOrder).toEqual(["base", "feature"]);
     });
@@ -183,7 +189,7 @@ describe("runSlices", () => {
 
         slicePipelineResults["bad"] = { success: false, reason: "max revision attempts exceeded" };
 
-        await runSlices(tmpDir, { ...baseOptions, cwd: tmpDir });
+        await runSlices(tmpDir, config, "", { ...baseOptions, cwd: tmpDir });
 
         expect(mockMergedBranches).toHaveLength(1);
         expect(mockMergedBranches[0]).toBe("adlc/good");
@@ -197,9 +203,53 @@ describe("runSlices", () => {
         const { runSlicePipeline } = await import("../../../../src/workflow/steps/slices/revision-loop.js");
         vi.mocked(runSlicePipeline).mockRejectedValue(new Error("Unexpected crash"));
 
-        await runSlices(tmpDir, { ...baseOptions, cwd: tmpDir });
+        await runSlices(tmpDir, config, "", { ...baseOptions, cwd: tmpDir });
 
         expect(mockMergedBranches).toHaveLength(0);
         expect(mockRemovedWorktrees).toHaveLength(1);
+    });
+
+    it("resolves merge conflicts via coder agent then completes merge", async () => {
+        const slicesDir = join(tmpDir, ".adlc", "slices");
+        writeFileSync(join(slicesDir, "slice-01-alpha.md"), "# Slice 1 -- Alpha\nContent.\n");
+
+        mockMergeResults["adlc/alpha"] = { success: false, conflictFiles: ["index.ts"] };
+
+        const { runAgent } = await import("../../../../src/workflow/agents.js");
+        vi.mocked(runAgent).mockResolvedValue("resolved");
+
+        await runSlices(tmpDir, config, "", { ...baseOptions, cwd: tmpDir });
+
+        const { completeMerge } = await import("../../../../src/workflow/steps/slices/worktree/merger.js");
+        expect(runAgent).toHaveBeenCalled();
+        expect(completeMerge).toHaveBeenCalled();
+    });
+
+    it("cleans up worktrees when seeding throws", async () => {
+        const slicesDir = join(tmpDir, ".adlc", "slices");
+        writeFileSync(join(slicesDir, "slice-01-leak.md"), "# Slice 1 -- Leak\nContent.\n");
+
+        const { seedAdlc } = await import("../../../../src/workflow/steps/slices/worktree/seeder.js");
+        vi.mocked(seedAdlc).mockRejectedValue(new Error("seed failed"));
+
+        await expect(runSlices(tmpDir, config, "", { ...baseOptions, cwd: tmpDir })).rejects.toThrow("seed failed");
+
+        expect(mockRemovedWorktrees).toHaveLength(1);
+    });
+
+    it("aborts merge when coder agent fails to resolve conflicts", async () => {
+        const slicesDir = join(tmpDir, ".adlc", "slices");
+        writeFileSync(join(slicesDir, "slice-01-beta.md"), "# Slice 1 -- Beta\nContent.\n");
+
+        mockMergeResults["adlc/beta"] = { success: false, conflictFiles: ["config.ts"] };
+
+        const { runAgent } = await import("../../../../src/workflow/agents.js");
+        vi.mocked(runAgent).mockRejectedValue(new Error("Agent failed"));
+
+        await runSlices(tmpDir, config, "", { ...baseOptions, cwd: tmpDir });
+
+        const { abortMerge, completeMerge } = await import("../../../../src/workflow/steps/slices/worktree/merger.js");
+        expect(abortMerge).toHaveBeenCalled();
+        expect(completeMerge).not.toHaveBeenCalled();
     });
 });

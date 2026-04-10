@@ -14,11 +14,12 @@
         }
     },
     "files": [
+        "agents",
         "dist",
         "skills"
     ],
     "engines": {
-        "node": ">=20"
+        "node": ">=23.6"
     },
     "scripts": {
         "build": "tsc",

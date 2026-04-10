@@ -1,5 +1,3 @@
-import { PORT_BASE } from "./config.js";
-
 export interface Ports {
     storybook: number;
     hostApp: number;
@@ -7,10 +5,10 @@ export interface Ports {
 }
 
 /** Allocate non-overlapping ports for a slice running in position `index` within a wave. */
-export function allocatePorts(index: number): Ports {
+export function allocatePorts(index: number, base: Ports): Ports {
     return {
-        storybook: PORT_BASE.storybook + index,
-        hostApp: PORT_BASE.hostApp + index,
-        browser: PORT_BASE.browser + index
+        storybook: base.storybook + index,
+        hostApp: base.hostApp + index,
+        browser: base.browser + index
     };
 }

@@ -6,19 +6,21 @@ import { readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { promisify } from "node:util";
 
+import type { ResolvedConfig } from "../../../config.js";
 import type { OrchestratorOptions } from "../../orchestrator.js";
+import { loadAgent, runAgent, loadAllAgents } from "../../agents.js";
 import { allocatePorts } from "../../../ports.js";
 import type { Progress } from "../../../progress.js";
 import { collectResults } from "./worktree/collector.js";
 import { createWorktree, removeWorktree } from "./worktree/lifecycle.js";
-import { mergeWorktree } from "./worktree/merger.js";
+import { attemptMerge, completeMerge, abortMerge, mergeWorktree } from "./worktree/merger.js";
 import { seedAdlc } from "./worktree/seeder.js";
 import { buildDAG } from "./dag/scheduler.js";
 import { runSlicePipeline } from "./revision-loop.js";
 
 const execAsync = promisify(exec);
 
-export async function runSlices(cwd: string, options: OrchestratorOptions, progress?: Progress): Promise<void> {
+export async function runSlices(cwd: string, config: ResolvedConfig, preamble: string, options: OrchestratorOptions, progress?: Progress): Promise<void> {
     const dag = buildDAG(resolve(cwd, ".adlc/slices"));
 
     if (options.dryRun) {
@@ -37,44 +39,91 @@ export async function runSlices(cwd: string, options: OrchestratorOptions, progr
         // Create worktrees
         const worktrees = wave.slices.map(slice => createWorktree(slice.name, featureBranch, cwd));
 
-        // Seed .adlc/ in each worktree
-        await Promise.all(
-            worktrees.map((wt, i) =>
-                seedAdlc(wt.path, {
-                    planHeaderPath: resolve(cwd, ".adlc/plan-header.md"),
-                    domainMappingPath: resolve(cwd, ".adlc/domain-mapping.md"),
-                    slicesDir: resolve(cwd, ".adlc/slices"),
-                    sliceFilename: wave.slices[i].filename,
-                    priorImplementationNotes: getCompletedNotes(cwd)
+        try {
+            // Seed .adlc/ in each worktree
+            await Promise.all(
+                worktrees.map((wt, i) =>
+                    seedAdlc(wt.path, {
+                        planHeaderPath: resolve(cwd, ".adlc/plan-header.md"),
+                        domainMappingPath: resolve(cwd, ".adlc/domain-mapping.md"),
+                        slicesDir: resolve(cwd, ".adlc/slices"),
+                        sliceFilename: wave.slices[i].filename,
+                        priorImplementationNotes: getCompletedNotes(cwd)
+                    })
+                )
+            );
+
+            // Install deps in each worktree
+            await Promise.all(worktrees.map(wt => execAsync("pnpm install", { cwd: wt.path })));
+
+            // Run slices in parallel
+            const ports = worktrees.map((_, i) => allocatePorts(i, config.ports));
+            const results = await Promise.allSettled(
+                worktrees.map((wt, i) => {
+                    progress?.slice(wave.slices[i].name, "pipeline", "starting");
+                    return runSlicePipeline(wave.slices[i].name, wt.path, ports[i], preamble, config, cwd, progress);
                 })
-            )
-        );
+            );
 
-        // Install deps in each worktree
-        await Promise.all(worktrees.map(wt => execAsync("pnpm install", { cwd: wt.path })));
+            // Merge sequentially — resolve conflicts with coder agent
+            for (let i = 0; i < worktrees.length; i++) {
+                const result = results[i];
+                if (result.status === "fulfilled" && result.value.success) {
+                    progress?.slice(wave.slices[i].name, "merge", "merging to feature branch");
+                    const mergeResult = attemptMerge(worktrees[i].branch, featureBranch, cwd);
 
-        // Run slices in parallel
-        const ports = worktrees.map((_, i) => allocatePorts(i));
-        const results = await Promise.allSettled(
-            worktrees.map((wt, i) => {
-                progress?.slice(wave.slices[i].name, "pipeline", "starting");
-                return runSlicePipeline(wave.slices[i].name, wt.path, ports[i], progress);
-            })
-        );
+                    if (mergeResult.success) {
+                        await collectResults(worktrees[i].path, resolve(cwd, ".adlc"));
+                    } else {
+                        // Conflict — attempt agent-assisted resolution
+                        const conflictFiles = mergeResult.conflictFiles ?? [];
+                        progress?.slice(wave.slices[i].name, "merge", `conflict in ${conflictFiles.join(", ")} — resolving`);
 
-        // Merge and collect
-        for (let i = 0; i < worktrees.length; i++) {
-            const result = results[i];
-            if (result.status === "fulfilled" && result.value.success) {
-                progress?.slice(wave.slices[i].name, "merge", "merging to feature branch");
-                mergeWorktree(worktrees[i].branch, featureBranch, cwd);
-                await collectResults(worktrees[i].path, resolve(cwd, ".adlc"));
-            } else {
-                const reason = result.status === "fulfilled" ? result.value.reason : String((result as PromiseRejectedResult).reason);
-                progress?.slice(wave.slices[i].name, "merge", `skipped: ${reason}`);
+                        const resolved = await resolveConflicts(wave.slices[i].name, conflictFiles, preamble, config, cwd);
+                        if (resolved) {
+                            completeMerge(cwd, `merge: resolve conflicts for ${wave.slices[i].name}`);
+                            await collectResults(worktrees[i].path, resolve(cwd, ".adlc"));
+                            progress?.slice(wave.slices[i].name, "merge", "conflicts resolved");
+                        } else {
+                            abortMerge(cwd);
+                            progress?.slice(wave.slices[i].name, "merge", `conflict unresolved: ${conflictFiles.join(", ")}`);
+                        }
+                    }
+                } else {
+                    const reason = result.status === "fulfilled" ? result.value.reason : String((result as PromiseRejectedResult).reason);
+                    progress?.slice(wave.slices[i].name, "merge", `skipped: ${reason}`);
+                }
             }
-            removeWorktree(worktrees[i].path, cwd);
+        } finally {
+            for (const wt of worktrees) {
+                removeWorktree(wt.path, cwd);
+            }
         }
+    }
+}
+
+/**
+ * Spawn the coder agent to resolve merge conflict markers in the working tree.
+ * Returns true if the agent succeeds (files staged, ready for commit).
+ */
+async function resolveConflicts(sliceName: string, conflictFiles: string[], preamble: string, config: ResolvedConfig, cwd: string): Promise<boolean> {
+    try {
+        const agents = loadAllAgents(preamble, config, cwd);
+        const prompt = [
+            `You are resolving merge conflicts for slice "${sliceName}".`,
+            "",
+            "The following files have conflict markers (<<<<<<< / ======= / >>>>>>>):",
+            ...conflictFiles.map(f => `- ${f}`),
+            "",
+            "Resolve each conflict preserving both sides' intent. After resolving, stage every resolved file with `git add`.",
+            "Do NOT commit — just stage the resolved files."
+        ].join("\n");
+
+        await runAgent("_adlc-coder", prompt, cwd, agents);
+
+        return true;
+    } catch {
+        return false;
     }
 }
 

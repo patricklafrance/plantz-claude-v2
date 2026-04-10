@@ -37,6 +37,9 @@ vi.mock("../../../src/hooks/post-agent-checks/reviewer/handler.js", () => ({
 vi.mock("../../../src/hooks/post-agent-checks/simplify/handler.js", () => ({
     handleSimplify: vi.fn(async () => [])
 }));
+vi.mock("../../../src/hooks/post-agent-checks/challenge-arbiter/handler.js", () => ({
+    handleChallengeArbiter: vi.fn(() => [])
+}));
 
 // Import the mocked modules so we can control their return values
 import { handleCoder } from "../../../src/hooks/post-agent-checks/coder/handler.js";

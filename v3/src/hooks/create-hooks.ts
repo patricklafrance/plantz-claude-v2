@@ -43,13 +43,13 @@ export function createHooks(_options?: { cwd?: string }): { hooks: SDKHooks } {
     const { preToolHook, postToolHook } = createSupervisorHooks();
     const supervisorPreHook = wrapPreToolHook(preToolHook);
     const supervisorPostHook = wrapPostToolHook(postToolHook);
-    const verificationHook = wrapSubagentStopHook(createPostAgentChecksHook());
+    const postAgentChecksHook = wrapSubagentStopHook(createPostAgentChecksHook());
 
     return {
         hooks: {
-            PreToolUse: [{ matcher: "Bash", hooks: [preCommitHook, rewritesHook, guardsHook, supervisorPreHook] }, { hooks: [supervisorPreHook] }],
+            PreToolUse: [{ matcher: "Bash", hooks: [preCommitHook, rewritesHook] }, { hooks: [guardsHook, supervisorPreHook] }],
             PostToolUse: [{ matcher: "Bash", hooks: [supervisorPostHook] }],
-            SubagentStop: [{ hooks: [verificationHook] }]
+            SubagentStop: [{ hooks: [postAgentChecksHook] }]
         }
     };
 }

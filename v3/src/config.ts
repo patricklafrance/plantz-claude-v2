@@ -2,6 +2,8 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
+import type { Ports } from "./ports.js";
+
 // ── Model resolution ─────────────────────────────────────
 
 /** Model aliases → full model IDs. */
@@ -67,6 +69,7 @@ export interface AdlcConfig {
     ports?: {
         storybook?: number;
         hostApp?: number;
+        browser?: number;
     };
     /** Per-agent overrides, keyed by agent name. */
     agents?: Record<string, {
@@ -91,10 +94,7 @@ export interface ResolvedConfig {
         referenceModule?: string;
         referenceStorybook?: string;
     };
-    ports: {
-        storybook?: number;
-        hostApp?: number;
-    };
+    ports: Ports;
     /** Per-agent overrides, keyed by agent name. */
     agents: Record<string, {
         skills: string[];
@@ -125,8 +125,9 @@ export function resolveConfig(partial: AdlcConfig): ResolvedConfig {
             referenceStorybook: partial.scaffolding?.referenceStorybook
         },
         ports: {
-            storybook: partial.ports?.storybook,
-            hostApp: partial.ports?.hostApp
+            storybook: partial.ports?.storybook ?? PORT_BASE.storybook,
+            hostApp: partial.ports?.hostApp ?? PORT_BASE.hostApp,
+            browser: partial.ports?.browser ?? PORT_BASE.browser
         },
         agents: Object.fromEntries(
             Object.entries(partial.agents ?? {}).map(([name, agent]) => [

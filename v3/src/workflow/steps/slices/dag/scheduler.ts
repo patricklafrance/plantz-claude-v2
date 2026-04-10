@@ -16,6 +16,15 @@ export function scheduleWaves(nodes: SliceNode[]): Wave[] {
         nodeByNumber.set(node.number, node);
     }
 
+    // Validate all dependency references exist
+    for (const node of nodes) {
+        for (const dep of node.dependsOn) {
+            if (!nodeByNumber.has(dep)) {
+                throw new Error(`Slice ${node.number} ("${node.name}") depends on Slice ${dep}, which does not exist`);
+            }
+        }
+    }
+
     // In-degree: how many unresolved dependencies each slice still has
     const inDegree = new Map<number, number>();
     // Adjacency: slice number → list of slice numbers that depend on it

@@ -1,6 +1,6 @@
 /** Step 2: Plan draft with adversarial challenge loop. */
 
-import { type AgentDefinition, runAgent } from "../agents/loader.js";
+import { type AgentDefinition, runAgent } from "../agents.js";
 import { DEFAULTS } from "../../config.js";
 import type { Progress } from "../../progress.js";
 

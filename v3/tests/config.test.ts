@@ -42,8 +42,9 @@ describe("resolveConfig", () => {
                 referenceStorybook: undefined
             },
             ports: {
-                storybook: undefined,
-                hostApp: undefined
+                storybook: 6100,
+                hostApp: 8100,
+                browser: 9200
             },
             agents: {}
         });
@@ -61,7 +62,7 @@ describe("resolveConfig", () => {
         expect(resolved.structure.packages).toBe("./packages");
         expect(resolved.structure.reference).toBe("./agent-docs");
         expect(resolved.ports.storybook).toBe(6006);
-        expect(resolved.ports.hostApp).toBeUndefined();
+        expect(resolved.ports.hostApp).toBe(8100);
     });
 
     it("preserves full overrides", () => {

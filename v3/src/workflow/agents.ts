@@ -1,11 +1,12 @@
 import { readFileSync, readdirSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { parse } from "yaml";
 
-import { resolveModel, type ResolvedConfig } from "../../config.js";
+import { resolveModel, MODEL_IDS, type ResolvedConfig } from "../config.js";
+import type { DocCandidate } from "../context.js";
 
 /** SDK-compatible agent definition. */
 export type AgentDefinition = {
@@ -43,7 +44,9 @@ function toStringArray(value: string[] | string | undefined): string[] | undefin
         .filter(Boolean);
 }
 
-const AGENTS_DIR = dirname(fileURLToPath(import.meta.url));
+// At runtime this file lives at dist/workflow/agents.js.
+// Agent .md prompts ship in the top-level agents/ directory (two levels up).
+const AGENTS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "../..", "agents");
 
 /**
  * Parse a `.md` file with YAML frontmatter into an agent name + definition.
@@ -158,9 +161,90 @@ export async function runAgent(agentName: string, prompt: string, cwd: string, a
 
     let result = "";
     for await (const message of conversation) {
-        if (message.type === "result" && message.subtype === "success") {
-            result = message.result;
+        if (message.type === "result") {
+            if (message.subtype === "success") {
+                result = message.result;
+            } else {
+                const msg = message as Record<string, unknown>;
+                const errors = Array.isArray(msg.errors) ? (msg.errors as string[]).join("; ") : String(msg.subtype);
+                throw new Error(`Agent "${agentName}" failed (${msg.subtype}): ${errors}`);
+            }
         }
     }
     return result;
+}
+
+// ── Reference doc classification via agent ──────────────
+
+const DOC_CATEGORIES = [
+    "architecture — repo structure, overall architecture",
+    "adr — architectural decisions, decision logs",
+    "operations — operational decisions, CI/CD operations",
+    "placement — code placement rules, module responsibilities",
+    "api — data layer, API patterns, MSW, TanStack Query",
+    "storybook — Storybook conventions, story patterns",
+    "components — component library, design system (e.g. shadcn)",
+    "styling — CSS, Tailwind, PostCSS, color modes, themes",
+    "browser — browser testing, agent-browser CLI",
+    "design — UI/UX design principles"
+];
+
+/**
+ * Use a lightweight agent to classify reference docs into semantic categories.
+ * Returns a mapping of category → relative file path.
+ */
+export async function classifyReferenceDocs(candidates: DocCandidate[], cwd: string): Promise<Record<string, string>> {
+    if (candidates.length === 0) return {};
+
+    const fileList = candidates.map(c => `- ${c.relPath}: "${c.title}"`).join("\n");
+
+    const prompt = [
+        "Classify these reference documentation files into semantic categories based on their path and title.",
+        "",
+        "Files:",
+        fileList,
+        "",
+        "Categories:",
+        ...DOC_CATEGORIES.map(c => `- ${c}`),
+        "",
+        "Rules:",
+        "- Map each file to the single most relevant category.",
+        "- Not every file needs a category — skip files that don't clearly fit.",
+        "- Not every category needs a file — skip categories with no match.",
+        "- Each category maps to at most one file.",
+        "",
+        "Respond with ONLY a valid JSON object mapping category names to file paths. No explanation, no markdown fences.",
+        'Example: {"architecture": "docs/ARCHITECTURE.md", "placement": "docs/references/placement.md"}'
+    ].join("\n");
+
+    const agents: Record<string, AgentDefinition> = {
+        "_doc-classifier": {
+            description: "Classify reference docs into semantic categories",
+            prompt: "You classify documentation files. Respond with only JSON.",
+            model: MODEL_IDS.haiku,
+            maxTurns: 1,
+            permissionMode: "bypassPermissions"
+        }
+    };
+
+    const result = await runAgent("_doc-classifier", prompt, cwd, agents);
+
+    const jsonMatch = result.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+        throw new Error("Doc classifier returned no JSON");
+    }
+
+    const parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
+
+    // Validate: only keep entries where both key and value are strings and the value is a known candidate path
+    const validPaths = new Set(candidates.map(c => c.relPath));
+    const mapping: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(parsed)) {
+        if (typeof value === "string" && validPaths.has(value)) {
+            mapping[key] = value;
+        }
+    }
+
+    return mapping;
 }

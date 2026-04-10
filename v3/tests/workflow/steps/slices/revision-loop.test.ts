@@ -31,7 +31,7 @@ vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
     })
 }));
 
-vi.mock("../../../../src/workflow/agents/loader.js", () => ({
+vi.mock("../../../../src/workflow/agents.js", () => ({
     loadAllAgents: vi.fn(() => ({
         "explorer": { description: "mock", prompt: "mock" },
         "coder": { description: "mock", prompt: "mock" },
@@ -39,7 +39,7 @@ vi.mock("../../../../src/workflow/agents/loader.js", () => ({
     }))
 }));
 
-vi.mock("../../../../src/hooks/index.js", () => ({
+vi.mock("../../../../src/hooks/create-hooks.js", () => ({
     createHooks: vi.fn(() => ({
         hooks: {}
     }))
@@ -48,11 +48,14 @@ vi.mock("../../../../src/hooks/index.js", () => ({
 // ── Import under test ───────────────────────────────────────────────────────
 
 import { runSlicePipeline, checkVerificationResults } from "../../../../src/workflow/steps/slices/revision-loop.js";
+import { resolveConfig } from "../../../../src/config.js";
 import type { Ports } from "../../../../src/ports.js";
 
 // ── Tests ───────────────────────────────────────────────────────────────────
 
 const defaultPorts: Ports = { storybook: 6100, hostApp: 8100, browser: 9200 };
+const defaultConfig = resolveConfig({});
+const defaultPreamble = "";
 
 describe("checkVerificationResults", () => {
     let tmpDir: string;
@@ -109,7 +112,7 @@ describe("runSlicePipeline", () => {
         mkdirSync(join(tmpDir, ".adlc"), { recursive: true });
         writeFileSync(join(tmpDir, ".adlc/verification-results.md"), "# Results\n\n- [x] Passed: all good\n");
 
-        const result = await runSlicePipeline("plant-list", tmpDir, defaultPorts);
+        const result = await runSlicePipeline("plant-list", tmpDir, defaultPorts, defaultPreamble, defaultConfig, tmpDir);
 
         expect(result.success).toBe(true);
 
@@ -142,7 +145,7 @@ describe("runSlicePipeline", () => {
             return createMockConversation(`session-${sessionCounter}`);
         });
 
-        const result = await runSlicePipeline("plant-list", tmpDir, defaultPorts);
+        const result = await runSlicePipeline("plant-list", tmpDir, defaultPorts, defaultPreamble, defaultConfig, tmpDir);
 
         expect(result.success).toBe(true);
 
@@ -169,7 +172,7 @@ describe("runSlicePipeline", () => {
             return createMockConversation(`session-${sessionCounter}`);
         });
 
-        const result = await runSlicePipeline("plant-list", tmpDir, defaultPorts);
+        const result = await runSlicePipeline("plant-list", tmpDir, defaultPorts, defaultPreamble, defaultConfig, tmpDir);
 
         expect(result.success).toBe(false);
         expect(result.reason).toBe("max revision attempts exceeded");
@@ -184,7 +187,7 @@ describe("runSlicePipeline", () => {
         mkdirSync(join(tmpDir, ".adlc"), { recursive: true });
         writeFileSync(join(tmpDir, ".adlc/verification-results.md"), "# Results\n\n- [x] Passed: fine\n");
 
-        await runSlicePipeline("plant-list", tmpDir, defaultPorts);
+        await runSlicePipeline("plant-list", tmpDir, defaultPorts, defaultPreamble, defaultConfig, tmpDir);
 
         expect(queryCallLog[0].agentName).toBe("explorer");
     });
@@ -211,7 +214,7 @@ describe("runSlicePipeline", () => {
             return createMockConversation(`session-${sessionCounter}`);
         });
 
-        await runSlicePipeline("plant-list", tmpDir, defaultPorts);
+        await runSlicePipeline("plant-list", tmpDir, defaultPorts, defaultPreamble, defaultConfig, tmpDir);
 
         const coderCalls = queryCallLog.map((c, i) => ({ ...c, index: i })).filter(c => c.agentName === "coder");
 

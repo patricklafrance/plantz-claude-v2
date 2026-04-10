@@ -6,7 +6,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const REQUIRED_SCRIPTS = [
+export const REQUIRED_SCRIPTS = [
     "build",
     "lint",
     "test",

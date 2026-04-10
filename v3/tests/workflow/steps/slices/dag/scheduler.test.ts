@@ -55,6 +55,12 @@ describe("scheduleWaves", () => {
         expect(() => scheduleWaves(nodes)).toThrow(/cycle/i);
     });
 
+    it("throws a clear error for a dangling dependency reference", () => {
+        const nodes: SliceNode[] = [makeNode(1, "alpha", [5])];
+
+        expect(() => scheduleWaves(nodes)).toThrow(/Slice 1.*depends on Slice 5.*does not exist/);
+    });
+
     it("schedules the household-feature pattern correctly", () => {
         const nodes: SliceNode[] = [
             makeNode(1, "shared-types"),

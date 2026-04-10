@@ -3,7 +3,7 @@
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { type AgentDefinition, runAgent } from "../agents/loader.js";
+import { type AgentDefinition, runAgent } from "../agents.js";
 import { DEFAULTS } from "../../config.js";
 import type { Progress } from "../../progress.js";
 

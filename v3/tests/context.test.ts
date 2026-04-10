@@ -3,7 +3,8 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, expect, it, afterEach } from "vitest";
 
-import { buildProjectContext, contextToPreamble } from "../src/context.js";
+import { buildProjectContext, classifyWithHeuristics, contextToPreamble, discoverReferenceDocs } from "../src/context.js";
+import type { DocCandidate } from "../src/context.js";
 import { resolveConfig } from "../src/config.js";
 
 describe("buildProjectContext", () => {
@@ -26,7 +27,7 @@ describe("buildProjectContext", () => {
         dirs.length = 0;
     });
 
-    it("includes commands from package.json scripts", () => {
+    it("includes commands from package.json scripts", async () => {
         const dir = makeTmpDir();
         writeFileSync(
             join(dir, "package.json"),
@@ -34,14 +35,14 @@ describe("buildProjectContext", () => {
         );
 
         const config = resolveConfig({});
-        const ctx = buildProjectContext(dir, config);
+        const ctx = await buildProjectContext(dir, config);
 
         expect(ctx.commands.build).toBe("pnpm build");
         expect(ctx.commands.lint).toBe("pnpm lint");
         expect(ctx.commands.test).toBe("pnpm test");
     });
 
-    it("only includes standardized scripts, not arbitrary ones", () => {
+    it("only includes standardized scripts, not arbitrary ones", async () => {
         const dir = makeTmpDir();
         writeFileSync(
             join(dir, "package.json"),
@@ -49,13 +50,13 @@ describe("buildProjectContext", () => {
         );
 
         const config = resolveConfig({});
-        const ctx = buildProjectContext(dir, config);
+        const ctx = await buildProjectContext(dir, config);
 
         expect(ctx.commands.build).toBe("pnpm build");
         expect(ctx.commands["my-custom"]).toBeUndefined();
     });
 
-    it("classifies reference docs by filename heuristics", () => {
+    it("uses heuristic fallback when no classifier provided", async () => {
         const dir = makeTmpDir();
         const refDir = join(dir, "agent-docs");
         const refsDir = join(refDir, "references");
@@ -68,25 +69,61 @@ describe("buildProjectContext", () => {
         writeFileSync(join(dir, "package.json"), JSON.stringify({ scripts: {} }));
 
         const config = resolveConfig({});
-        const ctx = buildProjectContext(dir, config);
+        const ctx = await buildProjectContext(dir, config);
 
         expect(ctx.referenceDocs.architecture).toContain("ARCHITECTURE.md");
         expect(ctx.referenceDocs.placement).toContain("placement.md");
-        expect(ctx.referenceDocs["data-layer"]).toContain("msw-tanstack-query.md");
-        expect(ctx.referenceDocs.components).toContain("storybook.md");
+        expect(ctx.referenceDocs.api).toContain("msw-tanstack-query.md");
+        expect(ctx.referenceDocs.storybook).toContain("storybook.md");
     });
 
-    it("returns empty referenceDocs when reference dir missing", () => {
+    it("uses provided classifier when given", async () => {
+        const dir = makeTmpDir();
+        const refDir = join(dir, "agent-docs");
+        mkdirSync(refDir, { recursive: true });
+
+        writeFileSync(join(refDir, "my-weird-name.md"), "# Architecture Overview");
+        writeFileSync(join(dir, "package.json"), JSON.stringify({ scripts: {} }));
+
+        const config = resolveConfig({});
+        const mockClassifier = async (candidates: DocCandidate[]) => {
+            return { architecture: candidates[0].relPath };
+        };
+
+        const ctx = await buildProjectContext(dir, config, mockClassifier);
+
+        expect(ctx.referenceDocs.architecture).toContain("my-weird-name.md");
+    });
+
+    it("falls back to heuristics when classifier throws", async () => {
+        const dir = makeTmpDir();
+        const refDir = join(dir, "agent-docs");
+        mkdirSync(refDir, { recursive: true });
+
+        writeFileSync(join(refDir, "ARCHITECTURE.md"), "# Architecture");
+        writeFileSync(join(dir, "package.json"), JSON.stringify({ scripts: {} }));
+
+        const config = resolveConfig({});
+        const failingClassifier = async () => {
+            throw new Error("Agent unavailable");
+        };
+
+        const ctx = await buildProjectContext(dir, config, failingClassifier);
+
+        expect(ctx.referenceDocs.architecture).toContain("ARCHITECTURE.md");
+    });
+
+    it("returns empty referenceDocs when reference dir missing", async () => {
         const dir = makeTmpDir();
         writeFileSync(join(dir, "package.json"), JSON.stringify({ scripts: {} }));
 
         const config = resolveConfig({});
-        const ctx = buildProjectContext(dir, config);
+        const ctx = await buildProjectContext(dir, config);
 
         expect(ctx.referenceDocs).toEqual({});
     });
 
-    it("reflects config overrides in structure", () => {
+    it("reflects config overrides in structure", async () => {
         const dir = makeTmpDir();
         writeFileSync(join(dir, "package.json"), JSON.stringify({ scripts: {} }));
 
@@ -94,12 +131,62 @@ describe("buildProjectContext", () => {
             structure: { apps: "./applications", hostApp: "web" },
             scaffolding: { packageMeta: { license: "MIT", author: "Test Author" } }
         });
-        const ctx = buildProjectContext(dir, config);
+        const ctx = await buildProjectContext(dir, config);
 
         expect(ctx.structure.apps).toBe("./applications");
         expect(ctx.structure.hostApp).toBe("applications/web");
         expect(ctx.structure.license).toBe("MIT");
         expect(ctx.structure.author).toBe("Test Author");
+    });
+});
+
+describe("discoverReferenceDocs", () => {
+    const tmpBase = join(tmpdir(), "adlc-discover-test");
+    const dirs: string[] = [];
+
+    function makeTmpDir(): string {
+        const dir = join(tmpBase, `t-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+        mkdirSync(dir, { recursive: true });
+        dirs.push(dir);
+        return dir;
+    }
+
+    afterEach(() => {
+        for (const dir of dirs) {
+            if (existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+        }
+        dirs.length = 0;
+    });
+
+    it("returns candidates with relative paths and titles", () => {
+        const dir = makeTmpDir();
+        const refDir = join(dir, "docs");
+        mkdirSync(refDir, { recursive: true });
+        writeFileSync(join(refDir, "arch.md"), "# My Architecture\nContent here.");
+
+        const candidates = discoverReferenceDocs(refDir, dir);
+
+        expect(candidates).toHaveLength(1);
+        expect(candidates[0].relPath).toBe("docs/arch.md");
+        expect(candidates[0].title).toBe("My Architecture");
+    });
+
+    it("returns empty array for missing directory", () => {
+        expect(discoverReferenceDocs("/nonexistent", "/tmp")).toEqual([]);
+    });
+});
+
+describe("classifyWithHeuristics", () => {
+    it("classifies by path and title text", () => {
+        const candidates: DocCandidate[] = [
+            { relPath: "docs/ARCHITECTURE.md", title: "Architecture" },
+            { relPath: "docs/refs/storybook.md", title: "Storybook Conventions" }
+        ];
+
+        const result = classifyWithHeuristics(candidates);
+
+        expect(result.architecture).toBe("docs/ARCHITECTURE.md");
+        expect(result.storybook).toBe("docs/refs/storybook.md");
     });
 });
 

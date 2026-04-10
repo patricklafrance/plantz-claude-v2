@@ -20,7 +20,7 @@ Resolve architecture upfront, slice the work, define success through acceptance 
 
 ### 1. Load context
 
-- Read the `architecture` reference doc, the `decisions` reference doc, and the `placement` reference doc.
+- Read the `architecture` reference doc, the `adr` reference doc, and the `placement` reference doc.
 - Read `.adlc/domain-mapping.md`. The Mapping table tells you which features go to which modules and packages — carry these decisions forward, don't re-derive them.
 - Scan the reference docs listed in the Project context section above for any additional docs relevant to the feature.
 

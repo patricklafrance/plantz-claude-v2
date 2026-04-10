@@ -16,7 +16,7 @@ Never modify plan files.
 ### 1. Load context
 
 - Read `.adlc/plan-header.md`, all `.adlc/slices/*.md`, and `.adlc/domain-mapping.md`.
-- Read the `architecture` reference doc, the `placement` reference doc, and the `decisions` reference doc.
+- Read the `architecture` reference doc, the `placement` reference doc, and the `adr` reference doc.
 
 ### 2. Evaluate structural soundness
 

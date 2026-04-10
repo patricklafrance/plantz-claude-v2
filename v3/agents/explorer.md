@@ -14,7 +14,7 @@ Survey reference packages and write a structured summary for the coder.
 
 ### 1. Generate the package map
 
-Run `node src/agents/generate-package-map.mjs`. If the script fails or `.adlc/current-package-map.md` is missing, stop and report the error.
+Run `node node_modules/@patlaf/adlc/agents/generate-package-map.mjs`. If the script fails or `.adlc/current-package-map.md` is missing, stop and report the error.
 
 ### 2. Read reference files
 

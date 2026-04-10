@@ -38,7 +38,7 @@ Read the `architecture` reference doc. Skip if implementation notes show only ex
 
 ### 4. Update ADR index
 
-Read the `decisions` reference doc. Skip if the feature only extends existing patterns.
+Read the `adr` reference doc. Skip if the feature only extends existing patterns.
 
 - New architectural pattern → write an ADR following existing format, add to index.
 

@@ -12,6 +12,11 @@ describe("this repo's migration config", () => {
             ports: {
                 storybook: 6006,
                 hostApp: 8080
+            },
+            agents: {
+                coder: {
+                    skills: ["accessibility", "frontend-design", "workleap-react-best-practices"]
+                }
             }
         });
     });
@@ -27,9 +32,10 @@ describe("this repo's migration config", () => {
         expect(resolved.structure.packages).toBe("./packages");
         expect(resolved.structure.reference).toBe("./agent-docs");
 
-        // Ports match this project's dev servers
+        // Ports match this project's dev servers (browser uses default)
         expect(resolved.ports.storybook).toBe(6006);
         expect(resolved.ports.hostApp).toBe(8080);
+        expect(resolved.ports.browser).toBe(9200);
 
         // Scaffolding defaults
         expect(resolved.scaffolding.packageMeta.license).toBe("Apache-2.0");

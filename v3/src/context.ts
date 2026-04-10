@@ -7,6 +7,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 
 import type { ResolvedConfig } from "./config.js";
+import { REQUIRED_SCRIPTS } from "./preflight.js";
 
 // ── Types ────────────────────────────────────────────────
 
@@ -23,63 +24,12 @@ export interface ProjectContext {
     };
 }
 
-// ── Required scripts (same list as preflight validates) ──
-
-const REQUIRED_SCRIPTS = [
-    "build",
-    "lint",
-    "test",
-    "typecheck",
-    "oxlint",
-    "oxlint-auto-fix",
-    "oxfmt",
-    "oxfmt-auto-fix",
-    "dev-host",
-    "dev-storybook"
-] as const;
-
-// ── Reference doc key mapping ────────────────────────────
-
-/** Expected reference doc categories and filename heuristics. */
-const REF_DOC_HEURISTICS: Record<string, RegExp> = {
-    architecture: /architect/i,
-    decisions: /\badr\b|decision/i,
-    operations: /\bodr\b|operat/i,
-    placement: /placement/i,
-    "data-layer": /data|msw|tanstack|query/i,
-    components: /storybook|component/i,
-    styling: /tailwind|css|style|postcss/i,
-    browser: /browser/i,
-    design: /design|ui-ux/i
-};
-
-/**
- * Scan a reference directory and classify files by heuristic matching.
- * Falls back to filename-based classification (no agent call needed for the common case).
- */
-function classifyReferenceDocs(refDir: string, cwd: string): Record<string, string> {
-    const docs: Record<string, string> = {};
-
-    if (!existsSync(refDir)) {
-        return docs;
-    }
-
-    const files = collectMarkdownFiles(refDir);
-
-    for (const absPath of files) {
-        const relPath = relative(cwd, absPath).replace(/\\/g, "/");
-        const filename = absPath.replace(/\\/g, "/");
-
-        for (const [key, pattern] of Object.entries(REF_DOC_HEURISTICS)) {
-            if (pattern.test(filename) && !docs[key]) {
-                docs[key] = relPath;
-                break;
-            }
-        }
-    }
-
-    return docs;
+export interface DocCandidate {
+    relPath: string;
+    title: string;
 }
+
+// ── Reference doc discovery ─────────────────────────────
 
 /** Recursively collect all .md files under a directory. */
 function collectMarkdownFiles(dir: string): string[] {
@@ -105,6 +55,62 @@ function collectMarkdownFiles(dir: string): string[] {
     return results;
 }
 
+/** Extract the first `# heading` from a markdown file. */
+function extractTitle(absPath: string): string {
+    try {
+        const content = readFileSync(absPath, "utf-8");
+        const match = content.match(/^#\s+(.+)$/m);
+        return match ? match[1].trim() : "";
+    } catch {
+        return "";
+    }
+}
+
+/** Discover all markdown files in the reference directory with their titles. */
+export function discoverReferenceDocs(refDir: string, cwd: string): DocCandidate[] {
+    if (!existsSync(refDir)) {
+        return [];
+    }
+
+    return collectMarkdownFiles(refDir).map(absPath => ({
+        relPath: relative(cwd, absPath).replace(/\\/g, "/"),
+        title: extractTitle(absPath)
+    }));
+}
+
+// ── Heuristic fallback ──────────────────────────────────
+
+const REF_DOC_HEURISTICS: Record<string, RegExp> = {
+    architecture: /architect/i,
+    adr: /\badr\b|decision/i,
+    operations: /\bodr\b|operat/i,
+    placement: /placement/i,
+    api: /data|msw|tanstack|query/i,
+    storybook: /storybook/i,
+    components: /shadcn|component/i,
+    styling: /tailwind|css|style|postcss|color.mode|dark.mode/i,
+    browser: /browser/i,
+    design: /design|ui-ux/i
+};
+
+/** Classify doc candidates using filename/title heuristics. Used as fallback when agent classification fails. */
+export function classifyWithHeuristics(candidates: DocCandidate[]): Record<string, string> {
+    const docs: Record<string, string> = {};
+
+    for (const { relPath, title } of candidates) {
+        const text = `${relPath} ${title}`;
+
+        for (const [key, pattern] of Object.entries(REF_DOC_HEURISTICS)) {
+            if (pattern.test(text) && !docs[key]) {
+                docs[key] = relPath;
+                break;
+            }
+        }
+    }
+
+    return docs;
+}
+
 // ── Public API ───────────────────────────────────────────
 
 /**
@@ -112,8 +118,14 @@ function collectMarkdownFiles(dir: string): string[] {
  * 1. Standardized scripts from root package.json
  * 2. Reference doc mappings from the reference directory
  * 3. Structure and scaffolding values from resolved config
+ *
+ * @param classifyDocs - Optional async classifier (agent-based). Falls back to heuristics on failure or when omitted.
  */
-export function buildProjectContext(cwd: string, config: ResolvedConfig): ProjectContext {
+export async function buildProjectContext(
+    cwd: string,
+    config: ResolvedConfig,
+    classifyDocs?: (candidates: DocCandidate[]) => Promise<Record<string, string>>
+): Promise<ProjectContext> {
     // 1. Commands — only the standardized scripts
     const commands: Record<string, string> = {};
     let scripts: Record<string, string> = {};
@@ -134,7 +146,18 @@ export function buildProjectContext(cwd: string, config: ResolvedConfig): Projec
 
     // 2. Reference docs
     const refDir = join(cwd, config.structure.reference);
-    const referenceDocs = classifyReferenceDocs(refDir, cwd);
+    const candidates = discoverReferenceDocs(refDir, cwd);
+
+    let referenceDocs: Record<string, string>;
+    if (classifyDocs && candidates.length > 0) {
+        try {
+            referenceDocs = await classifyDocs(candidates);
+        } catch {
+            referenceDocs = classifyWithHeuristics(candidates);
+        }
+    } else {
+        referenceDocs = classifyWithHeuristics(candidates);
+    }
 
     // 3. Structure
     const hostAppPath = `${config.structure.apps}/${config.structure.hostApp}`.replace(/^\.\//, "");

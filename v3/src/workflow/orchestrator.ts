@@ -1,14 +1,14 @@
 import { loadConfig, resolveConfig } from "../config.js";
 import { buildProjectContext, contextToPreamble } from "../context.js";
 import { validateRepository } from "../preflight.js";
-import { loadAllAgents } from "./agents/loader.js";
+import { classifyReferenceDocs, loadAllAgents } from "./agents.js";
 import { Progress, formatDuration } from "../progress.js";
 import { runDocument } from "./steps/document.js";
 import { runMonitor } from "./steps/monitor.js";
 import { runPlacement } from "./steps/placement.js";
 import { runPlan } from "./steps/plan.js";
 import { runPr } from "./steps/pr.js";
-import { runSlices } from "./steps/slices/executor.js";
+import { runSlices } from "./steps/slices/run-slices.js";
 import { runSimplify } from "./steps/simplify.js";
 
 export interface OrchestratorOptions {
@@ -33,8 +33,8 @@ export async function run(featureDescription: string, options: OrchestratorOptio
         // Repository preflight — validates scripts and devDependencies
         validateRepository(cwd);
 
-        // Build project context preamble
-        const projectContext = buildProjectContext(cwd, config);
+        // Build project context preamble (agent classifies reference docs, heuristics as fallback)
+        const projectContext = await buildProjectContext(cwd, config, candidates => classifyReferenceDocs(candidates, cwd));
         const preamble = contextToPreamble(projectContext);
 
         const agents = loadAllAgents(preamble, config, cwd);
@@ -49,7 +49,7 @@ export async function run(featureDescription: string, options: OrchestratorOptio
 
         // Step 3: Slice execution
         progress.log("exec", "Starting slice execution...");
-        await runSlices(cwd, options, progress);
+        await runSlices(cwd, config, preamble, options, progress);
 
         // Step 4-7: Post-processing
         await runSimplify(cwd, agents, progress);
