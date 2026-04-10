@@ -1,4 +1,4 @@
-/** Full monorepo lint via turbo (lint-check + format-check + typecheck + syncpack + knip). */
+/** Run `pnpm lint` — the full monorepo lint pipeline (delegates to turbo). */
 
 import { run } from "./utils.js";
 

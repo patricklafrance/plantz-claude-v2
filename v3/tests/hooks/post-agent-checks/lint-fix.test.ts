@@ -1,20 +1,32 @@
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { describe, expect, it, vi } from "vitest";
+import { run } from "../../../src/hooks/post-agent-checks/utils.js";
+
+vi.mock("../../../src/hooks/post-agent-checks/utils.js", () => ({
+    run: vi.fn()
+}));
 
 import { lintFix } from "../../../src/hooks/post-agent-checks/lint-fix.js";
 
-vi.mock("../../../src/hooks/post-agent-checks/utils.js", () => ({
-    run: vi.fn().mockResolvedValue({ ok: true, stdout: "", stderr: "" })
-}));
+describe("post-agent-checks lint-fix", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
-
-describe("lintFix", () => {
-    it("should return empty array on success", async () => {
-        const result = await lintFix(REPO_ROOT);
-        expect(Array.isArray(result)).toBe(true);
+    it("returns empty array on success", async () => {
+        vi.mocked(run).mockResolvedValue({ ok: true, stdout: "", stderr: "", code: undefined });
+        const result = await lintFix("/tmp/test");
         expect(result).toEqual([]);
+
+        // Post-agent version must NOT stage changes (no git add -u)
+        expect(run).toHaveBeenCalledTimes(1);
+        expect(run).toHaveBeenCalledWith("/tmp/test", "pnpm lint-fix");
+    });
+
+    it("returns error when lint-fix fails", async () => {
+        vi.mocked(run).mockResolvedValue({ ok: false, stdout: "", stderr: "Lint error", code: 1 });
+        const result = await lintFix("/tmp/test");
+        expect(result).toHaveLength(1);
+        expect(result[0]).toContain("[lint-fix] Lint autofix failed");
     });
 });

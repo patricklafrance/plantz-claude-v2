@@ -1,19 +1,45 @@
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { describe, expect, it, vi } from "vitest";
+import { run } from "../../../src/hooks/post-agent-checks/utils.js";
+
+vi.mock("../../../src/hooks/post-agent-checks/utils.js", () => ({
+    run: vi.fn()
+}));
 
 import { formatFix } from "../../../src/hooks/post-agent-checks/format-fix.js";
 
-vi.mock("../../../src/hooks/post-agent-checks/utils.js", () => ({
-    run: vi.fn().mockResolvedValue({ ok: true, stdout: "", stderr: "" })
-}));
+describe("post-agent-checks format-fix", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
+    it("returns empty array on success", async () => {
+        vi.mocked(run).mockResolvedValue({ ok: true, stdout: "", stderr: "", code: undefined });
+        const result = await formatFix("/tmp/test");
+        expect(result).toEqual([]);
 
-describe("formatFix", () => {
-    it("should return empty array on success", async () => {
-        const result = await formatFix(REPO_ROOT);
-        expect(Array.isArray(result)).toBe(true);
+        // Post-agent version must NOT stage changes (no git add -u)
+        expect(run).toHaveBeenCalledTimes(1);
+        expect(run).toHaveBeenCalledWith("/tmp/test", "pnpm format-fix");
+    });
+
+    it("retries once on the known CSS import resolver race condition", async () => {
+        vi.mocked(run)
+            .mockResolvedValueOnce({ ok: false, stdout: "", stderr: "Cannot use 'in' operator to search for 'importer'", code: 1 })
+            .mockResolvedValueOnce({ ok: true, stdout: "", stderr: "", code: undefined });
+
+        const result = await formatFix("/tmp/test");
+        expect(result).toEqual([]);
+
+        // format-fix called twice (retry), no git add -u
+        expect(run).toHaveBeenCalledTimes(2);
+        expect(run).not.toHaveBeenCalledWith("/tmp/test", "git add -u");
+    });
+
+    it("returns error when format-fix fails with non-transient error", async () => {
+        vi.mocked(run).mockResolvedValue({ ok: false, stdout: "", stderr: "Unexpected token", code: 1 });
+        const result = await formatFix("/tmp/test");
+        expect(result).toHaveLength(1);
+        expect(result[0]).toContain("[format] Auto-format failed");
     });
 });
