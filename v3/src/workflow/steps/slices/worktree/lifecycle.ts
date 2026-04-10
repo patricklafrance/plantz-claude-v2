@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const WORKTREE_DIR = ".adlc-worktrees";
@@ -16,7 +17,7 @@ export function createWorktree(sliceName: string, baseBranch: string, cwd: strin
     const branch = `adlc/${sliceName}`;
 
     // Create the worktree directory if needed
-    execSync(`mkdir -p "${worktreeBase}"`, { cwd });
+    mkdirSync(worktreeBase, { recursive: true });
 
     // Create worktree with new branch from baseBranch
     execSync(`git worktree add -b "${branch}" "${worktreePath}" "${baseBranch}"`, { cwd });

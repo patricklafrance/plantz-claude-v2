@@ -14,13 +14,11 @@ export async function seedAdlc(worktreePath: string, context: SliceContext): Pro
     const adlcRoot = resolve(worktreePath, ".adlc");
     const slicesDir = join(adlcRoot, "slices");
     const implNotesDir = join(adlcRoot, "implementation-notes");
-    const verificationDir = join(adlcRoot, "verification-results");
 
     // Create directory structure
     mkdirSync(adlcRoot, { recursive: true });
     mkdirSync(slicesDir, { recursive: true });
     mkdirSync(implNotesDir, { recursive: true });
-    mkdirSync(verificationDir, { recursive: true });
 
     // Copy plan-header.md and domain-mapping.md into .adlc/
     copyFileSync(context.planHeaderPath, join(adlcRoot, "plan-header.md"));

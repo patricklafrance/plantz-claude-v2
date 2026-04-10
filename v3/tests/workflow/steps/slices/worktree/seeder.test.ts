@@ -48,7 +48,6 @@ describe("worktree/seeder", () => {
         expect(existsSync(adlcRoot)).toBe(true);
         expect(existsSync(join(adlcRoot, "slices"))).toBe(true);
         expect(existsSync(join(adlcRoot, "implementation-notes"))).toBe(true);
-        expect(existsSync(join(adlcRoot, "verification-results"))).toBe(true);
     });
 
     it("copies plan-header.md and domain-mapping.md", async () => {

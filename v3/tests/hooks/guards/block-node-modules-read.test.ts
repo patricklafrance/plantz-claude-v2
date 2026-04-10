@@ -83,6 +83,14 @@ describe("block-node-modules-read", () => {
         expect(checkBlockNodeModulesRead("Bash", { command: "cat /some/node_modules/pkg/index.js" })?.reason).toContain("library source");
     });
 
+    it("should allow bash reads of .d.ts files in node_modules", () => {
+        expect(checkBlockNodeModulesRead("Bash", { command: "cat node_modules/@types/react/index.d.ts" })).toBeNull();
+    });
+
+    it("should allow bash reads of .d.mts files in node_modules", () => {
+        expect(checkBlockNodeModulesRead("Bash", { command: "head node_modules/@tanstack/react-query/dist/index.d.mts" })).toBeNull();
+    });
+
     it("should allow bash commands that do not inspect node_modules", () => {
         expect(checkBlockNodeModulesRead("Bash", { command: "rg PlantList packages/api/src" })).toBeNull();
     });

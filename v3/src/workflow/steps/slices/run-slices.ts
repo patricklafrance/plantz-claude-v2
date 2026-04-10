@@ -73,7 +73,7 @@ export async function runSlices(cwd: string, config: ResolvedConfig, preamble: s
                     const mergeResult = attemptMerge(worktrees[i].branch, featureBranch, cwd);
 
                     if (mergeResult.success) {
-                        await collectResults(worktrees[i].path, resolve(cwd, ".adlc"));
+                        await collectResults(worktrees[i].path, resolve(cwd, ".adlc"), wave.slices[i].name);
                     } else {
                         // Conflict — attempt agent-assisted resolution
                         const conflictFiles = mergeResult.conflictFiles ?? [];
@@ -82,7 +82,7 @@ export async function runSlices(cwd: string, config: ResolvedConfig, preamble: s
                         const resolved = await resolveConflicts(wave.slices[i].name, conflictFiles, preamble, config, cwd);
                         if (resolved) {
                             completeMerge(cwd, `merge: resolve conflicts for ${wave.slices[i].name}`);
-                            await collectResults(worktrees[i].path, resolve(cwd, ".adlc"));
+                            await collectResults(worktrees[i].path, resolve(cwd, ".adlc"), wave.slices[i].name);
                             progress?.slice(wave.slices[i].name, "merge", "conflicts resolved");
                         } else {
                             abortMerge(cwd);

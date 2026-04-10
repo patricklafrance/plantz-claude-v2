@@ -38,7 +38,7 @@ export default function checkBlockNodeModulesRead(toolName: string, toolInput: R
             continue;
         }
 
-        if (NODE_MODULES_ARG.test(segment)) {
+        if (NODE_MODULES_ARG.test(segment) && !DTS_SUFFIX.test(segment)) {
             return { action: "block", reason: MESSAGE };
         }
     }

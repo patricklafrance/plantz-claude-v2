@@ -37,7 +37,7 @@ function parseResultsCriteria(content: string): string[] {
         const match = line.match(/^[-*]\s*\[[x ]\]\s+(.+)$/i);
         if (match) {
             // Strip failure reason after ` — ` or ` - `
-            const text = match[1].replace(/\s+[—–-]\s+.+$/, "");
+            const text = match[1].replace(/\s+[—–]\s+.+$/, "");
             criteria.push(normalize(text));
         }
     }

@@ -14,6 +14,10 @@ describe("agent-browser rewrite", () => {
         );
     });
 
+    it("rewrites bare agent-browser after a pipe", () => {
+        expect(rewriteBareAgent("echo foo | agent-browser snapshot")).toBe("echo foo | pnpm exec agent-browser snapshot");
+    });
+
     it("does not rewrite already-prefixed or unrelated commands", () => {
         expect(rewriteBareAgent("pnpm exec agent-browser snapshot")).toBeNull();
         expect(rewriteBareAgent("git status")).toBeNull();
