@@ -13,7 +13,7 @@ import { REQUIRED_SCRIPTS } from "./preflight.js";
 
 export interface ProjectContext {
     commands: Record<string, string>;
-    referenceDocs: Record<string, string>;
+    referenceDocs: Record<string, string[]>;
     structure: {
         apps: string;
         hostApp: string;
@@ -94,15 +94,15 @@ const REF_DOC_HEURISTICS: Record<string, RegExp> = {
 };
 
 /** Classify doc candidates using filename/title heuristics. Used as fallback when agent classification fails. */
-export function classifyWithHeuristics(candidates: DocCandidate[]): Record<string, string> {
-    const docs: Record<string, string> = {};
+export function classifyWithHeuristics(candidates: DocCandidate[]): Record<string, string[]> {
+    const docs: Record<string, string[]> = {};
 
     for (const { relPath, title } of candidates) {
         const text = `${relPath} ${title}`;
 
         for (const [key, pattern] of Object.entries(REF_DOC_HEURISTICS)) {
-            if (pattern.test(text) && !docs[key]) {
-                docs[key] = relPath;
+            if (pattern.test(text)) {
+                (docs[key] ??= []).push(relPath);
                 break;
             }
         }
@@ -124,7 +124,7 @@ export function classifyWithHeuristics(candidates: DocCandidate[]): Record<strin
 export async function buildProjectContext(
     cwd: string,
     config: ResolvedConfig,
-    classifyDocs?: (candidates: DocCandidate[]) => Promise<Record<string, string>>
+    classifyDocs?: (candidates: DocCandidate[]) => Promise<Record<string, string[]>>
 ): Promise<ProjectContext> {
     // 1. Commands — only the standardized scripts
     const commands: Record<string, string> = {};
@@ -148,7 +148,7 @@ export async function buildProjectContext(
     const refDir = join(cwd, config.structure.reference);
     const candidates = discoverReferenceDocs(refDir, cwd);
 
-    let referenceDocs: Record<string, string>;
+    let referenceDocs: Record<string, string[]>;
     if (classifyDocs && candidates.length > 0) {
         try {
             referenceDocs = await classifyDocs(candidates);
@@ -199,8 +199,8 @@ export function contextToPreamble(ctx: ProjectContext): string {
     if (refEntries.length > 0) {
         lines.push("### Reference docs", "");
 
-        for (const [key, path] of refEntries) {
-            lines.push(`- ${key}: ${path}`);
+        for (const [key, paths] of refEntries) {
+            lines.push(`- ${key}: ${paths.join(", ")}`);
         }
 
         lines.push("");

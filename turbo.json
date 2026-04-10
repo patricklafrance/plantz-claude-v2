@@ -30,17 +30,17 @@
             "persistent": true
         },
         "lint": {
-            "dependsOn": ["//#oxlint", "//#oxfmt", "typecheck", "//#typecheck", "//#syncpack", "//#knip"]
+            "dependsOn": ["//#lint-check", "//#format-check", "typecheck", "//#typecheck", "//#syncpack", "//#knip"]
         },
         "//#knip": {
             "inputs": ["$TURBO_DEFAULT$", "knip.json", "!agent-docs", "!**/README.md", "!**/CLAUDE.md"],
             "outputs": []
         },
-        "//#oxlint": {
+        "//#lint-check": {
             "inputs": ["$TURBO_DEFAULT$", "!agent-docs", "!**/README.md", "!**/CLAUDE.md"],
             "outputs": []
         },
-        "//#oxfmt": {
+        "//#format-check": {
             "inputs": ["$TURBO_DEFAULT$", "!agent-docs", "!**/README.md", "!**/CLAUDE.md"],
             "outputs": []
         },

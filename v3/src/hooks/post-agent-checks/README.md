@@ -67,7 +67,7 @@ Shared check modules (used by multiple handlers):
 - `build-check.ts` — turbo build validation
 - `lint-check.ts` — turbo lint validation
 - `tests-check.ts` — turbo test validation
-- `oxfmt-autofix.ts` — auto-format and stage changes
+- `format-autofix.ts` — auto-format and stage changes
 - `no-file-disable-check.ts` — rejects file-level lint disable comments
 - `import-check.ts` — rejects cross-boundary import violations
 
@@ -95,13 +95,13 @@ Checks: `.adlc/current-challenge-verdict.md` must exist.
 ### `coder`
 
 Pipeline:
-1. oxfmt autofix (must complete before lint)
+1. format autofix (must complete before lint)
 2. parallel: build, lint, tests, file-disable scan, secret scan, import guard, implementation-notes check, story coverage, context refresh
 3. kill dev-server ports (always)
 
 ### `document`
 
-Checks: oxfmt autofix only.
+Checks: format autofix only.
 
 ### `domain-mapper`
 
@@ -142,7 +142,7 @@ Checks:
 ### `simplify`
 
 Pipeline:
-1. oxfmt autofix (must complete before lint)
+1. format autofix (must complete before lint)
 2. parallel: build, lint, tests, file-disable scan, import guard
 
 ## Run metrics

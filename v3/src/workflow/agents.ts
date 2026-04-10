@@ -36,8 +36,12 @@ interface AgentFrontmatter {
 
 /** Normalize a field that may be a comma-separated string or an array. */
 function toStringArray(value: string[] | string | undefined): string[] | undefined {
-    if (!value) return undefined;
-    if (Array.isArray(value)) return value;
+    if (!value) {
+        return undefined;
+    }
+    if (Array.isArray(value)) {
+        return value;
+    }
     return value
         .split(",")
         .map(s => s.trim())
@@ -76,15 +80,27 @@ function parseAgentFile(filePath: string): { name: string; definition: AgentDefi
         model: resolveModel(frontmatter.model)
     };
 
-    if (frontmatter.effort !== undefined) definition.effort = frontmatter.effort as AgentDefinition["effort"];
+    if (frontmatter.effort !== undefined) {
+        definition.effort = frontmatter.effort as AgentDefinition["effort"];
+    }
     const tools = toStringArray(frontmatter.tools);
-    if (tools) definition.tools = tools;
+    if (tools) {
+        definition.tools = tools;
+    }
     const skills = toStringArray(frontmatter.skills);
-    if (skills) definition.skills = skills;
-    if (frontmatter.maxTurns !== undefined) definition.maxTurns = frontmatter.maxTurns;
+    if (skills) {
+        definition.skills = skills;
+    }
+    if (frontmatter.maxTurns !== undefined) {
+        definition.maxTurns = frontmatter.maxTurns;
+    }
     const disallowedTools = toStringArray(frontmatter.disallowedTools);
-    if (disallowedTools) definition.disallowedTools = disallowedTools;
-    if (frontmatter.permissionMode) definition.permissionMode = frontmatter.permissionMode as AgentDefinition["permissionMode"];
+    if (disallowedTools) {
+        definition.disallowedTools = disallowedTools;
+    }
+    if (frontmatter.permissionMode) {
+        definition.permissionMode = frontmatter.permissionMode as AgentDefinition["permissionMode"];
+    }
 
     return { name: frontmatter.name, definition };
 }
@@ -101,7 +117,7 @@ export function loadAgent(name: string): { name: string; definition: AgentDefini
         return parseAgentFile(filePath);
     } catch (err) {
         if ((err as NodeJS.ErrnoException).code === "ENOENT") {
-            throw new Error(`Unknown agent: "${name}" (file not found: ${filePath})`);
+            throw new Error(`Unknown agent: "${name}" (file not found: ${filePath})`, { cause: err });
         }
         throw err;
     }
@@ -191,10 +207,12 @@ const DOC_CATEGORIES = [
 
 /**
  * Use a lightweight agent to classify reference docs into semantic categories.
- * Returns a mapping of category → relative file path.
+ * Returns a mapping of category → relative file paths.
  */
-export async function classifyReferenceDocs(candidates: DocCandidate[], cwd: string): Promise<Record<string, string>> {
-    if (candidates.length === 0) return {};
+export async function classifyReferenceDocs(candidates: DocCandidate[], cwd: string): Promise<Record<string, string[]>> {
+    if (candidates.length === 0) {
+        return {};
+    }
 
     const fileList = candidates.map(c => `- ${c.relPath}: "${c.title}"`).join("\n");
 
@@ -209,12 +227,12 @@ export async function classifyReferenceDocs(candidates: DocCandidate[], cwd: str
         "",
         "Rules:",
         "- Map each file to the single most relevant category.",
+        "- A category can have multiple files — use an array.",
         "- Not every file needs a category — skip files that don't clearly fit.",
         "- Not every category needs a file — skip categories with no match.",
-        "- Each category maps to at most one file.",
         "",
-        "Respond with ONLY a valid JSON object mapping category names to file paths. No explanation, no markdown fences.",
-        'Example: {"architecture": "docs/ARCHITECTURE.md", "placement": "docs/references/placement.md"}'
+        "Respond with ONLY a valid JSON object mapping category names to arrays of file paths. No explanation, no markdown fences.",
+        'Example: {"architecture": ["docs/ARCHITECTURE.md"], "styling": ["docs/references/tailwind.md", "docs/references/color-mode.md"]}'
     ].join("\n");
 
     const agents: Record<string, AgentDefinition> = {
@@ -236,13 +254,16 @@ export async function classifyReferenceDocs(candidates: DocCandidate[], cwd: str
 
     const parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
 
-    // Validate: only keep entries where both key and value are strings and the value is a known candidate path
+    // Validate: only keep entries with known candidate paths
     const validPaths = new Set(candidates.map(c => c.relPath));
-    const mapping: Record<string, string> = {};
+    const mapping: Record<string, string[]> = {};
 
     for (const [key, value] of Object.entries(parsed)) {
-        if (typeof value === "string" && validPaths.has(value)) {
-            mapping[key] = value;
+        if (Array.isArray(value)) {
+            const valid = (value as unknown[]).filter((v): v is string => typeof v === "string" && validPaths.has(v));
+            if (valid.length > 0) mapping[key] = valid;
+        } else if (typeof value === "string" && validPaths.has(value)) {
+            mapping[key] = [value];
         }
     }
 

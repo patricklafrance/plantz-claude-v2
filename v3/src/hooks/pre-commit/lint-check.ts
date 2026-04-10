@@ -1,4 +1,4 @@
-/** Full monorepo lint via turbo (oxlint + oxfmt --check + typecheck + syncpack + knip). */
+/** Full monorepo lint via turbo (lint-check + format-check + typecheck + syncpack + knip). */
 
 import { run } from "../post-agent-checks/utils.js";
 

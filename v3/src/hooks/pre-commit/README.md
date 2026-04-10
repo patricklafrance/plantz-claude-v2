@@ -41,7 +41,7 @@ Flow:
 
 Pipeline:
 
-1. `oxfmt-autofix`
+1. `format-autofix`
     - auto-format files
     - stage any formatting changes
 2. run in parallel:
@@ -59,7 +59,7 @@ The handler returns:
 
 - `create-pre-commit-hook.ts` — hook factory, regex-matches `git commit` commands
 - `handler.ts` — pipeline orchestrator
-- `oxfmt-autofix.ts` — auto-format and stage changes (runs first, before lint)
+- `format-autofix.ts` — auto-format and stage changes (runs first, before lint)
 - `build.ts` — turbo build check
 - `lint.ts` — turbo lint check
 - `tests.ts` — turbo test check

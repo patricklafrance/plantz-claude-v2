@@ -11,22 +11,18 @@ export const REQUIRED_SCRIPTS = [
     "lint",
     "test",
     "typecheck",
-    "oxlint",
-    "oxlint-auto-fix",
-    "oxfmt",
-    "oxfmt-auto-fix",
-    "dev-host",
+    "lint-check",
+    "lint-fix",
+    "format-check",
+    "format-fix",
+    "dev-app",
     "dev-storybook"
 ] as const;
 
-const REQUIRED_DEV_DEPENDENCIES = [
-    "oxlint",
-    "oxfmt",
-    "agent-browser"
-] as const;
+const REQUIRED_BINARIES = ["agent-browser"] as const;
 
 /**
- * Validate that the consumer's repo has the required scripts and devDependencies.
+ * Validate that the consumer's repo has the required scripts and binaries.
  * Throws on the first missing item with a clear error message.
  */
 export function validateRepository(cwd: string): void {
@@ -43,19 +39,15 @@ export function validateRepository(cwd: string): void {
 
     for (const name of REQUIRED_SCRIPTS) {
         if (!scripts[name]) {
-            throw new Error(
-                `Missing script \`${name}\` in root package.json. The ADLC harness expects: ${REQUIRED_SCRIPTS.join(", ")}`
-            );
+            throw new Error(`Missing script \`${name}\` in root package.json. The ADLC harness expects: ${REQUIRED_SCRIPTS.join(", ")}`);
         }
     }
 
     const devDeps = pkg.devDependencies ?? {};
 
-    for (const name of REQUIRED_DEV_DEPENDENCIES) {
+    for (const name of REQUIRED_BINARIES) {
         if (!devDeps[name]) {
-            throw new Error(
-                `Missing devDependency \`${name}\` in root package.json`
-            );
+            throw new Error(`Missing binary \`${name}\` — install it as a devDependency in root package.json`);
         }
     }
 }

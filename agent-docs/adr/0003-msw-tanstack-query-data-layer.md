@@ -1,5 +1,7 @@
 # ADR-0003: No Backend Server — MSW + TanStack Query as Data Layer with BFF-per-Module
 
+> **Note:** Handler placement is partially superseded by [ADR-0004](0004-layered-package-architecture.md). Handlers live in `@packages/api/handlers/<module-name>/`, not in modules. See ADR-0004 for current handler location and the API package tier.
+
 ## Status
 
 accepted

@@ -12,4 +12,4 @@ Type checking runs via `tsgo` (native TypeScript compiler).
 declare module "*.css" {}
 ```
 
-Current locations: `apps/host/src/css.d.ts`, `packages/storybook/css.d.ts`.
+Current locations: `apps/host/src/css.d.ts`, `apps/storybook-packages/css.d.ts`.

@@ -2,11 +2,11 @@
  * document handler
  *
  * Post-completion pipeline:
- *   1 -- oxfmt autofix
+ *   1 -- format autofix
  */
 
-import { oxfmtAutofix } from "../oxfmt-autofix.js";
+import { formatAutofix } from "../format-autofix.js";
 
 export async function handleDocument(cwd: string): Promise<string[]> {
-    return oxfmtAutofix(cwd);
+    return formatAutofix(cwd);
 }

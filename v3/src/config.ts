@@ -15,7 +15,9 @@ export const MODEL_IDS = {
 
 /** Resolve a model alias or full ID. */
 export function resolveModel(alias: string | undefined): string | undefined {
-    if (!alias) return undefined;
+    if (!alias) {
+        return undefined;
+    }
     return MODEL_IDS[alias as keyof typeof MODEL_IDS] ?? alias;
 }
 
@@ -72,10 +74,13 @@ export interface AdlcConfig {
         browser?: number;
     };
     /** Per-agent overrides, keyed by agent name. */
-    agents?: Record<string, {
-        /** Extra skill names to inject (e.g., `"accessibility"`). Resolved to `.claude/skills/{name}/SKILL.md`. */
-        skills?: string[];
-    }>;
+    agents?: Record<
+        string,
+        {
+            /** Extra skill names to inject (e.g., `"accessibility"`). Resolved to `.claude/skills/{name}/SKILL.md`. */
+            skills?: string[];
+        }
+    >;
 }
 
 export interface ResolvedConfig {
@@ -96,9 +101,12 @@ export interface ResolvedConfig {
     };
     ports: Ports;
     /** Per-agent overrides, keyed by agent name. */
-    agents: Record<string, {
-        skills: string[];
-    }>;
+    agents: Record<
+        string,
+        {
+            skills: string[];
+        }
+    >;
 }
 
 /** Identity helper for type-safe config files. */
@@ -129,12 +137,7 @@ export function resolveConfig(partial: AdlcConfig): ResolvedConfig {
             hostApp: partial.ports?.hostApp ?? PORT_BASE.hostApp,
             browser: partial.ports?.browser ?? PORT_BASE.browser
         },
-        agents: Object.fromEntries(
-            Object.entries(partial.agents ?? {}).map(([name, agent]) => [
-                name,
-                { skills: agent.skills ?? [] }
-            ])
-        )
+        agents: Object.fromEntries(Object.entries(partial.agents ?? {}).map(([name, agent]) => [name, { skills: agent.skills ?? [] }]))
     };
 }
 
@@ -154,7 +157,7 @@ export async function loadConfig(cwd?: string): Promise<AdlcConfig> {
 
         // Use file:// URL for cross-platform dynamic import compatibility.
         const moduleUrl = pathToFileURL(filePath).href;
-        const mod = await import(moduleUrl) as { default?: AdlcConfig };
+        const mod = (await import(moduleUrl)) as { default?: AdlcConfig };
 
         return mod.default ?? {};
     }

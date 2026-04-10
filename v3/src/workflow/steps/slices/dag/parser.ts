@@ -18,7 +18,7 @@ const SLICE_NUMBER_RE = /Slice\s+(\d+)/gi;
 export function parseSliceDependencies(slicesDir: string): SliceNode[] {
     const files = readdirSync(slicesDir)
         .filter(f => SLICE_FILENAME_RE.test(f))
-        .sort();
+        .toSorted();
 
     return files.map(filename => {
         const match = SLICE_FILENAME_RE.exec(filename);

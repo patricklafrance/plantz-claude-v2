@@ -21,7 +21,6 @@
 - [references/color-mode.md](agent-docs/references/color-mode.md) — dark mode
 - [references/turborepo.md](agent-docs/references/turborepo.md) — task definitions, caching
 - [references/typescript.md](agent-docs/references/typescript.md) — tsconfig, tsgo
-- [references/ci-cd.md](agent-docs/references/ci-cd.md) — CI workflows
 - [references/static-analysis.md](agent-docs/references/static-analysis.md) — lint tools
 - [references/agent-browser.md](agent-docs/references/agent-browser.md) — browser verification CLI
 - [references/ui-ux-design.md](agent-docs/references/ui-ux-design.md) — UI/UX design thinking principles

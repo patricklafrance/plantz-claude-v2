@@ -105,7 +105,7 @@ Block a subagent's completion until its deliverables meet structural and quality
 | Agent | Check | What it validates |
 |-------|-------|-------------------|
 | `coder` | build | Full monorepo build |
-| `coder` | lint | Full monorepo lint — oxlint, oxfmt, typecheck, syncpack, knip |
+| `coder` | lint | Full monorepo lint — linter, formatter, typecheck, syncpack, knip |
 | `coder` | tests | Full monorepo tests — Vitest + Storybook a11y via Playwright |
 | `coder` | no-file-disable | Rejects file-level `/* oxlint-disable */` comments (line-level only) |
 | `coder` | no-secrets | gitleaks scan on changed files |
@@ -142,9 +142,9 @@ Run corrections before validation to reduce noise. Formatting violations never a
 
 | Agent | Autofix | What it does |
 |-------|---------|-------------|
-| `coder` | oxfmt-autofix | `oxfmt --write .` before lint phase |
-| `simplify` | oxfmt-autofix | `oxfmt --write .` before lint phase |
-| `document` | oxfmt-autofix | `oxfmt --write .` after doc updates |
+| `coder` | format-autofix | `pnpm format-fix` before lint phase |
+| `simplify` | format-autofix | `pnpm format-fix` before lint phase |
+| `document` | format-autofix | `pnpm format-fix` after doc updates |
 
 ### Run metrics
 
@@ -159,20 +159,21 @@ Constraints that apply to every tool call, regardless of which agent is running.
 | `block-npm` | Bash | Blocks `npm`, `npx`, `pnpx`, `pnpm dlx` — only `pnpm` allowed |
 | `block-windows-cmd` | Bash | Blocks `cmd` / `cmd.exe` invocations on Windows |
 | `block-node-modules-read` | Bash, Read, Glob | Blocks reading `node_modules` source (`.d.ts` type definitions are allowed) |
+| `block-env-write` | Edit, Write | Blocks modifications to `.env` and `.env.*` files — secrets must not be touched |
 | `agent-browser-rewrite` | Bash | Rewrites bare `agent-browser` to `pnpm exec agent-browser` |
 
 ### Pre-commit gate ([README](src/hooks/pre-commit/README.md))
 
 | Hook | Trigger | What it does |
 |------|---------|-------------|
-| `pre-commit` | `git commit` | Intercepts commits — runs oxfmt autofix, then build + lint + tests in parallel before allowing |
+| `pre-commit` | `git commit` | Intercepts commits — runs format autofix, then build + lint + tests in parallel before allowing |
 | `gitignore-guard` | `git commit` | Blocks commits that add `!.adlc/` negation patterns to `.gitignore` |
 
 ## Principle 2: Context should be delivered, not requested
 
 Agents shouldn't spend tool calls searching for information they will inevitably need. At the start of every run, the orchestrator builds a project context preamble from the target repository and injects it into every agent prompt:
 
-- **Commands** — discovers standardized scripts (`build`, `lint`, `test`, `dev-host`, etc.) from the root `package.json` so agents know the exact commands to run
+- **Commands** — discovers standardized scripts (`build`, `lint`, `test`, `dev-app`, etc.) from the root `package.json` so agents know the exact commands to run
 - **Reference docs** — recursively scans the reference directory (default `./agent-docs/`), extracts titles, then classifies each doc into semantic categories (architecture, placement, API patterns, Storybook, styling, etc.) using a lightweight agent — with filename heuristics as fallback
 - **Structure** — injects the repo layout (apps, modules, packages paths), license, and author so agents place code correctly without exploring first
 
@@ -204,7 +205,9 @@ Skills shipped with the package that agents load at runtime for scaffolding and 
 | `scaffold-module` | Scaffolds a new Squide module or subfolder — files, host registration, Storybook wiring |
 | `scaffold-storybook` | Scaffolds a module-scoped Storybook with Chromatic CI integration |
 | `validate-modules` | Validates module structure and wiring (files, exports, host registration, Storybook) |
+| `workleap-logging` | Guide for @workleap/logging — structured logging, composable loggers, scopes, log levels |
 | `workleap-squide` | Reference skill for Squide's FireflyRuntime, AppRouter, and modular shell patterns |
+| `workleap-telemetry` | Guide for @workleap/telemetry — OpenTelemetry traces, spans, and integration patterns |
 
 Scaffolding skills use a **reference module pattern** — instead of hardcoding versions or configs, they read a canonical module at runtime and clone from it.
 
@@ -239,11 +242,11 @@ Modules are fully isolated — modules never import from each other. Each has it
 
 The orchestrator validates that these scripts exist in the target repo's `package.json` at startup:
 
-`build`, `lint`, `test`, `typecheck`, `oxlint`, `oxlint-auto-fix`, `oxfmt`, `oxfmt-auto-fix`, `dev-host`, `dev-storybook`
+`build`, `lint`, `test`, `typecheck`, `lint-check`, `lint-fix`, `format-check`, `format-fix`, `dev-app`, `dev-storybook`
 
-### Required devDependencies
+### Required binaries
 
-`oxlint`, `oxfmt`, `agent-browser`
+`agent-browser` — must be installed as a devDependency (agents invoke it directly via `pnpm exec`)
 
 ### Tech stack
 

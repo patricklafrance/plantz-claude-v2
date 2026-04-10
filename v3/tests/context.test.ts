@@ -71,10 +71,10 @@ describe("buildProjectContext", () => {
         const config = resolveConfig({});
         const ctx = await buildProjectContext(dir, config);
 
-        expect(ctx.referenceDocs.architecture).toContain("ARCHITECTURE.md");
-        expect(ctx.referenceDocs.placement).toContain("placement.md");
-        expect(ctx.referenceDocs.api).toContain("msw-tanstack-query.md");
-        expect(ctx.referenceDocs.storybook).toContain("storybook.md");
+        expect(ctx.referenceDocs.architecture).toEqual([expect.stringContaining("ARCHITECTURE.md")]);
+        expect(ctx.referenceDocs.placement).toEqual([expect.stringContaining("placement.md")]);
+        expect(ctx.referenceDocs.api).toEqual([expect.stringContaining("msw-tanstack-query.md")]);
+        expect(ctx.referenceDocs.storybook).toEqual([expect.stringContaining("storybook.md")]);
     });
 
     it("uses provided classifier when given", async () => {
@@ -87,12 +87,12 @@ describe("buildProjectContext", () => {
 
         const config = resolveConfig({});
         const mockClassifier = async (candidates: DocCandidate[]) => {
-            return { architecture: candidates[0].relPath };
+            return { architecture: [candidates[0].relPath] };
         };
 
         const ctx = await buildProjectContext(dir, config, mockClassifier);
 
-        expect(ctx.referenceDocs.architecture).toContain("my-weird-name.md");
+        expect(ctx.referenceDocs.architecture).toEqual([expect.stringContaining("my-weird-name.md")]);
     });
 
     it("falls back to heuristics when classifier throws", async () => {
@@ -110,7 +110,7 @@ describe("buildProjectContext", () => {
 
         const ctx = await buildProjectContext(dir, config, failingClassifier);
 
-        expect(ctx.referenceDocs.architecture).toContain("ARCHITECTURE.md");
+        expect(ctx.referenceDocs.architecture).toEqual([expect.stringContaining("ARCHITECTURE.md")]);
     });
 
     it("returns empty referenceDocs when reference dir missing", async () => {
@@ -185,8 +185,19 @@ describe("classifyWithHeuristics", () => {
 
         const result = classifyWithHeuristics(candidates);
 
-        expect(result.architecture).toBe("docs/ARCHITECTURE.md");
-        expect(result.storybook).toBe("docs/refs/storybook.md");
+        expect(result.architecture).toEqual(["docs/ARCHITECTURE.md"]);
+        expect(result.storybook).toEqual(["docs/refs/storybook.md"]);
+    });
+
+    it("groups multiple files into the same category", () => {
+        const candidates: DocCandidate[] = [
+            { relPath: "docs/refs/tailwind-postcss.md", title: "Tailwind CSS" },
+            { relPath: "docs/refs/color-mode.md", title: "Dark Mode" }
+        ];
+
+        const result = classifyWithHeuristics(candidates);
+
+        expect(result.styling).toEqual(["docs/refs/tailwind-postcss.md", "docs/refs/color-mode.md"]);
     });
 });
 
@@ -194,7 +205,7 @@ describe("contextToPreamble", () => {
     it("formats commands, reference docs, and structure as markdown", () => {
         const preamble = contextToPreamble({
             commands: { build: "pnpm build", test: "pnpm test" },
-            referenceDocs: { architecture: "agent-docs/ARCHITECTURE.md" },
+            referenceDocs: { architecture: ["agent-docs/ARCHITECTURE.md"] },
             structure: {
                 apps: "./apps",
                 hostApp: "apps/host",

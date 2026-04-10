@@ -24,10 +24,7 @@ if (command === "init") {
     if (existsSync(configPath)) {
         console.log("adlc.config.ts already exists — skipping.");
     } else {
-        writeFileSync(
-            configPath,
-            `import { defineConfig } from "@patlaf/adlc";\n\nexport default defineConfig({});\n`
-        );
+        writeFileSync(configPath, `import { defineConfig } from "@patlaf/adlc";\n\nexport default defineConfig({});\n`);
         console.log("Created adlc.config.ts");
     }
 

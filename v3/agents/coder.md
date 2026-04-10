@@ -8,6 +8,8 @@ skills:
     - node_modules/@patlaf/adlc/skills/scaffold-storybook/SKILL.md
     - node_modules/@patlaf/adlc/skills/browser-recovery/SKILL.md
     - node_modules/@patlaf/adlc/skills/workleap-squide/SKILL.md
+    - node_modules/@patlaf/adlc/skills/workleap-logging/SKILL.md
+    - node_modules/@patlaf/adlc/skills/workleap-telemetry/SKILL.md
     - node_modules/@patlaf/adlc/skills/agent-browser/SKILL.md
 ---
 

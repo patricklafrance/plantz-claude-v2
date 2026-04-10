@@ -3,11 +3,16 @@
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { type AgentDefinition, runAgent } from "../agents.js";
 import { DEFAULTS } from "../../config.js";
 import type { Progress } from "../../progress.js";
+import { type AgentDefinition, runAgent } from "../agents.js";
 
-export async function runPlacement(featureDescription: string, cwd: string, agents: Record<string, AgentDefinition>, progress?: Progress): Promise<void> {
+export async function runPlacement(
+    featureDescription: string,
+    cwd: string,
+    agents: Record<string, AgentDefinition>,
+    progress?: Progress
+): Promise<void> {
     // Prepare .adlc/ directory structure
     const adlcRoot = resolve(cwd, ".adlc");
     mkdirSync(resolve(adlcRoot, "slices"), { recursive: true });
@@ -21,7 +26,9 @@ export async function runPlacement(featureDescription: string, cwd: string, agen
 
         const gateResult = await runAgent("placement-gate", "Validate the domain mapping.", cwd, agents);
 
-        if (!gateResult.toLowerCase().includes("issue")) break;
+        if (!gateResult.toLowerCase().includes("issue")) {
+            break;
+        }
 
         // Evidence gaps -- resolve and re-map
         progress?.log("plan", "Placement gate found issues, running evidence researcher...");

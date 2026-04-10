@@ -19,19 +19,17 @@ describe("validateRepository", () => {
     const validPkg = {
         scripts: {
             build: "turbo build",
-            lint: "oxlint .",
+            lint: "turbo lint",
             test: "vitest run",
             typecheck: "tsc --noEmit",
-            oxlint: "oxlint .",
-            "oxlint-auto-fix": "oxlint --fix .",
-            oxfmt: "oxfmt --check .",
-            "oxfmt-auto-fix": "oxfmt --write .",
-            "dev-host": "turbo dev --filter=@apps/host",
+            "lint-check": "oxlint .",
+            "lint-fix": "oxlint --fix .",
+            "format-check": "oxfmt --check .",
+            "format-fix": "oxfmt --write .",
+            "dev-app": "turbo dev --filter=@apps/host",
             "dev-storybook": "turbo dev --filter=@apps/storybook"
         },
         devDependencies: {
-            oxlint: "^0.1.0",
-            oxfmt: "^0.1.0",
             "agent-browser": "^0.1.0"
         }
     };
@@ -55,19 +53,18 @@ describe("validateRepository", () => {
     it("throws for missing script", () => {
         const dir = makeTmpDir();
         const pkg = { ...validPkg, scripts: { ...validPkg.scripts } };
-        delete (pkg.scripts as Record<string, string>)["oxfmt-auto-fix"];
+        delete (pkg.scripts as Record<string, string>)["format-fix"];
         writeFileSync(join(dir, "package.json"), JSON.stringify(pkg));
 
-        expect(() => validateRepository(dir)).toThrow(/Missing script `oxfmt-auto-fix`/);
+        expect(() => validateRepository(dir)).toThrow(/Missing script `format-fix`/);
     });
 
-    it("throws for missing devDependency", () => {
+    it("throws for missing binary", () => {
         const dir = makeTmpDir();
-        const pkg = { ...validPkg, devDependencies: { ...validPkg.devDependencies } };
-        delete (pkg.devDependencies as Record<string, string>)["agent-browser"];
+        const pkg = { ...validPkg, devDependencies: {} };
         writeFileSync(join(dir, "package.json"), JSON.stringify(pkg));
 
-        expect(() => validateRepository(dir)).toThrow(/Missing devDependency `agent-browser`/);
+        expect(() => validateRepository(dir)).toThrow(/Missing binary `agent-browser`/);
     });
 
     it("throws when package.json is missing", () => {
