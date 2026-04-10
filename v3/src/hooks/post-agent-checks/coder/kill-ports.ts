@@ -1,9 +1,9 @@
-/** Kill processes on dev server ports (6006, 8080). */
+/** Kill processes on configured dev server ports. */
 
 import { execSync } from "node:child_process";
 
-export function killPorts(): void {
-    for (const port of [6006, 8080]) {
+export function killPorts(ports: number[]): void {
+    for (const port of ports) {
         try {
             if (process.platform === "win32") {
                 execSync(

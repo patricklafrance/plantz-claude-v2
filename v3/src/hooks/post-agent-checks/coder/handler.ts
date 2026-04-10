@@ -8,8 +8,9 @@
  *   3 -- kill dev server ports (always)
  */
 
+import { loadConfig, resolveConfig } from "../../../config.js";
 import { buildCheck } from "../build-check.js";
-import { crossBoundaryImportsCheck } from "../import-guard-check.js";
+import { crossBoundaryImportsCheck } from "../import-check.js";
 import { lintCheck } from "../lint-check.js";
 import { noFileDisableCheck } from "../no-file-disable-check.js";
 import { oxfmtAutofix } from "../oxfmt-autofix.js";
@@ -40,8 +41,10 @@ export async function handleCoder(cwd: string): Promise<string[]> {
         Promise.resolve(contextRefreshCheck(cwd))
     ]);
 
-    // Phase 3: kill dev server ports regardless of outcome
-    killPorts();
+    // Phase 3: kill dev server ports from config
+    const config = resolveConfig(await loadConfig(cwd));
+    const portsToKill = Object.values(config.ports).filter((p): p is number => p !== undefined);
+    killPorts(portsToKill);
 
     return [...formatProblems, ...results.flat()];
 }

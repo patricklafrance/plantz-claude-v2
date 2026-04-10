@@ -7,7 +7,7 @@
  */
 
 import { buildCheck } from "../build-check.js";
-import { crossBoundaryImportsCheck } from "../import-guard-check.js";
+import { crossBoundaryImportsCheck } from "../import-check.js";
 import { lintCheck } from "../lint-check.js";
 import { noFileDisableCheck } from "../no-file-disable-check.js";
 import { oxfmtAutofix } from "../oxfmt-autofix.js";

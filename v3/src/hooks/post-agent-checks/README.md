@@ -69,7 +69,7 @@ Shared check modules (used by multiple handlers):
 - `tests-check.ts` — turbo test validation
 - `oxfmt-autofix.ts` — auto-format and stage changes
 - `no-file-disable-check.ts` — rejects file-level lint disable comments
-- `import-guard-check.ts` — rejects cross-boundary import violations
+- `import-check.ts` — rejects cross-boundary import violations
 
 ## Per-agent handler structure
 
