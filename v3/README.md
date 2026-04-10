@@ -294,6 +294,16 @@ v3/
 - pnpm
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI (the Agent SDK runs under Claude Code)
 
+The Agent SDK requires the experimental agent teams flag. Add this to your `.claude/settings.json`:
+
+```json
+{
+    "env": {
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    }
+}
+```
+
 ### Install the package
 
 ```bash
