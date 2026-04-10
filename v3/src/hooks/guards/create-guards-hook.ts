@@ -5,11 +5,12 @@
  */
 
 import type { HookJSONOutput, PreToolUseHookInput } from "../types.js";
+import checkBlockEnvWrite from "./block-env-write.js";
 import checkBlockNodeModulesRead from "./block-node-modules-read.js";
 import checkBlockNpm from "./block-npm.js";
 import checkBlockWindowsCmd from "./block-windows-cmd.js";
 
-const guards = [checkBlockNpm, checkBlockWindowsCmd, checkBlockNodeModulesRead];
+const guards = [checkBlockNpm, checkBlockWindowsCmd, checkBlockNodeModulesRead, checkBlockEnvWrite];
 
 export function createGuardsHook() {
     return async (input: PreToolUseHookInput): Promise<HookJSONOutput> => {

@@ -35,6 +35,7 @@
     "devDependencies": {
         "@anthropic-ai/claude-agent-sdk": "^0.2.96",
         "@types/node": "^22.0.0",
+        "tsx": "4.21.0",
         "typescript": "^5.8.0",
         "vitest": "^3.2.1"
     }
